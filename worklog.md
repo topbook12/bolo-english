@@ -601,3 +601,21 @@ Stage Summary:
 - API key, display name and level now follow the ACCOUNT: same email on any device sees the same key; different email never inherits it; guest saves are adopted into the account on next login/registration; guests remain device-local
 - All AI features resolve the key through src/lib/user-config.ts — single choke point for future changes
 - Existing production data is compatible: old tagged rows resolve as account rows on first read; key migration for guest-saved keys happens when the user logs in on the device where the key was saved
+
+---
+Task ID: video-remote-face-fix
+Agent: main (Z.ai Code)
+Task: Fix "can't see the other person face in video call" (user site: bolo-english-mu.vercel.app — confirmed to be the CORRECT Next.js deployment with the API-key account-sync fix already live)
+
+Work Log:
+- Probed bolo-english-mu.vercel.app: Next.js app (/_next chunks), /api/config returns JSON → correct deployment, backend + Turso working; live probe proved the API-key account-sync fix (08ebd24) is ALREADY deployed there (profile followed the account to a new device)
+- E2E signaling test via curl (2 virtual peers, join → offer → poll): server-side signaling delivery verified working
+- ROOT CAUSE of the video bug found: openrelay.metered.ca (the only TURN in ICE_SERVERS) now resolves to black-hole 100::1 with all ports closed — Open Relay Project is dead; app had STUN only → ICE could never connect on symmetric-NAT/CGNAT (Bangladeshi mobile data) → partner tile stuck "connecting…"; same-WiFi direct connections masked it
+- Verified standard.relay.metered.ca alive (172.104.167.32, ports 80/443/3478 open)
+- use-webrtc.ts fixes: (1) ICE_SERVERS → standard.relay.metered.ca with metered free published creds, UDP+TCP; (2) ensurePC awaits initLocal so a PC can never exist without local tracks (empty-SDP black tile); (3) initLocal idempotent in-flight promise + cleanup reset; (4) recoverPeer offers from stable even without remoteDescription (fixes both-sides-wait deadlock, glare handled by rollback)
+- lint clean; dev server compiles; commit b85d3fa pushed to main
+
+Stage Summary:
+- Video calls now have a WORKING TURN relay → media can connect on mobile carrier networks (CGNAT), which is the primary way Bangladeshi students call
+- PC creation can no longer produce trackless/empty-SDP negotiations; stuck calls self-recover within ~12s
+- Note for future: if metered free relay ever degrades, options are Cloudflare TURN (needs account) or self-hosted coturn; ICE_SERVERS in use-webrtc.ts is the single place to change
