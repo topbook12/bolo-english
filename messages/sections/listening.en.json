@@ -62,7 +62,8 @@
       "loadFailed": "Couldn't fetch the story",
       "fallbackError": "Couldn't fetch the story",
       "backToTopic": "Back to topic",
-      "loadingAria": "Loading story"
+      "loadingAria": "Loading story",
+      "vocabTitle": "Key words"
     },
     "quiz": {
       "noQuestions": "No questions were found for this story.",
@@ -83,6 +84,28 @@
       "msgGreat": "Very good! A little more practice and you'll feel even more confident.",
       "msgGood": "Good try! Listen to the story once more, then take the quiz again.",
       "msgKeep": "No worries — listen to the story slowly at 0.75x speed, understand it, then try again."
+    },
+    "library": {
+      "tab": "Listening Library",
+      "tabAi": "AI Story",
+      "tabAria": "Choose the library or an AI story",
+      "freeBadge": "18 free",
+      "search": "Search stories...",
+      "searchAria": "Search stories",
+      "all": "All",
+      "catAria": "Choose a category",
+      "empty": "No stories match this filter.",
+      "done": "Done",
+      "minutes": "{n} min",
+      "progress": "{done}/{total} stories done",
+      "categories": {
+        "daily": "Daily Life",
+        "travel": "Travel",
+        "work": "Work & Career",
+        "culture": "Culture",
+        "science": "Science & Nature",
+        "inspire": "Inspiration"
+      }
     }
   }
 }

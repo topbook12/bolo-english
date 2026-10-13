@@ -5,6 +5,10 @@
     "levelSelect": "লেভেল বেছে নিন",
     "topicsLabel": "গ্রামার টপিক",
     "openTopic": "লেসন পড়ুন: {topic}",
+    "groups": {
+      "foundation": "ভিত্তির টপিক",
+      "advanced": "অ্যাডভান্সড টপিক"
+    },
     "progress": {
       "quizzes": "কুইজ দিয়েছেন",
       "accuracy": "সঠিক উত্তর",
@@ -68,9 +72,66 @@
       "sinceFor": {
         "name": "Since বনাম For",
         "sub": "সময় বোঝাতে কোনটি কখন"
+      },
+      "inversion": {
+        "name": "ইনভার্শন ও জোর দেওয়া",
+        "sub": "Never/Rarely দিয়ে শুরু করলে বাক্য উল্টে যায়"
+      },
+      "mixedConditionals": {
+        "name": "মিক্সড ও ইনভার্টেড কন্ডিশনাল",
+        "sub": "অতীতের কারণ, বর্তমানের ফল — সময় মেশানো If বাক্য"
+      },
+      "cleft": {
+        "name": "ক্লেফট সেনটেন্স",
+        "sub": "It was Rina who… — একটা অংশকে হাইলাইট করা"
+      },
+      "subjunctive": {
+        "name": "সাবজাংকটিভ (কাল্পনিক ভাব)",
+        "sub": "I suggest that he go — অদ্ভুত এই গঠনের রহস্য"
+      },
+      "participleClauses": {
+        "name": "পার্টিসিপল ক্লজ",
+        "sub": "Walking home, I saw… — বাক্য ছোট করার জাদু"
+      },
+      "discourse": {
+        "name": "ডিসকোর্স মার্কার",
+        "sub": "However, moreover, in fact — কথা মসৃণভাবে জোড়া"
+      },
+      "hedging": {
+        "name": "নরম ভাষা (হেজিং)",
+        "sub": "It seems, perhaps — কথা কোমল ও ভদ্র করার ধরন"
+      },
+      "reportedSpeech": {
+        "name": "অ্যাডভান্সড রিপোর্টেড স্পিচ",
+        "sub": "সে বলল যে… — কথা নিজের ভাষায় ফিরিয়ে বলার নিয়ম"
+      },
+      "nominalisation": {
+        "name": "নমিনালাইজেশন ও একাডেমিক স্টাইল",
+        "sub": "decide → decision — লেখায় প্রফেশনাল ভাব আনা"
+      },
+      "ellipsis": {
+        "name": "ইলিপসিস ও সাবস্টিটিউশন",
+        "sub": "I can and I will — শব্দ বাদ দিয়ে স্বাভাবিক কথা"
+      },
+      "collocations": {
+        "name": "কলোকেশন (শব্দের জুটি)",
+        "sub": "make a decision, heavy rain — সঠিক শব্দজুটি"
+      },
+      "register": {
+        "name": "ফরমাল বনাম ইনফরমাল ইংরেজি",
+        "sub": "বন্ধুর সাথে চ্যাট আর বসকে ইমেইল এক নয়"
+      },
+      "tenseAspect": {
+        "name": "টেন্স ও অ্যাসপেক্টের সূক্ষ্মতা",
+        "sub": "I've been living বনাম I live — সূক্ষ্ম পার্থক্য"
+      },
+      "precisionArticles": {
+        "name": "আর্টিকেল ও কোয়ান্টিফায়ার",
+        "sub": "few বনাম a few, little বনাম a little — সূক্ষ্ম পার্থক্য"
       }
     },
     "lesson": {
+      "langNote": "ব্যাখ্যা সহজ বাংলায় — উদাহরণের বাক্য ইংরেজিতেই।",
       "back": "টপিক তালিকা",
       "backAria": "টপিক তালিকায় ফিরুন",
       "tipsTitle": "মনে রাখুন",

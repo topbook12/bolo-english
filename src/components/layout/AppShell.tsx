@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import PwaRegister from "@/components/pwa/PwaRegister";
+import InstallPrompt from "@/components/pwa/InstallPrompt";
 import LocaleSwitcher from "@/i18n/LocaleSwitcher";
 import AuthButton from "@/components/auth/AuthButton";
 import { useDeviceInit, useDeviceValue } from "@/hooks/use-device";
@@ -139,6 +140,7 @@ export default function AppShell() {
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-secondary/60 to-background">
       <PwaRegister />
+      <InstallPrompt />
 
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-md">

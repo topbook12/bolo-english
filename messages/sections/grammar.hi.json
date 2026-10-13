@@ -5,6 +5,10 @@
     "levelSelect": "अपना लेवल चुनें",
     "topicsLabel": "व्याकरण टॉपिक",
     "openTopic": "लेसन पढ़ें: {topic}",
+    "groups": {
+      "foundation": "फ़ाउंडेशन टॉपिक",
+      "advanced": "एडवांस्ड टॉपिक"
+    },
     "progress": {
       "quizzes": "क्विज़ दिए",
       "accuracy": "सही जवाब",
@@ -68,9 +72,66 @@
       "sinceFor": {
         "name": "Since vs For",
         "sub": "समय बताने में कब कौन-सा"
+      },
+      "inversion": {
+        "name": "इनवर्ज़न और ज़ोर देना",
+        "sub": "Never/Rarely से शुरू करें तो वाक्य क्रम उलट जाता है"
+      },
+      "mixedConditionals": {
+        "name": "मिक्स्ड और इनवर्टेड कंडीशनल",
+        "sub": "अतीत की वजह, वर्तमान का नतीजा — समय मिलाता If"
+      },
+      "cleft": {
+        "name": "क्लेफ़्ट सेंटेंस",
+        "sub": "It was Rina who… — एक हिस्से पर ज़ोर देना"
+      },
+      "subjunctive": {
+        "name": "सबजंक्टिव (काल्पनिक प्रयोग)",
+        "sub": "I suggest that he go — इस अजीब रूप का राज़"
+      },
+      "participleClauses": {
+        "name": "पार्टिसिपल क्लॉज़",
+        "sub": "Walking home, I saw… — वाक्य छोटा, असर ज़्यादा"
+      },
+      "discourse": {
+        "name": "डिस्कोर्स मार्कर",
+        "sub": "However, moreover, in fact — बातों को सहज जोड़"
+      },
+      "hedging": {
+        "name": "हेजिंग (नरम भाषा)",
+        "sub": "It seems, perhaps — विनम्र और सावधान अंदाज़"
+      },
+      "reportedSpeech": {
+        "name": "एडवांस्ड रिपोर्टेड स्पीच",
+        "sub": "उसने बताया कि… — सुनी बात दोहराने के नियम"
+      },
+      "nominalisation": {
+        "name": "नॉमिनलाइज़ेशन और अकादमिक शैली",
+        "sub": "decide → decision — प्रोफेशनल लेखन शैली"
+      },
+      "ellipsis": {
+        "name": "एलिप्सिस और सब्सटिट्यूशन",
+        "sub": "I can and I will — शब्द छोड़कर सहज बोलचाल"
+      },
+      "collocations": {
+        "name": "कोलोकेशन (शब्द-जोड़ी)",
+        "sub": "make a decision, heavy rain — सही शब्द-जोड़ी"
+      },
+      "register": {
+        "name": "फ़ॉर्मल बनाम इनफ़ॉर्मल अंग्रेज़ी",
+        "sub": "दोस्तों से चैट और बॉस को ईमेल अलग है"
+      },
+      "tenseAspect": {
+        "name": "टेंस और एस्पेक्ट की बारीकियाँ",
+        "sub": "I've been living बनाम I live — सूक्ष्म अंतर"
+      },
+      "precisionArticles": {
+        "name": "आर्टिकल और क्वांटिफ़ायर",
+        "sub": "few बनाम a few, little बनाम a little — बारीक फ़र्क़"
       }
     },
     "lesson": {
+      "langNote": "व्याख्या आसान बांग्ला में है — उदाहरण वाक्य अंग्रेज़ी में।",
       "back": "टॉपिक सूची",
       "backAria": "टॉपिक सूची पर वापस जाएँ",
       "tipsTitle": "याद रखें",

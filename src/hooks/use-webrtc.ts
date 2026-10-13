@@ -27,13 +27,7 @@ export interface UseWebRTCOpts {
 
 const ICE_SERVERS: RTCIceServer[] = [
   { urls: ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"] },
-  // Free TURN (metered.ca — the OpenRelay successor). The original
-  // openrelay.metered.ca now resolves to a black-hole (100::1) and its ports
-  // are dead, so with STUN alone the call silently never connected on
-  // symmetric-NAT / carrier-CGNAT networks (the norm on mobile data in
-  // Bangladesh): both peers joined the room, ICE never found a path, and the
-  // partner tile sat on "connecting…" with no face. Verified live: 80/443/3478
-  // reachable on standard.relay.metered.ca.
+  // Legacy fallback — see /api/call/ice for the live configuration source.
   {
     urls: [
       "turn:standard.relay.metered.ca:80",
@@ -45,6 +39,30 @@ const ICE_SERVERS: RTCIceServer[] = [
     credential: "MakTy9FvEZjSyZ2o",
   },
 ];
+
+// TURN credentials must not be baked into the client bundle: the free relay
+// credential can lapse, and the only way to keep calls working is to swap in
+// fresh credentials (e.g. Cloudflare TURN, 1TB/mo free) via server env vars.
+// /api/call/ice serves the live list; fetch it lazily once per session and
+// always fall back to the bundled list if the endpoint is unreachable.
+let iceServersPromise: Promise<RTCIceServer[]> | null = null;
+
+function getIceServers(): Promise<RTCIceServer[]> {
+  if (!iceServersPromise) {
+    iceServersPromise = (async () => {
+      try {
+        const res = await fetch("/api/call/ice", { cache: "no-store" });
+        const json = await res.json().catch(() => null);
+        const list = json?.data?.iceServers;
+        if (Array.isArray(list) && list.length > 0) return list as RTCIceServer[];
+      } catch {
+        /* offline / endpoint missing — bundled list below still applies */
+      }
+      return ICE_SERVERS;
+    })();
+  }
+  return iceServersPromise;
+}
 
 // How long a peer may sit in "connecting" before we try to recover (ms)
 const STUCK_CONNECT_MS = 12_000;
@@ -191,7 +209,8 @@ export function useWebRTC({ onSendSignal, getMyId }: UseWebRTCOpts) {
       const existing = pcsRef.current.get(peerId);
       if (existing) return existing;
 
-      const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+      const iceServers = await getIceServers().catch(() => ICE_SERVERS);
+      const pc = new RTCPeerConnection({ iceServers });
       pcsRef.current.set(peerId, pc);
       pcCreatedRef.current.set(peerId, Date.now());
       disconnectedAtRef.current.delete(peerId);

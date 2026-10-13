@@ -10,6 +10,7 @@ import {
   ArrowRight,
   Check,
   CircleX,
+  Languages,
   Lightbulb,
   ListChecks,
   RefreshCw,
@@ -47,13 +48,13 @@ function ExampleCard({ wrong, right, note }: { wrong: string; right: string; not
         <ArrowRight className="my-1 h-4 w-4 shrink-0 text-emerald-500/80" aria-hidden />
         <span aria-hidden />
         <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" aria-hidden />
-        <p className="min-w-0 break-words text-sm font-medium leading-relaxed text-emerald-800 dark:text-emerald-300">
+        <p className="min-w-0 break-words text-[15px] font-medium leading-relaxed text-emerald-800 dark:text-emerald-300">
           <span className="sr-only">{t("lesson.rightLabel")} </span>
           {right}
         </p>
       </div>
       {note && (
-        <p className="mt-2.5 flex items-start gap-1.5 border-t border-border/60 pt-2.5 text-xs leading-relaxed text-muted-foreground">
+        <p className="mt-2.5 flex items-start gap-1.5 border-t border-border/60 pt-2.5 text-[13px] leading-relaxed text-muted-foreground">
           <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" aria-hidden />
           <span className="min-w-0 flex-1">{note}</span>
         </p>
@@ -179,6 +180,12 @@ export default function LessonView({
                 {data.intro}
               </p>
             )}
+            {locale !== "bn" && (
+              <p className="mt-2.5 flex items-start gap-1.5 text-xs leading-relaxed text-muted-foreground">
+                <Languages className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+                <span>{t("lesson.langNote")}</span>
+              </p>
+            )}
           </section>
 
           {/* Sections */}
@@ -204,9 +211,11 @@ export default function LessonView({
                     <h2 className="font-semibold leading-snug">{s.heading}</h2>
                   </div>
                   {s.explanation && (
-                    <p className="text-sm leading-relaxed text-muted-foreground">
-                      {s.explanation}
-                    </p>
+                    <div className="rounded-r-xl border-l-2 border-emerald-500/50 bg-emerald-500/[0.04] py-2.5 pl-3.5 pr-3">
+                      <p className="min-w-0 break-words text-[15px] leading-7 text-foreground/90">
+                        {s.explanation}
+                      </p>
+                    </div>
                   )}
                   {(s.examples ?? []).length > 0 && (
                     <div className="max-h-96 space-y-3 overflow-y-auto nice-scroll pr-1">

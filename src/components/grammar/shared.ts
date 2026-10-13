@@ -3,18 +3,32 @@
 // under the "grammar" namespace — this file holds only ids, icons and logic.
 
 import {
+  ArrowDownUp,
   Blocks,
   CircleHelp,
   Clock3,
+  Combine,
+  Ellipsis,
+  Feather,
+  Gauge,
   GitBranch,
+  GraduationCap,
+  History,
   Hourglass,
   KeyRound,
   LetterText,
   MapPin,
+  MessagesSquare,
+  Puzzle,
   Repeat,
   Scale,
+  Shuffle,
+  SlidersHorizontal,
+  Split,
   TriangleAlert,
   Users,
+  WandSparkles,
+  Workflow,
   type LucideIcon,
 } from "lucide-react";
 
@@ -30,7 +44,15 @@ export interface GrammarTopic {
 
 export const LEVEL_ORDER: Level[] = ["beginner", "intermediate", "advanced"];
 
-// Rotating gradient chips for the topic grid (premium tints — no blue/indigo).
+/** Difficulty group of the topic grid — i18n key under grammar.groups.<key>. */
+export type TopicGroupKey = "foundation" | "advanced";
+
+export interface GrammarTopicGroup {
+  key: TopicGroupKey;
+  topics: (GrammarTopic & { tint: string })[];
+}
+
+// Rotating gradient chips for the foundation grid (premium tints — no blue/indigo).
 const TINT_CYCLE = [
   "from-emerald-500 to-teal-500",
   "from-amber-500 to-orange-500",
@@ -39,8 +61,17 @@ const TINT_CYCLE = [
   "from-orange-500 to-amber-600",
 ] as const;
 
-// Hardcoded topic grid — 12 topics for Bengali-speaking learners.
-const TOPIC_META: Pick<GrammarTopic, "topic" | "key" | "icon">[] = [
+// Distinct rotation for the advanced grid — richer, C1-flavoured accents.
+const ADVANCED_TINT_CYCLE = [
+  "from-rose-500 to-pink-500",
+  "from-amber-500 to-orange-500",
+  "from-teal-500 to-cyan-600",
+  "from-orange-500 to-amber-600",
+  "from-emerald-500 to-teal-500",
+] as const;
+
+// Foundation grid — the core A2/B1 topics every learner needs first.
+const FOUNDATION_META: Pick<GrammarTopic, "topic" | "key" | "icon">[] = [
   { topic: "Tense basics", key: "tense", icon: Clock3 },
   {
     topic: "Present Perfect vs Past Simple",
@@ -63,9 +94,95 @@ const TOPIC_META: Pick<GrammarTopic, "topic" | "key" | "icon">[] = [
   { topic: "Since vs For", key: "sinceFor", icon: Hourglass },
 ];
 
-export const TOPICS: (GrammarTopic & { tint: string })[] = TOPIC_META.map(
-  (t, i) => ({ ...t, tint: TINT_CYCLE[i % TINT_CYCLE.length] })
-);
+// Advanced grid — C1-level topics: nuance, style and academic English.
+// `topic` is the canonical English string sent to the AI (also the cache key
+// part and the completed-topics id), so it must stay stable once released.
+const ADVANCED_META: Pick<GrammarTopic, "topic" | "key" | "icon">[] = [
+  {
+    topic: "Inversion & Emphasis Structures",
+    key: "inversion",
+    icon: ArrowDownUp,
+  },
+  {
+    topic: "Mixed & Inverted Conditionals",
+    key: "mixedConditionals",
+    icon: Shuffle,
+  },
+  { topic: "Cleft Sentences", key: "cleft", icon: Split },
+  { topic: "Subjunctive & Unreal Uses", key: "subjunctive", icon: WandSparkles },
+  { topic: "Participle Clauses", key: "participleClauses", icon: Combine },
+  {
+    topic: "Discourse Markers & Cohesion",
+    key: "discourse",
+    icon: Workflow,
+  },
+  {
+    topic: "Hedging & Softening Language",
+    key: "hedging",
+    icon: Feather,
+  },
+  { topic: "Advanced Reported Speech", key: "reportedSpeech", icon: MessagesSquare },
+  {
+    topic: "Nominalisation & Academic Style",
+    key: "nominalisation",
+    icon: GraduationCap,
+  },
+  { topic: "Ellipsis & Substitution", key: "ellipsis", icon: Ellipsis },
+  {
+    topic: "Collocations & Word Partnerships",
+    key: "collocations",
+    icon: Puzzle,
+  },
+  {
+    topic: "Register: Formal vs Informal English",
+    key: "register",
+    icon: SlidersHorizontal,
+  },
+  {
+    topic: "Advanced Tense & Aspect Nuances",
+    key: "tenseAspect",
+    icon: History,
+  },
+  {
+    topic: "Precision Articles & Quantifiers",
+    key: "precisionArticles",
+    icon: Gauge,
+  },
+];
+
+function withTints(
+  meta: Pick<GrammarTopic, "topic" | "key" | "icon">[],
+  cycle: readonly string[]
+): (GrammarTopic & { tint: string })[] {
+  return meta.map((t, i) => ({ ...t, tint: cycle[i % cycle.length] }));
+}
+
+export const FOUNDATION_TOPICS = withTints(FOUNDATION_META, TINT_CYCLE);
+export const ADVANCED_TOPICS = withTints(ADVANCED_META, ADVANCED_TINT_CYCLE);
+
+/** Every topic (foundation first) — used for totals and done-badge lookups. */
+export const TOPICS: (GrammarTopic & { tint: string })[] = [
+  ...FOUNDATION_TOPICS,
+  ...ADVANCED_TOPICS,
+];
+
+/** Topic grid grouped by difficulty, in display order. */
+export const TOPIC_GROUPS: GrammarTopicGroup[] = [
+  { key: "foundation", topics: FOUNDATION_TOPICS },
+  { key: "advanced", topics: ADVANCED_TOPICS },
+];
+
+/** Small accent bar + heading chip color per group (premium, no blue/indigo). */
+export const GROUP_ACCENT: Record<TopicGroupKey, { bar: string; chip: string }> = {
+  foundation: {
+    bar: "from-emerald-500 to-teal-500",
+    chip: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+  },
+  advanced: {
+    bar: "from-amber-500 to-orange-500",
+    chip: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
+  },
+};
 
 const BN_DIGITS = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
 

@@ -637,3 +637,43 @@ Stage Summary:
 - Hydration mismatch class eliminated by construction: hydration render now always matches SSR regardless of store state at hydration time (commit 874c001, pushed to main).
 - New pattern available for future store reads that influence first-paint output: useDeviceValue/useAuthValue with explicit server snapshot; plain useDevice() remains fine for interaction-time-only UI.
 - Greeting (Good morning/afternoon) fix and all prior behavior intact.
+
+---
+Task ID: 4
+Agent: full-stack-developer (grammar)
+Task: Grammar expansion — 14 new advanced/C1 topics, difficulty-grouped topic grid, trilingual topic i18n, and client-side lesson readability improvements (user requirements 4, 5-6)
+
+Work Log:
+- Studied shared.ts, GrammarSection.tsx, LessonView.tsx, QuizPlayer.tsx, messages/sections/grammar.{bn,en,hi}.json, src/lib/types.ts + src/app/api/ai/route.ts (both read-only) to map topic key -> canonical English topic string -> /api/ai grammar-lesson prompt -> GrammarLessonContent render flow
+- shared.ts: split topic meta into FOUNDATION_META (existing 12, unchanged topic strings/ids) + ADVANCED_META with 14 new C1 topics (keys: inversion, mixedConditionals, cleft, subjunctive, participleClauses, discourse, hedging, reportedSpeech, nominalisation, ellipsis, collocations, register, tenseAspect, precisionArticles — each a clear canonical English topic string the AI can teach); added exports FOUNDATION_TOPICS / ADVANCED_TOPICS / TOPICS (all 26, backward compatible) / TOPIC_GROUPS / TopicGroupKey / GROUP_ACCENT (emerald bar+chip for foundation, amber for advanced); separate ADVANCED_TINT_CYCLE; all lucide icons verified against the installed package (Ellipsis, WandSparkles, Workflow, MessagesSquare, Gauge, Combine, Feather, SlidersHorizontal, History, ArrowDownUp, Shuffle, Split, Puzzle, GraduationCap)
+- GrammarSection.tsx: topic grid now renders TOPIC_GROUPS — localized Foundation/Advanced headings (h2 + accent bar + localized count chip), grid markup extracted into a TopicGrid component; card style, done badges and progress stats (TOPICS.length total) unchanged; HowItWorksCard untouched
+- LessonView.tsx (client-side only, no API edits): section explanation (the primary Bangla teaching text) is now prominent in an emerald left-accent block (text-[15px] leading-7 text-foreground/90); corrected "right" example line enlarged to text-[15px]; example note to 13px; added localized grammar.lesson.langNote (Languages icon) in the lesson hero for non-bn locales — honest expectation-setting that explanations are simple Bengali with English examples, since the AI content language is fixed by the un-editable server prompt
+- i18n: added grammar.groups.{foundation,advanced}, 14 x grammar.topics.<key>.{name,sub}, grammar.lesson.langNote to grammar.bn/en/hi.json — Bengali primary and student-friendly (e.g. "ইনভার্শন ও জোর দেওয়া", "কলোকেশন (শব্দের জুটি)"), natural English + Hindi; JSON parse verified: 26 topics per locale
+- Verification: bunx tsc --noEmit clean (zero errors, whole project); bun run lint clean; dev.log shows clean recompiles, no errors
+
+Stage Summary:
+- Grammar now offers 26 topics in two clearly localized difficulty groups (12 Foundation + 14 Advanced/C1); advanced lessons are generated on demand by the existing /api/ai grammar-lesson feature and cached per topic+level
+- All topic names/subs, group headings and the language note are localized in bn/en/hi, lowering the language barrier for non-Bengali users; lesson typography upgraded client-side
+- Intentionally NOT done: no /api/ai prompt changes (lesson body language remains Bangla-primary by design — in-lesson EN/HI translation of AI output would require an API feature), no new dependencies, no dev server restart, no db/prisma changes, no git actions; QuizPlayer left untouched (its Bangla explanation styling unchanged)
+---
+Task ID: 7b
+Agent: full-stack-developer (listening-advanced)
+Task: Author the 6 advanced C1 stories in library.ts
+
+Work Log:
+- Read worklog.md (background), then studied src/components/listening/library.ts (all 12 beginner/intermediate entries) + src/components/listening/types.ts (LibraryStory/Tri/LibraryQuizQuestion contracts) to lock the exact object shape, tone and quality bar
+- Filled ONLY the empty const ADVANCED: LibraryStory[] = [] (single-line replace via Edit; BEGINNER/INTERMEDIATE arrays, converter toStoryContent, readDoneIds/markStoryDone and all exports untouched)
+- Authored 6 original C1 stories, one per category, each 420-600 English words in 7-10 paragraphs (idiomatic, complex sentences, South-Asian grounded but universal):
+  * candlelight-at-eight (daily) — load-shedding candlelit dinner pulls a family out of its screens
+  * stranded-above-the-clouds (travel) — landslide strands an overnight bus at a mountain tea stall; strangers become a temporary family
+  * the-eleventh-hour-correction (work) — junior analyst finds a figure error pre-presentation; lead chooses open disclosure over hiding
+  * the-last-jamdani-loom (culture) — dying weaving craft revived via a designer deal + granddaughter apprenticing (UNESCO-heritage craft referenced generically, original text)
+  * the-night-the-stars-came-back (science) — light pollution, dark-sky hour, shielded lamps; harms to migratory birds/pollinators/body clock
+  * grandmothers-first-signature (inspire) — 61-year-old learns to read after a medicine-dose scare; ends teaching other grandmothers
+- Each story: trilingual title/summary (natural, non-literal bn; correct hi), 8 advanced/idiomatic vocab items with bn/en/hi meanings + EN example, 5 comprehension/inference quiz questions with exactly 4 plausible-distractor options, unambiguous answer (0-3, spread across indices), trilingual explanation
+- minutes set realistically by length: 8/8/7/7/7/8 (advanced band 7-10)
+- Verification: wrote a throwaway bun audit script (/tmp) — words per story 486/483/451/458/444/499, paras 9/8/8/8/8/8, vocab 8 each, quiz 5 each, options 4 each, unique kebab-case ids, categories exactly daily/travel/work/culture/science/inspire; grep level counts 6/6/6; bunx tsc --noEmit clean (zero errors); file tail (helpers/exports) confirmed intact; no dev server, no commit, no other files touched (worklog append only)
+
+Stage Summary:
+- Listening Library is now complete: 18/18 stories (6 beginner + 6 intermediate + 6 advanced), all static, no API key needed; ADVANCED ids: candlelight-at-eight, stranded-above-the-clouds, the-eleventh-hour-correction, the-last-jamdani-loom, the-night-the-stars-came-back, grandmothers-first-signature
+- tsc: clean (bunx tsc --noEmit, zero errors); level distribution verified 6/6/6 via grep; all content original; progress tracking reuses existing slug-based readDoneIds/markStoryDone with no changes required

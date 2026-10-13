@@ -24,7 +24,14 @@
     },
     "free": "100% मुफ़्त",
     "poweredByYou": "आपकी अपनी Gemini Key",
-    "encrypted": "सुरक्षित एन्क्रिप्टेड"
+    "encrypted": "सुरक्षित एन्क्रिप्टेड",
+    "install": {
+      "title": "Bolo English इंस्टॉल करें",
+      "desc": "असली ऐप की तरह इस्तेमाल करें — ऑफ़लाइन भी चलेगा।",
+      "cta": "इंस्टॉल",
+      "later": "बाद में",
+      "iosHint": "iPhone/iPad: नीचे Share (↑) बटन दबाकर “Add to Home Screen” चुनें।"
+    }
   },
   "nav": {
     "home": "होम",

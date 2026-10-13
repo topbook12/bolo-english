@@ -3,13 +3,15 @@
 import {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   useSyncExternalStore,
 } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   ArrowLeft,
+  BookOpen,
   ChevronDown,
   CircleAlert,
   CircleCheck,
@@ -42,6 +44,8 @@ import { callAi } from "@/lib/client-api";
 import type { ListeningStoryContent } from "@/lib/types";
 import EmptyState from "@/components/shared/EmptyState";
 import QuizPlayer, { useDigits } from "@/components/listening/QuizPlayer";
+import { markStoryDone, toStoryContent } from "@/components/listening/library";
+import { pickLang, type LibraryStory } from "@/components/listening/types";
 
 export type ListeningLevel = "beginner" | "intermediate" | "advanced";
 
@@ -71,6 +75,8 @@ interface StoryPlayerProps {
   topicLabel: string;
   level: ListeningLevel;
   onBack: () => void;
+  /** Built-in library story — skips AI generation entirely (works with no API key). */
+  libraryStory?: LibraryStory;
 }
 
 export default function StoryPlayer({
@@ -79,9 +85,11 @@ export default function StoryPlayer({
   topicLabel,
   level,
   onBack,
+  libraryStory,
 }: StoryPlayerProps) {
   const t = useTranslations("listening.player");
   const tc = useTranslations("common");
+  const locale = useLocale();
   const fmt = useDigits();
 
   const [loadState, setLoadState] = useState<LoadState>({ status: "loading" });
@@ -90,6 +98,13 @@ export default function StoryPlayer({
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [hasPlayed, setHasPlayed] = useState(false);
   const [quizDone, setQuizDone] = useState(false);
+
+  // Library stories are static — derive their content synchronously (no
+  // effect/setState, no loading state, no API key needed).
+  const libraryContent = useMemo(
+    () => (libraryStory ? toStoryContent(libraryStory, locale) : null),
+    [libraryStory, locale]
+  );
 
   // ---- browser TTS state (window.speechSynthesis — 100% free) ----
   const supportsTts = useSyncExternalStore(
@@ -107,7 +122,9 @@ export default function StoryPlayer({
   const speechRef = useRef<{ stopped: boolean; gen: number }>({ stopped: true, gen: 0 });
 
   const levelLabel = tc(`level.${level}`);
-  const story = loadState.status === "ready" ? loadState.story : null;
+  // Library story wins when present; otherwise the AI-loaded story is used.
+  const story: ListeningStoryContent | null =
+    libraryContent ?? (loadState.status === "ready" ? loadState.story : null);
 
   const cancelSpeech = useCallback(() => {
     speechRef.current.stopped = true;
@@ -119,8 +136,10 @@ export default function StoryPlayer({
     setSpeechState("idle");
   }, []);
 
-  // Load story (server caches per topic+level). setState only inside async callbacks.
+  // Load AI story (the server caches each topic+level story it creates).
+  // Library stories skip this entirely — their content is derived above.
   useEffect(() => {
+    if (libraryStory) return;
     let cancelled = false;
     callAi<ListeningStoryContent>(deviceId, "listening-story", { topic, level })
       .then((s) => {
@@ -137,7 +156,7 @@ export default function StoryPlayer({
     return () => {
       cancelled = true;
     };
-  }, [deviceId, topic, level, reloadKey]);
+  }, [deviceId, topic, level, reloadKey, libraryStory]);
 
   // English voice list (async loading via onvoiceschanged) — ref only, no setState
   useEffect(() => {
@@ -276,13 +295,14 @@ export default function StoryPlayer({
         onFinished={() => {
           setQuizDone(true);
           setSummaryOpen(true);
+          if (libraryStory) markStoryDone(libraryStory.id);
         }}
       />
     );
   }
 
   // ---------- STORY VIEW ----------
-  if (loadState.status === "ready" && story) {
+  if (story) {
     const paragraphs = Array.isArray(story.story) ? story.story : [];
     const playing = speechState === "playing";
 
@@ -430,6 +450,24 @@ export default function StoryPlayer({
                 <p className="text-sm leading-relaxed sm:text-[15px]">{p}</p>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Key vocabulary — library stories ship with curated word lists */}
+        {libraryStory && libraryStory.vocabulary.length > 0 && (
+          <div className="rounded-2xl border border-border/60 bg-card p-4">
+            <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-foreground">
+              <BookOpen className="h-3.5 w-3.5 text-primary" aria-hidden /> {t("vocabTitle")}
+            </p>
+            <div className="nice-scroll max-h-64 space-y-2 overflow-y-auto pr-1">
+              {libraryStory.vocabulary.map((v) => (
+                <div key={v.word} className="rounded-xl border border-border/50 p-3">
+                  <p className="text-sm font-semibold">{v.word}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{pickLang(v.meaning, locale)}</p>
+                  <p className="mt-1 text-xs italic text-muted-foreground/80">“{v.example}”</p>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

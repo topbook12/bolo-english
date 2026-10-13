@@ -5,6 +5,10 @@
     "levelSelect": "Choose your level",
     "topicsLabel": "Grammar topics",
     "openTopic": "Read lesson: {topic}",
+    "groups": {
+      "foundation": "Foundation topics",
+      "advanced": "Advanced topics"
+    },
     "progress": {
       "quizzes": "Quizzes taken",
       "accuracy": "Correct answers",
@@ -68,9 +72,66 @@
       "sinceFor": {
         "name": "Since vs For",
         "sub": "Which one for which time"
+      },
+      "inversion": {
+        "name": "Inversion & Emphasis",
+        "sub": "Never, rarely, only then — dramatic word order"
+      },
+      "mixedConditionals": {
+        "name": "Mixed & Inverted Conditionals",
+        "sub": "Past cause, present result — If across time"
+      },
+      "cleft": {
+        "name": "Cleft Sentences",
+        "sub": "It was Rina who... — highlight one part"
+      },
+      "subjunctive": {
+        "name": "Subjunctive & Unreal Uses",
+        "sub": "I suggest that he go — the bare-form mystery"
+      },
+      "participleClauses": {
+        "name": "Participle Clauses",
+        "sub": "Walking home, I saw... — shorter, richer sentences"
+      },
+      "discourse": {
+        "name": "Discourse Markers & Cohesion",
+        "sub": "However, moreover, in fact — connect ideas smoothly"
+      },
+      "hedging": {
+        "name": "Hedging & Softening Language",
+        "sub": "It seems, perhaps — polite, careful English"
+      },
+      "reportedSpeech": {
+        "name": "Advanced Reported Speech",
+        "sub": "Reporting verbs, tense shifts, questions & orders"
+      },
+      "nominalisation": {
+        "name": "Nominalisation & Academic Style",
+        "sub": "decide → decision — write like a professional"
+      },
+      "ellipsis": {
+        "name": "Ellipsis & Substitution",
+        "sub": "I can and I will — leave words out naturally"
+      },
+      "collocations": {
+        "name": "Collocations & Word Partnerships",
+        "sub": "make a decision, heavy rain — natural word pairs"
+      },
+      "register": {
+        "name": "Register: Formal vs Informal",
+        "sub": "Chatting with friends vs emailing the boss"
+      },
+      "tenseAspect": {
+        "name": "Tense & Aspect Nuances",
+        "sub": "I've been living vs I live — fine shades of meaning"
+      },
+      "precisionArticles": {
+        "name": "Precision Articles & Quantifiers",
+        "sub": "few vs a few, little vs a little — exact amounts"
       }
     },
     "lesson": {
+      "langNote": "Explanations are written in simple Bengali — example sentences stay in English.",
       "back": "Topics",
       "backAria": "Back to the topic list",
       "tipsTitle": "Remember this",

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getLocale } from "next-intl/server";
 import { db } from "@/lib/db";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { GeminiError, geminiJson, getAiLevel, getUserName, getUserApiKey } from "@/lib/gemini";
@@ -15,8 +16,49 @@ import type {
 
 export const maxDuration = 60;
 
-const BANGLA_RULE =
-  "সব ব্যাখ্যা, টিপস ও সাজেশন অবশ্যই সহজ বাংলায় লিখবে। ইংরেজি উদাহরণ ও বাক্য থাকবে ইংরেজিতে।";
+/* ── Explanation-language policy (requirements: not Bengali-only) ─────────
+ * The UI has 3 locales (bn/en/hi). The LEARNING content (English examples,
+ * sentences, questions, stories, words) always stays English — that is the
+ * skill being practiced. Every field that EXISTS to explain (intro,
+ * explanation, note, tips, summaries, usage tips, quiz explanations,
+ * analysis text) is written in the user's selected UI language:
+ *   bn → simple Bengali (primary audience)
+ *   en → simple clear English (international users)
+ *   hi → simple Hindi
+ * Prompts below carry the directive per request, and AI cache keys are
+ * locale-scoped so switching language re-generates rather than serving the
+ * old language from cache. */
+interface LangPolicy {
+  /** Master directive prepended to every prompt. */
+  rule: string;
+  /** Short phrase used inside JSON field hints, e.g. "কেন — বাংলায়". */
+  short: string;
+  /** Pronunciation-guide style for vocab. */
+  pron: string;
+}
+
+const LANG_POLICY: Record<string, LangPolicy> = {
+  bn: {
+    rule:
+      "সব ব্যাখ্যা, টিপস ও সাজেশন অবশ্যই সহজ বাংলায় লিখবে। ইংরেজি উদাহরণ ও বাক্য থাকবে ইংরেজিতে।",
+    short: "বাংলায়",
+    pron: "বাংলা উচ্চারণ যেমন: কম্ফর্টেবল",
+  },
+  en: {
+    rule:
+      "Write every explanation, note, tip and suggestion in SIMPLE, CLEAR English (short sentences, no jargon — the learner is not fluent yet). Example sentences and the learning content itself stay in natural English.",
+    short: "in simple English",
+    pron: "easy pronunciation respelling, e.g. KUMF-ter-bul",
+  },
+  hi: {
+    rule:
+      "सभी व्याख्या, नोट्स, टिप्स और सुझाव आसान हिंदी में लिखें। उदाहरण वाक्य और अंग्रेज़ी सीखने की सामग्री अंग्रेज़ी में रहेगी।",
+    short: "हिंदी में",
+    pron: "हिंदी उच्चारण जैसे: कम्फ़र्टेबल",
+  },
+};
+
+const DEFAULT_POLICY = LANG_POLICY.bn;
 
 function jsonOk(data: unknown) {
   return NextResponse.json({ ok: true, data });
@@ -37,7 +79,7 @@ async function cachedJson<T>(
   });
   if (hit) return JSON.parse(hit.response) as T;
   // No explicit token cap — geminiJson applies a generous per-model budget so
-  // long Bangla answers never truncate mid-JSON.
+  // long answers never truncate mid-JSON.
   const data = await geminiJson<T>(apiKey, prompt, { temperature });
   await db.aiCache
     .create({ data: { feature, cacheKey, response: JSON.stringify(data) } })
@@ -61,6 +103,10 @@ export async function POST(req: NextRequest) {
     return jsonErr("অনেক দ্রুত অনুরোধ আসছে — ১ মিনিট পর আবার চেষ্টা করুন।", 429);
   }
 
+  // Explanation language follows the UI locale (bn primary, en/hi optional)
+  const locale = await getLocale().catch(() => "bn");
+  const lang = LANG_POLICY[locale] ?? DEFAULT_POLICY;
+
   let apiKey: string;
   try {
     apiKey = await getUserApiKey(deviceId);
@@ -78,25 +124,25 @@ export async function POST(req: NextRequest) {
         const level = String(payload.level ?? userLevel);
         const data = await cachedJson<GrammarLessonContent>(
           "grammar-lesson",
-          `${topic}::${level}`,
+          `${topic}::${level}::${locale}`,
           apiKey,
-          `You are an expert English grammar teacher for Bengali-speaking students.
-Teach the grammar topic "${topic}" at ${level} level. ${BANGLA_RULE}
+          `You are an expert English grammar teacher. The student reads explanations in ${locale === "bn" ? "Bengali" : locale === "hi" ? "Hindi" : "simple English"}.
+Teach the grammar topic "${topic}" at ${level} level. ${lang.rule}
 Return STRICT JSON with this shape:
 {
   "title": "English topic title",
   "level": "${level}",
-  "intro": "২-৩ বাক্যে বাংলায় ভূমিকা — কেন এই টপিক জরুরি",
+  "intro": "2-3 sentence intro ${lang.short} — why this topic matters",
   "sections": [
     {
-      "heading": "উপ-টপিকের নাম (বাংলা/ইংরেজি মিশ্র)",
-      "explanation": "সহজ বাংলায় ব্যাখ্যা, বাংলা তুলনা দিলে ভালো হয়",
-      "examples": [ { "wrong": "wrong English sentence", "right": "correct English sentence", "note": "কেন ভুল/সঠিক — বাংলায়" } ]
+      "heading": "sub-topic name (may mix English terms)",
+      "explanation": "clear explanation ${lang.short}, use a comparison to the student's everyday language if it helps",
+      "examples": [ { "wrong": "wrong English sentence", "right": "correct English sentence", "note": "why wrong/right ${lang.short}" } ]
     }
   ],
-  "tips": ["৫-৬টি বাস্তব টিপস বাংলায়"]
+  "tips": ["5-6 practical tips ${lang.short}"]
 }
-"sections" এ ৩-৪টি সেকশন দাও, প্রতিটিতে ২-৩টি example। শুধু JSON দাও, অন্য কিছু নয়।`,
+"sections" must have 3-4 sections, each with 2-3 examples. Return ONLY the JSON.`,
           0.4
         );
         return jsonOk(data);
@@ -108,13 +154,13 @@ Return STRICT JSON with this shape:
         const count = Math.min(Number(payload.count ?? 5), 10);
         const data = await cachedJson<QuizQuestion[]>(
           "grammar-quiz",
-          `${topic}::${level}::${count}`,
+          `${topic}::${level}::${count}::${locale}`,
           apiKey,
-          `You are an English quiz master for Bengali speakers.
+          `You are an English quiz master.
 Create ${count} multiple-choice questions to practice "${topic}" grammar at ${level} level.
-${BANGLA_RULE} Return STRICT JSON array:
-[ { "question": "English question with a blank or choice", "options": ["a","b","c","d"], "answer": 0, "explanation": "কেন এটি সঠিক — বাংলায়" } ]
-"answer" is the 0-based index of the correct option. Options must be plausible. Questions must be in English. শুধু JSON array দাও।`,
+${lang.rule} Return STRICT JSON array:
+[ { "question": "English question with a blank or choice", "options": ["a","b","c","d"], "answer": 0, "explanation": "why this is correct ${lang.short}" } ]
+"answer" is the 0-based index of the correct option. Options must be plausible. Questions must be in English. Return ONLY the JSON array.`,
           0.5
         );
         return jsonOk(data);
@@ -126,19 +172,19 @@ ${BANGLA_RULE} Return STRICT JSON array:
         const level = String(payload.level ?? userLevel);
         const data = await cachedJson<ListeningStoryContent>(
           "listening-story",
-          `${topic}::${level}`,
+          `${topic}::${level}::${locale}`,
           apiKey,
-          `You write short English listening stories for Bengali learners.
-Write a story about "${topic}" at ${level} English level. ${BANGLA_RULE}
+          `You write short English listening stories for English learners.
+Write a story about "${topic}" at ${level} English level. ${lang.rule}
 Return STRICT JSON:
 {
   "title": "English story title",
   "level": "${level}",
   "story": ["English paragraph 1 (2-3 short sentences)", "English paragraph 2", "... 4-6 paragraphs total"],
-  "banglaSummary": "গল্পের ২-৩ বাক্যের বাংলা সারসংক্ষেপ (শেষে দেখানোর জন্য)",
-  "questions": [ { "question": "English comprehension question", "options": ["a","b","c","d"], "answer": 0, "explanation": "গল্পের কোথায় উত্তর আছে — বাংলায়" } ]
+  "banglaSummary": "2-3 sentence story summary ${lang.short} (shown after listening)",
+  "questions": [ { "question": "English comprehension question", "options": ["a","b","c","d"], "answer": 0, "explanation": "where the answer comes from ${lang.short}" } ]
 }
-5 comprehension questions. Sentences short & natural. শুধু JSON দাও।`,
+5 comprehension questions. Sentences short & natural. Return ONLY the JSON.`,
           0.8
         );
         return jsonOk(data);
@@ -150,13 +196,13 @@ Return STRICT JSON:
         const exclude = Array.isArray(payload.exclude) ? payload.exclude.join(", ") : "";
         const data = await cachedJson<DailyWord[]>(
           "vocab-daily",
-          `${date}::${userLevel}`,
+          `${date}::${userLevel}::${locale}`,
           apiKey,
-          `Pick 3 practical, real-life English words that Bengali speakers learning English at ${userLevel} level should learn TODAY (not too obscure, used in daily conversation/work).
-Words already taught (do NOT repeat): ${exclude || "(none)"}. ${BANGLA_RULE}
+          `Pick 3 practical, real-life English words that learners at ${userLevel} level should learn TODAY (not too obscure, used in daily conversation/work).
+Words already taught (do NOT repeat): ${exclude || "(none)"}. ${lang.rule}
 Return STRICT JSON array of 3:
-[ { "word": "English word", "pronunciation": "বাংলা উচ্চারণ যেমন: কম্ফর্টেবল", "partOfSpeech": "noun/verb/adj/adverb", "banglaMeaning": "বাংলা অর্থ", "englishMeaning": "simple English meaning", "examples": ["English sentence 1", "English sentence 2"], "usageTip": "কখন/কীভাবে বাস্তবে ব্যবহার করবে — বাংলায়" } ]
-Words must be useful in real life (office, market, travel, feelings, internet). শুধু JSON array দাও।`,
+[ { "word": "English word", "pronunciation": "${lang.pron}", "partOfSpeech": "noun/verb/adj/adverb", "banglaMeaning": "meaning ${lang.short}", "englishMeaning": "simple English meaning", "examples": ["English sentence 1", "English sentence 2"], "usageTip": "when/how to really use it ${lang.short}" } ]
+Words must be useful in real life (office, market, travel, feelings, internet). Return ONLY the JSON array.`,
           0.8
         );
         return jsonOk(data);
@@ -167,9 +213,9 @@ Words must be useful in real life (office, market, travel, feelings, internet). 
         if (!word) return jsonErr("শব্দ লিখুন।", 400);
         const data = await geminiJson<DailyWord>(
           apiKey,
-          `Explain the English word "${word}" for a Bengali speaker at ${userLevel} level. ${BANGLA_RULE}
-Return STRICT JSON: { "word": "${word}", "pronunciation": "বাংলা উচ্চারণ", "partOfSpeech": "...", "banglaMeaning": "...", "englishMeaning": "...", "examples": ["sentence 1","sentence 2"], "usageTip": "বাস্তব ব্যবহার — বাংলায়" }
-If "${word}" is not a real English word, still return JSON but put "word": "" and explain in usageTip that it seems invalid. শুধু JSON দাও।`,
+          `Explain the English word "${word}" for a learner at ${userLevel} level. ${lang.rule}
+Return STRICT JSON: { "word": "${word}", "pronunciation": "${lang.pron}", "partOfSpeech": "...", "banglaMeaning": "meaning ${lang.short}", "englishMeaning": "...", "examples": ["sentence 1","sentence 2"], "usageTip": "real usage ${lang.short}" }
+If "${word}" is not a real English word, still return JSON but put "word": "" and explain in usageTip that it seems invalid. Return ONLY the JSON.`,
           { temperature: 0.3 }
         );
         return jsonOk(data);
@@ -180,11 +226,11 @@ If "${word}" is not a real English word, still return JSON but put "word": "" an
         if (words.length < 3) return jsonErr("কুইজের জন্য অন্তত ৩টি শব্দ সেভ করুন।", 400);
         const data = await geminiJson<QuizQuestion[]>(
           apiKey,
-          `Create a 6-question multiple-choice English vocabulary quiz for a Bengali speaker testing these words: ${words.join(", ")}. ${BANGLA_RULE}
+          `Create a 6-question multiple-choice English vocabulary quiz testing these words: ${words.join(", ")}. ${lang.rule}
 Mix question types: fill-in-the-blank, meaning-match, correct-usage.
 Return STRICT JSON array:
-[ { "question": "English question", "options": ["a","b","c","d"], "answer": 0, "explanation": "বাংলায় ব্যাখ্যা" } ]
-"answer" = 0-based index of the correct option. শুধু JSON array দাও।`,
+[ { "question": "English question", "options": ["a","b","c","d"], "answer": 0, "explanation": "explanation ${lang.short}" } ]
+"answer" = 0-based index of the correct option. Return ONLY the JSON array.`,
           { temperature: 0.5 }
         );
         return jsonOk(data);
@@ -201,13 +247,13 @@ Return STRICT JSON array:
         };
         const data = await geminiJson<ChatPartnerReply>(
           apiKey,
-          `You are "Raha", a friendly English conversation partner for ${userName}, a Bengali speaker at ${userLevel} level.
+          `You are "Raha", a friendly English conversation partner for ${userName}, an English learner at ${userLevel} level.
 Topic: ${topic}. ${levelInstruction[userLevel] ?? levelInstruction.beginner}.
-Reply to the user's LAST message keeping a natural conversation going, gently correct their recent English mistakes, then ask ONE follow-up question to keep them talking. ${BANGLA_RULE}
+Reply to the user's LAST message keeping a natural conversation going, gently correct their recent English mistakes, then ask ONE follow-up question to keep them talking. ${lang.rule}
 Conversation history (JSON): ${JSON.stringify(history)}
 Return STRICT JSON:
-{ "reply": "Your English reply (1-3 sentences)", "banglaHint": "কী বললে সেটা ১ বাক্যে বাংলায়", "corrections": [ { "original": "user's wrong sentence", "corrected": "corrected sentence", "type": "grammar", "explanation": "কেন — বাংলায়" } ], "followUp": "Your follow-up question in English" }
-corrections may be empty if user's English is fine. শুধু JSON দাও।`,
+{ "reply": "Your English reply (1-3 sentences)", "banglaHint": "one-line hint ${lang.short} about what to say", "corrections": [ { "original": "user's wrong sentence", "corrected": "corrected sentence", "type": "grammar", "explanation": "why ${lang.short}" } ], "followUp": "Your follow-up question in English" }
+corrections may be empty if user's English is fine. Return ONLY the JSON.`,
           { temperature: 0.7 }
         );
         return jsonOk(data);
@@ -219,12 +265,12 @@ corrections may be empty if user's English is fine. শুধু JSON দাও�
         if (lines.length === 0) return jsonOk({ corrections: [], encouragement: "" });
         const data = await geminiJson<RealtimeCorrections>(
           apiKey,
-          `A Bengali speaker is practicing spoken English in a live video call. Below are their spoken sentences (JSON). ${BANGLA_RULE}
+          `An English learner is practicing spoken English in a live video call. Below are their spoken sentences (JSON). ${lang.rule}
 Find ONLY clear grammar/vocabulary/word-choice mistakes worth fixing now (max 4). Ignore fillers, minor punctuation, and pronunciation spelling. Be encouraging, not harsh.
 Sentences: ${JSON.stringify(lines)}
 Return STRICT JSON:
-{ "corrections": [ { "original": "spoken sentence", "corrected": "better sentence", "type": "grammar", "explanation": "১ লাইনে কেন — বাংলায়" } ], "encouragement": "১ লাইনের বাংলা উৎসাহ" }
-If no real mistakes: { "corrections": [], "encouragement": "..." } শুধু JSON দাও।`,
+{ "corrections": [ { "original": "spoken sentence", "corrected": "better sentence", "type": "grammar", "explanation": "one line — why ${lang.short}" } ], "encouragement": "one-line encouragement ${lang.short}" }
+If no real mistakes: { "corrections": [], "encouragement": "..." } Return ONLY the JSON.`,
           { temperature: 0.3 }
         );
         return jsonOk(data);
@@ -242,21 +288,21 @@ If no real mistakes: { "corrections": [], "encouragement": "..." } শুধু 
         }
         const data = await geminiJson<CallAnalysis>(
           apiKey,
-          `You are an expert English communication coach analyzing a Bengali speaker's real conversation (video call, ${Math.round(durationSec / 60)} min, ${partnerCount} participant(s)).
+          `You are an expert English communication coach analyzing a learner's real conversation (video call, ${Math.round(durationSec / 60)} min, ${partnerCount} participant(s)).
 The user's spoken lines (JSON, newest last): ${JSON.stringify(userLines)}
-${BANGLA_RULE}
+${lang.rule}
 Analyze: fluency, grammar, vocabulary richness. Score 0-100 each. Find top mistakes (max 8), grammar topics to study, useful words to learn, actionable suggestions.
 Return STRICT JSON:
 {
   "overallScore": 0, "fluencyScore": 0, "grammarScore": 0, "vocabularyScore": 0,
-  "summary": "৩-৪ বাক্যে বাংলায় সামগ্রিক মূল্যায়ন",
-  "mistakes": [ { "original": "...", "corrected": "...", "type": "grammar", "explanation": "বাংলায়" } ],
-  "grammarGaps": ["যে গ্রামার টপিক আরও শিখতে হবে — বাংলায়"],
-  "vocabularyGaps": [ { "word": "English word", "meaning": "বাংলা অর্থ" } ],
-  "suggestions": ["৪-৫টি বাস্তব সাজেশন বাংলায়"],
+  "summary": "3-4 sentence overall assessment ${lang.short}",
+  "mistakes": [ { "original": "...", "corrected": "...", "type": "grammar", "explanation": "${lang.short}" } ],
+  "grammarGaps": ["grammar topics to study next ${lang.short}"],
+  "vocabularyGaps": [ { "word": "English word", "meaning": "meaning ${lang.short}" } ],
+  "suggestions": ["4-5 actionable suggestions ${lang.short}"],
   "betterDialogue": [ { "original": "user sentence", "improved": "native-like improved version" } ]
 }
-Scores must reflect honest assessment — be encouraging but realistic. শুধু JSON দাও।`,
+Scores must reflect honest assessment — be encouraging but realistic. Return ONLY the JSON.`,
           { temperature: 0.4 }
         );
         return jsonOk(data);
