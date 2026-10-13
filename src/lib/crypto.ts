@@ -1,4 +1,7 @@
 import crypto from "crypto";
+import { isValidGeminiKeyFormat } from "./key-format";
+
+export { isValidGeminiKeyFormat };
 
 // AES-256-GCM encryption for user API keys.
 // Secret resolution (deterministic per deployment so keys stay decryptable):
@@ -47,9 +50,4 @@ export function decryptKey(payload: string): string {
 export function maskKey(key: string): string {
   if (key.length <= 8) return "****";
   return `${key.slice(0, 4)}...${key.slice(-4)}`;
-}
-
-export function isValidGeminiKeyFormat(key: string): boolean {
-  // Gemini keys are typically AIza... ~39 chars, but stay permissive
-  return /^[A-Za-z0-9_\-]{20,}$/.test(key.trim());
 }

@@ -31,6 +31,7 @@ import AuthDialog from "@/components/auth/AuthDialog";
 import LocaleSwitcher from "@/i18n/LocaleSwitcher";
 import { usePwaInstall } from "@/components/pwa/PwaRegister";
 import { useToast } from "@/hooks/use-toast";
+import { sanitizeApiKey } from "@/lib/key-format";
 import SectionHeader from "@/components/shared/SectionHeader";
 import PointList from "@/components/shared/PointList";
 import type { UserConfig as ApiUserConfig } from "@/hooks/use-device";
@@ -59,13 +60,16 @@ export default function SettingsSection() {
   useAuthInit(); // keep the account card in sync even without the header button
 
   const saveKey = async () => {
-    if (!apiKey.trim()) return;
+    // Sanitize on the client too: strip invisible chars picked up while
+    // copying (zero-width spaces, BOM, quotes, wrapped newlines).
+    const cleaned = sanitizeApiKey(apiKey);
+    if (!cleaned) return;
     setSaving("key");
     try {
       const res = await fetch("/api/config", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ deviceId, apiKey: apiKey.trim() }),
+        body: JSON.stringify({ deviceId, apiKey: cleaned }),
       });
       const json = await res.json();
       if (!json.ok) throw new Error(json.error);

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { encryptKey, maskKey, isValidGeminiKeyFormat } from "@/lib/crypto";
+import { encryptKey, maskKey } from "@/lib/crypto";
+import { sanitizeApiKey, isValidGeminiKeyFormat } from "@/lib/key-format";
 import { geminiText } from "@/lib/gemini";
 import { getSessionUser } from "@/lib/auth";
 
@@ -65,10 +66,13 @@ export async function POST(req: NextRequest) {
   }
 
   if (typeof body.apiKey === "string" && body.apiKey.trim()) {
-    const key = body.apiKey.trim();
-    if (!isValidGeminiKeyFormat(key)) {
+    // Strip zero-width chars / quotes / stray whitespace that sneaks in when
+    // copying the key on mobile — a perfectly valid key used to be rejected
+    // with a confusing "format" error because of invisible characters.
+    const key = sanitizeApiKey(String(body.apiKey));
+    if (!key || !isValidGeminiKeyFormat(key)) {
       return NextResponse.json(
-        { ok: false, error: "কী-এর ফরম্যাট ঠিক দেখাচ্ছে না। AI Studio থেকে কপি করে আবার দিন।" },
+        { ok: false, error: "কীটি সম্পূর্ণ কপি হয়নি বা ভুল — AI Studio-তে কী-টি খুলে COPY আইকনে চাপ দিয়ে আবার পেস্ট করুন।" },
         { status: 400 }
       );
     }

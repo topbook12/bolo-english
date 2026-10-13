@@ -91,6 +91,8 @@ function tryParse(s: string): unknown {
 
 function extractAndParseJson<T>(text: string): T {
   let raw = text.trim();
+  // Strip any accidental BOM/zero-width chars the model may echo back
+  raw = raw.replace(/[\u200B-\u200D\u2060\uFEFF]/g, "");
   const fence = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
   if (fence) raw = fence[1].trim();
   const start = raw.search(/[[{]/);
@@ -130,10 +132,61 @@ function extractAndParseJson<T>(text: string): T {
   parsed = tryParse(closed);
   if (parsed !== null) return parsed as T;
 
+  // Repair 3: unescaped control characters inside strings. LLMs regularly
+  // emit real newlines/tabs inside JSON string values, which breaks
+  // JSON.parse even when every bracket is balanced. Escape them (only
+  // inside strings) and retry.
+  const escaped = escapeControlCharsInStrings(closed);
+  parsed = tryParse(escaped);
+  if (parsed !== null) return parsed as T;
+
   throw new GeminiError(
     "AI একটি ভুল ফরম্যাটে উত্তর দিয়েছে — আবার চেষ্টা করুন।",
     502
   );
+}
+
+/** Turn raw \n / \r / \t that sit INSIDE JSON strings into \\n \\r \\t. */
+function escapeControlCharsInStrings(s: string): string {
+  let out = "";
+  let inStr = false;
+  let esc = false;
+  for (const ch of s) {
+    if (inStr) {
+      if (esc) {
+        esc = false;
+        out += ch;
+        continue;
+      }
+      if (ch === "\\") {
+        esc = true;
+        out += ch;
+        continue;
+      }
+      if (ch === '"') {
+        inStr = false;
+        out += ch;
+        continue;
+      }
+      if (ch === "\n") {
+        out += "\\n";
+        continue;
+      }
+      if (ch === "\r") {
+        out += "\\r";
+        continue;
+      }
+      if (ch === "\t") {
+        out += "\\t";
+        continue;
+      }
+      out += ch;
+      continue;
+    }
+    if (ch === '"') inStr = true;
+    out += ch;
+  }
+  return out;
 }
 
 const JSON_ONLY_NUDGE =
@@ -186,7 +239,10 @@ export async function geminiText(
     try {
       return await callModel(apiKey, model, prompt, opts);
     } catch (e) {
-      lastErr = e as GeminiError;
+      lastErr =
+        e instanceof GeminiError
+          ? e
+          : new GeminiError("AI কল ব্যর্থ হয়েছে — ইন্টারনেট সংযোগ চেক করুন।", 502);
       // If auth/quota error, don't try other models with the same key
       if (lastErr.status === 401 || lastErr.status === 403 || lastErr.status === 429) {
         throw lastErr;

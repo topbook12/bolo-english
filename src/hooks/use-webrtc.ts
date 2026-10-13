@@ -60,6 +60,10 @@ export function useWebRTC({ onSendSignal, getMyId }: UseWebRTCOpts) {
   const localStreamRef = useRef<MediaStream | null>(null);
   const pcsRef = useRef<Map<string, RTCPeerConnection>>(new Map());
   const pendingIceRef = useRef<Map<string, RTCIceCandidateInit[]>>(new Map());
+  // Exotic browsers deliver ontrack without e.streams — merge those tracks
+  // per peer so the tile keeps BOTH audio and video (last event used to win,
+  // which could leave an audio-only black tile).
+  const streamlessRef = useRef<Map<string, MediaStream>>(new Map());
   const namesRef = useRef<Map<string, string>>(new Map());
   const myIdRef = useRef<string>("");
   // watchdog bookkeeping
@@ -192,8 +196,15 @@ export function useWebRTC({ onSendSignal, getMyId }: UseWebRTCOpts) {
       };
 
       pc.ontrack = (e) => {
-        const remote = e.streams[0] ?? new MediaStream([e.track]);
-        updatePeer(peerId, { stream: remote });
+        const incoming = e.streams[0];
+        if (incoming) {
+          updatePeer(peerId, { stream: incoming });
+          return;
+        }
+        const merged = streamlessRef.current.get(peerId) ?? new MediaStream();
+        if (!merged.getTracks().includes(e.track)) merged.addTrack(e.track);
+        streamlessRef.current.set(peerId, merged);
+        updatePeer(peerId, { stream: new MediaStream(merged.getTracks()) });
       };
 
       pc.onconnectionstatechange = () => {
@@ -256,6 +267,7 @@ export function useWebRTC({ onSendSignal, getMyId }: UseWebRTCOpts) {
       }
       pcsRef.current.delete(peerId);
       pendingIceRef.current.delete(peerId);
+      streamlessRef.current.delete(peerId);
       pcCreatedRef.current.delete(peerId);
       disconnectedAtRef.current.delete(peerId);
       lastRecoveryRef.current.delete(peerId);

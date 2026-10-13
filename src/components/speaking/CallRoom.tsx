@@ -46,33 +46,79 @@ function VideoTile({
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || !stream) return;
+    if (!el) return;
+    if (!stream) {
+      el.srcObject = null;
+      return;
+    }
     el.srcObject = stream;
-    // Remote video is unmuted, so browsers may block autoplay until the first
-    // user gesture. Retry playback on the next interaction instead of leaving
-    // a permanently black tile.
+
+    // Autoplay policy, solved properly:
+    // A REMOTE video that starts unmuted is rejected by Chrome/Safari's
+    // autoplay rules — that was leaving a fully-connected call with a
+    // permanently BLACK remote tile. The reliable pattern is:
+    //   1. start muted (muted autoplay is ALWAYS allowed → video renders)
+    //   2. unmute on the `playing` event (audio then flows normally)
+    //   3. keep a periodic + on-interaction retry as belt & braces
     let playing = false;
-    const onInteract = () => {
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const attemptPlay = () => {
       if (playing) return;
+      if (!muted) el.muted = true; // muted autoplay always permitted
       el.play().then(
-        () => {
-          playing = true;
-          detach();
-        },
-        () => undefined // still blocked — retry on next interaction
+        () => undefined,
+        () => undefined // still blocked — retried below / on interaction
       );
     };
+
+    const onPlaying = () => {
+      playing = true;
+      if (retryTimer) {
+        clearTimeout(retryTimer);
+        retryTimer = null;
+      }
+      if (!muted) el.muted = false; // unmute once real playback started
+      detach();
+    };
+
+    const onInteract = () => {
+      if (playing) return;
+      el.play().then(() => undefined, () => undefined);
+    };
+
     const detach = () => {
+      if (retryTimer) {
+        clearTimeout(retryTimer);
+        retryTimer = null;
+      }
       document.removeEventListener("click", onInteract);
       document.removeEventListener("touchstart", onInteract);
       document.removeEventListener("keydown", onInteract);
     };
+
+    el.addEventListener("playing", onPlaying);
     document.addEventListener("click", onInteract);
     document.addEventListener("touchstart", onInteract);
     document.addEventListener("keydown", onInteract);
-    onInteract();
-    return detach;
-  }, [stream]);
+    attemptPlay();
+    // Periodic retry until `playing` fires — covers browsers that delay
+    // media flow right after ICE connects (black tile with audio flowing).
+    const startRetry = () => {
+      if (playing || retryTimer) return;
+      retryTimer = setTimeout(() => {
+        retryTimer = null;
+        attemptPlay();
+        startRetry();
+      }, 1500);
+    };
+    startRetry();
+
+    return () => {
+      el.removeEventListener("playing", onPlaying);
+      detach();
+    };
+  }, [stream, muted, isConnecting]); // isConnecting: re-arm when the peer connects
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-black/85 shadow-lg ring-1 ring-black/5">
@@ -80,7 +126,9 @@ function VideoTile({
         ref={ref}
         autoPlay
         playsInline
-        muted={muted}
+        // React manages the attribute only for the muted (local) tile; the
+        // remote tile's muted state is driven imperatively in the effect.
+        muted={muted === true ? true : undefined}
         aria-label={isSelf ? `${name} · ${selfSuffix}` : name}
         className={`aspect-video h-full w-full object-cover ${mirrored ? "scale-x-[-1]" : ""}`}
       />

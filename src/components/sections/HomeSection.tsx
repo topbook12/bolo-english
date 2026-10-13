@@ -114,6 +114,16 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
   const [progress, setProgress] = useState<ProgressData | null>(null);
   const [dailyWords, setDailyWords] = useState<DailyWord[] | null>(null);
   const [dailyError, setDailyError] = useState<string | null>(null);
+  // Time-based greeting is computed AFTER mount: `new Date()` differs between
+  // the server (UTC) and the client (user's timezone), which caused a
+  // hydration mismatch ("Good morning" vs "Good afternoon"). Render a stable
+  // generic welcome during SSR/hydration, then swap in the local greeting.
+  const [greetKey, setGreetKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    const h = new Date().getHours();
+    setGreetKey(h < 12 ? "morning" : h < 16 ? "noon" : h < 19 ? "afternoon" : "evening");
+  }, []);
 
   useEffect(() => {
     if (!deviceId) return;
@@ -136,10 +146,9 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
     loadDaily();
   }, [deviceId, hasKey]);
 
-  const h = new Date().getHours();
-  const greet = t(`hero.greet.${h < 12 ? "morning" : h < 16 ? "noon" : h < 19 ? "afternoon" : "evening"}`);
   const tips = (t.raw("tips") as string[] | undefined) ?? [];
-  const todayTip = tips.length > 0 ? tips[Math.floor(Date.now() / 86400000) % tips.length] : "";
+  const todayTip = tips.length > 0 ? tips[greetKey ? Math.floor(Date.now() / 86400000) % tips.length : 0] : "";
+  const studentName = displayName && displayName !== "শিক্ষার্থী" ? displayName : tCommon("student");
 
   return (
     <div className="space-y-6">
@@ -156,10 +165,9 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
               {t("hero.badge")}
             </span>
             <h1 className="animate-fade-in-up-1 mt-2.5 text-2xl font-extrabold tracking-tight sm:text-3xl md:text-4xl">
-              {t("hero.welcome", {
-                greet,
-                name: displayName && displayName !== "শিক্ষার্থী" ? displayName : tCommon("student"),
-              })}
+              {greetKey
+                ? t("hero.welcome", { greet: t(`hero.greet.${greetKey}`), name: studentName })
+                : t("hero.welcomeGeneric", { name: studentName })}
             </h1>
             <p className="animate-fade-in-up-2 mt-2 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
               {t("hero.subtitle")}

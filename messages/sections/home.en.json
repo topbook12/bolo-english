@@ -9,6 +9,7 @@
         "evening": "Good evening"
       },
       "welcome": "{greet}, {name}! 👋",
+      "welcomeGeneric": "Welcome, {name}! 👋",
       "subtitle": "What will you learn today? Practice speaking English fearlessly — completely free.",
       "ctaStart": "Start speaking",
       "ctaWords": "Today's words",

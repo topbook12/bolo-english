@@ -489,3 +489,23 @@ Stage Summary:
 - Gemini "wrong format" errors now have 4 layers of defense: bigger per-model token budget, JSON repair, per-model retry with JSON nudge, model fallback — key validity untouched (BYOK flow unchanged)
 - Video calls gain free TURN relay + self-healing watchdog + critical-signal retry + autoplay unblock — covers the CGNAT "connects but can't see" failure mode end to end
 - Pushed to github.com/topbook12/bolo-english main → Vercel auto-redeploys
+
+---
+Task ID: bugfix-2
+Agent: Z.ai Code (main)
+Task: 修复用户报告的三类问题 — ① Hydration 错误（Good morning vs Good afternoon 不匹配）；② Gemini AI key 正确仍报 "formatting" 错误；③ 视频通话连接成功但看不到对方画面
+
+Work Log:
+- 定位 Hydration 根因：src/components/sections/HomeSection.tsx 渲染期调用 new Date().getHours()（服务器 UTC vs 客户端 Asia/Dhaka UTC+6），SSR 输出与客户端首帧不一致
+- 修复：问候语改为 useState(null)+useEffect mount 后计算；SSR/hydration 期渲染新增的 hero.welcomeGeneric 文案（en/bn/hi 三语已加）；todayTip 同步 gating
+- 定位 Gemini "formatting" 错误两个来源：(a) /api/config 的 isValidGeminiKeyFormat 严格正则拒绝含零宽字符(U+200B)/BOM/弯引号/内部换行的正确 key；(b) extractAndParseJson 对 LLM 输出中未转义换行符无修复层
+- 修复 (a)：新建 src/lib/key-format.ts（client-safe）含 sanitizeApiKey + isValidGeminiKeyFormat；config route 与 SettingsSection 双端清洗；错误文案改为指引使用 AI Studio COPY 按钮
+- 修复 (b)：gemini.ts extractAndParseJson 增加 Repair 3 escapeControlCharsInStrings（字符串内裸 \n \r \t → 转义序列）；响应开头剥离 BOM/零宽字符；geminiText 错误类型转换修正（不再把非 GeminiError 伪装成有 status 的错误）
+- 定位视频通话远端黑屏：远端 <video> 无 muted 属性 → Chrome/Safari 自动播放策略拒绝未静音 play() → 永久黑 tile（连接已建立）；ontrack 无流 track 时后到事件覆盖先到（可能只剩音频）
+- 修复：CallRoom VideoTile 重写播放策略 — muted-first 自动播放（浏览器必定允许）→ playing 事件后取消静音 → 1.5s 周期重试 + 交互监听兜底 → isConnecting 变化时重新武装 effect；use-webrtc ontrack 增加 streamless track 合并逻辑 + closePC 清理
+- 验证：bun run lint 零错误；自写测试 sanitize 7/7、JSON repair 8/8（含此前必败的字符串内真实换行场景）；Agent Browser 全新加载 0 hydration errors、0 console errors，桌面+移动（390x844）截图正常，Settings key 保存流程走通（格式校验通过、按预期进入验证环节）；确认 defaultLocale 已是 en、manifest 全英文（原生安装横幅为英语，无需改动）
+
+Stage Summary:
+- 三个用户报告 bug 全部修复：hydration（时区相关问候语）、Gemini formatting（key 清洗 + JSON 修复层3）、视频通话远端黑屏（autoplay 策略 + ontrack 合并）
+- 代码变更：HomeSection.tsx、home.{en,bn,hi}.json、key-format.ts（新）、crypto.ts、config/route.ts、SettingsSection.tsx、gemini.ts、CallRoom.tsx、use-webrtc.ts
+- 真实双端视频通话需真机+外网验证（沙箱无摄像头/无外网），渲染路径已按根因修复并有周期重试兜底
