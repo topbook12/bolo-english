@@ -677,3 +677,22 @@ Work Log:
 Stage Summary:
 - Listening Library is now complete: 18/18 stories (6 beginner + 6 intermediate + 6 advanced), all static, no API key needed; ADVANCED ids: candlelight-at-eight, stranded-above-the-clouds, the-eleventh-hour-correction, the-last-jamdani-loom, the-night-the-stars-came-back, grandmothers-first-signature
 - tsc: clean (bunx tsc --noEmit, zero errors); level distribution verified 6/6/6 via grep; all content original; progress tracking reuses existing slug-based readDoneIds/markStoryDone with no changes required
+
+---
+Task ID: 1,2,3,5-6,8,9-10 (main agent)
+Agent: Z.ai Code (main)
+Task: API-key + login audit, video/sound fixes, AI language policy, PWA install prompt, full verification loop (user requirements 1,2,3,5,6,8,9,10)
+
+Work Log:
+- API key + login audit (req 1-2): full curl matrix against /api/auth/* and /api/config — register, me, duplicate email (409 + clear bn message), wrong password (401 + clear message), logout, guest displayName/level persistence, cross-device account name resolution, fake-key 401 rejection at save, AI endpoints' key-missing errors. Result: NO code bugs found — all contracts behave as designed (one earlier "bug" was a wrong field name in my own curl test: the API correctly uses `displayName`).
+- Video call (req 3): ran a REAL two-headless-browser call test with injected fake media (canvas video + oscillator audio): room create → code join → roster 2 peers → offer/answer/ICE complete → remote video frames flowing BOTH directions (640x480, tracks live, autoplay unmute OK). Local pipeline is correct.
+- TURN diagnosis: browser ICE gathering test — Google STUN gathers srflx fine and TCP 443/80/3478 to standard.relay.metered.ca are open, but the hardcoded metered credential gathers ZERO candidates (not even srflx via that server) → the free TURN credential has lapsed. This is the production root cause of "stuck on connecting / can't see partner" on CGNAT mobile networks.
+- Fix: new GET /api/call/ice serves ICE servers at call time (env: TURN_URLS, TURN_USERNAME, TURN_CREDENTIAL → e.g. Cloudflare Calls TURN, free 1TB/mo, no redeploy needed); use-webrtc fetches them lazily once per session with bundled-list fallback.
+- Language policy (req 5-6): /api/ai rewritten — explanation language follows UI locale (bn primary / en / hi) via next-intl getLocale(); per-locale rule + field hints; AI cache keys now locale-scoped (switching language regenerates instead of serving the old language).
+- PWA (req 8): new floating InstallPrompt (Android/desktop uses beforeinstallprompt, iOS shows Add-to-Home-Screen hint, standalone-aware, dismiss = session X / 3-day Later, all via hydration-safe useSyncExternalStore probes) mounted in AppShell; i18n added in 3 locales.
+- Grammar UX: hard key-gate replaced with banner + toast-guided browsing so all 26 topics are visible without a key (useToast moved above early returns for hooks compliance).
+- Verification loop (req 9-10): bunx tsc --noEmit clean; bun run lint clean; agent-browser end-to-end — fresh load zero errors/hydration issues; Listening Library: tabs/levels/search/categories/progress render, story opens, vocab panel, quiz answer flow with feedback; Grammar: Foundation(12)+Advanced(14) render keyless, bn locale fully localized; Bengali library UI verified (titles/categories/player/vocab in bn); dev.log all 200s, no compile errors.
+
+Stage Summary:
+- Commit fbfb5e0 pushed to main. Requirements 1,2 verified clean (no fixes needed); 3 root-caused (dead TURN creds) with a no-redeploy fix path (add Cloudflare TURN env vars on Vercel); 4+7 content shipped by subagents (tasks 4, 7, 7b) and wired; 5-6 AI content now locale-aware; 8 install prompt shipped; 9-10 verified in browser until clean.
+- NEXT ACTION FOR OWNER (the one thing code cannot do alone): add Cloudflare Calls TURN credentials as Vercel env vars TURN_URLS / TURN_USERNAME / TURN_CREDENTIAL → instant fix for mobile-data (CGNAT) users.
