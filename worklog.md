@@ -394,3 +394,35 @@ Stage Summary:
   (only whole rooms 90s) — a crashed tab lingers as a "connecting…" ghost tile while any
   participant heartbeats; (2) full 2-browser WebRTC media test pending (per task, done by
   integrator); (3) displayName is fixed at join (HTTP API has no rename).
+---
+Task ID: 3+4+5+6 (integration, verification, deployment)
+Agent: main (Z.ai Code)
+Task: Integration loop, browser self-verification, Vercel/GitHub deployment
+
+Work Log:
+- Fixed agents' reported tsc errors: lib/db.ts (PrismaLibSQL takes config obj in v6.19),
+  api/call/join (CallRoom type annotation), next.config eslint key (removed — not in Next16 types)
+- Integration loop caught and fixed: listening.apiKey.aria missing key (3 locales),
+  home.common.student wrong-namespace lookup (added tCommon), AuthDialog aria-describedby,
+  home greeting default-name localization (bn→শিক্ষার্থী, en→Student, hi→छात्र)
+- CRITICAL discovery: dev-registered service worker cached Turbopack dev chunks (stable URLs,
+  cache-first) → browser verified stale code. Fix: PwaRegister registers SW only in production,
+  unregisters in dev; sw.js CACHE bumped v1→v2. Re-verified everything on clean cache.
+- Browser verification (agent-browser): home/speaking/grammar/vocab/listening/progress/settings
+  render premium in bn/en/hi; language switcher works; auth register e2e via UI (user "রিমা
+  আক্তার" created, toast, avatar, logout); camera-denied error path; AI partner quick-phrase
+  send + proper no-key error toast; mobile 390px layout + bottom nav + more sheet; 0 console
+  errors on clean loads; call signaling e2e 11/11 PASS
+- Deployment: scripts/deploy-db.ts (prisma migrate diff → libsql execute); schema pushed to
+  Turso (20 statements); Turso round-trip smoke test PASS (create/find/delete)
+- Repo hygiene: .env UNTRACKED (was committed by scaffold — scrubbed via orphan-commit rebuild),
+  untracked db/, examples/, skills/, mini-services/, .zscripts, worklog; socket.io-client dep
+  removed; postinstall: prisma generate; .env.example + Bengali README
+- GitHub: created topbook12/bolo-english (API), clean orphan history pushed to main; token never
+  stored in .git/config (inline push URLs only)
+
+Stage Summary:
+- LIVE: https://github.com/topbook12/bolo-english (4 commits, zero secrets in history)
+- Deploy = Vercel import + 2 env vars (TURSO_DATABASE_URL, TURSO_AUTH_TOKEN); schema already pushed
+- lint 0 / tsc 0 / dev.log clean / signaling e2e PASS
+- USER ADVISORY: rotate GitHub + Turso tokens after first deploy (were shared in chat)
