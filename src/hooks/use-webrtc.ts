@@ -318,14 +318,31 @@ export function useWebRTC({ onSendSignal, getMyId }: UseWebRTCOpts) {
     [ensurePC, closePC, updatePeer]
   );
 
-  /* ── signal handling (payload = {offer|answer|ice} envelope, like the old socket handler) ── */
+  /* ── signal handling (payload = {offer|answer|ice} envelope) ──
+   * Defensive: also accepts BARE payloads ({type:"offer",sdp} / candidate) —
+   * a sender that skips the envelope bridge used to be swallowed SILENTLY
+   * here ("connected" call, permanently black remote tile). */
   const handleSignal = useCallback(
     async (from: string, data: unknown) => {
-      const d = (data ?? {}) as {
+      const raw = (data ?? {}) as {
         offer?: RTCSessionDescriptionInit;
         answer?: RTCSessionDescriptionInit;
         ice?: RTCIceCandidateInit;
+        type?: string;
+        sdp?: string;
+        candidate?: string;
       };
+      const d = {
+        offer:
+          raw.offer ?? (raw.type === "offer" && raw.sdp ? (raw as RTCSessionDescriptionInit) : undefined),
+        answer:
+          raw.answer ?? (raw.type === "answer" && raw.sdp ? (raw as RTCSessionDescriptionInit) : undefined),
+        ice: raw.ice ?? (raw.candidate ? (raw as RTCIceCandidateInit) : undefined),
+      };
+      if (!d.offer && !d.answer && !d.ice) {
+        console.warn("unrecognized call signal dropped", typeof data);
+        return;
+      }
       try {
         if (d.offer) {
           const pc = await ensurePC(from);

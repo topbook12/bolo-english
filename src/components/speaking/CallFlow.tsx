@@ -68,8 +68,20 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
   const disposedRef = useRef(false);
 
   const webrtc = useWebRTC({
-    onSendSignal: (type: "offer" | "answer" | "ice", data: unknown, to: string) =>
-      clientRef.current?.send(type, data, to),
+    // ⚠️ THIS is the envelope bridge: use-webrtc emits raw payloads
+    // (RTCSessionDescriptionInit / RTCIceCandidateInit) — they MUST be wrapped
+    // into the {offer|answer|ice} envelope that handleSignal unpacks. Passing
+    // the raw object through used to make EVERY signal silently unparseable on
+    // the receiving side → calls "connected" but remote video never rendered.
+    onSendSignal: (type, data, to) => {
+      const payload =
+        type === "offer"
+          ? { offer: data }
+          : type === "answer"
+            ? { answer: data }
+            : { ice: data };
+      clientRef.current?.send(type, payload, to);
+    },
     getMyId: () => clientRef.current?.peerId ?? "",
   });
 
