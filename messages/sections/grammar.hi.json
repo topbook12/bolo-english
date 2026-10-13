@@ -1,0 +1,114 @@
+{
+  "grammar": {
+    "title": "व्याकरण सीखें",
+    "subtitle": "टॉपिक चुनें — आसान भाषा में लेसन पढ़ें, फिर क्विज़ में खुद को परखें।",
+    "levelSelect": "अपना लेवल चुनें",
+    "topicsLabel": "व्याकरण टॉपिक",
+    "openTopic": "लेसन पढ़ें: {topic}",
+    "progress": {
+      "quizzes": "क्विज़ दिए",
+      "accuracy": "सही जवाब",
+      "topicsDone": "टॉपिक पूरे हुए"
+    },
+    "noKey": {
+      "title": "लेसन और क्विज़ AI से बनते हैं",
+      "body": "शुरू करने के लिए पहले Settings टैब में अपनी फ्री Gemini API Key (aistudio.google.com/apikey) जोड़ें। आपकी कुंजी एन्क्रिप्टेड रहती है — कोई उसे नहीं देख सकता।"
+    },
+    "howTo": {
+      "title": "यह कैसे काम करता है",
+      "point1": "आसान समझौट के साथ लेसन — गलत → सही उदाहरणों के साथ",
+      "point2": "5 सवालों के क्विज़ से खुद को परखें",
+      "point3": "स्कोर आपके Progress पेज पर सेव होता है"
+    },
+    "topics": {
+      "tense": {
+        "name": "Tense Basics",
+        "sub": "सभी 12 टेंस, बिल्कुल आसान भाषा में"
+      },
+      "presentPerfect": {
+        "name": "Present Perfect vs Past Simple",
+        "sub": "कब कौन-सा टेंस — मुख्य अंतर"
+      },
+      "articles": {
+        "name": "Articles (a/an/the)",
+        "sub": "a, an, the का सही इस्तेमाल"
+      },
+      "prepositions": {
+        "name": "Prepositions (in/on/at)",
+        "sub": "in, on, at में फ़र्क़ — हिंदी से तुलना"
+      },
+      "agreement": {
+        "name": "Subject-Verb Agreement",
+        "sub": "कर्ता के हिसाब से क्रिया का रूप"
+      },
+      "questions": {
+        "name": "Question Formation",
+        "sub": "Do/Does/Did और Wh- से सवाल पूछना"
+      },
+      "conditionals": {
+        "name": "Conditionals (If वाक्य)",
+        "sub": "Zero से Third conditional तक"
+      },
+      "passive": {
+        "name": "Passive Voice",
+        "sub": "Active से Passive बनाना"
+      },
+      "modals": {
+        "name": "Modals (can/should/must)",
+        "sub": "योग्यता, सलाह और ज़रूरत"
+      },
+      "phrasal": {
+        "name": "Phrasal Verbs",
+        "sub": "give up, put off, look after…"
+      },
+      "mistakes": {
+        "name": "आम गलतियाँ",
+        "sub": "जो गलतियाँ लगभग सब करते हैं"
+      },
+      "sinceFor": {
+        "name": "Since vs For",
+        "sub": "समय बताने में कब कौन-सा"
+      }
+    },
+    "lesson": {
+      "back": "टॉपिक सूची",
+      "backAria": "टॉपिक सूची पर वापस जाएँ",
+      "tipsTitle": "याद रखें",
+      "startQuiz": "क्विज़ दें",
+      "startQuizAria": "इस टॉपिक का क्विज़ शुरू करें",
+      "wrongLabel": "गलत:",
+      "rightLabel": "सही:",
+      "errorTitle": "लेसन लोड नहीं हो सका"
+    },
+    "quiz": {
+      "badge": "क्विज़",
+      "questionOf": "सवाल {i}/{n}",
+      "scoreSoFar": "सही जवाब: {n}",
+      "progressAria": "क्विज़ प्रगति {pct}%",
+      "chooseAnswer": "जवाब चुनें",
+      "correct": "सही जवाब!",
+      "wrong": "गलत हुआ — सही जवाब: {answer}",
+      "explanation": "समझाइए:",
+      "nextQuestion": "अगला सवाल",
+      "seeResult": "रिज़ल्ट देखें",
+      "scoreWord": "सही!",
+      "loggedBadge": "रिज़ल्ट आपकी Progress में जुड़ गया",
+      "retry": "फिर क्विज़ दें",
+      "retryAria": "वही क्विज़ दोबारा दें",
+      "backToTopic": "टॉपिक पर वापस",
+      "reviewTitle": "जो गलत हुए, उन्हें देखें",
+      "reviewItem": "{question} → सही: {answer}",
+      "errorTitle": "क्विज़ लोड नहीं हो सका",
+      "errorEmpty": "क्विज़ बनाया नहीं जा सका — कृपया थोड़ी देर में फिर कोशिश करें।",
+      "motivation": {
+        "perfect": "शानदार! पूरे नंबर — यह टॉपिक अब आपकी पकड़ में है। अब कोई नया टॉपिक सीखें! 🎉",
+        "good": "बहुत बढ़िया! गलतियों को याद रखकर एक बार और कोशिश करें — स्कोर और बढ़ेगा। 💪",
+        "ok": "अच्छी कोशिश! लेसन को एक बार ध्यान से फिर पढ़ें, फिर क्विज़ दें — आप कर सकते हैं। 📖",
+        "low": "कोई बात नहीं, गलतियों से ही सीखना शुरू होता है! पहले लेसन पढ़ें, फिर दोबारा कोशिश करें। 🌱"
+      }
+    },
+    "errors": {
+      "unknown": "कुछ गड़बड़ हो गई — कृपया फिर कोशिश करें।"
+    }
+  }
+}

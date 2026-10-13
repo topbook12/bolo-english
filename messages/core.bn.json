@@ -1,0 +1,59 @@
+{
+  "common": {
+    "appName": "Bolo English",
+    "tagline": "নির্ভয়ে ইংরেজি বলুন",
+    "save": "সেভ করুন",
+    "saved": "সেভ হয়েছে",
+    "cancel": "বাতিল",
+    "delete": "মুছে ফেলুন",
+    "close": "বন্ধ করুন",
+    "back": "ফিরে যান",
+    "next": "পরেরটা",
+    "finish": "শেষ করুন",
+    "loading": "লোড হচ্ছে…",
+    "retry": "আবার চেষ্টা করুন",
+    "send": "পাঠান",
+    "you": "আপনি",
+    "partner": "পার্টনার",
+    "student": "শিক্ষার্থী",
+    "connected": "সংযোগ হচ্ছে…",
+    "level": {
+      "beginner": "শুরুর দিকে",
+      "intermediate": "মাঝারি",
+      "advanced": "উন্নত"
+    },
+    "free": "১০০% ফ্রি",
+    "poweredByYou": "আপনার নিজের Gemini Key",
+    "encrypted": "নিরাপদে এনক্রিপ্টেড থাকে"
+  },
+  "nav": {
+    "home": "হোম",
+    "homeDesc": "আজকের দিনলিপি",
+    "speaking": "কথা বলুন",
+    "speakingDesc": "ভিডিও কলে ইংরেজি প্র্যাকটিস",
+    "grammar": "গ্রামার",
+    "grammarDesc": "রুল শিখুন, কুইজ দিন",
+    "listening": "লিসেনিং",
+    "listeningDesc": "শুনুন ও বুঝুন",
+    "vocab": "ভোকাবুলারি",
+    "vocabDesc": "ডেইলি শব্দ ও ওয়ার্ডবুক",
+    "progress": "প্রোগ্রেস",
+    "progressDesc": "AI বিশ্লেষণ ও অবস্থান",
+    "settings": "সেটিংস",
+    "settingsDesc": "API Key ও প্রোফাইল",
+    "more": "আরও",
+    "menu": "মেনু",
+    "mobileMenu": "মোবাইল মেনু",
+    "mainMenu": "প্রধান মেনু",
+    "aiActive": "AI সক্রিয়",
+    "addKey": "API Key দিন",
+    "addKeyShort": "Key"
+  },
+  "locale": {
+    "switch": "ভাষা বদলান",
+    "current": "ভাষা"
+  },
+  "footer": {
+    "line": "বাংলাভাষী শিক্ষার্থীদের জন্য ফ্রি ইংরেজি প্র্যাকটিস প্ল্যাটফর্ম · PWA"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "common": {
+    "appName": "Bolo English",
+    "tagline": "Speak English fearlessly",
+    "save": "Save",
+    "saved": "Saved",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish",
+    "loading": "Loading…",
+    "retry": "Try again",
+    "send": "Send",
+    "you": "You",
+    "partner": "Partner",
+    "student": "Student",
+    "connected": "Connecting…",
+    "level": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "free": "100% Free",
+    "poweredByYou": "Your own Gemini Key",
+    "encrypted": "Encrypted safely"
+  },
+  "nav": {
+    "home": "Home",
+    "homeDesc": "Today's diary",
+    "speaking": "Speak",
+    "speakingDesc": "Practice English on video calls",
+    "grammar": "Grammar",
+    "grammarDesc": "Learn rules, take quizzes",
+    "listening": "Listening",
+    "listeningDesc": "Listen and understand",
+    "vocab": "Vocabulary",
+    "vocabDesc": "Daily words & wordbook",
+    "progress": "Progress",
+    "progressDesc": "AI analysis & stats",
+    "settings": "Settings",
+    "settingsDesc": "API key & profile",
+    "more": "More",
+    "menu": "Menu",
+    "mobileMenu": "Mobile menu",
+    "mainMenu": "Main menu",
+    "aiActive": "AI active",
+    "addKey": "Add API Key",
+    "addKeyShort": "Key"
+  },
+  "locale": {
+    "switch": "Change language",
+    "current": "Language"
+  },
+  "footer": {
+    "line": "Free English practice platform for Bengali-speaking learners · PWA"
+  }
+}

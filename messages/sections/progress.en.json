@@ -1,0 +1,70 @@
+{
+  "progress": {
+    "title": "My Progress",
+    "subtitle": "Your AI-analysis history — where the gaps were, where you're improving.",
+    "stats": {
+      "sessions": "Speaking sessions",
+      "minutes": "Total time",
+      "minutesValue": "{n} min",
+      "avgScore": "Avg. score",
+      "words": "Words"
+    },
+    "streak": {
+      "active": "-day streak! 🔥",
+      "activeAria": "On a {n}-day streak",
+      "start": "Start practicing today",
+      "startDesc": "Do one session or quiz today to start your streak.",
+      "note": "A little practice every day is what counts — keep the streak alive.",
+      "best": "Best: {n} days",
+      "unit": "days"
+    },
+    "trend": {
+      "title": "Score trend",
+      "desc": "Scores from your recent sessions",
+      "ariaLabel": "Score per session",
+      "session": "Session {n}: {score}"
+    },
+    "practice": {
+      "title": "Practice statistics",
+      "desc": "How often your quiz answers were correct",
+      "correctOf": "{correct}/{total} correct · {count} attempts",
+      "grammar-quiz": "Grammar quiz",
+      "vocab-quiz": "Vocabulary quiz",
+      "listening-quiz": "Listening quiz"
+    },
+    "history": {
+      "title": "Speaking history",
+      "desc": "Tap a session card to see the dialogue and mistakes",
+      "needKey": "After each speaking session, the AI analysis will appear here. Set your API key first to get started.",
+      "emptyTitle": "No speaking sessions yet",
+      "emptyDesc": "Start your first conversation — AI analysis will build up here.",
+      "score": "score",
+      "partners": "{n} people",
+      "minutes": "{n} min",
+      "noAnalysis": "No analysis",
+      "mistakesTitle": "Mistakes made",
+      "transcriptTitle": "Full dialogue",
+      "showTranscript": "Show dialogue",
+      "hideTranscript": "Hide dialogue",
+      "transcriptAria": "Toggle the session dialogue",
+      "fullAnalysis": "Full analysis",
+      "type": {
+        "one-to-one": "1:1 call",
+        "group": "Group call",
+        "ai-partner": "AI partner"
+      }
+    },
+    "detail": {
+      "title": "AI analysis — {type} · score {score}",
+      "fluency": "Fluency",
+      "grammar": "Grammar",
+      "vocabulary": "Vocabulary",
+      "mistakesTitle": "Mistakes made",
+      "betterTitle": "How a native might say it",
+      "gapsTitle": "Grammar topics to study",
+      "vocabGapsTitle": "Words to learn",
+      "suggestionsTitle": "Next suggestions",
+      "transcriptTitle": "Full dialogue"
+    }
+  }
+}

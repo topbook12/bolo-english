@@ -1,0 +1,59 @@
+{
+  "common": {
+    "appName": "Bolo English",
+    "tagline": "निडर होकर अंग्रेज़ी बोलें",
+    "save": "सेव करें",
+    "saved": "सेव हो गया",
+    "cancel": "रद्द करें",
+    "delete": "मिटाएँ",
+    "close": "बंद करें",
+    "back": "वापस जाएँ",
+    "next": "अगला",
+    "finish": "समाप्त करें",
+    "loading": "लोड हो रहा है…",
+    "retry": "फिर कोशिश करें",
+    "send": "भेजें",
+    "you": "आप",
+    "partner": "पार्टनर",
+    "student": "छात्र",
+    "connected": "कनेक्ट हो रहा है…",
+    "level": {
+      "beginner": "शुरुआती",
+      "intermediate": "मध्यम",
+      "advanced": "उन्नत"
+    },
+    "free": "100% मुफ़्त",
+    "poweredByYou": "आपकी अपनी Gemini Key",
+    "encrypted": "सुरक्षित एन्क्रिप्टेड"
+  },
+  "nav": {
+    "home": "होम",
+    "homeDesc": "आज की डायरी",
+    "speaking": "बोलें",
+    "speakingDesc": "वीडियो कॉल पर अंग्रेज़ी अभ्यास",
+    "grammar": "ग्रामर",
+    "grammarDesc": "नियम सीखें, क्विज़ दें",
+    "listening": "लिसनिंग",
+    "listeningDesc": "सुनें और समझें",
+    "vocab": "शब्दावली",
+    "vocabDesc": "रोज़ के शब्द और वर्डबुक",
+    "progress": "प्रोग्रेस",
+    "progressDesc": "AI विश्लेषण और आँकड़े",
+    "settings": "सेटिंग्स",
+    "settingsDesc": "API Key और प्रोफ़ाइल",
+    "more": "और",
+    "menu": "मेनू",
+    "mobileMenu": "मोबाइल मेनू",
+    "mainMenu": "मुख्य मेनू",
+    "aiActive": "AI सक्रिय",
+    "addKey": "API Key दें",
+    "addKeyShort": "Key"
+  },
+  "locale": {
+    "switch": "भाषा बदलें",
+    "current": "भाषा"
+  },
+  "footer": {
+    "line": "बांग्लाभाषी छात्रों के लिए मुफ़्त अंग्रेज़ी अभ्यास प्लेटफ़ॉर्म · PWA"
+  }
+}

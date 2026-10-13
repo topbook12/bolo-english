@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Student account (email + password login)
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// User's own Gemini API key (encrypted at rest) + profile
+model UserConfig {
+  id          String   @id @default(cuid())
+  deviceId    String   @unique
+  apiKeyEnc   String   // AES-256-GCM encrypted Gemini API key
+  keyPreview  String   // masked preview e.g. "AIza...9f2"
+  displayName String   @default("শিক্ষার্থী")
+  level       String   @default("beginner") // beginner | intermediate | advanced
+  userId      String? // set when the device owner is logged in
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Generic cache for AI-generated content (grammar lessons, stories, quizzes)
+model AiCache {
+  id        String   @id @default(cuid())
+  feature   String
+  cacheKey  String
+  response  String // JSON string
+  createdAt DateTime @default(now())
+
+  @@unique([feature, cacheKey])
+}
+
+// Daily vocabulary (3 words per device per date)
+model DailyVocab {
+  id        String   @id @default(cuid())
+  deviceId  String
+  date      String // YYYY-MM-DD (Asia/Dhaka)
+  words     String // JSON: DailyWord[]
+  createdAt DateTime @default(now())
+
+  @@unique([deviceId, date])
+}
+
+// User's saved words
+model WordBookItem {
+  id        String   @id @default(cuid())
+  deviceId  String
+  word      String
+  data      String // JSON: DailyWord
+  userId    String?
+  createdAt DateTime @default(now())
+
+  @@unique([deviceId, word])
+}
+
+// Grammar lessons (AI-generated, cached per device)
+model GrammarLesson {
+  id        String   @id @default(cuid())
+  deviceId  String
+  topic     String
+  level     String
+  content   String // JSON: GrammarLessonContent
+  createdAt DateTime @default(now())
+
+  @@unique([deviceId, topic, level])
+}
+
+// Listening stories (AI-generated, cached per device)
+model ListeningStory {
+  id        String   @id @default(cuid())
+  deviceId  String
+  topic     String
+  level     String
+  content   String // JSON: ListeningStoryContent
+  createdAt DateTime @default(now())
+
+  @@unique([deviceId, topic, level])
+}
+
+// Speaking practice sessions (1:1, group, ai-partner)
+model SpeakingSession {
+  id           String   @id @default(cuid())
+  deviceId     String
+  type         String // one-to-one | group | ai-partner
+  partnerCount Int      @default(1)
+  durationSec  Int      @default(0)
+  transcript   String // JSON: [{speaker, text, at}]
+  analysis     String // JSON: CallAnalysis
+  score        Int      @default(0)
+  userId       String?
+  createdAt    DateTime @default(now())
+}
+
+// Quiz / practice results (grammar-quiz, vocab-quiz, listening-quiz)
+model PracticeLog {
+  id        String   @id @default(cuid())
+  deviceId  String
+  kind      String
+  refId     String
+  score     Int
+  total     Int
+  userId    String?
+  createdAt DateTime @default(now())
+}
+
+// ─── Video call signaling (HTTP-polling based; Vercel-serverless friendly) ───
+
+model CallRoom {
+  id           String         @id @default(cuid())
+  code         String         @unique // 6-char join code
+  intent       String // "one" | "group"
+  visibility   String         @default("public") // public (quick match) | private (code)
+  hostPeerId   String
+  status       String         @default("open") // open | closed
+  maxPeers     Int            @default(4) // 2 for one-to-one
+  lastSeq      Int            @default(0) // monotonic message cursor
+  participants String         @default("[]") // JSON: [{peerId, name, deviceId, joinedAt}]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  messages     SignalMessage[]
+}
+
+model SignalMessage {
+  id        Int      @id @default(autoincrement())
+  roomId    String
+  room      CallRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  fromPeer  String
+  toPeer    String? // null = broadcast to all other peers
+  type      String // offer | answer | ice | chat | caption | bye
+  payload   String // JSON
+  createdAt DateTime @default(now())
+
+  @@index([roomId, id])
+}

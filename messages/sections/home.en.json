@@ -1,0 +1,77 @@
+{
+  "home": {
+    "hero": {
+      "badge": "100% Free",
+      "greet": {
+        "morning": "Good morning",
+        "noon": "Good afternoon",
+        "afternoon": "Good afternoon",
+        "evening": "Good evening"
+      },
+      "welcome": "{greet}, {name}! 👋",
+      "subtitle": "What will you learn today? Practice speaking English fearlessly — completely free.",
+      "ctaStart": "Start speaking",
+      "ctaWords": "Today's words",
+      "alt": "Illustration of practising spoken English"
+    },
+    "stats": {
+      "title": "Your stats",
+      "streak": "Streak",
+      "days": "days",
+      "spoken": "Speaking time",
+      "minutes": "min",
+      "avgScore": "Avg. score",
+      "words": "Words saved",
+      "tipTitle": "Tip of the day"
+    },
+    "quick": {
+      "title": "Quick start",
+      "speakingTitle": "Speak",
+      "speakingDesc": "1:1 or group practice on video calls — live subtitles & AI corrections",
+      "speakingCta": "Start now",
+      "grammar": "Grammar",
+      "grammarDesc": "Learn the rules, test yourself with quizzes",
+      "vocab": "Vocabulary",
+      "vocabDesc": "3 real words every day",
+      "listening": "Listening",
+      "listeningDesc": "Listen to stories, build understanding",
+      "progress": "Progress",
+      "progressDesc": "Scores, streak & AI analysis",
+      "open": "Open {name}"
+    },
+    "goal": {
+      "title": "Today's goal & tip",
+      "speakItem": "Speak English for at least {minutes} minutes",
+      "streakItem": "Keep your {days}-day streak alive 🔥",
+      "wordItem": "Save today's 3 words to your wordbook"
+    },
+    "tips": [
+      "Start with short sentences — you don't need to be perfect, you just need to start.",
+      "Just 10 minutes of speaking a day adds up to nearly an hour of practice a week.",
+      "Mistakes are part of learning — AI will explain yours in simple words.",
+      "Practise listening and speaking together and you'll improve much faster."
+    ],
+    "daily": {
+      "title": "3 words for today",
+      "viewAll": "View all",
+      "needKeyTitle": "Add an API key to unlock daily words",
+      "needKeyDesc": "Add your own Gemini API key in Settings and get 3 real words every day — completely free.",
+      "needKeyAction": "Add key"
+    },
+    "apiKey": {
+      "title": "Add your own Gemini API key to unlock AI features",
+      "desc": "Free key: aistudio.google.com/apikey — your key is encrypted and stays safe",
+      "cta": "Set it up"
+    },
+    "how": {
+      "title": "How it works",
+      "subtitle": "Your English practice in 4 simple steps",
+      "items": [
+        "🎥 Talk with other learners in English on a video call (1:1 or a group of 4)",
+        "📝 Your speech appears as live subtitles — AI catches mistakes and shows corrections",
+        "🔍 After the call, AI analyses the whole dialogue — score, gaps and improvement tips",
+        "📚 3 real words daily, grammar lessons & listening practice — all free"
+      ]
+    }
+  }
+}

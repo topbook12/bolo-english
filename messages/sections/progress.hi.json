@@ -1,0 +1,70 @@
+{
+  "progress": {
+    "title": "मेरी प्रोग्रेस",
+    "subtitle": "AI विश्लेषण का इतिहास — कहाँ कमी थी, कहाँ सुधार हो रहा है।",
+    "stats": {
+      "sessions": "स्पीकिंग सेशन",
+      "minutes": "कुल समय",
+      "minutesValue": "{n} मिनट",
+      "avgScore": "औसत स्कोर",
+      "words": "शब्द"
+    },
+    "streak": {
+      "active": "-दिन की स्ट्रीक! 🔥",
+      "activeAria": "{n} दिन की स्ट्रीक चल रही है",
+      "start": "आज अभ्यास शुरू करें",
+      "startDesc": "आज एक सेशन या क्विज़ करके स्ट्रीक शुरू करें।",
+      "note": "रोज़ थोड़ा-थोड़ा अभ्यास ही असली काम है — स्ट्रीक बनाए रखें।",
+      "best": "सर्वश्रेष्ठ: {n} दिन",
+      "unit": "दिन"
+    },
+    "trend": {
+      "title": "स्कोर की दिशा",
+      "desc": "हाल के सेशन का स्कोर",
+      "ariaLabel": "सेशन के अनुसार स्कोर",
+      "session": "सेशन {n}: {score}"
+    },
+    "practice": {
+      "title": "अभ्यास के आँकड़े",
+      "desc": "क्विज़ में सही जवाब का अनुपात",
+      "correctOf": "{correct}/{total} सही · {count} बार",
+      "grammar-quiz": "ग्रामर क्विज़",
+      "vocab-quiz": "शब्दावली क्विज़",
+      "listening-quiz": "लिसनिंग क्विज़"
+    },
+    "history": {
+      "title": "बोलने का इतिहास",
+      "desc": "सेशन कार्ड पर टैप करके संवाद और गलतियाँ देखें",
+      "needKey": "स्पीकिंग सेशन खत्म होने पर AI विश्लेषण यहाँ जुड़ेगा। शुरू करने के लिए पहले API Key सेट करें।",
+      "emptyTitle": "अभी कोई स्पीकिंग सेशन नहीं",
+      "emptyDesc": "पहली बातचीत शुरू करें — AI विश्लेषण यहीं जमा होगा।",
+      "score": "स्कोर",
+      "partners": "{n} लोग",
+      "minutes": "{n} मिनट",
+      "noAnalysis": "विश्लेषण नहीं",
+      "mistakesTitle": "हुई गलतियाँ",
+      "transcriptTitle": "पूरा संवाद",
+      "showTranscript": "संवाद देखें",
+      "hideTranscript": "संवाद छिपाएँ",
+      "transcriptAria": "सेशन का संवाद खोलें या बंद करें",
+      "fullAnalysis": "पूरा विश्लेषण",
+      "type": {
+        "one-to-one": "1:1 कॉल",
+        "group": "ग्रुप कॉल",
+        "ai-partner": "AI पार्टनर"
+      }
+    },
+    "detail": {
+      "title": "AI विश्लेषण — {type} · स्कोर {score}",
+      "fluency": "प्रवाह",
+      "grammar": "ग्रामर",
+      "vocabulary": "शब्दावली",
+      "mistakesTitle": "हुई गलतियाँ",
+      "betterTitle": "नेटिव जैसा कैसे कहें",
+      "gapsTitle": "ग्रामर में क्या सीखना है",
+      "vocabGapsTitle": "सीखने लायक शब्द",
+      "suggestionsTitle": "अगले सुझाव",
+      "transcriptTitle": "पूरा संवाद"
+    }
+  }
+}

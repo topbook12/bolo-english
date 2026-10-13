@@ -1,0 +1,51 @@
+import { NextRequest, NextResponse } from "next/server";
+import { checkRateLimit } from "@/lib/rate-limit";
+import {
+  db,
+  verifyPassword,
+  normalizeEmail,
+  setSessionCookie,
+  mergeDeviceData,
+} from "@/lib/auth";
+
+// POST /api/auth/login  { deviceId, email, password }
+export async function POST(req: NextRequest) {
+  const body = await req.json().catch(() => null);
+  const deviceId = typeof body?.deviceId === "string" ? body.deviceId.slice(0, 80) : "";
+  if (!deviceId) {
+    return NextResponse.json({ ok: false, error: "deviceId required" }, { status: 400 });
+  }
+  const email = normalizeEmail(body?.email);
+  const password = typeof body?.password === "string" ? body.password : "";
+  if (!email || !password) {
+    return NextResponse.json(
+      { ok: false, error: "ইমেইল ও পাসওয়ার্ড দিন।" },
+      { status: 400 }
+    );
+  }
+  if (!checkRateLimit(`login:${email}`)) {
+    return NextResponse.json(
+      { ok: false, error: "অনেকবার চেষ্টা হয়েছে — ১ মিনিট পর আবার করুন।" },
+      { status: 429 }
+    );
+  }
+
+  const user = await db.user.findUnique({ where: { email } });
+  if (!user || !(await verifyPassword(password, user.passwordHash))) {
+    return NextResponse.json(
+      { ok: false, error: "ইমেইল বা পাসওয়ার্ড ভুল।" },
+      { status: 401 }
+    );
+  }
+
+  await db.userConfig
+    .updateMany({ where: { deviceId }, data: { userId: user.id } })
+    .catch(() => null);
+  await setSessionCookie(user.id);
+  await mergeDeviceData(user.id, deviceId);
+
+  return NextResponse.json({
+    ok: true,
+    data: { user: { id: user.id, email: user.email, name: user.name } },
+  });
+}

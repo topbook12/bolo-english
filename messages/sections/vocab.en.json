@@ -1,0 +1,93 @@
+{
+  "vocab": {
+    "title": "Vocabulary",
+    "subtitle": "Learn new words every day, save them to your wordbook, and test yourself with a quiz.",
+    "tabs": {
+      "daily": "Daily Words",
+      "wordbook": "Wordbook",
+      "quiz": "Quiz"
+    },
+    "aria": {
+      "section": "Vocabulary",
+      "optionsGroup": "Choose an answer",
+      "wordsChips": "Words in this quiz"
+    },
+    "daily": {
+      "dateLabel": "Date: {date}",
+      "dailyNote": "3 real words, every day",
+      "goQuiz": "Take the quiz",
+      "goQuizAria": "Go to the quiz tab",
+      "noKeyTitle": "Add your Gemini API Key in Settings",
+      "noKeyDesc": "Add a key and get 3 new words every day with Bangla meanings, examples and pronunciation — completely free.",
+      "loadErrorTitle": "Couldn’t load today’s words",
+      "loadingAria": "Loading today’s words"
+    },
+    "word": {
+      "pronunciationChip": "Bangla pronunciation",
+      "examplesLabel": "Examples (tap to hear):",
+      "hearExampleAria": "Hear example: {text}",
+      "tipLabel": "Usage tip",
+      "hear": "Pronounce",
+      "hearAria": "Hear pronunciation: {word}",
+      "save": "Save to wordbook",
+      "saveAria": "Save to wordbook: {word}",
+      "savedAria": "Already saved to wordbook: {word}"
+    },
+    "wordbook": {
+      "addWord": "Add your own word",
+      "addWordAria": "Open or close the add-word panel",
+      "lookupPlaceholder": "Type an English word — e.g. reliable",
+      "lookupAria": "New English word",
+      "lookupButton": "Generate meaning",
+      "lookupLoading": "Fetching the meaning…",
+      "lookupErrorTitle": "Couldn’t fetch the meaning",
+      "notEnglish": "“{word}” doesn’t look like an English word — check the spelling and try again.",
+      "searchPlaceholder": "Search by word or Bangla meaning…",
+      "searchAria": "Search the wordbook",
+      "yourWords": "Your words",
+      "count": "{n} words",
+      "loadErrorTitle": "Couldn’t load the wordbook",
+      "loadingAria": "Loading the wordbook",
+      "emptyTitle": "Your wordbook is still empty",
+      "emptyDesc": "Tap ⭐ on a daily word to save it, or add your favourite words with “Add your own word”.",
+      "goDaily": "See today’s words",
+      "noMatch": "No words match “{query}”.",
+      "deleteAria": "Delete: {word}"
+    },
+    "quiz": {
+      "needMoreTitle": "Almost ready for the quiz",
+      "needMoreDesc": "You need at least 3 saved words to play. Your wordbook currently has {n}.",
+      "goWordbook": "Add words in the wordbook",
+      "generatingTitle": "Building your quiz… 🧠",
+      "generatingDesc": "We’re creating 6 questions from your words — this may take a few seconds.",
+      "loadErrorTitle": "Couldn’t load the quiz",
+      "makeError": "Couldn’t build the quiz — please try again in a moment.",
+      "startTitle": "Word quiz",
+      "startDesc": "6 questions will be generated from {n} of your wordbook words. Each question has 4 options — pick the correct one and see the explanation instantly.",
+      "start": "Start quiz",
+      "questionOf": "Question {cur}/{total}",
+      "scoreLabel": "Score: {score}",
+      "listenAria": "Listen to the question",
+      "correctFeedback": "✅ Correct! Well done.",
+      "wrongFeedback": "❌ Correct answer: {answer}",
+      "nextQuestion": "Next question",
+      "seeResults": "See results 🏁",
+      "resultTitle": "Quiz finished — your result",
+      "pctCorrect": "{pct}% correct",
+      "msgGreat": "Outstanding! Your vocabulary is getting really strong 🎉",
+      "msgGood": "Well done! A little more practice and you’ll be perfect 👏",
+      "msgKeep": "No worries — revise the words and try again. Practice is how we learn 💪",
+      "retry": "Quiz again",
+      "retryNote": "The next quiz brings fresh questions from the same words.",
+      "scoreAria": "Your score: {score} out of {total}"
+    },
+    "toast": {
+      "saved": "“{word}” saved to your wordbook ⭐",
+      "saveFailed": "Couldn’t save the word",
+      "deleted": "“{word}” deleted",
+      "deleteFailed": "Couldn’t delete the word",
+      "undo": "Undo",
+      "undoDone": "“{word}” is back in your wordbook ⭐"
+    }
+  }
+}

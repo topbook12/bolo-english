@@ -1,0 +1,64 @@
+{
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Account, API key & profile",
+    "account": {
+      "title": "Account",
+      "desc": "Log in and all your data syncs across every device.",
+      "cta": "Create a free account or log in",
+      "ctaSub": "Takes just 30 seconds",
+      "benefit1": "Wordbook and progress sync across all your devices",
+      "benefit2": "Streaks and practice history stay safe",
+      "benefit3": "Completely free — no payments, ever",
+      "loggedAs": "Signed in as",
+      "synced": "Data synced to this device",
+      "syncedNote": "While signed in, all of your account data is available on this device."
+    },
+    "apiKey": {
+      "title": "Gemini API Key",
+      "active": "Active",
+      "needed": "Required",
+      "desc": "Every AI feature (live correction, analysis, lessons, words) runs on your own free Gemini key — that's why the platform is completely free.",
+      "currentKey": "Current key:",
+      "newKey": "New key (optional)",
+      "yourKey": "Your Gemini API key",
+      "show": "Show key",
+      "hide": "Hide key",
+      "save": "Save",
+      "verifying": "Verifying…",
+      "savedTitle": "API key saved ✅",
+      "savedDesc": "Encrypted and stored securely.",
+      "freeKey": "Get a free key:",
+      "remove": "Remove",
+      "removedTitle": "Key removed",
+      "safety1": "Stored server-side with AES-256-GCM encryption — never shared with anyone",
+      "safety2": "Only usable with your device ID; all AI calls are rate-limited",
+      "safety3": "The key never returns to your browser — you only see a masked preview (AIza…9f2)"
+    },
+    "profile": {
+      "title": "Profile",
+      "desc": "AI generates content to match your level.",
+      "name": "Your name (shown on calls)",
+      "levelLabel": "English level",
+      "save": "Save profile",
+      "updatedTitle": "Profile updated"
+    },
+    "language": {
+      "title": "Language",
+      "desc": "Change the app language — বাংলা, English or हिन्दी.",
+      "label": "App language"
+    },
+    "pwa": {
+      "title": "Install the app",
+      "desc": "Use it like a native app on mobile/desktop — old lessons even work offline.",
+      "install": "Install now",
+      "manualPre": "From your browser menu choose",
+      "manualBold": "Install app / Add to Home screen",
+      "manualPost": "— Chrome (Android/desktop) and Safari (iOS) are supported."
+    },
+    "errors": {
+      "saveFailed": "Couldn't save",
+      "removeFailed": "Couldn't remove"
+    }
+  }
+}

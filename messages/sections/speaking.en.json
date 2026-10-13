@@ -1,0 +1,106 @@
+{
+  "speaking": {
+    "title": "Speaking",
+    "subtitle": "Practice English on video calls — with AI live subtitles & corrections",
+    "one": {
+      "title": "Find a 1:1 Partner",
+      "desc": "Get matched instantly with another learner who is waiting for a call",
+      "cta": "Find a partner",
+      "points": [
+        "Instant matchmaking — no waiting around",
+        "Live subtitles capture every word you say",
+        "AI analysis & fixes after the call"
+      ]
+    },
+    "group": {
+      "title": "Group Conversation",
+      "desc": "Practice English in a room with up to 4 friends",
+      "newRoom": "New room",
+      "join": "Join",
+      "codePlaceholder": "Room code",
+      "points": [
+        "Up to 4 people practicing together",
+        "Share the room code to invite friends",
+        "Everyone's speech is kept in the subtitles"
+      ]
+    },
+    "ai": {
+      "title": "AI Partner",
+      "desc": "No one around? Practice English with Raha by text & voice",
+      "cta": "Talk to the AI",
+      "points": [
+        "Practice anytime, for as long as you like",
+        "Raha spots mistakes and explains them in Bangla",
+        "Voice replies, mic input & topic chips"
+      ]
+    },
+    "how": {
+      "title": "How it works",
+      "items": [
+        "Find a partner — a 1:1 match, a group room or the AI",
+        "Speak in English — live subtitles capture it all",
+        "Get AI analysis — with mistakes, fixes & suggestions"
+      ]
+    },
+    "keyNote": "Add your Gemini API Key in Settings for live AI corrections & call analysis. Video calls and subtitles work without a key.",
+    "micTip": "Keep your microphone on and the AI keeps your words in the subtitles",
+    "partner": {
+      "name": "Raha",
+      "role": "AI English Partner",
+      "tagline": "Chat by text; the AI explains your mistakes in Bangla",
+      "topicLabel": "Topic",
+      "topicAria": "Choose a topic",
+      "topics": {
+        "free": "Free chat",
+        "daily": "Daily life",
+        "office": "Office & work",
+        "travel": "Travel",
+        "interview": "Interview",
+        "friends": "Friends",
+        "exam": "Study & exam"
+      },
+      "inputPlaceholder": "Write in English…",
+      "inputAria": "Your message",
+      "listening": "Listening…",
+      "micStart": "Turn on microphone",
+      "micStop": "Turn off microphone",
+      "micUnsupported": "Voice input isn't supported in this browser — try Chrome or Edge",
+      "voiceOn": "Voice replies on",
+      "voiceOff": "Voice replies off",
+      "typingAria": "Raha is typing…",
+      "empty": {
+        "title": "Start talking to Raha in English",
+        "desc": "Tap a phrase below or write your own — Raha will reply and fix your mistakes.",
+        "starter": "Hi Raha, I want to practice my English.",
+        "howto": [
+          "Pick a topic",
+          "Write in English or use your mic",
+          "Listen to Raha's reply and note the fixes"
+        ]
+      },
+      "quickTitle": "Starter phrases",
+      "quickPhrases": [
+        "Could you repeat that, please?",
+        "How do I say this in English?",
+        "What do you do in your free time?",
+        "Let's talk about daily life."
+      ],
+      "fixes": "{n} fixes",
+      "analyzeCta": "End session — see AI analysis",
+      "analyzing": "AI is analyzing…",
+      "needTwo": "Write at least 2 sentences in English first",
+      "aiError": "AI couldn't reply",
+      "analysisError": "Analysis failed",
+      "analysis": {
+        "title": "Session analysis",
+        "newChat": "New conversation",
+        "fluency": "Fluency",
+        "grammar": "Grammar",
+        "vocab": "Vocabulary",
+        "fixesTitle": "Mistakes caught"
+      },
+      "footer": "{n} sentences practiced",
+      "encourage": "Regular practice builds fluency — keep going!"
+    }
+  }
+}
