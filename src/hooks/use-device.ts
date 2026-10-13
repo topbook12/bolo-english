@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 
 export interface UserConfig {
   deviceId: string;
@@ -74,12 +74,38 @@ export const useDevice = create<DeviceStore>((set, get) => ({
   },
 }));
 
-// Mount this once in the app shell
+/**
+ * Hydration-safe store read.
+ *
+ * `useDevice(selector)` reads the LIVE store during hydration. If the store
+ * changed between the moment Next.js generated the SSR HTML and the moment
+ * the browser hydrates (Fast Refresh keeping module state alive, a racing
+ * fetch, a stale cached chunk), the first client render differs from the
+ * server HTML and React reports a hydration mismatch — which then shifts
+ * every Radix useId() after the changed node (the "radix-_R_..." id /
+ * aria-controls console errors).
+ *
+ * This hook hands React an explicit SERVER snapshot used during hydration,
+ * guaranteeing the hydration render matches the SSR HTML byte-for-byte.
+ * Right after hydration React re-checks the live snapshot and re-renders
+ * with real values, so behavior is unchanged (values arrive a tick later).
+ *
+ * Use only for values that influence RENDERED OUTPUT during hydration;
+ * selectors must return primitives or referentially stable objects.
+ */
+export function useDeviceValue<T>(selector: (s: DeviceStore) => T, serverValue: T): T {
+  return useSyncExternalStore(
+    useDevice.subscribe,
+    () => selector(useDevice.getState()),
+    () => serverValue
+  );
+}
+
+// Mount this once in the app shell: fetches the device/account config.
+// Pure side effect — does not subscribe; components render store values via
+// the hydration-safe useDeviceValue instead.
 export function useDeviceInit() {
-  const deviceId = useDevice((s) => s.deviceId);
-  const loaded = useDevice((s) => s.loaded);
   useEffect(() => {
     useDevice.getState().refresh();
   }, []);
-  return { deviceId, loaded };
 }

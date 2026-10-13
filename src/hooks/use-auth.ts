@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { useDevice } from "./use-device";
 
 // Client auth state, mirrors the frozen /api/auth/* contracts:
@@ -98,6 +98,20 @@ export const useAuth = create<AuthStore>((set) => ({
     }
   },
 }));
+
+/**
+ * Hydration-safe auth read — see useDeviceValue in use-device.ts.
+ * During hydration this returns `serverValue` (e.g. `null` for `user`), so
+ * the first client render always matches the SSR HTML even if the auth
+ * store already holds live state (Fast Refresh retention, racing /me fetch).
+ */
+export function useAuthValue<T>(selector: (s: AuthStore) => T, serverValue: T): T {
+  return useSyncExternalStore(
+    useAuth.subscribe,
+    () => selector(useAuth.getState()),
+    () => serverValue
+  );
+}
 
 let authInitStarted = false;
 

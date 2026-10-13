@@ -6,7 +6,7 @@ import { LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AuthDialog from "./AuthDialog";
 import UserMenu from "./UserMenu";
-import { useAuth, useAuthInit } from "@/hooks/use-auth";
+import { useAuthValue, useAuthInit } from "@/hooks/use-auth";
 
 // Header auth entry point. Contract kept: {onOpenSettings?: () => void}.
 // Logged out → compact login button opening the AuthDialog (login tab);
@@ -15,7 +15,8 @@ import { useAuth, useAuthInit } from "@/hooks/use-auth";
 export default function AuthButton({ onOpenSettings }: { onOpenSettings?: () => void }) {
   const t = useTranslations("auth");
   useAuthInit(); // fires /api/auth/me once per page load
-  const user = useAuth((s) => s.user);
+  // Hydration-safe: null during hydration (matches SSR), live value after.
+  const user = useAuthValue((s) => s.user, null);
   const [open, setOpen] = useState(false);
 
   if (user) {

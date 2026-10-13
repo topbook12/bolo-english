@@ -29,7 +29,7 @@ import { Badge } from "@/components/ui/badge";
 import StatCard from "@/components/shared/StatCard";
 import PointList from "@/components/shared/PointList";
 import EmptyState from "@/components/shared/EmptyState";
-import { useDevice } from "@/hooks/use-device";
+import { useDeviceValue } from "@/hooks/use-device";
 import { apiGet } from "@/lib/client-api";
 import type { DailyWord } from "@/lib/types";
 import type { TabId } from "@/components/layout/AppShell";
@@ -110,7 +110,12 @@ function SectionTitle({
 export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => void }) {
   const t = useTranslations("home");
   const tCommon = useTranslations("common");
-  const { deviceId, hasKey, displayName, loaded } = useDevice();
+  // Hydration-safe reads (see useDeviceValue): during hydration these return
+  // exactly what the server rendered, then swap to live values after mount.
+  const deviceId = useDeviceValue((s) => s.deviceId, "");
+  const hasKey = useDeviceValue((s) => s.hasKey, false);
+  const displayName = useDeviceValue((s) => s.displayName, null);
+  const loaded = useDeviceValue((s) => s.loaded, false);
   const [progress, setProgress] = useState<ProgressData | null>(null);
   const [dailyWords, setDailyWords] = useState<DailyWord[] | null>(null);
   const [dailyError, setDailyError] = useState<string | null>(null);

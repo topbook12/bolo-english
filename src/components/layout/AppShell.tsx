@@ -20,7 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import PwaRegister from "@/components/pwa/PwaRegister";
 import LocaleSwitcher from "@/i18n/LocaleSwitcher";
 import AuthButton from "@/components/auth/AuthButton";
-import { useDeviceInit, useDevice } from "@/hooks/use-device";
+import { useDeviceInit, useDeviceValue } from "@/hooks/use-device";
 import HomeSection from "@/components/sections/HomeSection";
 import SpeakingSection from "@/components/sections/SpeakingSection";
 import GrammarSection from "@/components/sections/GrammarSection";
@@ -63,8 +63,12 @@ export default function AppShell() {
   const [tab, setTab] = useState<TabId>("home");
   const [moreOpen, setMoreOpen] = useState(false);
   useDeviceInit();
-  const hasKey = useDevice((s) => s.hasKey);
-  const loaded = useDevice((s) => s.loaded);
+  // Hydration-safe reads: during hydration these return the same values the
+  // server rendered (false), so the header structure can never diverge from
+  // the SSR HTML — even if the store already holds live state at hydration
+  // time. React swaps in live values right after hydration.
+  const hasKey = useDeviceValue((s) => s.hasKey, false);
+  const loaded = useDeviceValue((s) => s.loaded, false);
 
   // remember last tab
   useEffect(() => {
