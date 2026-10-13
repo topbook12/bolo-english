@@ -46,7 +46,8 @@ export default function SettingsSection() {
   const t = useTranslations("settings");
   const tCommon = useTranslations("common");
   const tAuth = useTranslations("auth");
-  const { deviceId, hasKey, keyPreview, displayName, level, setConfig } = useDevice();
+  const { deviceId, hasKey, keyPreview, displayName, level, storageError, setConfig } =
+    useDevice();
   const user = useAuth((s) => s.user);
   const authBusy = useAuth((s) => s.busy);
   const logout = useAuth((s) => s.logout);
@@ -63,7 +64,15 @@ export default function SettingsSection() {
     // Sanitize on the client too: strip invisible chars picked up while
     // copying (zero-width spaces, BOM, quotes, wrapped newlines).
     const cleaned = sanitizeApiKey(apiKey);
-    if (!cleaned) return;
+    if (!cleaned) {
+      // Never fail silently — tell the user what to do.
+      toast({
+        title: t("apiKey.pasteFirst"),
+        description: t("apiKey.freeKey"),
+        variant: "destructive",
+      });
+      return;
+    }
     setSaving("key");
     try {
       const res = await fetch("/api/config", {
@@ -71,7 +80,8 @@ export default function SettingsSection() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ deviceId, apiKey: cleaned }),
       });
-      const json = await res.json();
+      const json = await res.json().catch(() => null);
+      if (!json) throw new Error(t("apiKey.unexpectedResponse"));
       if (!json.ok) throw new Error(json.error);
       setConfig({
         hasKey: json.data.hasKey,
@@ -80,7 +90,17 @@ export default function SettingsSection() {
         level: json.data.level,
       });
       setApiKey("");
-      toast({ title: t("apiKey.savedTitle"), description: t("apiKey.savedDesc") });
+      if (json.warning) {
+        // Key stored, but verification couldn't complete (quota, network,
+        // Google hiccup). Make that visible instead of a fake success.
+        toast({
+          title: t("apiKey.savedTitle"),
+          description: json.warning,
+          variant: "destructive",
+        });
+      } else {
+        toast({ title: t("apiKey.savedTitle"), description: t("apiKey.savedDesc") });
+      }
     } catch (e) {
       toast({ title: t("errors.saveFailed"), description: (e as Error).message, variant: "destructive" });
     } finally {
@@ -96,7 +116,10 @@ export default function SettingsSection() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ deviceId, displayName: name, level }),
       });
-      const json: { ok: boolean; data?: ApiUserConfig; error?: string } = await res.json();
+      const json: { ok: boolean; data?: ApiUserConfig; error?: string } = await res
+        .json()
+        .catch(() => null);
+      if (!json) throw new Error(t("apiKey.unexpectedResponse"));
       if (!json.ok) throw new Error(json.error);
       setConfig({ displayName: json.data?.displayName ?? name, level: json.data?.level ?? level });
       toast({ title: t("profile.updatedTitle") });
@@ -109,11 +132,17 @@ export default function SettingsSection() {
 
   const removeKey = async () => {
     try {
-      await fetch(`/api/config?deviceId=${deviceId}`, { method: "DELETE" });
+      const res = await fetch(`/api/config?deviceId=${deviceId}`, { method: "DELETE" });
+      const json = await res.json().catch(() => null);
+      if (!json?.ok) throw new Error(json?.error);
       setConfig({ hasKey: false, keyPreview: null });
       toast({ title: t("apiKey.removedTitle") });
-    } catch {
-      toast({ title: t("errors.removeFailed"), variant: "destructive" });
+    } catch (e) {
+      toast({
+        title: t("errors.removeFailed"),
+        description: (e as Error)?.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -251,6 +280,15 @@ export default function SettingsSection() {
             <CardDescription>{t("apiKey.desc")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
+            {storageError && (
+              <Alert className="rounded-xl border-red-300 bg-red-50 text-red-900 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
+                <KeyRound className="h-4 w-4" />
+                <AlertDescription className="text-sm">
+                  <strong className="font-semibold">{t("apiKey.storageDown")}</strong>
+                  <span className="mt-0.5 block text-xs opacity-80">{storageError}</span>
+                </AlertDescription>
+              </Alert>
+            )}
             {hasKey && (
               <Alert className="rounded-xl border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
                 <ShieldCheck className="h-4 w-4" />
