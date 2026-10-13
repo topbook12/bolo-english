@@ -426,3 +426,20 @@ Stage Summary:
 - Deploy = Vercel import + 2 env vars (TURSO_DATABASE_URL, TURSO_AUTH_TOKEN); schema already pushed
 - lint 0 / tsc 0 / dev.log clean / signaling e2e PASS
 - USER ADVISORY: rotate GitHub + Turso tokens after first deploy (were shared in chat)
+
+---
+Task ID: deploy-fix-1
+Agent: main (Z.ai Code)
+Task: Fix Vercel deployment failure — "cp: cannot create directory '.next/standalone...'" → "bun run build" exited with 1
+
+Work Log:
+- Diagnosed Vercel build log: `next build` itself completed (full route table printed, "ƒ (Dynamic) server-rendered on demand"); only the trailing `cp` step failed
+- Root cause: package.json build script unconditionally ran `cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/`, but next.config.ts sets `output: "standalone"` only when NOT on Vercel (process.env.VERCEL) → .next/standalone never exists on Vercel → cp exits 1
+- Fix: `"build": "next build"` (exactly what Vercel needs); moved the standalone copy step to a separate local-only script `"build:standalone"`; `"start"` unchanged for sandbox use
+- Silenced sandbox chmod noise via `git config core.fileMode false` (179 files were mode-only 644→755, no content change)
+- Verified: `bun run lint` clean; no secrets tracked (.env*, /db, worklog all gitignored); remote up to date
+- Pushed to github.com/topbook12/bolo-english main via one-time inline PAT (182ce81..130b500); Vercel auto-redeploys from the push
+
+Stage Summary:
+- Vercel build script is now plain `next build` — the only failure point in the user's deployment log is eliminated
+- Remaining one-time user step (if not already done): set TURSO_DATABASE_URL + TURSO_AUTH_TOKEN in Vercel → Settings → Environment Variables so runtime DB hits Turso instead of the local-SQLite fallback
