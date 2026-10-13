@@ -619,3 +619,21 @@ Stage Summary:
 - Video calls now have a WORKING TURN relay → media can connect on mobile carrier networks (CGNAT), which is the primary way Bangladeshi students call
 - PC creation can no longer produce trackless/empty-SDP negotiations; stuck calls self-recover within ~12s
 - Note for future: if metered free relay ever degrades, options are Cloudflare TURN (needs account) or self-hosted coturn; ICE_SERVERS in use-webrtc.ts is the single place to change
+
+---
+Task ID: hydration-radix-useid
+Agent: Z.ai Code (main)
+Task: Fix console hydration mismatch — "A tree hydrated but some attributes of the server rendered HTML didn't match" showing radix-_R_* id / aria-controls diffs on the header (DropdownMenu trigger + Sheet trigger).
+
+Work Log:
+- Decoded the symptom: only useId-derived radix ids differed (server `_R_3iindlb_`/`_R_5iindlb_` = 7 base32 chars incl. overflow bits; client `_R_sklrlb_` = 6 chars) → client hydration render had a structurally different header than SSR, shifting React's useId tree path for every Radix node after the change point.
+- Probed SSR HTML via curl: badge/Add-key button absent server-side (loaded=false), radix ids matched the "-" side of React's diff → divergence was on the client's hydration render.
+- Read AppShell.tsx, AuthButton.tsx, HomeSection.tsx, use-device.ts, use-auth.ts, PwaRegister.tsx, LocaleSwitcher.tsx, i18n request/layout: found the hydration tree renders Zustand-driven output in 3 places (AppShell hasKey/loaded badge+button, AuthButton user branch, HomeSection displayName/hasKey) — zustand's useStore reads the LIVE store during hydration, so any store-vs-SSR state divergence (Fast Refresh module-state retention, racing fetches, stale chunks) guarantees this mismatch class.
+- Fix: added useDeviceValue/useAuthValue(selector, serverValue) hooks in use-device.ts / use-auth.ts built on React.useSyncExternalStore with explicit getServerSnapshot. During hydration React uses the exact server-rendered values; live values swap in immediately after hydration. Applied to AppShell (hasKey/loaded), AuthButton (user), HomeSection (deviceId/hasKey/displayName/loaded). useDeviceInit simplified to a pure side-effect hook (no subscriptions).
+- Sections rendered only after user interaction (Speaking/Grammar/Settings/etc.) intentionally left on plain useDevice — they can't participate in hydration.
+- Verification: bun run lint clean; bunx tsc --noEmit clean; agent-browser end-to-end — fresh load zero page errors & zero hydration errors; language dropdown open/switch bn→en (router.refresh) clean; register account → header swaps to Account menu; account menu → Settings; reload while logged in (SSR renders Log in, hydration matches then swaps) clean; Speak tab nav; mobile 390px Sheet opens with Listening/Progress/Settings; desktop 1280px + mobile screenshots OK, footer correct; dev.log all 200s.
+
+Stage Summary:
+- Hydration mismatch class eliminated by construction: hydration render now always matches SSR regardless of store state at hydration time (commit 874c001, pushed to main).
+- New pattern available for future store reads that influence first-paint output: useDeviceValue/useAuthValue with explicit server snapshot; plain useDevice() remains fine for interaction-time-only UI.
+- Greeting (Good morning/afternoon) fix and all prior behavior intact.
