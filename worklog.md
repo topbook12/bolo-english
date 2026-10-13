@@ -526,3 +526,32 @@ Stage Summary:
 - All 3 user-reported bugs are now on GitHub main: (1) Gemini formatting/key errors, (2) remote video black tile,
   (3) hydration mismatch on the time-based greeting; i18n English-default + PWA English install text also included
 - Next: user should hard-refresh the deployed Vercel URL once the build finishes; verify video call on two devices
+
+---
+Task ID: apikey-save-diagnosis
+Agent: main (Z.ai Code)
+Task: User reported "correct Gemini API key still won't save" — diagnose root cause and fix permanently
+
+Work Log:
+- Read the whole save chain: SettingsSection.saveKey → POST /api/config → key-format sanitize →
+  geminiText verification → encryptKey → Prisma upsert → GET refresh via use-device
+- Local end-to-end tests all passed (format check, fake-key 401, profile save, GET persistence)
+- Probed live deployment https://bolo-english.vercel.app — discovered it serves a DIFFERENT
+  app: a Vite SPA ("Bolo English - AI Tutor", CDN Tailwind + esm.sh, /assets/index-*.js) with
+  NO backend — GET /api/config returns index.html, POST returns 405. That domain is not our
+  Next.js build, so key saving there is impossible regardless of code.
+- Hardened the Next.js save path anyway (commit 4322296, pushed):
+  1. /api/config: every DB op wrapped; missing Turso env now returns 503 JSON with the exact
+     fix in Bengali (was: bare 500 → client res.json() SyntaxError → cryptic toast)
+  2. Key verification: only Google 401 rejects; 429/403/5xx/network → save with warning toast
+  3. use-device: new storageError state; GET failures surfaced instead of silent hasKey:false
+  4. Settings UI: red storage-down alert, paste-first toast, unexpected-response handling
+  5. i18n keys added to settings.{bn,en,hi}.json (pasteFirst, unexpectedResponse, storageDown)
+- lint clean; local API re-tested OK; pushed 0cd1131..4322296 with the new PAT
+
+Stage Summary:
+- Root cause of "key won't save" on the URL the user visits: bolo-english.vercel.app hosts an
+  old Vite app with no API. User must connect the Vercel project to github.com/topbook12/bolo-english
+  (main) and set TURSO_DATABASE_URL / TURSO_AUTH_TOKEN, then redeploy.
+- Next.js app itself is now fully hardened: no silent failures anywhere in the key-save flow,
+  and every failure mode tells the user exactly what to do.
