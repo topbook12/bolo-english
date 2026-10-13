@@ -467,3 +467,25 @@ Stage Summary:
 - Hindi typography now premium (Noto Devanagari) and the whole font stack actually applies
 - Personalization: logged-in users see their name in greeting, AI conversations, and call rooms
 - Pushed f1958d7 to main → Vercel auto-redeploys
+
+---
+Task ID: fix-gemini-format-video-black-1
+Agent: main (Z.ai Code)
+Task: Fix two user-reported bugs — (1) Gemini "ভুল ফরম্যাটে" error despite a valid API key; (2) video call connects but remote video never visible
+
+Work Log:
+- Diagnosed bug 1 root causes in src/lib/gemini.ts: maxOutputTokens:8192 truncates Bangla-heavy JSON mid-string (Bangla tokenizes 3-4x heavier) → JSON.parse fails → "AI একটি ভুল ফরম্যাটে উত্তর দিয়েছে"; no retry on parse failure; model fallback never covered JSON parsing; finishReason ignored
+- Rewrote geminiJson: per-model output caps (2.5-flash 65536, 2.0-flash 8192), JSON_TOKEN_BUDGET 32768 default, 2 attempts per model × 2 models with a strict JSON-only nudge on attempt 2, 30s AbortSignal.timeout per call, finishReason SAFETY/BLOCKED → distinct Bengali message
+- Added layered extractAndParseJson repair: fences → prose trim → trailing commas → truncated-JSON auto-close (string/bracket stack walk; drops incomplete trailing fragments, keeps valid data)
+- ai route: removed hardcoded maxOutputTokens:8192 from cachedJson so the per-model budget applies
+- Diagnosed bug 2 root causes: STUN-only ICE fails on symmetric-NAT/CGNAT mobile networks (common in BD) → tile stuck "connecting…"; recovery only fired on "failed" state (stuck "connecting"/"disconnected" never recovers); CallClient.send fire-and-forget loses offers/answers forever; unmuted remote <video> autoplay can be blocked → permanent black tile
+- use-webrtc.ts: added free TURN (openrelay.metered.ca 80/443 + tcp variants, Open Relay Project) to ICE_SERVERS; recoverPeer (resend pending offer in have-local-offer, restartIce+re-offer from stable) + stuck-connection watchdog (4s interval; connecting>12s or disconnected>10s; 8s per-peer throttle); disconnectedAt/pcCreated/lastRecovery bookkeeping in closePC
+- call-client.ts: send() retries offer/answer once after 700ms on network failure or 5xx (not on definitive 4xx)
+- CallRoom.tsx VideoTile: autoplay fallback — retries el.play() on first document click/touchstart/keydown if initially blocked; detaches listeners on success/stream change
+- Verified: bun run lint clean; npx tsc --noEmit clean; JSON repair unit test 12/12 (clean/fenced/prose/trailing-comma/truncated-mid-string/mid-array/escape/garbage-throws); call signaling e2e 11/11 PASS against dev server; AI route error paths verified via curl (no key → Bengali message; fake key → 401 friendly message through new callModel); browser check: home renders 0 errors, Speak → Find partner → camera-gate alert + cancel intact; TURN config confirmed present in built client chunk; fixed self-introduced TDZ risk by ordering recoverPeer before ensurePC
+- Cannot verify here: real 2-party WebRTC media (headless browser has no camera) — TURN/watchdog verified by code review + bundle presence
+
+Stage Summary:
+- Gemini "wrong format" errors now have 4 layers of defense: bigger per-model token budget, JSON repair, per-model retry with JSON nudge, model fallback — key validity untouched (BYOK flow unchanged)
+- Video calls gain free TURN relay + self-healing watchdog + critical-signal retry + autoplay unblock — covers the CGNAT "connects but can't see" failure mode end to end
+- Pushed to github.com/topbook12/bolo-english main → Vercel auto-redeploys

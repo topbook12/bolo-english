@@ -5,7 +5,18 @@ import { db } from "./db";
 // (decrypted here only), and every call is proxied through our backend so the
 // raw key is never exposed to other clients.
 
+// Model fallback order + per-model output-token caps. Bangla text tokenizes
+// several times heavier than English — a small cap truncates long JSON
+// mid-string, which used to surface as "AI একটি ভুল ফরম্যাটে উত্তর দিয়েছে".
 const MODELS = ["gemini-2.5-flash", "gemini-2.0-flash"] as const;
+const OUTPUT_CAPS: Record<string, number> = {
+  "gemini-2.5-flash": 65_536,
+  "gemini-2.0-flash": 8_192,
+};
+// Default ceiling for JSON answers — generous headroom, still fast enough to
+// finish inside the route's maxDuration (60s) even with one retry.
+const JSON_TOKEN_BUDGET = 32_768;
+const CALL_TIMEOUT_MS = 30_000;
 
 export interface GeminiOptions {
   temperature?: number;
@@ -17,8 +28,12 @@ export interface GeminiOptions {
 interface GeminiPart {
   text: string;
 }
+interface GeminiCandidate {
+  content?: { parts?: GeminiPart[] };
+  finishReason?: string;
+}
 interface GeminiResponse {
-  candidates?: { content?: { parts?: GeminiPart[] } }[];
+  candidates?: GeminiCandidate[];
   error?: { message?: string };
 }
 
@@ -61,13 +76,20 @@ export async function getUserName(deviceId: string): Promise<string> {
   return n && n !== "শিক্ষার্থী" ? n.slice(0, 24) : "Student";
 }
 
-export async function geminiJson<T>(
-  apiKey: string,
-  prompt: string,
-  opts: GeminiOptions = {}
-): Promise<T> {
-  const text = await geminiText(apiKey, prompt, { ...opts, json: true });
-  // Robust JSON extraction (model may wrap in ```json fences)
+/* ── JSON extraction & repair ─────────────────────────────────────────────
+ * Models occasionally wrap JSON in prose/fences, add trailing commas, or get
+ * truncated by the output cap. All of that previously surfaced as a generic
+ * "ভুল ফরম্যাটে" error. Repair in layers before giving up. */
+
+function tryParse(s: string): unknown {
+  try {
+    return JSON.parse(s);
+  } catch {
+    return null;
+  }
+}
+
+function extractAndParseJson<T>(text: string): T {
   let raw = text.trim();
   const fence = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
   if (fence) raw = fence[1].trim();
@@ -78,11 +100,80 @@ export async function geminiJson<T>(
   if (lastObj !== -1 && lastObj < raw.length - 1) {
     raw = raw.slice(0, lastObj + 1);
   }
-  try {
-    return JSON.parse(raw) as T;
-  } catch {
-    throw new GeminiError("AI একটি ভুল ফরম্যাটে উত্তর দিয়েছে, আবার চেষ্টা করুন।", 502);
+
+  let parsed = tryParse(raw);
+  if (parsed !== null) return parsed as T;
+
+  // Repair 1: trailing commas  {"a":1,}  [1,2,]
+  let s = raw.replace(/,\s*(?=[}\]])/g, "");
+  parsed = tryParse(s);
+  if (parsed !== null) return parsed as T;
+
+  // Repair 2: truncated output — close the open string & bracket stack
+  const stack: string[] = [];
+  let inStr = false;
+  let esc = false;
+  for (const ch of s) {
+    if (inStr) {
+      if (esc) esc = false;
+      else if (ch === "\\") esc = true;
+      else if (ch === '"') inStr = false;
+      continue;
+    }
+    if (ch === '"') inStr = true;
+    else if (ch === "{" || ch === "[") stack.push(ch);
+    else if (ch === "}" || ch === "]") stack.pop();
   }
+  let closed = s + (inStr ? '"' : "");
+  for (let i = stack.length - 1; i >= 0; i--) closed += stack[i] === "{" ? "}" : "]";
+  closed = closed.replace(/,\s*(?=[}\]])/g, ""); // dangling comma before closers
+  parsed = tryParse(closed);
+  if (parsed !== null) return parsed as T;
+
+  throw new GeminiError(
+    "AI একটি ভুল ফরম্যাটে উত্তর দিয়েছে — আবার চেষ্টা করুন।",
+    502
+  );
+}
+
+const JSON_ONLY_NUDGE =
+  "\n\nCRITICAL: Respond with ONLY the raw JSON value. No markdown, no code fences, no explanation — nothing before or after the JSON.";
+
+export async function geminiJson<T>(
+  apiKey: string,
+  prompt: string,
+  opts: GeminiOptions = {}
+): Promise<T> {
+  let lastErr: GeminiError | null = null;
+  for (const model of MODELS) {
+    // 2 attempts per model: attempt 2 appends a strict JSON-only nudge
+    // (fixes prose-wrapped answers); a transient/truncated reply is usually
+    // fine on the next try. Auth/quota errors abort immediately.
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const text = await callModel(
+          apiKey,
+          model,
+          attempt === 0 ? prompt : prompt + JSON_ONLY_NUDGE,
+          {
+            ...opts,
+            json: true,
+            maxOutputTokens: opts.maxOutputTokens ?? JSON_TOKEN_BUDGET,
+          }
+        );
+        return extractAndParseJson<T>(text);
+      } catch (e) {
+        lastErr =
+          e instanceof GeminiError
+            ? e
+            : new GeminiError("AI কল ব্যর্থ হয়েছে — ইন্টারনেট সংযোগ চেক করুন।", 502);
+        if (lastErr.status === 401 || lastErr.status === 403 || lastErr.status === 429) {
+          throw lastErr;
+        }
+      }
+    }
+  }
+  throw lastErr ?? new GeminiError("AI কল ব্যর্থ হয়েছে।");
 }
 
 export async function geminiText(
@@ -113,9 +204,10 @@ async function callModel(
 ): Promise<string> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
+  const cap = OUTPUT_CAPS[model] ?? 8192;
   const generationConfig: Record<string, unknown> = {
     temperature: opts.temperature ?? 0.7,
-    maxOutputTokens: opts.maxOutputTokens ?? 8192,
+    maxOutputTokens: Math.min(opts.maxOutputTokens ?? cap, cap),
   };
   if (opts.json) generationConfig.responseMimeType = "application/json";
   if (model.includes("2.5")) {
@@ -138,6 +230,8 @@ async function callModel(
       "x-goog-api-key": apiKey,
     },
     body: JSON.stringify(body),
+    // Bound each attempt so a hung Google call can't eat the whole route budget
+    signal: AbortSignal.timeout(CALL_TIMEOUT_MS),
   });
 
   const json = (await res.json().catch(() => ({}))) as GeminiResponse;
@@ -153,12 +247,20 @@ async function callModel(
     throw new GeminiError(friendlyError(msg, status), status);
   }
 
-  const text = json.candidates?.[0]?.content?.parts
+  const candidate = json.candidates?.[0];
+  const text = candidate?.content?.parts
     ?.map((p) => p.text)
     .filter(Boolean)
     .join("\n");
 
   if (!text) {
+    const reason = candidate?.finishReason ?? "";
+    if (reason === "SAFETY" || reason === "PROHIBITED_CONTENT" || reason === "BLOCKED") {
+      throw new GeminiError(
+        "AI নিরাপত্তা নীতির কারণে এই বিষয়ে উত্তর দিতে পারছে না — ভিন্নভাবে আবার চেষ্টা করুন।",
+        502
+      );
+    }
     throw new GeminiError("AI খালি উত্তর দিয়েছে, আবার চেষ্টা করুন।", 502);
   }
   return text;

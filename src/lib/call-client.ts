@@ -125,15 +125,34 @@ export class CallClient {
     this.issueCb = cb;
   }
 
-  /** Fire-and-forget signaling send — never throws. */
+  /** Fire-and-forget signaling send — never throws.
+   *  offer/answer are call-critical: if they silently drop (flaky mobile
+   *  network), the call hangs forever, so they are retried once on network
+   *  failure or 5xx. Definitive 4xx answers (room gone, invalid) are not. */
   send(type: SignalType, payload: unknown, to?: string): void {
     if (this.left) return;
-    void fetch(`${this.baseUrl}/api/call/send`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ roomId: this.roomId, peerId: this.peerId, to, type, payload }),
-      keepalive: true,
-    }).catch(() => null);
+    const post = () =>
+      fetch(`${this.baseUrl}/api/call/send`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roomId: this.roomId, peerId: this.peerId, to, type, payload }),
+        keepalive: true,
+      });
+    if (type !== "offer" && type !== "answer") {
+      void post().catch(() => null);
+      return;
+    }
+    void (async () => {
+      try {
+        const res = await post();
+        if (res.ok || res.status < 500) return;
+        throw new Error(`send failed: ${res.status}`);
+      } catch {
+        await new Promise((r) => setTimeout(r, 700));
+        if (this.left) return;
+        await post().catch(() => null);
+      }
+    })();
   }
 
   /** Leave the room (server notifies others with a "bye" message) and stop polling. */

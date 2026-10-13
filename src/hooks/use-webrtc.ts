@@ -28,7 +28,28 @@ export interface UseWebRTCOpts {
 const ICE_SERVERS: RTCIceServer[] = [
   { urls: "stun:stun.l.google.com:19302" },
   { urls: "stun:stun1.l.google.com:19302" },
+  // Free public TURN (Open Relay Project by metered.ca). STUN alone fails on
+  // symmetric-NAT / carrier-CGNAT mobile networks — peers would "join" the
+  // room but media never connects (tile stuck on "connecting…"). TURN fixes
+  // those calls by relaying media when a direct path is impossible.
+  {
+    urls: [
+      "turn:openrelay.metered.ca:80",
+      "turn:openrelay.metered.ca:443",
+      "turn:openrelay.metered.ca:443?transport=tcp",
+      "turn:openrelay.metered.ca:80?transport=tcp",
+    ],
+    username: "openrelayproject",
+    credential: "openrelayproject",
+  },
 ];
+
+// How long a peer may sit in "connecting" before we try to recover (ms)
+const STUCK_CONNECT_MS = 12_000;
+// How long "disconnected" may persist before we restart ICE (ms)
+const DISCONNECT_RECOVER_MS = 10_000;
+// Minimum gap between recovery attempts on the same peer (ms)
+const RECOVERY_THROTTLE_MS = 8_000;
 
 export function useWebRTC({ onSendSignal, getMyId }: UseWebRTCOpts) {
   const t = useTranslations("call");
@@ -41,6 +62,10 @@ export function useWebRTC({ onSendSignal, getMyId }: UseWebRTCOpts) {
   const pendingIceRef = useRef<Map<string, RTCIceCandidateInit[]>>(new Map());
   const namesRef = useRef<Map<string, string>>(new Map());
   const myIdRef = useRef<string>("");
+  // watchdog bookkeeping
+  const pcCreatedRef = useRef<Map<string, number>>(new Map());
+  const disconnectedAtRef = useRef<Map<string, number>>(new Map());
+  const lastRecoveryRef = useRef<Map<string, number>>(new Map());
 
   const sendRef = useRef(onSendSignal);
   const getMyIdRef = useRef(getMyId);
@@ -109,6 +134,42 @@ export function useWebRTC({ onSendSignal, getMyId }: UseWebRTCOpts) {
     pendingIceRef.current.delete(id);
   }, []);
 
+  /* ── recovery: re-send our offer or restart ICE ──
+   * A dropped offer/answer (silent send failure on a flaky link) leaves the
+   * PC hanging in have-local-offer/stable forever — "failed" never fires.
+   * recoverPeer covers both: re-send the pending offer, or restart ICE and
+   * re-offer from stable. Glare is resolved by the rollback logic in
+   * handleSignal (lower peer id wins). */
+  const recoverPeer = useCallback(
+    (peerId: string, pc: RTCPeerConnection) => {
+      const now = Date.now();
+      const last = lastRecoveryRef.current.get(peerId) ?? 0;
+      if (now - last < RECOVERY_THROTTLE_MS) return;
+      lastRecoveryRef.current.set(peerId, now);
+      void (async () => {
+        try {
+          if (pc.signalingState === "have-local-offer" && pc.localDescription) {
+            // our original offer probably never arrived — resend it
+            sendRef.current(
+              "offer",
+              { type: pc.localDescription.type, sdp: pc.localDescription.sdp },
+              peerId
+            );
+          } else if (pc.signalingState === "stable") {
+            if (!pc.remoteDescription) return; // offer hasn't arrived yet — initiator's watchdog handles it
+            pc.restartIce();
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            sendRef.current("offer", offer, peerId);
+          }
+        } catch {
+          /* next tick / user can rejoin */
+        }
+      })();
+    },
+    []
+  );
+
   const ensurePC = useCallback(
     async (peerId: string): Promise<RTCPeerConnection> => {
       const existing = pcsRef.current.get(peerId);
@@ -116,6 +177,9 @@ export function useWebRTC({ onSendSignal, getMyId }: UseWebRTCOpts) {
 
       const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
       pcsRef.current.set(peerId, pc);
+      pcCreatedRef.current.set(peerId, Date.now());
+      disconnectedAtRef.current.delete(peerId);
+      lastRecoveryRef.current.delete(peerId);
 
       // add local tracks
       const stream = localStreamRef.current;
@@ -134,27 +198,48 @@ export function useWebRTC({ onSendSignal, getMyId }: UseWebRTCOpts) {
 
       pc.onconnectionstatechange = () => {
         updatePeer(peerId, { connectionState: pc.connectionState });
+        if (pc.connectionState === "disconnected") {
+          if (!disconnectedAtRef.current.has(peerId)) {
+            disconnectedAtRef.current.set(peerId, Date.now());
+          }
+        } else {
+          disconnectedAtRef.current.delete(peerId);
+        }
         if (pc.connectionState === "failed") {
           // real recovery: flag ICE restart and re-negotiate from stable state
-          void (async () => {
-            try {
-              pc.restartIce();
-              if (pc.signalingState === "stable") {
-                const offer = await pc.createOffer();
-                await pc.setLocalDescription(offer);
-                sendRef.current("offer", offer, peerId);
-              }
-            } catch {
-              /* give up silently — user can still rejoin */
-            }
-          })();
+          void recoverPeer(peerId, pc);
         }
       };
 
       return pc;
     },
-    [updatePeer]
+    [updatePeer, recoverPeer]
   );
+
+  /* ── stuck-connection watchdog ──
+   * On CGNAT/flaky networks a PC can sit in "new"/"connecting" forever, or
+   * silently flap to "disconnected" without ever failing. Nudge those peers
+   * periodically until media actually connects. */
+  useEffect(() => {
+    const iv = setInterval(() => {
+      const now = Date.now();
+      for (const [peerId, pc] of Array.from(pcsRef.current.entries())) {
+        const state = pc.connectionState;
+        const discAt = disconnectedAtRef.current.get(peerId);
+        const stuckConnecting =
+          (state === "new" || state === "connecting") &&
+          now - (pcCreatedRef.current.get(peerId) ?? now) > STUCK_CONNECT_MS;
+        const stuckDisconnected =
+          state === "disconnected" &&
+          discAt !== undefined &&
+          now - discAt > DISCONNECT_RECOVER_MS;
+        if (stuckConnecting || stuckDisconnected) {
+          recoverPeer(peerId, pc);
+        }
+      }
+    }, 4_000);
+    return () => clearInterval(iv);
+  }, [recoverPeer]);
 
   const closePC = useCallback(
     (peerId: string) => {
@@ -171,6 +256,9 @@ export function useWebRTC({ onSendSignal, getMyId }: UseWebRTCOpts) {
       }
       pcsRef.current.delete(peerId);
       pendingIceRef.current.delete(peerId);
+      pcCreatedRef.current.delete(peerId);
+      disconnectedAtRef.current.delete(peerId);
+      lastRecoveryRef.current.delete(peerId);
       setRemotePeers((prev) => prev.filter((p) => p.id !== peerId));
     },
     []

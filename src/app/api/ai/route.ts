@@ -36,7 +36,9 @@ async function cachedJson<T>(
     where: { feature_cacheKey: { feature, cacheKey } },
   });
   if (hit) return JSON.parse(hit.response) as T;
-  const data = await geminiJson<T>(apiKey, prompt, { temperature, maxOutputTokens: 8192 });
+  // No explicit token cap — geminiJson applies a generous per-model budget so
+  // long Bangla answers never truncate mid-JSON.
+  const data = await geminiJson<T>(apiKey, prompt, { temperature });
   await db.aiCache
     .create({ data: { feature, cacheKey, response: JSON.stringify(data) } })
     .catch(() => null);

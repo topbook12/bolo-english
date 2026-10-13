@@ -45,10 +45,33 @@ function VideoTile({
   const ref = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    if (ref.current && stream) {
-      ref.current.srcObject = stream;
-      ref.current.play().catch(() => null);
-    }
+    const el = ref.current;
+    if (!el || !stream) return;
+    el.srcObject = stream;
+    // Remote video is unmuted, so browsers may block autoplay until the first
+    // user gesture. Retry playback on the next interaction instead of leaving
+    // a permanently black tile.
+    let playing = false;
+    const onInteract = () => {
+      if (playing) return;
+      el.play().then(
+        () => {
+          playing = true;
+          detach();
+        },
+        () => undefined // still blocked — retry on next interaction
+      );
+    };
+    const detach = () => {
+      document.removeEventListener("click", onInteract);
+      document.removeEventListener("touchstart", onInteract);
+      document.removeEventListener("keydown", onInteract);
+    };
+    document.addEventListener("click", onInteract);
+    document.addEventListener("touchstart", onInteract);
+    document.addEventListener("keydown", onInteract);
+    onInteract();
+    return detach;
   }, [stream]);
 
   return (
