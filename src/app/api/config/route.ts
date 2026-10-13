@@ -2,6 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { encryptKey, maskKey, isValidGeminiKeyFormat } from "@/lib/crypto";
 import { geminiText } from "@/lib/gemini";
+import { getSessionUser } from "@/lib/auth";
+
+// Internal "no name" marker stored in the DB; the client localizes its own
+// fallback so a guest sees "Student" / "শিক্ষার্থী" / "छात्र" per UI language.
+const NO_NAME = "শিক্ষার্থী";
+
+// Display name precedence: account name → custom device name → null (client localizes)
+function resolveName(
+  userName: string | null | undefined,
+  deviceName: string | null | undefined
+): string | null {
+  const n = userName?.trim();
+  if (n && n !== NO_NAME) return n.slice(0, 24);
+  const d = deviceName?.trim();
+  if (d && d !== NO_NAME) return d.slice(0, 24);
+  return null;
+}
 
 // GET /api/config?deviceId=...  → masked profile (key never returned raw)
 export async function GET(req: NextRequest) {
@@ -9,11 +26,15 @@ export async function GET(req: NextRequest) {
   if (!deviceId) {
     return NextResponse.json({ ok: false, error: "deviceId required" }, { status: 400 });
   }
-  const cfg = await db.userConfig.findUnique({ where: { deviceId } });
+  const [cfg, user] = await Promise.all([
+    db.userConfig.findUnique({ where: { deviceId } }),
+    getSessionUser(),
+  ]);
+  const name = resolveName(user?.name, cfg?.displayName);
   if (!cfg || !cfg.keyPreview) {
     return NextResponse.json({
       ok: true,
-      data: { hasKey: false, keyPreview: null, displayName: "শিক্ষার্থী", level: "beginner" },
+      data: { hasKey: false, keyPreview: null, displayName: name, level: "beginner" },
     });
   }
   return NextResponse.json({
@@ -21,7 +42,7 @@ export async function GET(req: NextRequest) {
     data: {
       hasKey: true,
       keyPreview: cfg.keyPreview,
-      displayName: cfg.displayName,
+      displayName: name,
       level: cfg.level,
     },
   });
@@ -74,11 +95,19 @@ export async function POST(req: NextRequest) {
       deviceId,
       apiKeyEnc: (update.apiKeyEnc as string) ?? "",
       keyPreview: (update.keyPreview as string) ?? "",
-      displayName: (update.displayName as string) ?? "শিক্ষার্থী",
+      displayName: (update.displayName as string) ?? NO_NAME,
       level: (update.level as string) ?? "beginner",
     },
     update,
   });
+
+  // Keep the account in sync: a logged-in user's display-name edit updates
+  // their User.name too, so greeting + AI personalization stay consistent.
+  const savedName = typeof update.displayName === "string" ? update.displayName : null;
+  const user = await getSessionUser();
+  if (user && savedName) {
+    await db.user.update({ where: { id: user.id }, data: { name: savedName } }).catch(() => null);
+  }
 
   const cfg = await db.userConfig.findUnique({ where: { deviceId } });
   return NextResponse.json({
@@ -86,7 +115,7 @@ export async function POST(req: NextRequest) {
     data: {
       hasKey: !!cfg?.keyPreview,
       keyPreview: cfg?.keyPreview ?? null,
-      displayName: cfg?.displayName,
+      displayName: resolveName(savedName ?? user?.name, cfg?.displayName),
       level: cfg?.level,
     },
   });

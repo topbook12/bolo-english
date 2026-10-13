@@ -7,7 +7,7 @@ export interface UserConfig {
   deviceId: string;
   hasKey: boolean;
   keyPreview: string | null;
-  displayName: string;
+  displayName: string | null; // null → client shows localized "Student"
   level: "beginner" | "intermediate" | "advanced";
   loaded: boolean;
 }
@@ -31,7 +31,7 @@ export const useDevice = create<DeviceStore>((set, get) => ({
   deviceId: "",
   hasKey: false,
   keyPreview: null,
-  displayName: "শিক্ষার্থী",
+  displayName: null,
   level: "beginner",
   loaded: false,
   setConfig: (partial) => set(partial),

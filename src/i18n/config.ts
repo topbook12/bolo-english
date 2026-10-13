@@ -1,7 +1,7 @@
-// i18n configuration: Bangla (default) · English · Hindi
-export const locales = ["bn", "en", "hi"] as const;
+// i18n configuration: English (default, international) · Bangla · Hindi
+export const locales = ["en", "bn", "hi"] as const;
 export type Locale = (typeof locales)[number];
-export const defaultLocale: Locale = "bn";
+export const defaultLocale: Locale = "en";
 
 export const LOCALE_COOKIE = "bolo_locale";
 

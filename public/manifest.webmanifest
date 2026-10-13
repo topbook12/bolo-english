@@ -1,13 +1,13 @@
 {
-  "name": "Bolo English — নির্ভয়ে ইংরেজি বলুন",
+  "name": "Bolo English — Speak English Fearlessly",
   "short_name": "Bolo English",
-  "description": "ফ্রি ইংরেজি শেখার প্ল্যাটফর্ম: ভিডিও কলে কথা বলা, AI সংশোধন, গ্রামার, ভোকাবুলারি ও লিসেনিং।",
+  "description": "Free English learning platform: video-call speaking practice, live AI corrections, grammar, vocabulary & listening.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#059669",
   "orientation": "portrait-primary",
-  "lang": "bn",
+  "lang": "en",
   "categories": ["education", "productivity"],
   "icons": [
     {

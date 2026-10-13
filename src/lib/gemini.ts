@@ -55,7 +55,10 @@ export async function getAiLevel(deviceId: string): Promise<string> {
 
 export async function getUserName(deviceId: string): Promise<string> {
   const cfg = await db.userConfig.findUnique({ where: { deviceId } });
-  return cfg?.displayName ?? "শিক্ষার্থী";
+  const n = cfg?.displayName?.trim();
+  // "শিক্ষার্থী" is the internal no-name marker — AI conversations are in
+  // English, so fall back to the international default instead.
+  return n && n !== "শিক্ষার্থী" ? n.slice(0, 24) : "Student";
 }
 
 export async function geminiJson<T>(

@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import type { Locale } from "./config";
+import { defaultLocale, type Locale } from "./config";
 
 // Messages are split into small files so parallel feature work never
 // collides:  messages/core.<locale>.json  +  messages/sections/<ns>.<locale>.json
@@ -46,21 +46,21 @@ export function loadMessages(locale: Locale): Messages {
     // no section files yet
   }
 
-  // Fallback: fill missing keys from default locale (bn) so nothing renders blank
-  if (locale !== "bn") {
-    const fallback = loadMessagesBn(dir);
+  // Fallback: fill missing keys from the default locale (en) so nothing renders blank
+  if (locale !== defaultLocale) {
+    const fallback = loadMessagesDefault(dir);
     merged = deepMerge(fallback, merged);
   }
   return merged;
 }
 
-function loadMessagesBn(dir: string): Messages {
-  let merged: Messages = loadJson(path.join(dir, "core.bn.json"));
+function loadMessagesDefault(dir: string): Messages {
+  let merged: Messages = loadJson(path.join(dir, `core.${defaultLocale}.json`));
   const sectionsDir = path.join(dir, "sections");
   try {
     const files = fs
       .readdirSync(sectionsDir)
-      .filter((f) => f.endsWith(".bn.json"))
+      .filter((f) => f.endsWith(`.${defaultLocale}.json`))
       .sort();
     for (const f of files) merged = deepMerge(merged, loadJson(path.join(sectionsDir, f)));
   } catch {

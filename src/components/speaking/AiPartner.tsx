@@ -78,6 +78,8 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
   const t = useTranslations("speaking");
   const tCommon = useTranslations("common");
   const { deviceId, hasKey, displayName } = useDevice();
+  // Localized fallback name for transcript/analysis
+  const myName = displayName || tCommon("student");
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -169,7 +171,7 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
   const finishAndAnalyze = async () => {
     const userLines: TranscriptLine[] = msgs
       .filter((m) => m.role === "user")
-      .map((m) => ({ speaker: displayName, text: m.text, at: Date.now() }));
+      .map((m) => ({ speaker: myName, text: m.text, at: Date.now() }));
     if (userLines.length < 2) {
       toast({ title: t("partner.needTwo") });
       return;
@@ -234,7 +236,7 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
             analysis={analysis}
             transcript={msgs
               .filter((m) => m.role === "user")
-              .map((m) => ({ speaker: displayName, text: m.text, at: 0 }))}
+              .map((m) => ({ speaker: myName, text: m.text, at: 0 }))}
           />
         </CardContent>
       </Card>

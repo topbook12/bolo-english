@@ -51,7 +51,7 @@ export default function SettingsSection() {
   const logout = useAuth((s) => s.logout);
   const [apiKey, setApiKey] = useState("");
   const [showKey, setShowKey] = useState(false);
-  const [name, setName] = useState(displayName);
+  const [name, setName] = useState(displayName ?? "");
   const [saving, setSaving] = useState<"key" | "profile" | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
   const { toast } = useToast();

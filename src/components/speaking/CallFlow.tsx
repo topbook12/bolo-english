@@ -56,6 +56,8 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
   const t = useTranslations("call");
   const tc = useTranslations("common");
   const { deviceId, hasKey, displayName } = useDevice();
+  // Localized name shown to peers/AI when the user hasn't set one
+  const myName = displayName || tc("student");
   const [mode, setMode] = useState<Mode>("matching");
   const [joining, setJoining] = useState(false);
   const [roomCode, setRoomCode] = useState<string | null>(null);
@@ -101,8 +103,8 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
   const [analysis, setAnalysis] = useState<CallAnalysis | null>(null);
 
   const { toast } = useToast();
-  const nameRef = useRef(displayName);
-  nameRef.current = displayName;
+  const nameRef = useRef<string>(myName);
+  nameRef.current = myName;
   const deviceIdRef = useRef(deviceId);
   deviceIdRef.current = deviceId;
   const modeRef = useRef(mode);
@@ -382,7 +384,7 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
         transcript: transcriptRef.current,
         durationSec: endedInfo?.durationSec ?? duration,
         partnerCount: endedInfo?.partnerCount ?? 1,
-        myName: displayName,
+        myName,
       });
       setAnalysis(result);
       await fetch("/api/sessions", {
@@ -406,8 +408,8 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
   };
 
   const sendChat = (text: string) => {
-    setChatMessages((prev) => [...prev, { speaker: displayName, text, mine: true }]);
-    clientRef.current?.send("chat", { text, speaker: displayName });
+    setChatMessages((prev) => [...prev, { speaker: myName, text, mine: true }]);
+    clientRef.current?.send("chat", { text, speaker: myName });
   };
 
   const toggleChat = () => {
@@ -483,7 +485,7 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
         <CallRoom
           localStream={webrtc.localStream}
           remotePeers={webrtc.remotePeers}
-          displayName={displayName}
+          displayName={myName}
           micOn={micOn}
           camOn={camOn}
           chatOpen={chatOpen}

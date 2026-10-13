@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 
 function cleanName(name: unknown): string {
   const n = typeof name === "string" ? name.trim() : "";
-  return (n || "শিক্ষার্থী").slice(0, 24);
+  return (n || "Student").slice(0, 24);
 }
 
 export async function POST(req: NextRequest) {
