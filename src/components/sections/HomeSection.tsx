@@ -109,6 +109,7 @@ function SectionTitle({
 
 export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => void }) {
   const t = useTranslations("home");
+  const tCommon = useTranslations("common");
   const { deviceId, hasKey, displayName, loaded } = useDevice();
   const [progress, setProgress] = useState<ProgressData | null>(null);
   const [dailyWords, setDailyWords] = useState<DailyWord[] | null>(null);
@@ -155,7 +156,7 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
               {t("hero.badge")}
             </span>
             <h1 className="animate-fade-in-up-1 mt-2.5 text-2xl font-extrabold tracking-tight sm:text-3xl md:text-4xl">
-              {t("hero.welcome", { greet, name: displayName && displayName !== "শিক্ষার্থী" ? displayName : t("common.student") })}
+              {t("hero.welcome", { greet, name: displayName && displayName !== "শিক্ষার্থী" ? displayName : tCommon("student") })}
             </h1>
             <p className="animate-fade-in-up-2 mt-2 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
               {t("hero.subtitle")}

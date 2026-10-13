@@ -101,7 +101,7 @@ export default function AuthDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md gap-0 overflow-hidden rounded-2xl p-0">
+      <DialogContent aria-describedby={undefined} className="max-w-md gap-0 overflow-hidden rounded-2xl p-0">
         {/* brand header */}
         <div className="bg-hero-gradient relative border-b border-border/60 px-6 pb-5 pt-6">
           <DialogHeader>
