@@ -555,3 +555,29 @@ Stage Summary:
   (main) and set TURSO_DATABASE_URL / TURSO_AUTH_TOKEN, then redeploy.
 - Next.js app itself is now fully hardened: no silent failures anywhere in the key-save flow,
   and every failure mode tells the user exactly what to do.
+
+---
+Task ID: webrtc-remote-video-root-cause
+Agent: main (Z.ai Code)
+Task: User reported again "can't see the other person face in video call" — reproduce, find root cause, fix with proof
+
+Work Log:
+- Built a real 2-browser Playwright test (/home/z/webrtc-test/test.mjs) using Chrome fake media
+  devices against localhost:3000 — REPRODUCED the bug: both peers joined, local video rendered,
+  remote tile had srcObject=null forever
+- Added instrumentation (patched RTCPeerConnection + fetch inside the page, /home/z/webrtc-test/diag.mjs):
+  A sent offer (HTTP 200) + 4 ICE, B's poll cursor advanced (messages were fetched), yet B had
+  ZERO setRemoteDescription/createAnswer events — signals were fetched but silently dropped
+- DB check confirmed all messages stored correctly → the drop was client-side in handleSignal
+- ROOT CAUSE: CallFlow.onSendSignal passed RAW payloads straight through, while
+  useWebRTC.handleSignal unpacks the {offer|answer|ice} envelope → d.offer/d.answer/d.ice always
+  undefined → every incoming signal discarded → PCs stuck in have-local-offer forever
+- Fix 1 (CallFlow.tsx): onSendSignal wraps payloads into the envelope per the use-webrtc contract
+- Fix 2 (use-webrtc.ts): handleSignal defensively accepts bare payloads and warns on unknown ones
+- Re-ran the 2-peer test after cleanup: BOTH peers render remote video in ~2 seconds ✅
+- lint clean; committed 880c5c5 and pushed 4322296..880c5c5 to origin/main (Vercel auto-deploys)
+
+Stage Summary:
+- Video call remote-video bug is FIXED and PROVEN with an automated two-browser end-to-end test
+- Reminder for the user: bolo-english.vercel.app still serves the old no-backend Vite app — the
+  Vercel project must be connected to github.com/topbook12/bolo-english and Turso env vars set
