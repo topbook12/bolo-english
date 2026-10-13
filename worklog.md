@@ -581,3 +581,23 @@ Stage Summary:
 - Video call remote-video bug is FIXED and PROVEN with an automated two-browser end-to-end test
 - Reminder for the user: bolo-english.vercel.app still serves the old no-backend Vite app — the
   Vercel project must be connected to github.com/topbook12/bolo-english and Turso env vars set
+
+---
+Task ID: apikey-account-sync
+Agent: main (Z.ai Code)
+Task: Fix API key not following the user account across devices (same email on mobile had no key; different email on the same device still saw the old key)
+
+Work Log:
+- Diagnosed root cause: UserConfig (apiKeyEnc/keyPreview/displayName/level) was looked up by deviceId ONLY everywhere (/api/config GET/POST/DELETE + gemini.ts getUserApiKey/getAiLevel/getUserName); the userId column was written at login but never read
+- Created src/lib/user-config.ts: resolveConfigRow() = single source of truth — logged-in users resolve the row tagged with their userId (key follows the ACCOUNT); guests keep device-local rows; lazy adoption of untagged guest rows (full adopt if account has no row, key-only merge if account row is keyless) with device-slot scrub after adoption; rows tagged to another user are never adopted
+- gemini.ts: all three getters now use resolveConfigRow → every AI feature (chat, grammar, vocab, listening, call analysis, realtime correction) works with the account key on ANY device
+- /api/config rewritten: POST targets the account row for logged-in users (synthetic deviceId "account:<id>", race-safe create), guest rows untouched; leftover untagged guest keys scrubbed on device after a logged-in save; DELETE clears account + device rows; GET no longer hardcodes level "beginner" when no key is set (preserved saved level); keyPreview normalized "" → null
+- auth login: removed eager device tagging (lazy adoption in resolveAccountRow covers it); register keeps guarded tagging (userId: null only) so guest-saved keys become account-owned at signup
+- prisma schema: @@index([userId]) on UserConfig, kept NON-unique on purpose so legacy Turso rows (duplicate userId tags from old unconditional tagging) can never break a production db push
+- Local verification: bun run db:push OK, eslint clean, 16-case curl matrix all green (register/profile cross-device, main bug repro → fixed, different-email isolation, AI endpoint resolution with session vs guest, guest adopt → account-wide key → scrub, fake key rejected via Google 401 path, account-wide delete, isolation intact after all ops); dev.log clean
+- Temp seed script deleted; commit 08ebd24 pushed to main
+
+Stage Summary:
+- API key, display name and level now follow the ACCOUNT: same email on any device sees the same key; different email never inherits it; guest saves are adopted into the account on next login/registration; guests remain device-local
+- All AI features resolve the key through src/lib/user-config.ts — single choke point for future changes
+- Existing production data is compatible: old tagged rows resolve as account rows on first read; key migration for guest-saved keys happens when the user logs in on the device where the key was saved
