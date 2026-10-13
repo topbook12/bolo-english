@@ -1,5 +1,5 @@
 // Bolo English service worker — PWA offline support
-const CACHE = "bolo-english-v1";
+const CACHE = "bolo-english-v2";
 const PRECACHE = ["/", "/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png"];
 
 self.addEventListener("install", (event) => {

@@ -39,6 +39,16 @@ export default function PwaRegister() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!("serviceWorker" in navigator)) return;
+
+    // Development: never register a SW (it would cache dev chunks and break
+    // hot reload) and clean up any previously registered one.
+    if (process.env.NODE_ENV !== "production") {
+      navigator.serviceWorker.getRegistrations().then((regs) => {
+        for (const r of regs) void r.unregister();
+      }).catch(() => null);
+      return;
+    }
+
     const register = () => {
       navigator.serviceWorker.register("/sw.js").catch(() => null);
     };
