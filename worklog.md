@@ -443,3 +443,27 @@ Work Log:
 Stage Summary:
 - Vercel build script is now plain `next build` — the only failure point in the user's deployment log is eliminated
 - Remaining one-time user step (if not already done): set TURSO_DATABASE_URL + TURSO_AUTH_TOKEN in Vercel → Settings → Environment Variables so runtime DB hits Turso instead of the local-SQLite fallback
+
+---
+Task ID: intl-default-en-1
+Agent: main (Z.ai Code)
+Task: English as international default + English PWA install text + full problem-hunt loop
+
+Work Log:
+- defaultLocale bn→en (src/i18n/config.ts); switcher order en/bn/hi; htmlLang fallback en
+- manifest.webmanifest → English name/description/lang=en (native install dialog text)
+- layout.tsx: generateMetadata locale-aware (en/bn/hi titles+descriptions), default English
+- next.config.ts: outputFileTracingIncludes messages/** (fs-read i18n JSON not auto-traced on Vercel → would render blank translations in production)
+- messages.ts fallback baseline follows defaultLocale (en) instead of hardcoded bn
+- Fonts: added Noto_Sans_Devanagari (Hindi used system fallback before); body font-sans fix — discovered via browser that the font stack was never applied (Tailwind v4 preflight sets html font-family where next/font vars don't exist); Geist-first per-glyph fallback order
+- Name pipeline: /api/config GET now session-aware (account name → custom device name → null); POST syncs name edits to User record; greeting/AI prompts/call rooms/chat use the name with localized "Student" fallback (was Bengali sentinel leaking into en/hi UI, and login didn't personalize greeting)
+- use-device displayName: string|null; consumers null-safe (CallFlow/AiPartner/SettingsSection)
+- Hydration warning chased with git-stash bisection: proved dev-only server/bundle recompile race (3 consecutive clean reloads + interactions = 0 errors); no app-code mismatch
+- Browser verified: fresh visitor = full English UI; en/bn/hi switching; registration + login; greeting shows account name; all 7 sections render; mobile 375px layout (bottom nav, sidebar hidden); manifest serves English; 0 console errors; lint + tsc clean
+
+Stage Summary:
+- International default experience is now English end-to-end (UI, metadata, install dialog)
+- Production blocker pre-fixed: translations would have been blank on Vercel (file tracing)
+- Hindi typography now premium (Noto Devanagari) and the whole font stack actually applies
+- Personalization: logged-in users see their name in greeting, AI conversations, and call rooms
+- Pushed f1958d7 to main → Vercel auto-redeploys
