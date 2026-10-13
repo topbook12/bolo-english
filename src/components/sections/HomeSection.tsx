@@ -155,7 +155,7 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
               {t("hero.badge")}
             </span>
             <h1 className="animate-fade-in-up-1 mt-2.5 text-2xl font-extrabold tracking-tight sm:text-3xl md:text-4xl">
-              {t("hero.welcome", { greet, name: displayName ?? "" })}
+              {t("hero.welcome", { greet, name: displayName && displayName !== "শিক্ষার্থী" ? displayName : t("common.student") })}
             </h1>
             <p className="animate-fade-in-up-2 mt-2 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
               {t("hero.subtitle")}
