@@ -1,5 +1,6 @@
 import { decryptKey } from "./crypto";
 import { db } from "./db";
+import { resolveConfigRow } from "./user-config";
 
 // Server-side Gemini client. The user's own API key is fetched from DB
 // (decrypted here only), and every call is proxied through our backend so the
@@ -45,9 +46,12 @@ export class GeminiError extends Error {
   }
 }
 
+// All three getters resolve ACCOUNT-first (session cookie → the user's own
+// config row) so the same email works on every device; guests fall back to
+// the device-local row. See src/lib/user-config.ts.
 export async function getUserApiKey(deviceId: string): Promise<string> {
-  const cfg = await db.userConfig.findUnique({ where: { deviceId } });
-  if (!cfg) {
+  const cfg = await resolveConfigRow(deviceId);
+  if (!cfg || !cfg.apiKeyEnc) {
     throw new GeminiError(
       "আপনার Gemini API Key সেট করা নেই। Settings-এ গিয়ে কী যোগ করুন।",
       400
@@ -64,12 +68,12 @@ export async function getUserApiKey(deviceId: string): Promise<string> {
 }
 
 export async function getAiLevel(deviceId: string): Promise<string> {
-  const cfg = await db.userConfig.findUnique({ where: { deviceId } });
+  const cfg = await resolveConfigRow(deviceId);
   return cfg?.level ?? "beginner";
 }
 
 export async function getUserName(deviceId: string): Promise<string> {
-  const cfg = await db.userConfig.findUnique({ where: { deviceId } });
+  const cfg = await resolveConfigRow(deviceId);
   const n = cfg?.displayName?.trim();
   // "শিক্ষার্থী" is the internal no-name marker — AI conversations are in
   // English, so fall back to the international default instead.

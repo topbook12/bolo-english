@@ -54,9 +54,14 @@ export async function POST(req: NextRequest) {
     data: { email, passwordHash, name },
   });
 
-  // Link this device's config to the account
+  // Adopt this device's guest config (key/name/level) into the new account —
+  // only an untagged (guest) row is claimed, so the key follows the account
+  // from now on and can never leak to a different email on this device.
   await db.userConfig
-    .updateMany({ where: { deviceId }, data: { userId: user.id } })
+    .updateMany({
+      where: { deviceId, userId: null },
+      data: { userId: user.id },
+    })
     .catch(() => null);
   await setSessionCookie(user.id);
   await mergeDeviceData(user.id, deviceId);

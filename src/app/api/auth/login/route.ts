@@ -38,9 +38,9 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  await db.userConfig
-    .updateMany({ where: { deviceId }, data: { userId: user.id } })
-    .catch(() => null);
+  // Device-guest key adoption (guest save → account) happens lazily in
+  // resolveAccountRow on the next config read — account-first, and only from
+  // untagged guest rows, so a different email never inherits a key here.
   await setSessionCookie(user.id);
   await mergeDeviceData(user.id, deviceId);
 

@@ -4,6 +4,7 @@ import { encryptKey, maskKey } from "@/lib/crypto";
 import { sanitizeApiKey, isValidGeminiKeyFormat } from "@/lib/key-format";
 import { geminiText, GeminiError } from "@/lib/gemini";
 import { getSessionUser } from "@/lib/auth";
+import { resolveConfigRow } from "@/lib/user-config";
 
 // Internal "no name" marker stored in the DB; the client localizes its own
 // fallback so a guest sees "Student" / "শিক্ষার্থী" / "छात्र" per UI language.
@@ -45,6 +46,81 @@ function storageErrorResponse(e: unknown): NextResponse {
   );
 }
 
+/* ── Row targeting ──────────────────────────────────────────────────────────
+ * The API key follows the ACCOUNT, not the device:
+ *   - logged in → read/write the row tagged with the user's userId, so the
+ *     same email sees the same key on every device, and a different email on
+ *     this device never inherits it;
+ *   - guest → the device-local row (unchanged behavior). */
+type ConfigUpdate = {
+  apiKeyEnc?: string;
+  keyPreview?: string;
+  displayName?: string;
+  level?: string;
+};
+
+async function writeConfig(
+  deviceId: string,
+  update: ConfigUpdate
+): Promise<void> {
+  const user = await getSessionUser();
+
+  if (user) {
+    const acc = await db.userConfig.findFirst({
+      where: { userId: user.id },
+      orderBy: { updatedAt: "desc" },
+    });
+    if (acc) {
+      await db.userConfig.update({ where: { id: acc.id }, data: update });
+    } else {
+      try {
+        await db.userConfig.create({
+          data: {
+            // Synthetic per-account deviceId — can never collide with real
+            // client device ids (random UUIDs).
+            deviceId: `account:${user.id}`,
+            userId: user.id,
+            apiKeyEnc: update.apiKeyEnc ?? "",
+            keyPreview: update.keyPreview ?? "",
+            displayName: update.displayName ?? NO_NAME,
+            level: update.level ?? "beginner",
+          },
+        });
+      } catch {
+        // Raced with account-row adoption (parallel request) — update instead.
+        const acc2 = await db.userConfig.findFirst({
+          where: { userId: user.id },
+        });
+        if (!acc2) throw new Error("userConfig account row create failed");
+        await db.userConfig.update({ where: { id: acc2.id }, data: update });
+      }
+    }
+    // Scrub any leftover guest key in THIS device's slot so a different email
+    // logging in here can never inherit it. Only untagged (guest) rows are
+    // touched — never another account's row.
+    await db.userConfig
+      .updateMany({
+        where: { deviceId, userId: null },
+        data: { apiKeyEnc: "", keyPreview: "" },
+      })
+      .catch(() => null);
+    return;
+  }
+
+  // Guest → device-local row
+  await db.userConfig.upsert({
+    where: { deviceId },
+    create: {
+      deviceId,
+      apiKeyEnc: update.apiKeyEnc ?? "",
+      keyPreview: update.keyPreview ?? "",
+      displayName: update.displayName ?? NO_NAME,
+      level: update.level ?? "beginner",
+    },
+    update,
+  });
+}
+
 // GET /api/config?deviceId=...  → masked profile (key never returned raw)
 export async function GET(req: NextRequest) {
   const deviceId = req.nextUrl.searchParams.get("deviceId");
@@ -53,14 +129,19 @@ export async function GET(req: NextRequest) {
   }
   try {
     const [cfg, user] = await Promise.all([
-      db.userConfig.findUnique({ where: { deviceId } }),
+      resolveConfigRow(deviceId),
       getSessionUser(),
     ]);
     const name = resolveName(user?.name, cfg?.displayName);
     if (!cfg || !cfg.keyPreview) {
       return NextResponse.json({
         ok: true,
-        data: { hasKey: false, keyPreview: null, displayName: name, level: "beginner" },
+        data: {
+          hasKey: false,
+          keyPreview: null,
+          displayName: name,
+          level: cfg?.level ?? "beginner",
+        },
       });
     }
     return NextResponse.json({
@@ -85,7 +166,7 @@ export async function POST(req: NextRequest) {
   }
   const { deviceId, displayName, level } = body;
 
-  const update: Record<string, unknown> = {};
+  const update: ConfigUpdate = {};
   if (typeof displayName === "string" && displayName.trim()) {
     update.displayName = displayName.trim().slice(0, 24);
   }
@@ -132,33 +213,23 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    await db.userConfig.upsert({
-      where: { deviceId },
-      create: {
-        deviceId,
-        apiKeyEnc: (update.apiKeyEnc as string) ?? "",
-        keyPreview: (update.keyPreview as string) ?? "",
-        displayName: (update.displayName as string) ?? NO_NAME,
-        level: (update.level as string) ?? "beginner",
-      },
-      update,
-    });
+    await writeConfig(deviceId, update);
 
     // Keep the account in sync: a logged-in user's display-name edit updates
     // their User.name too, so greeting + AI personalization stay consistent.
-    const savedName = typeof update.displayName === "string" ? update.displayName : null;
     const user = await getSessionUser();
+    const savedName = typeof update.displayName === "string" ? update.displayName : null;
     if (user && savedName) {
       await db.user.update({ where: { id: user.id }, data: { name: savedName } }).catch(() => null);
     }
 
-    const cfg = await db.userConfig.findUnique({ where: { deviceId } });
+    const cfg = await resolveConfigRow(deviceId);
     return NextResponse.json({
       ok: true,
       warning,
       data: {
         hasKey: !!cfg?.keyPreview,
-        keyPreview: cfg?.keyPreview ?? null,
+        keyPreview: cfg?.keyPreview || null,
         displayName: resolveName(savedName ?? user?.name, cfg?.displayName),
         level: cfg?.level,
       },
@@ -168,13 +239,20 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// DELETE /api/config?deviceId=... → remove saved key
+// DELETE /api/config?deviceId=... → remove saved key (account + this device)
 export async function DELETE(req: NextRequest) {
   const deviceId = req.nextUrl.searchParams.get("deviceId");
   if (!deviceId) {
     return NextResponse.json({ ok: false, error: "deviceId required" }, { status: 400 });
   }
   try {
+    const user = await getSessionUser();
+    if (user) {
+      await db.userConfig.updateMany({
+        where: { userId: user.id },
+        data: { apiKeyEnc: "", keyPreview: "" },
+      });
+    }
     await db.userConfig.updateMany({
       where: { deviceId },
       data: { apiKeyEnc: "", keyPreview: "" },
