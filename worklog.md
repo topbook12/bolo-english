@@ -509,3 +509,20 @@ Stage Summary:
 - 三个用户报告 bug 全部修复：hydration（时区相关问候语）、Gemini formatting（key 清洗 + JSON 修复层3）、视频通话远端黑屏（autoplay 策略 + ontrack 合并）
 - 代码变更：HomeSection.tsx、home.{en,bn,hi}.json、key-format.ts（新）、crypto.ts、config/route.ts、SettingsSection.tsx、gemini.ts、CallRoom.tsx、use-webrtc.ts
 - 真实双端视频通话需真机+外网验证（沙箱无摄像头/无外网），渲染路径已按根因修复并有周期重试兜底
+
+---
+Task ID: push-fixes
+Agent: main (Z.ai Code)
+Task: Push all pending fix commits (hydration, Gemini formatting, remote video) with the new GitHub PAT
+
+Work Log:
+- Verified working tree clean; 3 local commits were unpushed because the previous PAT had expired
+  (287a639 worklog, 2fe9fd8 Gemini JSON robustness + call media reliability, 0cd1131 hydration/Gemini-key/remote-video fixes)
+- Pushed f1958d7..0cd1131 -> origin/main using the new inline PAT; GitHub accepted the push
+- Confirmed Vercel will auto-deploy from the new main head 0cd1131
+- Local dev server health check: GET / 200, /api/progress 200, /api/auth/me 200, /api/config 200 — no errors in dev.log
+
+Stage Summary:
+- All 3 user-reported bugs are now on GitHub main: (1) Gemini formatting/key errors, (2) remote video black tile,
+  (3) hydration mismatch on the time-based greeting; i18n English-default + PWA English install text also included
+- Next: user should hard-refresh the deployed Vercel URL once the build finishes; verify video call on two devices
