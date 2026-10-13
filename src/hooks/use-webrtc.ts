@@ -26,21 +26,23 @@ export interface UseWebRTCOpts {
 }
 
 const ICE_SERVERS: RTCIceServer[] = [
-  { urls: "stun:stun.l.google.com:19302" },
-  { urls: "stun:stun1.l.google.com:19302" },
-  // Free public TURN (Open Relay Project by metered.ca). STUN alone fails on
-  // symmetric-NAT / carrier-CGNAT mobile networks — peers would "join" the
-  // room but media never connects (tile stuck on "connecting…"). TURN fixes
-  // those calls by relaying media when a direct path is impossible.
+  { urls: ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"] },
+  // Free TURN (metered.ca — the OpenRelay successor). The original
+  // openrelay.metered.ca now resolves to a black-hole (100::1) and its ports
+  // are dead, so with STUN alone the call silently never connected on
+  // symmetric-NAT / carrier-CGNAT networks (the norm on mobile data in
+  // Bangladesh): both peers joined the room, ICE never found a path, and the
+  // partner tile sat on "connecting…" with no face. Verified live: 80/443/3478
+  // reachable on standard.relay.metered.ca.
   {
     urls: [
-      "turn:openrelay.metered.ca:80",
-      "turn:openrelay.metered.ca:443",
-      "turn:openrelay.metered.ca:443?transport=tcp",
-      "turn:openrelay.metered.ca:80?transport=tcp",
+      "turn:standard.relay.metered.ca:80",
+      "turn:standard.relay.metered.ca:80?transport=tcp",
+      "turn:standard.relay.metered.ca:443",
+      "turn:standard.relay.metered.ca:443?transport=tcp",
     ],
-    username: "openrelayproject",
-    credential: "openrelayproject",
+    username: "e8dd651bbe22f4a616b1c04f",
+    credential: "MakTy9FvEZjSyZ2o",
   },
 ];
 
@@ -58,6 +60,9 @@ export function useWebRTC({ onSendSignal, getMyId }: UseWebRTCOpts) {
   const [mediaError, setMediaError] = useState<string | null>(null);
 
   const localStreamRef = useRef<MediaStream | null>(null);
+  // In-flight getUserMedia promise — initLocal is safe to call concurrently
+  // (two PCs created at once must never open the camera twice).
+  const mediaInitRef = useRef<Promise<MediaStream> | null>(null);
   const pcsRef = useRef<Map<string, RTCPeerConnection>>(new Map());
   const pendingIceRef = useRef<Map<string, RTCIceCandidateInit[]>>(new Map());
   // Exotic browsers deliver ontrack without e.streams — merge those tracks
@@ -81,23 +86,27 @@ export function useWebRTC({ onSendSignal, getMyId }: UseWebRTCOpts) {
   /* ── local media ── */
   const initLocal = useCallback(async () => {
     if (localStreamRef.current) return localStreamRef.current;
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
-        audio: { echoCancellation: true, noiseSuppression: true },
+    if (!mediaInitRef.current) {
+      mediaInitRef.current = (async () => {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
+          audio: { echoCancellation: true, noiseSuppression: true },
+        });
+        localStreamRef.current = stream;
+        setLocalStream(stream);
+        setMediaError(null);
+        return stream;
+      })().catch((e) => {
+        mediaInitRef.current = null; // allow a retry after the error
+        const msg =
+          (e as Error).name === "NotAllowedError"
+            ? t("mediaDenied")
+            : t("mediaMissing");
+        setMediaError(msg);
+        throw e;
       });
-      localStreamRef.current = stream;
-      setLocalStream(stream);
-      setMediaError(null);
-      return stream;
-    } catch (e) {
-      const msg =
-        (e as Error).name === "NotAllowedError"
-          ? t("mediaDenied")
-          : t("mediaMissing");
-      setMediaError(msg);
-      throw e;
     }
+    return mediaInitRef.current;
   }, [t]);
 
   /* ── peer connection helpers ── */
@@ -160,7 +169,10 @@ export function useWebRTC({ onSendSignal, getMyId }: UseWebRTCOpts) {
               peerId
             );
           } else if (pc.signalingState === "stable") {
-            if (!pc.remoteDescription) return; // offer hasn't arrived yet — initiator's watchdog handles it
+            // Offer even without a remote description: if the other side's
+            // offer never arrived, both peers used to wait for each other
+            // forever. Glare (both offer at once) is resolved by the rollback
+            // logic in handleSignal (lower peer id wins).
             pc.restartIce();
             const offer = await pc.createOffer();
             await pc.setLocalDescription(offer);
@@ -185,11 +197,11 @@ export function useWebRTC({ onSendSignal, getMyId }: UseWebRTCOpts) {
       disconnectedAtRef.current.delete(peerId);
       lastRecoveryRef.current.delete(peerId);
 
-      // add local tracks
-      const stream = localStreamRef.current;
-      if (stream) {
-        for (const track of stream.getTracks()) pc.addTrack(track, stream);
-      }
+      // add local tracks — never create a trackless PC: if media isn't ready
+      // yet, wait for it (a PC without our tracks would answer with empty SDP
+      // and the partner would stare at a black tile forever).
+      const stream = await initLocal();
+      for (const track of stream.getTracks()) pc.addTrack(track, stream);
 
       pc.onicecandidate = (e) => {
         if (e.candidate) sendRef.current("ice", e.candidate.toJSON(), peerId);
@@ -224,7 +236,7 @@ export function useWebRTC({ onSendSignal, getMyId }: UseWebRTCOpts) {
 
       return pc;
     },
-    [updatePeer, recoverPeer]
+    [updatePeer, recoverPeer, initLocal]
   );
 
   /* ── stuck-connection watchdog ──
@@ -407,6 +419,7 @@ export function useWebRTC({ onSendSignal, getMyId }: UseWebRTCOpts) {
     for (const id of Array.from(pcsRef.current.keys())) closePC(id);
     localStreamRef.current?.getTracks().forEach((t) => t.stop());
     localStreamRef.current = null;
+    mediaInitRef.current = null;
     setLocalStream(null);
     setRemotePeers([]);
   }, [closePC]);
