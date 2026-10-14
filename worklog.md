@@ -696,3 +696,42 @@ Work Log:
 Stage Summary:
 - Commit fbfb5e0 pushed to main. Requirements 1,2 verified clean (no fixes needed); 3 root-caused (dead TURN creds) with a no-redeploy fix path (add Cloudflare TURN env vars on Vercel); 4+7 content shipped by subagents (tasks 4, 7, 7b) and wired; 5-6 AI content now locale-aware; 8 install prompt shipped; 9-10 verified in browser until clean.
 - NEXT ACTION FOR OWNER (the one thing code cannot do alone): add Cloudflare Calls TURN credentials as Vercel env vars TURN_URLS / TURN_USERNAME / TURN_CREDENTIAL → instant fix for mobile-data (CGNAT) users.
+
+---
+Task ID: 4-vocab-bank
+Agent: general-purpose
+Task: static trilingual daily word bank (daily-words.ts)
+
+Work Log:
+- Inspected existing src/lib/daily-words.ts: found 45 beginner + 45 intermediate + only 5 advanced entries ending at a //__APPEND__ marker; BANK_DAYS_PER_LEVEL and bankWordsForDay exports were missing entirely.
+- Validated the existing 95 entries with a throwaway bun script in /tmp: 0 problems (no duplicate words, exactly 2 examples each within 8-14 words, all trilingual fields non-empty, levels in contiguous beginner->intermediate->advanced blocks).
+- Appended 40 advanced (C1) entries at the marker: resilient, inevitable, ambiguous, pragmatic, scarce, versatile, deteriorate, alleviate, consolidate, contemplate, diminish, endorse, exacerbate, facilitate, hinder, mitigate, undermine, candid, coherent, imminent, profound, redundant, skeptical, accountability, discrepancy, incentive, milestone, setback, breakthrough, nuance, substantiate, prioritize, delegate, compromise, anticipate, substantially, inevitably, arguably, nonetheless, strike a balance (phrase). Matches the file's existing entry style (natural bn/hi, learner respellings, practical usage tips).
+- Added the required exports after the array: BANK_DAYS_PER_LEVEL = 15 and bankWordsForDay(level, dayIndex) exactly per spec (wrapping day index, 3 words/day).
+- Re-ran full bun assertions: total 135; 45/45/45; exactly 2 examples each (all 8-14 words); no duplicate words case-insensitively; pronunciation/meaning/usageTip (bn/en/hi) + englishMeaning all non-empty; bn/hi pronunciations carry respelling parens; bankWordsForDay wraps (day 15 == day 0, day -1 == day 14) and covers all 45 words per level across 15 days. Deleted the throwaway script afterwards.
+- bunx tsc --noEmit: clean under strict.
+
+Stage Summary:
+- src/lib/daily-words.ts now holds exactly 135 static trilingual entries: 45 beginner (A1-A2) + 45 intermediate (B1-B2) + 45 advanced (C1), ordered beginner -> intermediate -> advanced; each level serves 15 days x 3 words via bankWordsForDay; zero API keys, no AI generation.
+- Verification: all bun data assertions passed (135 total, 45 per level, 2 examples each 8-14 words, no duplicates, all trilingual fields non-empty, correct day-index wrapping); `bunx tsc --noEmit` clean.
+
+---
+Task ID: 5-locale-policy (main agent)
+Agent: Z.ai Code (main)
+Task: (a) messages follow the user's UI language (never Bengali-only), (b) static content stored on our side & keyless (daily words), (c) hydration armor round 2
+
+Work Log:
+- Root-caused "Bengali messages" complaint: ALL API routes hardcoded Bengali error strings (auth register/login, config, call/join, ai) and client fallbacks (client-api, call-client, use-auth, use-device, use-speech-recognition); /api/vocab/daily had a hardcoded Bengali AI prompt AND required the user's Gemini key.
+- NEW src/lib/api-i18n.ts: trilingual (en/bn/hi) message catalog (~35 keys), reqLocale(req) reads the bolo_locale cookie (same one next-intl uses), clientLocale() for client fallbacks, apiMsg()/clientMsg() with {var} substitution.
+- gemini.ts: GeminiError now carries a machine-readable `code` (noKey/keyUnreadable/badFormat/aiNetwork/aiFailed/empty/safety/badKey/quota/geminiServer); routes translate codes into the user's language; raw technical reason flows through aiFailedReason {reason}.
+- Localized every route: auth/register, auth/login (rateLimited/invalidEmail/weakPassword/emailTaken/missingCredentials/wrongCredentials), config (keyBadFormat/keyUnverified/dbNotConfigured/dbConnectFailed + 401 badKey), call/join (roomCodeRequired/roomNotFound/roomFull/alreadyInRoom/joinFailed), ai (rateLimited/wordRequired/quizNeedsWords/analysisNeedsSentences + geminiErrMsg for all thrown errors); DEFAULT_POLICY bn→en (English is the international default, bn/hi opt in).
+- /api/vocab/daily REWRITTEN: static curated bank (src/lib/daily-words.ts, subagent task 4-vocab-bank: 135 trilingual words = 45 per level, 2 examples each, verified no dupes + tsc clean) → 3 words/day rotated by date, ZERO API keys, localized meaning/pronunciation/usage per UI locale, dailyVocab row kept for progress tracking. Content lives entirely on our side.
+- SettingsSection: removed dead hardcoded Bengali LEVELS labels (render already uses common.level.*).
+- Hydration armor round 2 (user reported radix useId mismatch a 2nd time): new use-mounted.ts (useSyncExternalStore-based, lint-clean); LocaleSwitcher renders a Radix-free lookalike trigger before mount; AppShell mobile Sheet likewise gated → Radix (and its useId) never exists in SSR/hydration output, so the mismatch class is structurally impossible.
+- Fixed Turbopack stale-module quirk: /api/ai served old gemini.ts until dev-server restart (touch didn't invalidate) — after restart all localizations live.
+- Verification: tsc clean; lint clean; curl matrix — vocab/daily keyless static words (en+hi fields), login/register/ai errors in en/hi/bn all correct; agent-browser — fresh load 0 errors, seeded state (hi cookie + localStorage) reload 0 hydration errors, language dropdown en↔hi switch works, login wrong-password error shows "Wrong email or password." in en and "ईमेल या पासवर्ड गलत है।" in hi through the real UI, InstallPrompt appears with hi labels, mobile viewport 390px + More-sheet opens, dev.log all 200s.
+
+Stage Summary:
+- Requirement "messages in the user's mode" is now enforced end-to-end: every API error/warning + client fallback answers in en/bn/hi per the locale cookie; AI content policy unchanged (en default, bn/hi selectable).
+- Daily words are now static, keyless, stored on our side (135-word trilingual bank); listening/grammar were already static keyless. Video-call AI + other AI features still need BYOK (by design).
+- Radix useId hydration mismatch made structurally impossible via mount-gating; verified with seeded user state and mobile viewport.
+- No commit made by this section header (commit handled by main agent right after append).

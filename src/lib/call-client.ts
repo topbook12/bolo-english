@@ -3,6 +3,8 @@
 // so it works identically on Vercel serverless. Media still flows
 // peer-to-peer via WebRTC; only tiny signaling rows hit the database.
 
+import { clientMsg } from "@/lib/api-i18n";
+
 export interface JoinOpts {
   deviceId: string;
   name: string;
@@ -99,13 +101,13 @@ export class CallClient {
         body: JSON.stringify(opts),
       });
     } catch {
-      throw new Error("সার্ভারে পৌঁছানো যাচ্ছে না — ইন্টারনেট সংযোগ চেক করুন।");
+      throw new Error(clientMsg("networkServer"));
     }
     const json = (await res.json().catch(() => null)) as
       | { ok?: boolean; data?: JoinResult; error?: string }
       | null;
     if (!res.ok || !json?.ok || !json.data) {
-      throw new Error(json?.error || `রুমে যোগ দেওয়া যায়নি (${res.status})`);
+      throw new Error(json?.error || clientMsg("joinFailedStatus", { status: res.status }));
     }
     return json.data;
   }

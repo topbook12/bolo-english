@@ -3,13 +3,15 @@
 import { create } from "zustand";
 import { useEffect, useSyncExternalStore } from "react";
 import { useDevice } from "./use-device";
+import { clientMsg } from "@/lib/api-i18n";
 
 // Client auth state, mirrors the frozen /api/auth/* contracts:
 //   register {deviceId, email, password, name?} → {user}
 //   login    {deviceId, email, password}        → {user}
 //   logout   → clears httpOnly cookie
 //   me       → {user | null}
-// Server errors arrive in Bengali — thrown as-is for the UI to display.
+// Server errors arrive already localized to the user's UI language (the
+// API reads the locale cookie) — thrown as-is for the UI to display.
 
 export interface AuthUser {
   id: string;
@@ -38,7 +40,7 @@ async function authRequest(
   });
   const json = await res.json().catch(() => null);
   if (!res.ok || !json?.ok) {
-    throw new Error(json?.error || `সার্ভার সমস্যা (${res.status})`);
+    throw new Error(json?.error || clientMsg("serverProblem", { status: res.status }));
   }
   return json.data as { user: AuthUser };
 }

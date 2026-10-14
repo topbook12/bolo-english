@@ -38,11 +38,27 @@ interface GeminiResponse {
   error?: { message?: string };
 }
 
+// Machine-readable error codes — routes translate these into the user's UI
+// language via src/lib/api-i18n.ts, so no user ever sees hardcoded Bengali.
+export type GeminiErrCode =
+  | "noKey"
+  | "keyUnreadable"
+  | "badFormat"
+  | "aiNetwork"
+  | "aiFailed"
+  | "empty"
+  | "safety"
+  | "badKey"
+  | "quota"
+  | "geminiServer";
+
 export class GeminiError extends Error {
   status: number;
-  constructor(message: string, status = 500) {
+  code?: GeminiErrCode;
+  constructor(message: string, status = 500, code?: GeminiErrCode) {
     super(message);
     this.status = status;
+    this.code = code;
   }
 }
 
@@ -54,7 +70,8 @@ export async function getUserApiKey(deviceId: string): Promise<string> {
   if (!cfg || !cfg.apiKeyEnc) {
     throw new GeminiError(
       "আপনার Gemini API Key সেট করা নেই। Settings-এ গিয়ে কী যোগ করুন।",
-      400
+      400,
+      "noKey"
     );
   }
   try {
@@ -62,7 +79,8 @@ export async function getUserApiKey(deviceId: string): Promise<string> {
   } catch {
     throw new GeminiError(
       "আপনার API Key পড়া যায়নি — Settings-এ গিয়ে আবার সেভ করুন।",
-      400
+      400,
+      "keyUnreadable"
     );
   }
 }
@@ -146,7 +164,8 @@ function extractAndParseJson<T>(text: string): T {
 
   throw new GeminiError(
     "AI একটি ভুল ফরম্যাটে উত্তর দিয়েছে — আবার চেষ্টা করুন।",
-    502
+    502,
+    "badFormat"
   );
 }
 
@@ -223,14 +242,14 @@ export async function geminiJson<T>(
         lastErr =
           e instanceof GeminiError
             ? e
-            : new GeminiError("AI কল ব্যর্থ হয়েছে — ইন্টারনেট সংযোগ চেক করুন।", 502);
+            : new GeminiError("AI কল ব্যর্থ হয়েছে — ইন্টারনেট সংযোগ চেক করুন।", 502, "aiNetwork");
         if (lastErr.status === 401 || lastErr.status === 403 || lastErr.status === 429) {
           throw lastErr;
         }
       }
     }
   }
-  throw lastErr ?? new GeminiError("AI কল ব্যর্থ হয়েছে।");
+  throw lastErr ?? new GeminiError("AI কল ব্যর্থ হয়েছে।", 500, "aiFailed");
 }
 
 export async function geminiText(
@@ -246,14 +265,14 @@ export async function geminiText(
       lastErr =
         e instanceof GeminiError
           ? e
-          : new GeminiError("AI কল ব্যর্থ হয়েছে — ইন্টারনেট সংযোগ চেক করুন।", 502);
+          : new GeminiError("AI কল ব্যর্থ হয়েছে — ইন্টারনেট সংযোগ চেক করুন।", 502, "aiNetwork");
       // If auth/quota error, don't try other models with the same key
       if (lastErr.status === 401 || lastErr.status === 403 || lastErr.status === 429) {
         throw lastErr;
       }
     }
   }
-  throw lastErr ?? new GeminiError("AI কল ব্যর্থ হয়েছে।");
+  throw lastErr ?? new GeminiError("AI কল ব্যর্থ হয়েছে।", 500, "aiFailed");
 }
 
 async function callModel(
@@ -304,7 +323,8 @@ async function callModel(
         : res.status === 400 && /quota/i.test(msg)
           ? 429
           : res.status;
-    throw new GeminiError(friendlyError(msg, status), status);
+    const fe = friendlyError(msg, status);
+    throw new GeminiError(fe.message, status, fe.code);
   }
 
   const candidate = json.candidates?.[0];
@@ -318,19 +338,34 @@ async function callModel(
     if (reason === "SAFETY" || reason === "PROHIBITED_CONTENT" || reason === "BLOCKED") {
       throw new GeminiError(
         "AI নিরাপত্তা নীতির কারণে এই বিষয়ে উত্তর দিতে পারছে না — ভিন্নভাবে আবার চেষ্টা করুন।",
-        502
+        502,
+        "safety"
       );
     }
-    throw new GeminiError("AI খালি উত্তর দিয়েছে, আবার চেষ্টা করুন।", 502);
+    throw new GeminiError("AI খালি উত্তর দিয়েছে, আবার চেষ্টা করুন।", 502, "empty");
   }
   return text;
 }
 
-function friendlyError(msg: string, status: number): string {
+function friendlyError(
+  msg: string,
+  status: number
+): { message: string; code: GeminiErrCode } {
   if (status === 401 || /api key/i.test(msg))
-    return "API Key সঠিক নয় বা বাতিল হয়ে গেছে। Settings-এ গিয়ে নতুন কী দিন।";
+    return {
+      message: "API Key সঠিক নয় বা বাতিল হয়ে গেছে। Settings-এ গিয়ে নতুন কী দিন।",
+      code: "badKey",
+    };
   if (status === 429 || /quota/i.test(msg))
-    return "আপনার Gemini কোটা শেষ — কিছুক্ষণ পর আবার চেষ্টা করুন।";
-  if (status >= 500) return "Google Gemini সার্ভারে সমস্যা, একটু পরে চেষ্টা করুন।";
-  return `AI কল ব্যর্থ: ${msg.slice(0, 140)}`;
+    return {
+      message: "আপনার Gemini কোটা শেষ — কিছুক্ষণ পর আবার চেষ্টা করুন।",
+      code: "quota",
+    };
+  if (status >= 500)
+    return {
+      message: "Google Gemini সার্ভারে সমস্যা, একটু পরে চেষ্টা করুন।",
+      code: "geminiServer",
+    };
+  // message = raw technical reason (routes wrap it in the user's language)
+  return { message: msg.slice(0, 140), code: "aiFailed" };
 }

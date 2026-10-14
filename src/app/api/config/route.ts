@@ -5,6 +5,7 @@ import { sanitizeApiKey, isValidGeminiKeyFormat } from "@/lib/key-format";
 import { geminiText, GeminiError } from "@/lib/gemini";
 import { getSessionUser } from "@/lib/auth";
 import { resolveConfigRow } from "@/lib/user-config";
+import { reqLocale, apiMsg } from "@/lib/api-i18n";
 
 // Internal "no name" marker stored in the DB; the client localizes its own
 // fallback so a guest sees "Student" / "শিক্ষার্থী" / "छात्र" per UI language.
@@ -29,7 +30,7 @@ function resolveName(
  * from the user's point of view a perfectly valid API key "just wouldn't
  * save". Every DB call below is wrapped so the user always gets a message
  * that names the exact fix. */
-function storageErrorResponse(e: unknown): NextResponse {
+function storageErrorResponse(e: unknown, locale: ReturnType<typeof reqLocale>): NextResponse {
   const msg = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
   const notConfigured =
     /P1012|Environment variable|not found|DATABASE_URL|TURSO/i.test(msg);
@@ -38,8 +39,8 @@ function storageErrorResponse(e: unknown): NextResponse {
     {
       ok: false,
       error: notConfigured
-        ? "সার্ভারের ডাটাবেস এখনো কনফিগার করা হয়নি — Vercel Dashboard → আপনার Project → Settings → Environment Variables-এ TURSO_DATABASE_URL ও TURSO_AUTH_TOKEN যোগ করে Redeploy দিন। এর পরে কী সেভ হবে।"
-        : "সার্ভারের ডাটাবেসে সংযোগ করা যাচ্ছে না — কিছুক্ষণ পর আবার চেষ্টা করুন।",
+        ? apiMsg(locale, "dbNotConfigured")
+        : apiMsg(locale, "dbConnectFailed"),
       storage: true,
     },
     { status: 503 }
@@ -154,7 +155,7 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (e) {
-    return storageErrorResponse(e);
+    return storageErrorResponse(e, reqLocale(req));
   }
 }
 
@@ -183,7 +184,7 @@ export async function POST(req: NextRequest) {
     const key = sanitizeApiKey(String(body.apiKey));
     if (!key || !isValidGeminiKeyFormat(key)) {
       return NextResponse.json(
-        { ok: false, error: "কীটি সম্পূর্ণ কপি হয়নি বা ভুল — AI Studio-তে কী-টি খুলে COPY আইকনে চাপ দিয়ে আবার পেস্ট করুন।" },
+        { ok: false, error: apiMsg(reqLocale(req), "keyBadFormat") },
         { status: 400 }
       );
     }
@@ -200,9 +201,16 @@ export async function POST(req: NextRequest) {
     } catch (e) {
       const status = e instanceof GeminiError ? e.status : 0;
       if (status === 401) {
-        return NextResponse.json({ ok: false, error: (e as Error).message }, { status: 400 });
+        // Google rejected the key itself → refuse to save (localized)
+        const ge = e as GeminiError;
+        return NextResponse.json(
+          { ok: false, error: ge.code ? apiMsg(reqLocale(req), ge.code) : ge.message },
+          { status: 400 }
+        );
       }
-      warning = `কী সেভ হয়েছে, তবে যাচাই করা যায়নি — ${(e as Error).message}`;
+      warning = apiMsg(reqLocale(req), "keyUnverified", {
+        reason: (e as Error).message.slice(0, 120),
+      });
     }
     update.apiKeyEnc = encryptKey(key);
     update.keyPreview = maskKey(key);
@@ -235,7 +243,7 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (e) {
-    return storageErrorResponse(e);
+    return storageErrorResponse(e, reqLocale(req));
   }
 }
 
@@ -259,6 +267,6 @@ export async function DELETE(req: NextRequest) {
     });
     return NextResponse.json({ ok: true });
   } catch (e) {
-    return storageErrorResponse(e);
+    return storageErrorResponse(e, reqLocale(req));
   }
 }

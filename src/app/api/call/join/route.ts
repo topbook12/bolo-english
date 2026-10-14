@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { CallRoom } from "@prisma/client";
 import { db } from "@/lib/db";
+import { reqLocale, apiMsg } from "@/lib/api-i18n";
 import {
   makeRoomCode,
   makePeerId,
@@ -34,6 +35,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "deviceId required" }, { status: 400 });
   }
 
+  // Answer in the user's UI language (locale cookie)
+  const locale = reqLocale(req);
+
   await pruneStaleRooms();
 
   const maxPeers = intent === "one" ? 2 : 4;
@@ -45,12 +49,15 @@ export async function POST(req: NextRequest) {
 
       if (mode === "code") {
         if (!code) {
-          return NextResponse.json({ ok: false, error: "রুম কোড দিন।" }, { status: 400 });
+          return NextResponse.json(
+            { ok: false, error: apiMsg(locale, "roomCodeRequired") },
+            { status: 400 }
+          );
         }
         room = await db.callRoom.findUnique({ where: { code } });
         if (!room || room.status !== "open") {
           return NextResponse.json(
-            { ok: false, error: "এই কোডের কোনো খোলা রুম নেই — কোড মিলিয়ে দেখুন।" },
+            { ok: false, error: apiMsg(locale, "roomNotFound") },
             { status: 404 }
           );
         }
@@ -87,13 +94,13 @@ export async function POST(req: NextRequest) {
       if (participants.length >= room.maxPeers) {
         if (mode === "quick" && attempt < 3) continue; // try another room/create
         return NextResponse.json(
-          { ok: false, error: "রুমটি পূর্ণ হয়ে গেছে।" },
+          { ok: false, error: apiMsg(locale, "roomFull") },
           { status: 409 }
         );
       }
       if (participants.some((p) => p.deviceId === deviceId)) {
         return NextResponse.json(
-          { ok: false, error: "আপনি ইতিমধ্যে এই রুমে আছেন (অন্য ট্যাব)।" },
+          { ok: false, error: apiMsg(locale, "alreadyInRoom") },
           { status: 409 }
         );
       }
@@ -114,7 +121,7 @@ export async function POST(req: NextRequest) {
       if (attempt === 3) {
         console.error("call/join failed", e);
         return NextResponse.json(
-          { ok: false, error: "রুমে যোগ দেওয়া যায়নি — আবার চেষ্টা করুন।" },
+          { ok: false, error: apiMsg(locale, "joinFailed") },
           { status: 500 }
         );
       }

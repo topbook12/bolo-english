@@ -36,11 +36,8 @@ import SectionHeader from "@/components/shared/SectionHeader";
 import PointList from "@/components/shared/PointList";
 import type { UserConfig as ApiUserConfig } from "@/hooks/use-device";
 
-const LEVELS = [
-  { value: "beginner", label: "শুরুর দিকে" },
-  { value: "intermediate", label: "মাঝারি" },
-  { value: "advanced", label: "উন্নত" },
-] as const;
+// Labels render via tCommon("level.*") — always in the user's UI language.
+const LEVELS = [{ value: "beginner" }, { value: "intermediate" }, { value: "advanced" }] as const;
 
 export default function SettingsSection() {
   const t = useTranslations("settings");

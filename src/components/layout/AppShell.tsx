@@ -21,6 +21,7 @@ import PwaRegister from "@/components/pwa/PwaRegister";
 import InstallPrompt from "@/components/pwa/InstallPrompt";
 import LocaleSwitcher from "@/i18n/LocaleSwitcher";
 import AuthButton from "@/components/auth/AuthButton";
+import { useMounted } from "@/hooks/use-mounted";
 import { useDeviceInit, useDeviceValue } from "@/hooks/use-device";
 import HomeSection from "@/components/sections/HomeSection";
 import SpeakingSection from "@/components/sections/SpeakingSection";
@@ -70,6 +71,11 @@ export default function AppShell() {
   // time. React swaps in live values right after hydration.
   const hasKey = useDeviceValue((s) => s.hasKey, false);
   const loaded = useDeviceValue((s) => s.loaded, false);
+  // Hydration armor: the mobile "more" Sheet (a Radix Dialog that consumes
+  // React.useId even while closed) mounts only after hydration. Before that
+  // we render a plain, visually identical button — so the SSR HTML and the
+  // hydration render can never disagree on Radix-generated ids.
+  const mounted = useMounted();
 
   // remember last tab
   useEffect(() => {
@@ -183,23 +189,29 @@ export default function AppShell() {
             <AuthButton onOpenSettings={() => setTab("settings")} />
             {/* mobile "more" trigger */}
             <div className="md:hidden">
-              <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
-                <SheetTrigger asChild>
-                  <Button size="icon" variant="ghost" aria-label={t("nav.more")}>
-                    <Menu className="h-5 w-5" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="w-72">
-                  <SheetHeader>
-                    <SheetTitle className="text-right">{t("nav.menu")}</SheetTitle>
-                  </SheetHeader>
-                  <nav className="mt-2 flex flex-col gap-1" aria-label={t("nav.mobileMenu")}>
-                    {MORE_TABS.map((id) => (
-                      <NavItem key={id} id={id} showDesc />
-                    ))}
-                  </nav>
-                </SheetContent>
-              </Sheet>
+              {mounted ? (
+                <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
+                  <SheetTrigger asChild>
+                    <Button size="icon" variant="ghost" aria-label={t("nav.more")}>
+                      <Menu className="h-5 w-5" />
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className="w-72">
+                    <SheetHeader>
+                      <SheetTitle className="text-right">{t("nav.menu")}</SheetTitle>
+                    </SheetHeader>
+                    <nav className="mt-2 flex flex-col gap-1" aria-label={t("nav.mobileMenu")}>
+                      {MORE_TABS.map((id) => (
+                        <NavItem key={id} id={id} showDesc />
+                      ))}
+                    </nav>
+                  </SheetContent>
+                </Sheet>
+              ) : (
+                <Button size="icon" variant="ghost" aria-label={t("nav.more")}>
+                  <Menu className="h-5 w-5" />
+                </Button>
+              )}
             </div>
           </div>
         </div>

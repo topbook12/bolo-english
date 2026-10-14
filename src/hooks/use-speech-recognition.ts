@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { clientMsg } from "@/lib/api-i18n";
 
 // Browser-native speech recognition (Web Speech API) — 100% free, runs on-device.
 // Produces live interim text + final transcripts for captions and AI analysis.
@@ -90,11 +91,11 @@ export function useSpeechRecognition(onFinal?: (line: FinalLine) => void) {
       if (e.error === "not-allowed" || e.error === "service-not-allowed") {
         wantRef.current = false;
         setListening(false);
-        setError("মাইক্রোফোনের অনুমতি দরকার — ব্রাউজার সেটিংস থেকে অনুমতি দিন।");
+        setError(clientMsg("micPermission"));
       } else if (e.error === "audio-capture") {
         wantRef.current = false;
         setListening(false);
-        setError("মাইক্রোফোন পাওয়া যাচ্ছে না।");
+        setError(clientMsg("micNotFound"));
       }
     };
 
@@ -117,7 +118,7 @@ export function useSpeechRecognition(onFinal?: (line: FinalLine) => void) {
   const start = useCallback(() => {
     setError(null);
     if (!getRecognitionCtor()) {
-      setError("এই ব্রাউজারে স্পিচ রিকগনিশন সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।");
+      setError(clientMsg("speechUnsupported"));
       return;
     }
     wantRef.current = true;

@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { useEffect, useSyncExternalStore } from "react";
+import { clientMsg } from "@/lib/api-i18n";
 
 export interface UserConfig {
   deviceId: string;
@@ -59,15 +60,13 @@ export const useDevice = create<DeviceStore>((set, get) => ({
       } else {
         set({
           storageError:
-            json?.error ??
-            "সার্ভার অপ্রত্যাশিত উত্তর দিয়েছে — পেজ রিফ্রেশ করে আবার চেষ্টা করুন।",
+            json?.error ?? clientMsg("unexpectedResponse"),
           loaded: true,
         });
       }
     } catch {
       set({
-        storageError:
-          "সার্ভারের সাথে সংযোগ করা যাচ্ছে না — ইন্টারনেট সংযোগ চেক করে পেজ রিফ্রেশ করুন।",
+        storageError: clientMsg("connectFailed"),
         loaded: true,
       });
     }

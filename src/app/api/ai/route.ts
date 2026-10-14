@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getLocale } from "next-intl/server";
 import { db } from "@/lib/db";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { reqLocale, apiMsg, type ApiLocale } from "@/lib/api-i18n";
 import { GeminiError, geminiJson, getAiLevel, getUserName, getUserApiKey } from "@/lib/gemini";
 import type {
   CallAnalysis,
@@ -58,13 +58,26 @@ const LANG_POLICY: Record<string, LangPolicy> = {
   },
 };
 
-const DEFAULT_POLICY = LANG_POLICY.bn;
+// English is the international default; bn/hi opt in via the language switch.
+const DEFAULT_POLICY = LANG_POLICY.en;
 
 function jsonOk(data: unknown) {
   return NextResponse.json({ ok: true, data });
 }
 function jsonErr(message: string, status = 500) {
   return NextResponse.json({ ok: false, error: message }, { status });
+}
+
+/** Translate a thrown error into the user's UI language via error codes. */
+function geminiErrMsg(locale: ApiLocale, e: unknown): string {
+  if (e instanceof GeminiError && e.code) {
+    if (e.code === "aiFailed") {
+      // e.message is the raw technical reason (never user-language specific)
+      return apiMsg(locale, "aiFailedReason", { reason: e.message.slice(0, 140) });
+    }
+    return apiMsg(locale, e.code);
+  }
+  return (e as Error)?.message || apiMsg(locale, "aiFailed");
 }
 
 async function cachedJson<T>(
@@ -99,19 +112,23 @@ export async function POST(req: NextRequest) {
   if (!deviceId || !feature) {
     return jsonErr("deviceId and feature are required", 400);
   }
+
+  // UI locale from the locale cookie — every message below answers in the
+  // language the user actually selected (never hardcoded Bengali).
+  const locale: ApiLocale = reqLocale(req);
+
   if (!checkRateLimit(deviceId)) {
-    return jsonErr("অনেক দ্রুত অনুরোধ আসছে — ১ মিনিট পর আবার চেষ্টা করুন।", 429);
+    return jsonErr(apiMsg(locale, "rateLimited"), 429);
   }
 
-  // Explanation language follows the UI locale (bn primary, en/hi optional)
-  const locale = await getLocale().catch(() => "bn");
+  // Explanation language follows the UI locale (en default, bn/hi optional)
   const lang = LANG_POLICY[locale] ?? DEFAULT_POLICY;
 
   let apiKey: string;
   try {
     apiKey = await getUserApiKey(deviceId);
   } catch (e) {
-    return jsonErr((e as Error).message, (e as GeminiError).status ?? 400);
+    return jsonErr(geminiErrMsg(locale, e), (e as GeminiError).status ?? 400);
   }
   const userLevel = await getAiLevel(deviceId);
   const userName = await getUserName(deviceId);
@@ -210,7 +227,7 @@ Words must be useful in real life (office, market, travel, feelings, internet). 
 
       case "vocab-lookup": {
         const word = String(payload.word ?? "").trim().slice(0, 40);
-        if (!word) return jsonErr("শব্দ লিখুন।", 400);
+        if (!word) return jsonErr(apiMsg(locale, "wordRequired"), 400);
         const data = await geminiJson<DailyWord>(
           apiKey,
           `Explain the English word "${word}" for a learner at ${userLevel} level. ${lang.rule}
@@ -223,7 +240,7 @@ If "${word}" is not a real English word, still return JSON but put "word": "" an
 
       case "vocab-quiz": {
         const words = (Array.isArray(payload.words) ? payload.words : []).slice(0, 10);
-        if (words.length < 3) return jsonErr("কুইজের জন্য অন্তত ৩টি শব্দ সেভ করুন।", 400);
+        if (words.length < 3) return jsonErr(apiMsg(locale, "quizNeedsWords"), 400);
         const data = await geminiJson<QuizQuestion[]>(
           apiKey,
           `Create a 6-question multiple-choice English vocabulary quiz testing these words: ${words.join(", ")}. ${lang.rule}
@@ -284,7 +301,7 @@ If no real mistakes: { "corrections": [], "encouragement": "..." } Return ONLY t
         const myName = String(payload.myName ?? "");
         const userLines = transcript.filter((l) => myName ? l.speaker === myName : true).slice(-60);
         if (userLines.length < 2) {
-          return jsonErr("বিশ্লেষণের জন্য অন্তত ২টি বাক্য বলুন।", 400);
+          return jsonErr(apiMsg(locale, "analysisNeedsSentences"), 400);
         }
         const data = await geminiJson<CallAnalysis>(
           apiKey,
@@ -313,6 +330,6 @@ Scores must reflect honest assessment — be encouraging but realistic. Return O
     }
   } catch (e) {
     const err = e as GeminiError;
-    return jsonErr(err.message ?? "AI কল ব্যর্থ হয়েছে।", err.status ?? 500);
+    return jsonErr(geminiErrMsg(locale, err), err.status ?? 500);
   }
 }

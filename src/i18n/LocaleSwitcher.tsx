@@ -12,17 +12,39 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { locales, localeMeta, type Locale } from "@/i18n/config";
 import { setLocaleCookie } from "@/i18n/locale-cookie";
+import { useMounted } from "@/hooks/use-mounted";
 
 export default function LocaleSwitcher({ compact = false }: { compact?: boolean }) {
   const t = useTranslations("locale");
   const locale = useLocale();
   const router = useRouter();
+  const mounted = useMounted();
 
   const setLocale = (next: Locale) => {
     if (next === locale) return;
     setLocaleCookie(next);
     router.refresh();
   };
+
+  // Hydration armor: before mount we render a plain (Radix-free) button that
+  // looks exactly like the trigger. The DropdownMenu — and its useId-based
+  // ids — only exist after hydration, so a radix useId mismatch between SSR
+  // and hydration is structurally impossible.
+  if (!mounted) {
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        className="gap-1.5 rounded-full border-border/70 bg-card/80"
+        aria-label={t("switch")}
+      >
+        <Languages className="h-4 w-4 text-primary" />
+        <span className="text-xs font-semibold">
+          {compact ? localeMeta[locale as Locale]?.flag : localeMeta[locale as Locale]?.label}
+        </span>
+      </Button>
+    );
+  }
 
   return (
     <DropdownMenu>

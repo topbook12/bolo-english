@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { reqLocale, apiMsg } from "@/lib/api-i18n";
 import {
   db,
   hashPassword,
@@ -19,7 +20,7 @@ export async function POST(req: NextRequest) {
   }
   if (!checkRateLimit(`register:${deviceId}`)) {
     return NextResponse.json(
-      { ok: false, error: "অনেক দ্রুত অনুরোধ — একটু পরে চেষ্টা করুন।" },
+      { ok: false, error: apiMsg(reqLocale(req), "rateLimited") },
       { status: 429 }
     );
   }
@@ -30,13 +31,13 @@ export async function POST(req: NextRequest) {
 
   if (!email) {
     return NextResponse.json(
-      { ok: false, error: "সঠিক ইমেইল দিন (যেমন: name@gmail.com)।" },
+      { ok: false, error: apiMsg(reqLocale(req), "invalidEmail") },
       { status: 400 }
     );
   }
   if (!password) {
     return NextResponse.json(
-      { ok: false, error: "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।" },
+      { ok: false, error: apiMsg(reqLocale(req), "weakPassword") },
       { status: 400 }
     );
   }
@@ -44,7 +45,7 @@ export async function POST(req: NextRequest) {
   const existing = await db.user.findUnique({ where: { email } });
   if (existing) {
     return NextResponse.json(
-      { ok: false, error: "এই ইমেইলে আগেই অ্যাকাউন্ট খোলা আছে — লগইন করুন।" },
+      { ok: false, error: apiMsg(reqLocale(req), "emailTaken") },
       { status: 409 }
     );
   }
