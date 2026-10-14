@@ -881,3 +881,26 @@ Work Log:
 Stage Summary:
 - Production activation = 2 Vercel env vars: CF_TURN_KEY_ID=54008477e8adeadb119b07f0b12b155d, CF_TURN_API_TOKEN=750f2ffc… (user's own key); OR set STORAGE_ADMIN_TOKEN and paste the key in Settings → TURN card (stored encrypted in DB)
 - The 10-account rotation is now real: each new Cloudflare account's TURN key can be added from the TURN card; exhausted/quota-dead keys fail over automatically; public URLs stable; credentials always short-lived + server-minted (never in client bundle)
+
+---
+Task ID: 6
+Agent: orchestrator (main)
+Task: User confirmed TURN works; new request — desktop/laptop has too much blank space at the sides, make the site pro/premium on big screens (mobile already good)
+
+Work Log:
+- Root cause: shell capped at max-w-5xl (1024px) + several sections at max-w-2xl (672px) → large dead margins on 1280–1920px screens
+- AppShell: header/content max-w-7xl, md:h-16 header, lg:px-8; sidebar w-60/lg:w-64 with bigger nav items + "100% Free" mini-card; content-sized sticky sidebar (h-fit self-start max-h+overflow) — fixed a real bug where the old h-[calc(100vh-4rem)] sidebar inflated the flex row and pushed the footer below the fold on short pages (verified: Progress docH was 974 vs viewport 900, now exactly 900 with footer pinned); premium two-part footer (brand + tagline | free badge)
+- HomeSection: hero lg:p-10 / title lg:text-[2.75rem] / subtitle lg:text-lg / illustration xl:w-72 / CTAs lg:min-h-12; quick grid xl:grid-cols-4 with featured Speak card col-span-2 + row-span-2 (2×2) — fills perfectly with 4 module cards; daily words + stats wider gaps; how-it-works 2-col via new PointList columns prop
+- SpeakingSection: menu widened to max-w-5xl, 3 mode cards side-by-side lg:grid-cols-3 with h-full + mt-auto buttons; group-card join row stacks back to column at lg (found+fixed overflow: Join button clipped out of the ~300px card at 1600px); AI partner view max-w-2xl→max-w-3xl; how-it-works + key-note/mic-tip in 2-col lg grid
+- ProgressSection: max-w-2xl→max-w-5xl; trend chart + practice breakdown side-by-side lg:grid-cols-2; history full width
+- SettingsSection: max-w-2xl→max-w-6xl, cards in xl:columns-2 masonry with [&>*]:break-inside-avoid (no holes, natural flow)
+- Grammar: LessonView/QuizPlayer capped at max-w-4xl centered for readability on wide screens
+- WordbookTab: saved-words list grid sm:grid-cols-2 + lg:max-h-[34rem]
+- ListeningSection: tab switcher max-w-2xl, level filter max-w-xl (buttons no longer stretch across 900px)
+- globals.css: .shell-bg replaces Tailwind gradient — ambient emerald/amber corner glows on lg+ (dark variants included), brand ::selection color
+- Verification: agent-browser at 1920/1600/390 widths through Home/Speak/Grammar/Listening/Vocab/Progress/Settings + AI partner — footer pinned (bottom==viewport) on short pages, pushed naturally (bottom==docH) on long ones, mobile untouched, zero page/console errors, all API 200s in dev.log; tsc --noEmit + eslint clean
+- Commit 437323f pushed to main (Vercel auto-deploys)
+
+Stage Summary:
+- Desktop is now a premium dashboard: 1280px content shell, 3-col speaking, 2×2 featured home card, masonry settings, 2-col insights, ambient desktop glow — while mobile layout is byte-for-byte unchanged
+- Sidebar inflation bug fixed as a side effect → footer sticky-to-bottom rule now holds on every section
