@@ -1023,3 +1023,24 @@ Work Log:
 Stage Summary:
 - Everything the user quoted as "how to do that" is now DONE for them: no Vercel env needed, no seed run needed. Owner unlock = one click on the setup link (or paste token in Settings). Production library is live and self-seeded; storage/TURN dashboards self-heal too.
 - Commits: ad74392 (bootstrap + admin auth + setup link), 28bd1ac (pool tables self-heal).
+---
+Task ID: 9
+Agent: Z.ai Code (main)
+Task: User feedback — (1) when one person ends the call, the other side's remote video must be cut too; (2) the call/conversation screen should look bigger on laptops. (3rd point arrived empty.)
+
+Work Log:
+- Read use-webrtc.ts, call-client.ts, signaling.ts, CallFlow.tsx, CallRoom.tsx, join/leave/poll routes end to end.
+- ROOT CAUSE FOUND (worse than a UI nit): /api/call/leave appended the "bye" broadcast via the GLOBAL Prisma client INSIDE db.$transaction while the transaction held the SQLite write lock → self-deadlock → Prisma tx timeout → participant removal ROLLED BACK while the outer-connection bye insert survived. Proven by DB inspection: rooms kept both participants forever despite bye rows existing. Killed-tab / crashed-app / lost-network leaves never sent anything at all, and there was no per-participant staleness (surviving callers' heartbeats kept the room alive) → frozen video forever.
+- Fixes (commit 8731058):
+  1. leave route: transaction does only the roster change/delete; bye appended AFTER commit (no lock contention, removal can no longer roll back).
+  2. signaling.ts: RoomParticipant.lastSeenAt (backward-compatible, falls back to joinedAt) + STALE_PARTICIPANT_MS=150_000 (safe above the ~60s bg-tab poll gap) + participantLastSeen() helper.
+  3. poll route: prunes participants silent >150s, broadcasts a bye per pruned peer (tiles cut ≤1.2s later), marks the caller seen lazily (>20s or on prune) to keep write rate low; the caller themself is never self-pruned.
+  4. join route: seeds lastSeenAt at both participant-creation points.
+  5. CallFlow: 1:1 quick-match auto-ends 3s after the roster goes empty (partner left/pruned) → normal ended screen + AI analysis; group rooms stay open for the host. Call container max-w-3xl → lg:max-w-6xl.
+  6. CallRoom: remote tile overlay label now state-aware (t("connecting") for new/connecting, t("reconnecting") otherwise); caption overlay max-w-lg → lg:max-w-2xl.
+  7. use-webrtc: getUserMedia ideal 640×480 → 1280×720 (laptop tiles look sharp; Chrome sender-side adaptation protects mobile links). No new i18n keys (reused call.connecting/call.reconnecting/call.peerLeft).
+- Verification: tsc + lint clean; dev-server curl lifecycle (join quick-match pair → poll → leave → bye + roster 1 → last leave deletes room, closed=true) — FAILED before the deadlock fix (roster stayed 2, room immortal) with both new and stale module graphs, PASSED after; 160s staleness test: ghost peer pruned + bye broadcast; agent-browser: Speak section renders, zero page errors (full WebRTC call flow not verifiable headless — no camera); production after deploy: root 200 + same curl lifecycle on Turso (roster 2 → bye → roster 1 ✓). Old junk test rooms self-prune via STALE_ROOM_MS/staleness.
+
+Stage Summary:
+- The user's two reported issues are fixed at the root: (1) remote video cuts within ~1.2s of a proper leave (deadlock fix), within ~150s for dead clients (staleness + auto-bye), and 1:1 calls now END for the survivor with the analysis screen; (2) the call UI fills up to 1152px on lg+ with 720p camera and state-aware tiles.
+- Key learning recorded: NEVER call global-db writes inside a Prisma interactive transaction on SQLite — use tx or move the write after commit.
