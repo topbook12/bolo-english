@@ -3,13 +3,14 @@ import { SEED_VOCAB } from "../../scripts/seed-data/vocab-data";
 import { SEED_GRAMMAR } from "../../scripts/seed-data/grammar-data";
 import { SEED_LISTENING } from "../../scripts/seed-data/listening-data";
 
-/* ─── Library self-bootstrap (zero-config production) ──────────────────────
+/* ─── Database self-bootstrap (zero-config production) ──────────────────────
  * The owner should NEVER have to run db:push or a seed script against the
- * production database. On the first Library request after deploy this module:
+ * production database. When a schema area is touched for the first time:
  *
- *   1. Creates the Library tables when they are missing (production Turso
- *      predates the Library models — CREATE TABLE IF NOT EXISTS matches the
- *      Prisma schema exactly, so a future db:push stays a no-op).
+ *   1. Missing tables are created (CREATE TABLE IF NOT EXISTS matches the
+ *      Prisma schema exactly, so a future db:push stays a no-op). This
+ *      covers the production Turso DB that predates the Storage pool,
+ *      TURN pool and Library models.
  *   2. Seeds the owner's starter content ONCE per kind. A marker row in
  *      AiCache (feature="library_bootstrap") records completion, so owner
  *      edits and deletions are never overwritten and seeding never re-runs.
@@ -82,14 +83,48 @@ const DDL: string[] = [
   )`,
   `CREATE UNIQUE INDEX IF NOT EXISTS "LibraryListening_slug_key" ON "LibraryListening"("slug" ASC)`,
   `CREATE INDEX IF NOT EXISTS "LibraryListening_level_idx" ON "LibraryListening"("level" ASC)`,
+  /* Zero-cost storage pool + TURN pool tables — production Turso predates
+   * these models too (they shipped after the last db:push), which made
+   * /api/storage 500 on production. */
+  `CREATE TABLE IF NOT EXISTS "StorageAccount" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "label" TEXT NOT NULL,
+    "provider" TEXT NOT NULL DEFAULT 's3',
+    "endpoint" TEXT NOT NULL,
+    "region" TEXT NOT NULL DEFAULT 'auto',
+    "bucket" TEXT NOT NULL,
+    "accessKeyEnc" TEXT NOT NULL,
+    "secretKeyEnc" TEXT NOT NULL,
+    "publicBaseUrl" TEXT NOT NULL,
+    "limitBytes" INTEGER NOT NULL DEFAULT 0,
+    "status" TEXT NOT NULL DEFAULT 'active',
+    "sortOrder" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+  )`,
+  `CREATE TABLE IF NOT EXISTS "StorageObject" (
+    "key" TEXT NOT NULL PRIMARY KEY,
+    "accountId" TEXT NOT NULL,
+    "sizeBytes" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE TABLE IF NOT EXISTS "TurnKey" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "label" TEXT NOT NULL,
+    "keyId" TEXT NOT NULL,
+    "apiTokenEnc" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'active',
+    "sortOrder" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+  )`,
 ];
 
-/** Cheap probe — if all three reads succeed the tables already exist. */
+/** Cheap probe — a missing sentinel table means the DDL batch must run. */
 async function tablesExist(): Promise<boolean> {
   try {
+    await db.$queryRawUnsafe(`SELECT 1 FROM "TurnKey" LIMIT 1`);
     await db.$queryRawUnsafe(`SELECT 1 FROM "LibraryVocab" LIMIT 1`);
-    await db.$queryRawUnsafe(`SELECT 1 FROM "LibraryGrammar" LIMIT 1`);
-    await db.$queryRawUnsafe(`SELECT 1 FROM "LibraryListening" LIMIT 1`);
     return true;
   } catch {
     return false;
@@ -217,6 +252,19 @@ async function runBootstrap(kind: LibraryKind): Promise<void> {
     else console.warn(`[library-bootstrap] ${kind}: ${fails} upserts failed — will retry`);
   } catch (err) {
     console.error(`[library-bootstrap] ${kind} failed:`, err);
+  }
+}
+
+/**
+ * Schema-only bootstrap for non-Library routes (/api/storage, /api/turn):
+ * creates any missing tables once, no seeding. Cheap after the first run
+ * (two one-row probes). Safe to call on every request.
+ */
+export async function ensureDbTables(): Promise<void> {
+  try {
+    await ensureTables();
+  } catch (err) {
+    console.error("[db-bootstrap] DDL failed:", err);
   }
 }
 

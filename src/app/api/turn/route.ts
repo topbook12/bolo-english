@@ -8,6 +8,7 @@ import {
   testTurnKey,
 } from "@/lib/turn-pool";
 import { isAdminToken, adminAvailable } from "@/lib/admin-auth";
+import { ensureDbTables } from "@/lib/db-bootstrap";
 
 // Site-owner admin API for the TURN relay pool (Cloudflare Realtime keys).
 // Same guard as /api/storage: header x-admin-token must equal the
@@ -25,6 +26,7 @@ function jsonErr(locale: ApiLocale, key: ApiMsgKey, status: number) {
 
 export async function GET(req: NextRequest) {
   const locale = reqLocale(req);
+  await ensureDbTables(); // self-heal TurnKey table on production DBs that predate it
   const keys = await listTurnKeys().catch(() => []);
   return NextResponse.json({
     adminConfigured: adminAvailable(),
@@ -38,6 +40,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const locale = reqLocale(req) as ApiLocale;
   if (!authorized(req)) return jsonErr(locale, "storageAdminRequired", 403);
+  await ensureDbTables(); // self-heal schema before mutating
   const body = await req.json().catch(() => null);
   if (!body) return jsonErr(locale, "paramsRequired", 400);
 
@@ -79,6 +82,7 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   const locale = reqLocale(req) as ApiLocale;
   if (!authorized(req)) return jsonErr(locale, "storageAdminRequired", 403);
+  await ensureDbTables(); // self-heal schema before mutating
   const body = await req.json().catch(() => null);
   const id = String(body?.id || "");
   const action = String(body?.action || "");
@@ -97,6 +101,7 @@ export async function PATCH(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const locale = reqLocale(req) as ApiLocale;
   if (!authorized(req)) return jsonErr(locale, "storageAdminRequired", 403);
+  await ensureDbTables(); // self-heal schema before mutating
   const id = new URL(req.url).searchParams.get("id");
   if (!id) return jsonErr(locale, "paramsRequired", 400);
   await db.turnKey.delete({ where: { id } }).catch(() => null);

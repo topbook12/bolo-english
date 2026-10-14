@@ -10,6 +10,7 @@ import {
 } from "@/lib/storage-pool";
 import { aiCacheStats, dbTableStats } from "@/lib/ai-cache-prune";
 import { isAdminToken, adminAvailable } from "@/lib/admin-auth";
+import { ensureDbTables } from "@/lib/db-bootstrap";
 
 // Site-owner admin API for the zero-cost storage pool + quota dashboard.
 //
@@ -38,11 +39,16 @@ function maskUrl(u: string): string {
 
 export async function GET(req: NextRequest) {
   const locale = reqLocale(req);
+  // Self-heal the schema first — production DBs that predate a model get
+  // their tables created here (see src/lib/db-bootstrap.ts).
+  await ensureDbTables();
   const accounts = await listAccounts();
-  const objects = await db.storageObject.aggregate({
-    _count: { key: true },
-    _sum: { sizeBytes: true },
-  });
+  const objects = await db.storageObject
+    .aggregate({
+      _count: { key: true },
+      _sum: { sizeBytes: true },
+    })
+    .catch(() => null);
   const [cache, tables] = await Promise.all([aiCacheStats(), dbTableStats()]);
   return NextResponse.json({
     adminConfigured: adminAvailable(),
@@ -51,7 +57,10 @@ export async function GET(req: NextRequest) {
       endpoint: maskUrl(a.endpoint),
       publicBaseUrl: maskUrl(a.publicBaseUrl),
     })),
-    objects: { count: objects._count.key, bytes: objects._sum.sizeBytes ?? 0 },
+    objects: {
+      count: objects?._count.key ?? 0,
+      bytes: objects?._sum.sizeBytes ?? 0,
+    },
     aiCache: cache,
     tables: tables.map((t) => ({
       model: t.model,
@@ -69,6 +78,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const locale = reqLocale(req) as ApiLocale;
   if (!authorized(req)) return jsonErr(locale, "storageAdminRequired", 403);
+  await ensureDbTables(); // self-heal schema before mutating
   const body = await req.json().catch(() => null);
   if (!body) return jsonErr(locale, "paramsRequired", 400);
 
@@ -135,6 +145,7 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   const locale = reqLocale(req) as ApiLocale;
   if (!authorized(req)) return jsonErr(locale, "storageAdminRequired", 403);
+  await ensureDbTables(); // self-heal schema before mutating
   const body = await req.json().catch(() => null);
   const id = String(body?.id || "");
   const action = String(body?.action || "");
@@ -157,6 +168,7 @@ export async function PATCH(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const locale = reqLocale(req) as ApiLocale;
   if (!authorized(req)) return jsonErr(locale, "storageAdminRequired", 403);
+  await ensureDbTables(); // self-heal schema before mutating
   const id = new URL(req.url).searchParams.get("id");
   if (!id) return jsonErr(locale, "paramsRequired", 400);
   await db.storageAccount.delete({ where: { id } }).catch(() => null);

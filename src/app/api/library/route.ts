@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { reqLocale, apiMsg } from "@/lib/api-i18n";
 import { isAdminToken } from "@/lib/admin-auth";
-import { ensureLibrary } from "@/lib/library-bootstrap";
+import { ensureLibrary } from "@/lib/db-bootstrap";
 import {
   isLibraryLevel,
   type LibraryListeningData,
