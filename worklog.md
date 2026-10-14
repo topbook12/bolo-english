@@ -1006,3 +1006,20 @@ Stage Summary:
 - The user no longer needs to do ANYTHING on Vercel: production creates its own Library tables and seeds itself on the first library visit, and the admin token is unlocked by one click (link provided in chat) — or optionally by setting ADMIN_TOKEN env later for rotation.
 - Token (owner-only, out-of-band): 09a15af8170516e387621834294b2c49d575e63bb6732a73 — stored in local .env, hash committed, one-click link: https://bolo-english-mu.vercel.app/?setup_admin=09a15af8170516e387621834294b2c49d575e63bb6732a73
 - Rotation path: set ADMIN_TOKEN env on Vercel (old hash keeps working until the hash is removed from src/lib/admin-auth.ts).
+---
+Task ID: 8-verify
+Agent: Z.ai Code (main)
+Task: Production verification + storage/turn schema self-heal follow-up for Task 8
+
+Work Log:
+- Vercel deploy of ad74392 went live; production /api/library bootstrapped itself on first hit: vocab 36, grammar 4, listening 8 (was 503 "Can't connect" before) — tables created + seeded on Turso with ZERO user action.
+- Admin lifecycle on production: wrong token → 403; shipped token → POST 200 + DELETE ok; counts intact (36).
+- Found pre-existing production 500 on GET /api/storage: Turso also predates StorageAccount/StorageObject/TurnKey tables (last db:push predates commit 728b224); /api/turn only survived via .catch. Fixed in 28bd1ac: db-bootstrap DDL extended with the 3 pool tables (Prisma-shaped, IF NOT EXISTS), ensureDbTables() exported and wired into /api/storage GET + all storage/turn mutation handlers; storageObject.aggregate now .catch-guarded.
+- Renamed src/lib/library-bootstrap.ts → src/lib/db-bootstrap.ts (schema bootstrap is no longer library-only).
+- tsc + lint clean; local endpoints 200 (storage/turn/library).
+- Production re-verify after 28bd1ac: root 200, /api/storage 200 (adminConfigured true, StorageAccount/StorageObject rows visible), /api/turn 200, vocab 36.
+- agent-browser on production: /?setup_admin=<token> saved token + cleaned URL; Settings → Studio token prefilled, "Saved words (36)" list renders (hungry/improve/reluctant/feasible with level badges); Vocabulary → Word library tab shows "12 words" (beginner), level filters, and the "Reading the library is 100% free — your Gemini key is used only when you ask or check something" banner; Grammar section shows DB library lessons. Screenshots in agent-ctx/.
+
+Stage Summary:
+- Everything the user quoted as "how to do that" is now DONE for them: no Vercel env needed, no seed run needed. Owner unlock = one click on the setup link (or paste token in Settings). Production library is live and self-seeded; storage/TURN dashboards self-heal too.
+- Commits: ad74392 (bootstrap + admin auth + setup link), 28bd1ac (pool tables self-heal).
