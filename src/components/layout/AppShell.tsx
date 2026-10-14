@@ -119,14 +119,14 @@ export default function AppShell() {
           setTab(id);
           setMoreOpen(false);
         }}
-        className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+        className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors lg:px-3.5 lg:py-3 ${
           isActive
             ? "bg-primary text-primary-foreground shadow-sm"
             : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
         }`}
         aria-current={isActive ? "page" : undefined}
       >
-        <Icon className="h-4.5 w-4.5 shrink-0" />
+        <Icon className="h-4.5 w-4.5 shrink-0 lg:h-5 lg:w-5" />
         <span className="min-w-0 text-left leading-tight">
           <span className="block">{t(`nav.${item.labelKey}`)}</span>
           {showDesc && (
@@ -144,13 +144,13 @@ export default function AppShell() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-secondary/60 to-background">
+    <div className="shell-bg flex min-h-screen flex-col">
       <PwaRegister />
       <InstallPrompt />
 
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-md">
-        <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between gap-2 px-4">
+        <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-2 px-4 md:h-16 lg:px-8">
           <button
             className="flex items-center gap-2"
             onClick={() => setTab("home")}
@@ -160,7 +160,7 @@ export default function AppShell() {
               <Sparkles className="h-5 w-5" />
             </span>
             <span className="text-left leading-tight">
-              <span className="block text-base font-bold tracking-tight">Bolo English</span>
+              <span className="block text-base font-bold tracking-tight md:text-lg">Bolo English</span>
               <span className="hidden text-[11px] text-muted-foreground sm:block">
                 {t("common.tagline")}
               </span>
@@ -217,28 +217,48 @@ export default function AppShell() {
         </div>
       </header>
 
-      <div className="mx-auto flex w-full max-w-5xl flex-1 gap-6 px-0 md:px-4">
-        {/* Desktop sidebar */}
-        <aside className="sticky top-14 hidden h-[calc(100vh-3.5rem)] w-56 shrink-0 flex-col py-4 md:flex">
+      <div className="mx-auto flex w-full max-w-7xl flex-1 gap-6 px-0 md:px-4 lg:gap-8 lg:px-8">
+        {/* Desktop sidebar — content-sized (h-fit) so it can never inflate the
+            page and push the footer below the fold on short sections */}
+        <aside className="nice-scroll sticky top-14 hidden h-fit max-h-[calc(100vh-3.5rem)] w-60 shrink-0 flex-col self-start overflow-y-auto py-4 md:flex md:top-16 md:max-h-[calc(100vh-4rem)] lg:w-64 lg:py-6">
           <nav className="flex flex-col gap-1" aria-label={t("nav.mainMenu")}>
             {TABS.map((item) => (
               <NavItem key={item.id} id={item.id} showDesc />
             ))}
           </nav>
-          <p className="mt-auto px-3 text-[11px] leading-relaxed text-muted-foreground">
-            {t("common.free")} · {t("common.poweredByYou")}
-            <br />
-            {t("common.encrypted")}
-          </p>
+          <div className="mt-4 rounded-2xl border border-border/60 bg-card/80 p-3.5 shadow-sm">
+            <p className="flex items-center gap-1.5 text-xs font-bold text-primary">
+              <Sparkles className="h-3.5 w-3.5" />
+              {t("common.free")}
+            </p>
+            <p className="mt-1.5 text-[11px] leading-relaxed text-muted-foreground">
+              {t("common.poweredByYou")}
+              <br />
+              {t("common.encrypted")}
+            </p>
+          </div>
         </aside>
 
         {/* Main content */}
-        <main className="min-w-0 flex-1 px-4 pb-24 pt-4 md:px-0 md:pb-6">{renderSection()}</main>
+        <main className="min-w-0 flex-1 px-4 pb-24 pt-4 md:px-0 md:pb-6 md:pt-6 lg:pt-8">{renderSection()}</main>
       </div>
 
       {/* Desktop footer — sticks to bottom via flex column + mt-auto */}
-      <footer className="mt-auto hidden border-t border-border/70 py-4 text-center text-xs text-muted-foreground md:block">
-        Bolo English — {t("footer.line")}
+      <footer className="mt-auto hidden border-t border-border/70 py-6 md:block">
+        <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-3 px-4 text-xs text-muted-foreground sm:flex-row lg:px-8">
+          <p className="flex items-center gap-2">
+            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-teal-600 text-primary-foreground">
+              <Sparkles className="h-3 w-3" />
+            </span>
+            <span className="font-semibold text-foreground">Bolo English</span>
+            <span aria-hidden>·</span>
+            <span>{t("footer.line")}</span>
+          </p>
+          <p className="flex items-center gap-1.5 font-medium text-primary">
+            <Sparkles className="h-3 w-3" />
+            {t("common.free")}
+          </p>
+        </div>
       </footer>
 
       {/* Mobile bottom nav */}

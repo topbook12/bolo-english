@@ -159,10 +159,11 @@ export default function SettingsSection() {
   const avatarInitial = (shownName || user?.email || "?").trim().charAt(0).toUpperCase();
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-6xl">
       <SectionHeader icon={Settings2} title={t("title")} subtitle={t("subtitle")} tint="violet" />
 
-      <div className="space-y-5">
+      {/* 2-column masonry on desktop — cards flow down column 1 then column 2 */}
+      <div className="space-y-5 [&>*]:break-inside-avoid xl:columns-2 xl:gap-5">
         {/* ── Account ── */}
         <Card className="premium-card border-border/70 rounded-2xl bg-card">
           <CardHeader>

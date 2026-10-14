@@ -241,9 +241,9 @@ export default function WordbookTab({
         </div>
       )}
 
-      {/* Saved words list */}
+      {/* Saved words list — 2 columns on desktop, taller scroll area */}
       {filtered && filtered.length > 0 && (
-        <ul className="nice-scroll max-h-96 space-y-2 overflow-y-auto pr-1">
+        <ul className="nice-scroll grid max-h-96 gap-2 overflow-y-auto pr-1 sm:grid-cols-2 lg:max-h-[34rem] lg:gap-2.5">
           {filtered.map((w) => (
             <li key={w.id}>
               <div className="premium-card flex items-center gap-3 rounded-2xl bg-card p-3 transition-shadow hover:shadow-md">

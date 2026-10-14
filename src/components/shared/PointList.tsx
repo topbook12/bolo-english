@@ -11,6 +11,8 @@ interface PointListProps {
   variant?: "check" | "number";
   className?: string;
   itemClassName?: string;
+  /** 2 = two-column grid on sm+ screens (premium desktop layout) */
+  columns?: 1 | 2;
 }
 
 export default function PointList({
@@ -18,9 +20,17 @@ export default function PointList({
   variant = "check",
   className,
   itemClassName,
+  columns = 1,
 }: PointListProps) {
   return (
-    <ul className={cn("space-y-2.5", className)}>
+    <ul
+      className={cn(
+        columns === 2
+          ? "grid gap-2.5 sm:grid-cols-2 sm:gap-x-8"
+          : "space-y-2.5",
+        className
+      )}
+    >
       {items.map((item, i) => (
         <li key={i} className="flex items-start gap-2.5">
           {variant === "check" ? (

@@ -158,7 +158,7 @@ export default function ProgressSection() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto max-w-5xl">
         <SectionHeader icon={LineChart} title={t("title")} subtitle={t("subtitle")} tint="emerald" />
         <div className="space-y-4">
           <Skeleton className="h-28 rounded-2xl" />
@@ -176,7 +176,7 @@ export default function ProgressSection() {
   const streak = data?.streak ?? 0;
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-5xl">
       <SectionHeader icon={LineChart} title={t("title")} subtitle={t("subtitle")} tint="emerald" />
 
       <div className="space-y-5">
@@ -245,7 +245,8 @@ export default function ProgressSection() {
           <StatCard icon={Library} value={data?.wordCount ?? 0} label={t("stats.words")} tint="emerald" />
         </div>
 
-        {/* ── score trend (recharts) ── */}
+        {/* ── insights: score trend + practice stats — 2 columns on desktop ── */}
+        <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
         {trendData.length > 0 && (
           <Card className="premium-card rounded-2xl border-border/70 bg-card">
             <CardHeader className="pb-0">
@@ -336,6 +337,7 @@ export default function ProgressSection() {
             </CardContent>
           </Card>
         )}
+        </div>
 
         {/* ── speaking history ── */}
         <section className="space-y-3">

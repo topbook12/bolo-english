@@ -138,7 +138,7 @@ export default function LessonView({
   }, [load]);
 
   return (
-    <div className="space-y-4 pb-4">
+    <div className="mx-auto max-w-4xl space-y-4 pb-4">
       {/* Header */}
       <div className="flex items-center gap-2">
         <Button

@@ -288,7 +288,7 @@ export default function QuizPlayer({
   const pct = ((idx + (picked !== null ? 1 : 0)) / questions.length) * 100;
 
   return (
-    <div className="space-y-4">
+    <div className="mx-auto max-w-4xl space-y-4">
       {header}
 
       {/* Progress */}

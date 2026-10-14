@@ -175,24 +175,24 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
         className="bg-hero-gradient relative overflow-hidden rounded-3xl border border-border/70"
       >
         <div className="bg-dots pointer-events-none absolute inset-0 opacity-50" aria-hidden="true" />
-        <div className="relative flex items-center gap-4 p-5 sm:gap-6 sm:p-6 md:p-8">
+        <div className="relative flex items-center gap-4 p-5 sm:gap-6 sm:p-6 md:p-8 lg:p-10">
           <div className="min-w-0 flex-1">
             <span className="animate-fade-in-up inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-semibold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
               <Sparkles className="h-3 w-3" />
               {t("hero.badge")}
             </span>
-            <h1 className="animate-fade-in-up-1 mt-2.5 text-2xl font-extrabold tracking-tight sm:text-3xl md:text-4xl">
+            <h1 className="animate-fade-in-up-1 mt-2.5 text-2xl font-extrabold tracking-tight sm:text-3xl md:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
               {greetKey
                 ? t("hero.welcome", { greet: t(`hero.greet.${greetKey}`), name: studentName })
                 : t("hero.welcomeGeneric", { name: studentName })}
             </h1>
-            <p className="animate-fade-in-up-2 mt-2 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
+            <p className="animate-fade-in-up-2 mt-2 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base lg:mt-3 lg:max-w-xl lg:text-lg">
               {t("hero.subtitle")}
             </p>
-            <div className="animate-fade-in-up-3 mt-4 flex flex-wrap gap-2.5">
+            <div className="animate-fade-in-up-3 mt-4 flex flex-wrap gap-2.5 lg:mt-6">
               <Button
                 onClick={() => onNavigate("speaking")}
-                className="btn-shine min-h-11 gap-2 rounded-xl px-5 shadow-md"
+                className="btn-shine min-h-11 gap-2 rounded-xl px-5 shadow-md lg:min-h-12 lg:px-6 lg:text-base"
               >
                 <MessagesSquare className="h-4.5 w-4.5" />
                 {t("hero.ctaStart")}
@@ -200,7 +200,7 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
               <Button
                 variant="outline"
                 onClick={() => onNavigate("vocab")}
-                className="min-h-11 gap-2 rounded-xl border-border/70 bg-card/80"
+                className="min-h-11 gap-2 rounded-xl border-border/70 bg-card/80 lg:min-h-12 lg:px-6 lg:text-base"
               >
                 {t("hero.ctaWords")}
                 <ArrowRight className="h-4 w-4" />
@@ -213,14 +213,14 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
             width={960}
             height={549}
             priority
-            sizes="(max-width: 640px) 0px, 220px"
-            className="animate-float hidden w-44 shrink-0 object-contain drop-shadow-md sm:block md:w-52 lg:w-56"
+            sizes="(max-width: 640px) 0px, 288px"
+            className="animate-float hidden w-44 shrink-0 object-contain drop-shadow-md sm:block md:w-52 lg:w-64 xl:w-72"
           />
         </div>
       </section>
 
       {/* Stats row */}
-      <section aria-label={t("stats.title")} className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <section aria-label={t("stats.title")} className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:gap-4">
         <StatCard
           icon={Flame}
           tint="amber"
@@ -280,15 +280,15 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
       {/* Quick actions — 5 module cards, speaking featured */}
       <section aria-label={t("quick.title")} className="space-y-3">
         <SectionTitle icon={Sparkles} title={t("quick.title")} />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-          {/* Flagship: speaking */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:gap-5 xl:grid-cols-4">
+          {/* Flagship: speaking — 2×2 feature card on desktop */}
           <button
             onClick={() => onNavigate("speaking")}
-            className="group col-span-2 text-left"
+            className="group col-span-2 text-left xl:row-span-2"
             aria-label={t("quick.open", { name: t("quick.speakingTitle") })}
           >
             <Card className="premium-card relative h-full overflow-hidden rounded-2xl bg-card">
-              <CardContent className="flex h-full items-center gap-4 p-5 sm:p-6">
+              <CardContent className="flex h-full items-center gap-4 p-5 sm:p-6 xl:p-7">
                 <div className="flex min-w-0 flex-1 flex-col">
                   <span className="inline-flex items-center gap-2">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/90 to-teal-500/90 text-white shadow-sm">
@@ -298,7 +298,7 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
                       {t("quick.speakingTitle")}
                     </span>
                   </span>
-                  <span className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+                  <span className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground lg:text-[15px]">
                     {t("quick.speakingDesc")}
                   </span>
                   <span className="mt-3 inline-flex min-h-9 items-center gap-1.5 text-sm font-semibold text-primary">
@@ -311,8 +311,8 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
                   alt={t("hero.alt")}
                   width={512}
                   height={512}
-                  sizes="(max-width: 640px) 96px, 128px"
-                  className="animate-float h-24 w-24 shrink-0 object-contain drop-shadow-sm sm:h-28 sm:w-28 md:h-32 md:w-32"
+                  sizes="(max-width: 640px) 96px, 144px"
+                  className="animate-float h-24 w-24 shrink-0 object-contain drop-shadow-sm sm:h-28 sm:w-28 md:h-32 md:w-32 xl:h-40 xl:w-40"
                 />
               </CardContent>
             </Card>
@@ -326,7 +326,7 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
               aria-label={t("quick.open", { name: t(m.titleKey) })}
             >
               <Card className="premium-card h-full rounded-2xl bg-card">
-                <CardContent className="flex h-full flex-col gap-2.5 p-4">
+                <CardContent className="flex h-full flex-col gap-2.5 p-4 lg:p-5">
                   <span className="flex items-start justify-between gap-2">
                     <span
                       className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br shadow-sm ${m.chip}`}
@@ -415,7 +415,7 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
           </Button>
         </div>
         {!deviceId ? (
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-3 lg:gap-4">
             {[1, 2, 3].map((i) => (
               <Skeleton key={i} className="h-28 rounded-xl" />
             ))}
@@ -425,10 +425,10 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
             <CardContent className="p-4 text-sm text-destructive">{dailyError}</CardContent>
           </Card>
         ) : dailyWords ? (
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-3 lg:gap-4">
             {dailyWords.map((w) => (
               <Card key={w.word} className="premium-card rounded-2xl bg-card">
-                <CardContent className="p-4">
+                <CardContent className="p-4 lg:p-5">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-lg font-bold">{w.word}</span>
                     <Badge variant="secondary" className="text-[10px]">
@@ -445,7 +445,7 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
             ))}
           </div>
         ) : (
-          <div className="grid gap-3 sm:grid-cols-3" aria-busy="true">
+          <div className="grid gap-3 sm:grid-cols-3 lg:gap-4" aria-busy="true">
             {[1, 2, 3].map((i) => (
               <Skeleton key={i} className="h-28 rounded-xl" />
             ))}
@@ -457,9 +457,9 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
       <section aria-label={t("how.title")} className="space-y-3">
         <SectionTitle icon={Volume2} title={t("how.title")} chip="from-teal-500/90 to-cyan-600/90" />
         <Card className="premium-card rounded-2xl bg-card">
-          <CardContent className="p-5 sm:p-6">
+          <CardContent className="p-5 sm:p-6 lg:p-7">
             <p className="mb-3 text-sm text-muted-foreground">{t("how.subtitle")}</p>
-            <PointList variant="number" items={(t.raw("how.items") as string[] | undefined) ?? []} />
+            <PointList variant="number" columns={2} items={(t.raw("how.items") as string[] | undefined) ?? []} />
           </CardContent>
         </Card>
       </section>

@@ -161,7 +161,7 @@ export default function ListeningSection() {
         <>
           {/* ---------- ট্যাব সুইচার: Library | AI Story ---------- */}
           <div
-            className="grid grid-cols-2 gap-2 rounded-2xl border border-border/60 bg-muted/40 p-1.5"
+            className="grid max-w-2xl grid-cols-2 gap-2 rounded-2xl border border-border/60 bg-muted/40 p-1.5"
             role="tablist"
             aria-label={t("library.tabAria")}
           >
@@ -195,7 +195,7 @@ export default function ListeningSection() {
 
           {/* ---------- লেভেল ফিল্টার (দুই ট্যাবেই কাজ করে) ---------- */}
           <section aria-label={t("steps.levelAria")} className="animate-fade-in-up space-y-2.5">
-            <div className="grid grid-cols-3 gap-2" role="group" aria-label={t("steps.levelAria")}>
+            <div className="grid max-w-xl grid-cols-3 gap-2" role="group" aria-label={t("steps.levelAria")}>
               {LISTENING_LEVELS.map((l) => {
                 const Icon = LEVEL_ICONS[l.id];
                 return (
