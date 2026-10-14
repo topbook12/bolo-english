@@ -735,3 +735,86 @@ Stage Summary:
 - Daily words are now static, keyless, stored on our side (135-word trilingual bank); listening/grammar were already static keyless. Video-call AI + other AI features still need BYOK (by design).
 - Radix useId hydration mismatch made structurally impossible via mount-gating; verified with seeded user state and mobile viewport.
 - No commit made by this section header (commit handled by main agent right after append).
+
+---
+Task ID: 2-f
+Agent: grammar-bank-writer (advanced-hi)
+Task: Write static grammar bank advanced Hindi lessons
+
+Work Log:
+- Read worklog.md tail (context: grammar content moving from AI-generated to static keyless bank files authored by parallel subagents) + src/components/grammar/bank/types.ts (BankLesson/BankSection/BankExample/BankQuizQuestion contract) and verified all 14 required topic strings against the GrammarTopic list in src/components/grammar/shared.ts
+- Wrote src/components/grammar/bank/advanced-hi.ts: 14 lessons, level "advanced", locale "hi", one per required topic in the exact required order; only import is `import type { BankLesson } from "./types"`; default export LESSONS
+- Per lesson: natural Hindi title + 1-2 sentence intro hook; exactly 2 sections (Hindi heading, 2-4 sentence Hindi explanation, 3 English wrong/right examples with 1-sentence Hindi notes); exactly 4 practical Hindi tips (writing + speaking); exactly 5 C1 quiz questions (English transform/choose stems, exactly 4 options, answers varied across indices 0-3, 1-sentence Hindi explanations)
+- Mechanics covered per curriculum bar: negative-adverbial + only/so-such inversion; mixed conditionals + Had/Were/Should inversion (no contractions in inversion); it-cleft vs wh-cleft/all-cleft; mandative subjunctive, were-subjunctive, formulaic phrases (Come what may, Be that as it may); -ing/-ed/having participles + dangling-participle fixes; conjunctive adverbs + punctuation + reference (the former/the latter, such a rejection); academic hedges (suggests/may/tends to) + request softening patterns; reporting-verb patterns (suggest+-ing, warn+object+not to, apologise for+-ing) + reported questions + backshift; verb/adjective→noun nominalisation + de-nominalisation balance; ellipsis (to-infinitive, than/as) + so/do/one substitution; collocations (make/conduct/pay, heavy/utterly/bitterly, landmark, meet a deadline); formal vs informal register pairs + formal email frames; future continuous/perfect, had hoped (unfulfilled), always+-ing annoyance, was about to; the/zero article (institutions, BrE in hospital) + few/a few, fewer/less, a number of vs the number of
+- Validation: wrote a throwaway bun script (outside project dir) that imports the file — parses clean under bun, exactly 14 lessons, all 14 topic strings match the required list in order, level/locale correct everywhere, 2 sections × 3 examples, 4 tips, 5 quiz × 4 unique options each, answers all within 0-3 and varied (≥3 distinct indices per lesson); script deleted after run. Per task constraints: no tsc/lint/dev server run, no other files modified
+
+Stage Summary:
+- src/components/grammar/bank/advanced-hi.ts shipped: 14/14 advanced Hindi lessons (CEFR ~C1) covering every required topic with exact topic strings, from "Inversion & Emphasis Structures" through "Precision Articles & Quantifiers"
+- Content-only data file (dependency-free, single type import); ready for the main agent to wire into the grammar bank consumer alongside the sibling bank files (other locales/levels)
+
+---
+Task ID: 2-b
+Agent: grammar-bank-writer (foundation-en)
+Task: Write static grammar bank foundation-beginner English lessons
+
+Work Log:
+- Read worklog.md (last 80 lines) + bank/types.ts (BankLesson contract) + shared.ts to confirm the exact canonical topic strings for the 12 foundation topics
+- Created NEW file src/components/grammar/bank/foundation-en.ts (only file touched): import type { BankLesson } from "./types"; const LESSONS: BankLesson[] = [...]; export default LESSONS;
+- Authored all 12 beginner/en lessons in the exact required topic order: Tense basics / Present Perfect vs Past Simple / Articles (a/an/the) / Prepositions (in/on/at) / Subject-Verb Agreement / Question Formation / Conditionals / Passive Voice / Modals (can/should/must) / Phrasal Verbs / Common Mistakes by Bengali Speakers / Since vs For
+- Each lesson: level "beginner", locale "en", title, 1-2 sentence intro hook, EXACTLY 2 sections (heading + 2-4 sentence explanation + 3 wrong/right/note examples), EXACTLY 4 practical tips, EXACTLY 5 quiz questions (4 options, A2 difficulty, 1-sentence explanation); example/quiz sentences kept <=12 words
+- "Common Mistakes by Bengali Speakers" covers real interference errors: article omission ("I saw bird"), no-be-verb transfer ("He very tall"), "I am agree", state-verb continuous ("She is knowing"), "what is your good name", "discuss about", habit + continuous overuse ("I am going to the office daily")
+- Quiz answer indices deliberately spread: tally across 60 questions = 0x13 / 1x18 / 2x15 / 3x14; every quiz uses >=3 distinct indices; 24 unique section headings (no reuse across lessons)
+- Verification: throwaway bun audit script in /tmp (structure assertions: 12 lessons, exact topic order, 2/3/4/5 counts, option uniqueness, answer range, <=12-word sentences, sentence-count 2-4 per explanation, heading uniqueness) — AUDIT PASS after two micro-edits; bun import also proves the TS parses with the BankLesson shape; per instructions did NOT run tsc/lint/dev server (orchestrator does that); no other files modified; throwaway script deleted
+
+Stage Summary:
+- foundation-en.ts ships 12 complete beginner English lessons (~700 lines) matching every BankLesson field and the exact topic ids from shared.ts FOUNDATION_META — a learner can learn each topic from the 2 sections alone
+- Answers spread 13/18/15/14 across indices; all content original, A2-friendly, keyless static data; ready for orchestrator tsc/lint wiring alongside the other bank locale files
+
+---
+Task ID: 2-c
+Agent: grammar-bank-writer (foundation-hi)
+Task: Write static grammar bank foundation-beginner Hindi lessons
+
+Work Log:
+- Read worklog.md (last 80 lines) + bank/types.ts (BankLesson contract) + grep'd ../shared.ts topic list to lock the exact 12 foundation topic strings
+- Wrote NEW src/components/grammar/bank/foundation-hi.ts (only file touched): const LESSONS: BankLesson[] with `export default LESSONS`; single allowed import `import type { BankLesson } from "./types"`
+- Authored all 12 foundation lessons in exact required order with topic strings matching shared.ts EXACTLY: Tense basics / Present Perfect vs Past Simple / Articles (a/an/the) / Prepositions (in/on/at) / Subject-Verb Agreement / Question Formation / Conditionals / Passive Voice / Modals (can/should/must) / Phrasal Verbs / Common Mistakes by Bengali Speakers / Since vs For
+- Per lesson: level "beginner", locale "hi", natural Hindi title, 1-2 sentence Hindi hook, exactly 2 sections (each: Hindi heading + 2-4 sentence explanation + exactly 3 {wrong/right/note} examples with 1-sentence Hindi notes), exactly 4 practical Hindi tips, exactly 5 A2 quiz questions (English prompt, 4 English options, answer 0-3 varied, Hindi explanation)
+- "Common Mistakes by Bengali Speakers" covers real interference: article omission, "I am agree"/"I am understanding" (stative + copula), "discuss about" preposition transfer, "married with", "What is your good name?" — all explained in natural Hindi
+- Quiz answers deliberately spread (overall 0/1/2/3 = 11/22/16/11; no all-index-0 lesson); all section headings unique across the bank; English sentences kept <=12 words; Hindi fully Devanagari, no romanization
+- Verification: throwaway bun data audit (/tmp, deleted after) — 12 lessons, topics exact & ordered, 2 sections x 3 examples, 4 tips, 5 quiz x 4 options each, no duplicate options, answer idx in range, no empty fields, <=12-word sentences, unique headings: ALL CHECKS PASSED. Did NOT run tsc/lint/dev server (orchestrator's job); did not modify any other file
+
+Stage Summary:
+- foundation-hi.ts shipped: 12/12 beginner Hindi grammar-bank lessons (~600 lines) ready to be keyed against shared.ts topics; compile + lint + UI rendering left to orchestrator verification pass
+
+---
+Task ID: 2-e
+Agent: grammar-bank-writer (advanced-en)
+Task: Write static grammar bank advanced English lessons
+
+Work Log:
+- Read worklog.md (last 80 lines) + bank/types.ts (BankLesson/BankSection/BankQuizQuestion contracts) + ../shared.ts ADVANCED_META to lock the exact 14 advanced topic strings
+- Created NEW file src/components/grammar/bank/advanced-en.ts (only file touched): single allowed import `import type { BankLesson } from "./types"`; const LESSONS: BankLesson[] = [...]; export default LESSONS;
+- Authored all 14 advanced/en lessons in the exact required topic order (matches shared.ts ADVANCED_META verbatim): Inversion & Emphasis Structures / Mixed & Inverted Conditionals / Cleft Sentences / Subjunctive & Unreal Uses / Participle Clauses / Discourse Markers & Cohesion / Hedging & Softening Language / Advanced Reported Speech / Nominalisation & Academic Style / Ellipsis & Substitution / Collocations & Word Partnerships / Register: Formal vs Informal English / Advanced Tense & Aspect Nuances / Precision Articles & Quantifiers
+- Per lesson: level "advanced", locale "en", title, 1-2 sentence hook, EXACTLY 2 sections (heading + 2-4 sentence explanation + exactly 3 {wrong/right/note} examples with 1-sentence notes), EXACTLY 4 practical tips, EXACTLY 5 C1 quiz questions (English transform/choose prompts, 4 unique options, answer 0-3 varied, 1-sentence explanation)
+- Curriculum depth: inversion covers negative adverbials + only/so/such fronts; conditionals covers mixed time-frames + were/had/should inversion + "had it not been for"; cleft covers it-cleft vs wh-/reverse clefts vs "the reason ... is that"; subjunctive covers mandative (insist/demand/essential), were-subjunctive, would rather, formulaic fossils (come what may); reported speech covers verb pattern families (deny+ing, urge obj+to-inf, maintain that) + passive reporting (is said to) + backshift; nominalisation covers verb->noun transforms, light verbs, "zombie noun" overuse; tense/aspect covers future perfect/continuous politeness, "was to have done", unrealised pasts; articles covers zero article with institutions, a+name, few/a few, the number of + singular verb, each of vs every
+- Quiz answer indices deliberately spread: every lesson uses >=3 distinct indices (verified tally, e.g. 1,2,0,3,1 / 2,1,0,2,0 / 3,0,1,0,2); all 280 options unique within each question; unambiguous single correct answers
+- Verification: throwaway bun audit script (structure assertions: 14 lessons, exact topic order via string equality, 2 sections x 3 examples, 4 tips, 5 quiz x 4 options, no duplicate options, answer idx 0-3, spread >= 3 per lesson, 2-4 sentence explanations, 1-sentence notes; ellipsis false-positives normalized) — ALL CHECKS PASSED; bun import also proves the TS parses cleanly with the BankLesson shape. Per instructions did NOT run tsc/lint/dev server (orchestrator does that); throwaway script deleted; no other files modified
+
+Stage Summary:
+- advanced-en.ts ships 14 complete C1 English grammar-bank lessons (~1500 lines) matching every BankLesson field and the exact topic ids from shared.ts ADVANCED_META — each lesson teachable from its 2 sections alone, quiz at genuine C1 level
+- Static, keyless, original content; ready for orchestrator tsc/lint wiring alongside the other bank locale files (foundation-en/hi, advanced-bn)
+---
+Task ID: 2-a
+Agent: grammar-bank-writer (foundation-bn)
+Task: Write static grammar bank foundation-beginner Bengali lessons
+
+Work Log:
+- Read worklog.md (last 80 lines) + studied src/components/grammar/bank/types.ts (BankLesson/BankSection/BankExample/BankQuizQuestion contracts) and ../shared.ts FOUNDATION_META to lock the 12 exact topic strings and object shape
+- Created src/components/grammar/bank/foundation-bn.ts: 12 beginner (CEFR ~A2) lessons, locale "bn", covering all 12 foundation topics in the required order (Tense basics → Since vs For); only import is `import type { BankLesson } from "./types"` + default export
+- Each lesson: natural Bengali title + 1-2 sentence hook, exactly 2 sections (all-distinct Bengali headings, 2-4 sentence explanations, 3 wrong/right English examples ≤12 words with 1-sentence Bengali notes), exactly 4 practical Bengali tips, exactly 5 A2 quiz questions (English stem, 4 options, answer indices spread ≥3 distinct positions per lesson, 1-sentence Bengali rationale)
+- "Common Mistakes by Bengali Speakers" covers real interference errors: article omission (to market), I am agree, what is your good name, continuous overuse (I am knowing / I am going daily), preposition transfer (discuss about, marry with), uncountable informations
+- Verification: wrote a throwaway bun audit script (/tmp) — 12 lessons, topics exact + ordered, level/locale/title/intro non-empty, 2 sections × 3 examples each, right-sentences ≤12 words, 4 tips, 5 quiz × 4 options, answers 0-3 with spread, 24 section headings unique across lessons, zero ASCII quotes inside strings; fixed 1 flagged explanation (Question Formation §2) then ALL CHECKS PASSED; script deleted. Did NOT run tsc/lint/dev server per task constraints (orchestrator verifies).
+
+Stage Summary:
+- foundation-bn.ts ships 12/12 foundation lessons in natural Bengali for the static grammar bank; topic strings match shared.ts FOUNDATION_META exactly and in order; no other files touched; ready for orchestrator tsc/lint/browser verification.

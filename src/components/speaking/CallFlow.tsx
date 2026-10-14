@@ -444,7 +444,7 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
         </div>
         <div>
           <h2 className="text-xl font-bold">
-            {joining ? t("joining") : intent === "one" ? t("waitingTitle") : t("waitingTitle")}
+            {joining ? t("joining") : t("waitingTitle")}
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">{t("waitingDesc")}</p>
           {connectionIssue && (

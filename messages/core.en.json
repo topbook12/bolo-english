@@ -30,7 +30,8 @@
       "desc": "Use it like a real app — works offline too.",
       "cta": "Install",
       "later": "Later",
-      "iosHint": "iPhone/iPad: tap the Share (↑) button below, then choose “Add to Home Screen”."
+      "iosHint": "iPhone/iPad: tap the Share (↑) button below, then choose “Add to Home Screen”.",
+      "close": "Close"
     }
   },
   "nav": {

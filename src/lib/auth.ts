@@ -153,7 +153,9 @@ export function validatePassword(pw: unknown): string | null {
   return pw;
 }
 
-export function cleanName(name: unknown, fallback = "শিক্ষার্থী"): string {
+// Empty string = "no name"; display surfaces localize their own fallback
+// (see src/lib/no-name.ts) so a nameless user never sees a hardcoded language.
+export function cleanName(name: unknown, fallback = ""): string {
   const n = typeof name === "string" ? name.trim() : "";
   return (n || fallback).slice(0, 40);
 }

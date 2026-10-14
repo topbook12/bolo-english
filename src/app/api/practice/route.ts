@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSessionUserId } from "@/lib/auth";
+import { reqLocale, apiMsg } from "@/lib/api-i18n";
 
 // POST /api/practice  { deviceId, kind, refId, score, total }
 export async function POST(req: NextRequest) {
+  const locale = reqLocale(req);
   const body = await req.json().catch(() => null);
   if (!body?.deviceId || !body?.kind || typeof body.score !== "number") {
-    return NextResponse.json({ ok: false, error: "deviceId, kind, score required" }, { status: 400 });
+    return NextResponse.json({ ok: false, error: apiMsg(locale, "paramsRequired") }, { status: 400 });
   }
   const userId = await getSessionUserId();
   const log = await db.practiceLog.create({

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { parseParticipants, pruneOldMessages } from "@/lib/signaling";
+import { reqLocale, apiMsg } from "@/lib/api-i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +13,10 @@ export async function GET(req: NextRequest) {
   const since = Number(req.nextUrl.searchParams.get("since") ?? "0") || 0;
   const hb = req.nextUrl.searchParams.get("hb") === "1";
   if (!roomId || !peerId) {
-    return NextResponse.json({ ok: false, error: "roomId & peerId required" }, { status: 400 });
+    return NextResponse.json(
+      { ok: false, error: apiMsg(reqLocale(req), "paramsRequired") },
+      { status: 400 }
+    );
   }
 
   const room = await db.callRoom.findUnique({ where: { id: roomId } });

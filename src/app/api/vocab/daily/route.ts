@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { getAiLevel } from "@/lib/gemini";
 import { bankWordsForDay, type BankLevel } from "@/lib/daily-words";
 import type { DailyWord } from "@/lib/types";
-import { reqLocale } from "@/lib/api-i18n";
+import { reqLocale, apiMsg } from "@/lib/api-i18n";
 
 // GET /api/vocab/daily?deviceId=... → today's 3 words.
 //
@@ -24,15 +24,24 @@ const dayIndex = (date: string) =>
 const LEVELS: BankLevel[] = ["beginner", "intermediate", "advanced"];
 
 export async function GET(req: NextRequest) {
+  const locale = reqLocale(req);
   const deviceId = req.nextUrl.searchParams.get("deviceId");
-  if (!deviceId) return NextResponse.json({ ok: false, error: "deviceId required" }, { status: 400 });
+  if (!deviceId)
+    return NextResponse.json({ ok: false, error: apiMsg(locale, "deviceIdRequired") }, { status: 400 });
 
   const date = todayDhaka();
-  const levelRaw = await getAiLevel(deviceId);
+  // DB read wrapped: a storage outage should return a localized, actionable
+  // error instead of a bare 500 (same policy as /api/config).
+  let levelRaw = "beginner";
+  try {
+    levelRaw = await getAiLevel(deviceId);
+  } catch (e) {
+    console.error("[/api/vocab/daily] storage error:", e);
+    return NextResponse.json({ ok: false, error: apiMsg(locale, "dbConnectFailed") }, { status: 503 });
+  }
   const level: BankLevel = LEVELS.includes(levelRaw as BankLevel)
     ? (levelRaw as BankLevel)
     : "beginner";
-  const locale = reqLocale(req);
 
   // Localized meaning/usage per UI language; the English word & sentences
   // stay English (that's what's being learned).

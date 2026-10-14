@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { clientMsg } from "@/lib/api-i18n";
 
 // Browser-native speech recognition (Web Speech API) — 100% free, runs on-device.
@@ -46,8 +46,17 @@ export interface FinalLine {
   at: number;
 }
 
+const subscribeNoop = () => () => undefined;
+
 export function useSpeechRecognition(onFinal?: (line: FinalLine) => void) {
-  const [supported] = useState(() => !!getRecognitionCtor());
+  // Hydration-safe capability probe: server snapshot is always `false`, the
+  // client value swaps in after mount (a `useState(() => window...)`
+  // initializer would render differently on server vs client first paint).
+  const supported = useSyncExternalStore(
+    subscribeNoop,
+    () => !!getRecognitionCtor(),
+    () => false
+  );
   const [listening, setListening] = useState(false);
   const [interim, setInterim] = useState("");
   const [error, setError] = useState<string | null>(null);

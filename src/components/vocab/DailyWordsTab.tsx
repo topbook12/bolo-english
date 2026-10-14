@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { AlertCircle, CalendarDays, KeyRound, Target } from "lucide-react";
+import { AlertCircle, CalendarDays, Target } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,7 +12,6 @@ import WordCard from "./WordCard";
 
 interface DailyWordsTabProps {
   deviceId: string;
-  hasKey: boolean;
   deviceLoaded: boolean;
   isSaved: (word: string) => boolean;
   onSave: (w: DailyWord) => void;
@@ -25,10 +24,11 @@ interface DailyResponse {
   words: DailyWord[];
 }
 
-// Tab 1 — আজকের শব্দ: server generates 3 words once per day (shared cache), we just fetch.
+// Tab 1 — আজকের শব্দ: served from the site's own static trilingual word bank
+// (src/lib/daily-words.ts) — completely keyless, we just fetch by deviceId so
+// the server can read the saved level.
 export default function DailyWordsTab({
   deviceId,
-  hasKey,
   deviceLoaded,
   isSaved,
   onSave,
@@ -42,14 +42,14 @@ export default function DailyWordsTab({
 
   // No synchronous setState here (loading = !data && !error) — matches the lint rule
   const load = useCallback(() => {
-    if (!deviceId || !hasKey) return;
+    if (!deviceId) return;
     apiGet<DailyResponse>(`/api/vocab/daily?deviceId=${encodeURIComponent(deviceId)}`)
       .then((d) => {
         setData(d);
         setError(null);
       })
       .catch((e) => setError((e as Error).message));
-  }, [deviceId, hasKey]);
+  }, [deviceId]);
 
   useEffect(() => {
     load();
@@ -67,27 +67,8 @@ export default function DailyWordsTab({
     </div>
   );
 
-  // Waiting for the device store to hydrate → skeleton (avoid flashing the key notice)
-  if (!deviceLoaded) return skeletons;
-
-  // No API key yet → friendly amber notice
-  if (!hasKey) {
-    return (
-      <div className="flex flex-col gap-3 rounded-2xl border border-amber-300/70 bg-amber-50 p-4 dark:border-amber-800/60 dark:bg-amber-950/40 sm:flex-row sm:items-center sm:gap-4 sm:p-5">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400">
-          <KeyRound className="h-5 w-5" aria-hidden />
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="flex items-center gap-1.5 text-sm font-semibold text-amber-900 dark:text-amber-200">
-            🔑 {t("daily.noKeyTitle")}
-          </p>
-          <p className="mt-0.5 text-xs leading-relaxed text-amber-800/85 dark:text-amber-200/75">
-            {t("daily.noKeyDesc")}
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // Waiting for the device store to hydrate → skeleton
+  if (!deviceLoaded || !deviceId) return skeletons;
 
   // Fetch error → alert with retry
   if (error) {

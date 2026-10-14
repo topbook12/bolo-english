@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth, useAuthInit } from "@/hooks/use-auth";
+import { displayNameOr } from "@/lib/no-name";
 
 export interface UserMenuProps {
   onOpenSettings?: () => void;
@@ -30,7 +31,8 @@ export default function UserMenu({ onOpenSettings }: UserMenuProps) {
     await logout();
   };
 
-  const initial = (user?.name || user?.email || "?").trim().charAt(0).toUpperCase();
+  const shownName = displayNameOr(user?.name, "");
+  const initial = (shownName || user?.email || "?").trim().charAt(0).toUpperCase();
 
   return (
     <DropdownMenu>
@@ -50,7 +52,7 @@ export default function UserMenu({ onOpenSettings }: UserMenuProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-60 rounded-xl p-1.5">
         <DropdownMenuLabel className="px-2 py-2">
-          <p className="truncate text-sm font-semibold">{user?.name || t("guest")}</p>
+          <p className="truncate text-sm font-semibold">{shownName || t("guest")}</p>
           <p className="mt-0.5 truncate text-xs font-normal text-muted-foreground">
             {user?.email}
           </p>

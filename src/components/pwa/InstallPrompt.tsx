@@ -149,7 +149,7 @@ export default function InstallPrompt() {
         </div>
         <button
           onClick={onClose}
-          aria-label="Close"
+          aria-label={t("close")}
           className="relative inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors after:absolute after:-inset-1.5 after:content-[''] hover:bg-accent"
         >
           <X className="h-4 w-4" aria-hidden />

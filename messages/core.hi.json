@@ -30,7 +30,8 @@
       "desc": "असली ऐप की तरह इस्तेमाल करें — ऑफ़लाइन भी चलेगा।",
       "cta": "इंस्टॉल",
       "later": "बाद में",
-      "iosHint": "iPhone/iPad: नीचे Share (↑) बटन दबाकर “Add to Home Screen” चुनें।"
+      "iosHint": "iPhone/iPad: नीचे Share (↑) बटन दबाकर “Add to Home Screen” चुनें।",
+      "close": "बंद करें"
     }
   },
   "nav": {

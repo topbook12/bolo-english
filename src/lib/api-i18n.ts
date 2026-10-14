@@ -157,6 +157,48 @@ const M = {
     hi: "Google Gemini सर्वर में समस्या — कुछ देर बाद कोशिश करें।",
   },
 
+  /* ── generic params / validation ── */
+  deviceIdRequired: {
+    en: "Device id required — please refresh the page and try again.",
+    bn: "ডিভাইস আইডি দরকার — পেজ রিফ্রেশ করে আবার চেষ্টা করুন।",
+    hi: "डिवाइस आईडी चाहिए — पेज रिफ्रेश करके फिर कोशिश करें।",
+  },
+  nothingToUpdate: {
+    en: "Nothing to update.",
+    bn: "আপডেট করার কিছু নেই।",
+    hi: "अपडेट करने के लिए कुछ नहीं है।",
+  },
+  unknownFeature: {
+    en: "Unknown feature: {feature}",
+    bn: "অজানা ফিচার: {feature}",
+    hi: "अज्ञात फ़ीचर: {feature}",
+  },
+  paramsRequired: {
+    en: "Missing required parameters.",
+    bn: "প্রয়োজনীয় তথ্য অনুপস্থিত।",
+    hi: "आवश्यक जानकारी गायब है।",
+  },
+  signalInvalidType: {
+    en: "Invalid signal type.",
+    bn: "অবৈধ সিগন্যাল টাইপ।",
+    hi: "अमान्य सिग्नल प्रकार।",
+  },
+  signalRoomClosed: {
+    en: "This call room has already closed.",
+    bn: "এই কল রুমটি ইতিমধ্যে বন্ধ।",
+    hi: "यह कॉल रूम पहले ही बंद हो चुकी है।",
+  },
+  notInRoom: {
+    en: "You're not in this room.",
+    bn: "আপনি এই রুমে নেই।",
+    hi: "आप इस रूम में नहीं हैं।",
+  },
+  learnerName: {
+    en: "Learner",
+    bn: "শিক্ষার্থী",
+    hi: "शिक्षार्थी",
+  },
+
   /* ── video call ── */
   roomCodeRequired: {
     en: "Enter the room code.",

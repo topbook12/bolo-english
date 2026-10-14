@@ -30,9 +30,11 @@ import StatCard from "@/components/shared/StatCard";
 import PointList from "@/components/shared/PointList";
 import EmptyState from "@/components/shared/EmptyState";
 import { useDeviceValue } from "@/hooks/use-device";
+import { useMounted } from "@/hooks/use-mounted";
 import { apiGet } from "@/lib/client-api";
 import type { DailyWord } from "@/lib/types";
 import type { TabId } from "@/components/layout/AppShell";
+import { isNoName } from "@/lib/no-name";
 
 interface ProgressData {
   totalSessions: number;
@@ -119,16 +121,19 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
   const [progress, setProgress] = useState<ProgressData | null>(null);
   const [dailyWords, setDailyWords] = useState<DailyWord[] | null>(null);
   const [dailyError, setDailyError] = useState<string | null>(null);
-  // Time-based greeting is computed AFTER mount: `new Date()` differs between
-  // the server (UTC) and the client (user's timezone), which caused a
-  // hydration mismatch ("Good morning" vs "Good afternoon"). Render a stable
-  // generic welcome during SSR/hydration, then swap in the local greeting.
-  const [greetKey, setGreetKey] = useState<string | null>(null);
-
-  useEffect(() => {
-    const h = new Date().getHours();
-    setGreetKey(h < 12 ? "morning" : h < 16 ? "noon" : h < 19 ? "afternoon" : "evening");
-  }, []);
+  // Mount-gated time values: `new Date()` differs between the server (UTC)
+  // and the client (user's timezone), which caused hydration mismatches
+  // ("Good morning" vs "Good afternoon"). useMounted() returns the server
+  // snapshot (false) during SSR *and* the hydration pass, so the generic
+  // welcome/tip render byte-identically on both sides, then swap after mount
+  // — without any setState-in-effect (cascading render) at all.
+  const mounted = useMounted();
+  const greetKey = mounted
+    ? (() => {
+        const h = new Date().getHours();
+        return h < 12 ? "morning" : h < 16 ? "noon" : h < 19 ? "afternoon" : "evening";
+      })()
+    : null;
 
   useEffect(() => {
     if (!deviceId) return;
@@ -138,7 +143,9 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
   }, [deviceId]);
 
   const loadDaily = () => {
-    if (!deviceId || !hasKey) return;
+    // Daily words come from the site's own static trilingual bank — no API
+    // key needed (only deviceId so the server can read the saved level).
+    if (!deviceId) return;
     apiGet<{ words: DailyWord[] }>(`/api/vocab/daily?deviceId=${deviceId}`)
       .then((d) => {
         setDailyWords(d.words);
@@ -149,11 +156,16 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
 
   useEffect(() => {
     loadDaily();
-  }, [deviceId, hasKey]);
+  }, [deviceId]);
 
   const tips = (t.raw("tips") as string[] | undefined) ?? [];
-  const todayTip = tips.length > 0 ? tips[greetKey ? Math.floor(Date.now() / 86400000) % tips.length : 0] : "";
-  const studentName = displayName && displayName !== "শিক্ষার্থী" ? displayName : tCommon("student");
+  // Tip of the day: mount-gated Asia/Dhaka (UTC+6) day index — see the note
+  // above; Date.now()-in-render would make SSR and the client disagree.
+  const todayTip =
+    mounted && tips.length > 0
+      ? tips[Math.floor((Date.now() + 6 * 3_600_000) / 86_400_000) % tips.length]
+      : "";
+  const studentName = isNoName(displayName) ? tCommon("student") : (displayName as string).trim();
 
   return (
     <div className="space-y-6">
@@ -402,25 +414,17 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
-        {!hasKey ? (
-          <EmptyState
-            illustration="/illustrations/ill-vocab.webp"
-            title={t("daily.needKeyTitle")}
-            description={t("daily.needKeyDesc")}
-            actionLabel={t("daily.needKeyAction")}
-            onAction={() => onNavigate("settings")}
-          />
-        ) : !dailyWords ? (
+        {!deviceId ? (
           <div className="grid gap-3 sm:grid-cols-3">
-            {dailyError ? (
-              <Card className="premium-card rounded-2xl bg-card sm:col-span-3">
-                <CardContent className="p-4 text-sm text-destructive">{dailyError}</CardContent>
-              </Card>
-            ) : (
-              [1, 2, 3].map((i) => <Skeleton key={i} className="h-28 rounded-xl" />)
-            )}
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-28 rounded-xl" />
+            ))}
           </div>
-        ) : (
+        ) : dailyError ? (
+          <Card className="premium-card rounded-2xl bg-card">
+            <CardContent className="p-4 text-sm text-destructive">{dailyError}</CardContent>
+          </Card>
+        ) : dailyWords ? (
           <div className="grid gap-3 sm:grid-cols-3">
             {dailyWords.map((w) => (
               <Card key={w.word} className="premium-card rounded-2xl bg-card">
@@ -438,6 +442,12 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
                   <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{w.examples[0]}</p>
                 </CardContent>
               </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-3" aria-busy="true">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-28 rounded-xl" />
             ))}
           </div>
         )}

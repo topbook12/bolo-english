@@ -27,24 +27,14 @@ export interface UseWebRTCOpts {
 
 const ICE_SERVERS: RTCIceServer[] = [
   { urls: ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"] },
-  // Legacy fallback — see /api/call/ice for the live configuration source.
-  {
-    urls: [
-      "turn:standard.relay.metered.ca:80",
-      "turn:standard.relay.metered.ca:80?transport=tcp",
-      "turn:standard.relay.metered.ca:443",
-      "turn:standard.relay.metered.ca:443?transport=tcp",
-    ],
-    username: "e8dd651bbe22f4a616b1c04f",
-    credential: "MakTy9FvEZjSyZ2o",
-  },
 ];
 
-// TURN credentials must not be baked into the client bundle: the free relay
-// credential can lapse, and the only way to keep calls working is to swap in
-// fresh credentials (e.g. Cloudflare TURN, 1TB/mo free) via server env vars.
-// /api/call/ice serves the live list; fetch it lazily once per session and
-// always fall back to the bundled list if the endpoint is unreachable.
+// TURN credentials must not be baked into the client bundle: the bundled
+// fallback credential can lapse silently and ships to every visitor. The live
+// list (STUN + TURN, if the owner configured env TURN_URLS/USERNAME/CREDENTIAL)
+// is served by /api/call/ice at call time — fetched lazily once per session.
+// If the endpoint is unreachable we still try STUN-only: most home networks
+// connect via STUN, and a call without a relay beats no call at all.
 let iceServersPromise: Promise<RTCIceServer[]> | null = null;
 
 function getIceServers(): Promise<RTCIceServer[]> {
@@ -82,6 +72,10 @@ export function useWebRTC({ onSendSignal, getMyId }: UseWebRTCOpts) {
   // (two PCs created at once must never open the camera twice).
   const mediaInitRef = useRef<Promise<MediaStream> | null>(null);
   const pcsRef = useRef<Map<string, RTCPeerConnection>>(new Map());
+  // In-flight PC constructions — ensurePC must never build two PCs for the
+  // same peer (two concurrent triggers used to both pass the `existing` check
+  // during the ICE-config await and orphan a live PeerConnection).
+  const pendingPCRef = useRef<Map<string, Promise<RTCPeerConnection>>>(new Map());
   const pendingIceRef = useRef<Map<string, RTCIceCandidateInit[]>>(new Map());
   // Exotic browsers deliver ontrack without e.streams — merge those tracks
   // per peer so the tile keeps BOTH audio and video (last event used to win,
@@ -209,51 +203,69 @@ export function useWebRTC({ onSendSignal, getMyId }: UseWebRTCOpts) {
       const existing = pcsRef.current.get(peerId);
       if (existing) return existing;
 
-      const iceServers = await getIceServers().catch(() => ICE_SERVERS);
-      const pc = new RTCPeerConnection({ iceServers });
-      pcsRef.current.set(peerId, pc);
-      pcCreatedRef.current.set(peerId, Date.now());
-      disconnectedAtRef.current.delete(peerId);
-      lastRecoveryRef.current.delete(peerId);
+      // Reserve the slot SYNCHRONOUSLY (before any await): concurrent callers
+      // now share one construction promise instead of duplicating the PC.
+      const pending = pendingPCRef.current.get(peerId);
+      if (pending) return pending;
 
-      // add local tracks — never create a trackless PC: if media isn't ready
-      // yet, wait for it (a PC without our tracks would answer with empty SDP
-      // and the partner would stare at a black tile forever).
-      const stream = await initLocal();
-      for (const track of stream.getTracks()) pc.addTrack(track, stream);
+      const creating = (async () => {
+        const iceServers = await getIceServers().catch(() => ICE_SERVERS);
+        const pc = new RTCPeerConnection({ iceServers });
+        pcsRef.current.set(peerId, pc);
+        pcCreatedRef.current.set(peerId, Date.now());
+        disconnectedAtRef.current.delete(peerId);
+        lastRecoveryRef.current.delete(peerId);
 
-      pc.onicecandidate = (e) => {
-        if (e.candidate) sendRef.current("ice", e.candidate.toJSON(), peerId);
-      };
+        // add local tracks — never create a trackless PC: if media isn't ready
+        // yet, wait for it (a PC without our tracks would answer with empty SDP
+        // and the partner would stare at a black tile forever).
+        const stream = await initLocal();
+        for (const track of stream.getTracks()) pc.addTrack(track, stream);
 
-      pc.ontrack = (e) => {
-        const incoming = e.streams[0];
-        if (incoming) {
-          updatePeer(peerId, { stream: incoming });
-          return;
-        }
-        const merged = streamlessRef.current.get(peerId) ?? new MediaStream();
-        if (!merged.getTracks().includes(e.track)) merged.addTrack(e.track);
-        streamlessRef.current.set(peerId, merged);
-        updatePeer(peerId, { stream: new MediaStream(merged.getTracks()) });
-      };
+        pc.onicecandidate = (e) => {
+          if (e.candidate) sendRef.current("ice", e.candidate.toJSON(), peerId);
+        };
 
-      pc.onconnectionstatechange = () => {
-        updatePeer(peerId, { connectionState: pc.connectionState });
-        if (pc.connectionState === "disconnected") {
-          if (!disconnectedAtRef.current.has(peerId)) {
-            disconnectedAtRef.current.set(peerId, Date.now());
+        pc.ontrack = (e) => {
+          const incoming = e.streams[0];
+          if (incoming) {
+            updatePeer(peerId, { stream: incoming });
+            return;
           }
-        } else {
-          disconnectedAtRef.current.delete(peerId);
-        }
-        if (pc.connectionState === "failed") {
-          // real recovery: flag ICE restart and re-negotiate from stable state
-          void recoverPeer(peerId, pc);
-        }
-      };
+          const merged = streamlessRef.current.get(peerId) ?? new MediaStream();
+          if (!merged.getTracks().includes(e.track)) merged.addTrack(e.track);
+          streamlessRef.current.set(peerId, merged);
+          updatePeer(peerId, { stream: new MediaStream(merged.getTracks()) });
+        };
 
-      return pc;
+        pc.onconnectionstatechange = () => {
+          updatePeer(peerId, { connectionState: pc.connectionState });
+          if (pc.connectionState === "disconnected") {
+            if (!disconnectedAtRef.current.has(peerId)) {
+              disconnectedAtRef.current.set(peerId, Date.now());
+            }
+          } else {
+            disconnectedAtRef.current.delete(peerId);
+          }
+          if (pc.connectionState === "failed") {
+            // real recovery: flag ICE restart and re-negotiate from stable state
+            void recoverPeer(peerId, pc);
+          }
+        };
+
+        return pc;
+      })();
+
+      pendingPCRef.current.set(peerId, creating);
+      try {
+        return await creating;
+      } catch (e) {
+        // allow a retry on the next trigger
+        pcsRef.current.delete(peerId);
+        throw e;
+      } finally {
+        pendingPCRef.current.delete(peerId);
+      }
     },
     [updatePeer, recoverPeer, initLocal]
   );

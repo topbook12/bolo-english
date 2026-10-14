@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { reqLocale, apiMsg } from "@/lib/api-i18n";
 
 // GET /api/progress?deviceId=... → stats for the progress section
 export async function GET(req: NextRequest) {
+  const locale = reqLocale(req);
   const deviceId = req.nextUrl.searchParams.get("deviceId");
-  if (!deviceId) return NextResponse.json({ ok: false, error: "deviceId required" }, { status: 400 });
+  if (!deviceId)
+    return NextResponse.json({ ok: false, error: apiMsg(locale, "deviceIdRequired") }, { status: 400 });
 
   const [sessions, practice, wordCount] = await Promise.all([
     db.speakingSession.findMany({

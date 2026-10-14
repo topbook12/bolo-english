@@ -104,18 +104,17 @@ const todayDhaka = () =>
   new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Dhaka" }).format(new Date());
 
 export async function POST(req: NextRequest) {
+  // UI locale from the locale cookie — every message below answers in the
+  // language the user actually selected (never hardcoded Bengali).
+  const locale: ApiLocale = reqLocale(req);
   const body = await req.json().catch(() => null);
   const deviceId: string | undefined = body?.deviceId;
   const feature: string | undefined = body?.feature;
   const payload = body?.payload ?? {};
 
   if (!deviceId || !feature) {
-    return jsonErr("deviceId and feature are required", 400);
+    return jsonErr(apiMsg(locale, "paramsRequired"), 400);
   }
-
-  // UI locale from the locale cookie — every message below answers in the
-  // language the user actually selected (never hardcoded Bengali).
-  const locale: ApiLocale = reqLocale(req);
 
   if (!checkRateLimit(deviceId)) {
     return jsonErr(apiMsg(locale, "rateLimited"), 429);
@@ -326,7 +325,7 @@ Scores must reflect honest assessment — be encouraging but realistic. Return O
       }
 
       default:
-        return jsonErr(`Unknown feature: ${feature}`, 400);
+        return jsonErr(apiMsg(locale, "unknownFeature", { feature }), 400);
     }
   } catch (e) {
     const err = e as GeminiError;

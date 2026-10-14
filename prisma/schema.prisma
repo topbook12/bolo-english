@@ -25,7 +25,7 @@ model UserConfig {
   deviceId    String   @unique
   apiKeyEnc   String   // AES-256-GCM encrypted Gemini API key
   keyPreview  String   // masked preview e.g. "AIza...9f2"
-  displayName String   @default("শিক্ষার্থী")
+  displayName String   @default("") // "" = no name; display surfaces localize their own fallback (src/lib/no-name.ts)
   level       String   @default("beginner") // beginner | intermediate | advanced
   userId      String? // set when the device owner is logged in
   createdAt   DateTime @default(now())
@@ -69,29 +69,6 @@ model WordBookItem {
 }
 
 // Grammar lessons (AI-generated, cached per device)
-model GrammarLesson {
-  id        String   @id @default(cuid())
-  deviceId  String
-  topic     String
-  level     String
-  content   String // JSON: GrammarLessonContent
-  createdAt DateTime @default(now())
-
-  @@unique([deviceId, topic, level])
-}
-
-// Listening stories (AI-generated, cached per device)
-model ListeningStory {
-  id        String   @id @default(cuid())
-  deviceId  String
-  topic     String
-  level     String
-  content   String // JSON: ListeningStoryContent
-  createdAt DateTime @default(now())
-
-  @@unique([deviceId, topic, level])
-}
-
 // Speaking practice sessions (1:1, group, ai-partner)
 model SpeakingSession {
   id           String   @id @default(cuid())

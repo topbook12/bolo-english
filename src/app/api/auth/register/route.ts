@@ -13,10 +13,11 @@ import {
 
 // POST /api/auth/register  { deviceId, email, password, name? }
 export async function POST(req: NextRequest) {
+  const locale = reqLocale(req);
   const body = await req.json().catch(() => null);
   const deviceId = typeof body?.deviceId === "string" ? body.deviceId.slice(0, 80) : "";
   if (!deviceId) {
-    return NextResponse.json({ ok: false, error: "deviceId required" }, { status: 400 });
+    return NextResponse.json({ ok: false, error: apiMsg(locale, "deviceIdRequired") }, { status: 400 });
   }
   if (!checkRateLimit(`register:${deviceId}`)) {
     return NextResponse.json(

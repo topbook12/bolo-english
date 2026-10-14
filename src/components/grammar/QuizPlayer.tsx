@@ -1,8 +1,8 @@
 "use client";
 
-// Quiz player — 5 AI-generated MCQs for one topic/level, one question at a
-// time, instant feedback, score screen with wrong-answer review and a
-// practice-log POST on finish.
+// Quiz player — 5 MCQs for one topic/level (static bank first, AI fallback),
+// one question at a time, instant feedback, score screen with wrong-answer
+// review and a practice-log POST on finish.
 
 import { useCallback, useEffect, useState } from "react";
 import type { ComponentType } from "react";
@@ -32,6 +32,7 @@ import {
   type GrammarTopic,
   type Level,
 } from "@/components/grammar/shared";
+import { getBankQuiz } from "@/components/grammar/bank";
 
 interface QuizPlayerProps {
   topic: GrammarTopic;
@@ -75,7 +76,6 @@ export default function QuizPlayer({
   const [logged, setLogged] = useState(false);
 
   const load = useCallback(async () => {
-    if (!deviceId) return;
     setPhase("loading");
     setError(null);
     setIdx(0);
@@ -83,6 +83,15 @@ export default function QuizPlayer({
     setCorrect(0);
     setAnswers([]);
     setLogged(false);
+    // 1) Static bank first — stored in this site's own source, zero API keys.
+    const banked = getBankQuiz(topic.topic, level, locale);
+    if (banked && banked.length > 0) {
+      setQuestions(banked);
+      setPhase("playing");
+      return;
+    }
+    // 2) Bank miss → AI generation (needs the user's Gemini key).
+    if (!deviceId) return;
     try {
       const qs = await callAi<QuizQuestion[]>(deviceId, "grammar-quiz", {
         topic: topic.topic,
@@ -97,7 +106,7 @@ export default function QuizPlayer({
     } catch (e) {
       setError(errMessage(e, t("errors.unknown")));
     }
-  }, [deviceId, topic.topic, level, t]);
+  }, [deviceId, topic.topic, level, locale, t]);
 
   useEffect(() => {
     void load();

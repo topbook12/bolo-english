@@ -6,10 +6,7 @@ import { geminiText, GeminiError } from "@/lib/gemini";
 import { getSessionUser } from "@/lib/auth";
 import { resolveConfigRow } from "@/lib/user-config";
 import { reqLocale, apiMsg } from "@/lib/api-i18n";
-
-// Internal "no name" marker stored in the DB; the client localizes its own
-// fallback so a guest sees "Student" / "শিক্ষার্থী" / "छात्र" per UI language.
-const NO_NAME = "শিক্ষার্থী";
+import { isNoName } from "@/lib/no-name";
 
 // Display name precedence: account name → custom device name → null (client localizes)
 function resolveName(
@@ -17,9 +14,9 @@ function resolveName(
   deviceName: string | null | undefined
 ): string | null {
   const n = userName?.trim();
-  if (n && n !== NO_NAME) return n.slice(0, 24);
+  if (n && !isNoName(n)) return n.slice(0, 24);
   const d = deviceName?.trim();
-  if (d && d !== NO_NAME) return d.slice(0, 24);
+  if (d && !isNoName(d)) return d.slice(0, 24);
   return null;
 }
 
@@ -83,7 +80,7 @@ async function writeConfig(
             userId: user.id,
             apiKeyEnc: update.apiKeyEnc ?? "",
             keyPreview: update.keyPreview ?? "",
-            displayName: update.displayName ?? NO_NAME,
+            displayName: update.displayName ?? "",
             level: update.level ?? "beginner",
           },
         });
@@ -115,7 +112,7 @@ async function writeConfig(
       deviceId,
       apiKeyEnc: update.apiKeyEnc ?? "",
       keyPreview: update.keyPreview ?? "",
-      displayName: update.displayName ?? NO_NAME,
+      displayName: update.displayName ?? "",
       level: update.level ?? "beginner",
     },
     update,
@@ -124,9 +121,10 @@ async function writeConfig(
 
 // GET /api/config?deviceId=...  → masked profile (key never returned raw)
 export async function GET(req: NextRequest) {
+  const locale = reqLocale(req);
   const deviceId = req.nextUrl.searchParams.get("deviceId");
   if (!deviceId) {
-    return NextResponse.json({ ok: false, error: "deviceId required" }, { status: 400 });
+    return NextResponse.json({ ok: false, error: apiMsg(locale, "deviceIdRequired") }, { status: 400 });
   }
   try {
     const [cfg, user] = await Promise.all([
@@ -161,9 +159,10 @@ export async function GET(req: NextRequest) {
 
 // POST /api/config  { deviceId, apiKey?, displayName?, level? }
 export async function POST(req: NextRequest) {
+  const locale = reqLocale(req);
   const body = await req.json().catch(() => null);
   if (!body?.deviceId) {
-    return NextResponse.json({ ok: false, error: "deviceId required" }, { status: 400 });
+    return NextResponse.json({ ok: false, error: apiMsg(locale, "deviceIdRequired") }, { status: 400 });
   }
   const { deviceId, displayName, level } = body;
 
@@ -217,7 +216,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (Object.keys(update).length === 0) {
-    return NextResponse.json({ ok: false, error: "nothing to update" }, { status: 400 });
+    return NextResponse.json({ ok: false, error: apiMsg(locale, "nothingToUpdate") }, { status: 400 });
   }
 
   try {
@@ -249,9 +248,10 @@ export async function POST(req: NextRequest) {
 
 // DELETE /api/config?deviceId=... → remove saved key (account + this device)
 export async function DELETE(req: NextRequest) {
+  const locale = reqLocale(req);
   const deviceId = req.nextUrl.searchParams.get("deviceId");
   if (!deviceId) {
-    return NextResponse.json({ ok: false, error: "deviceId required" }, { status: 400 });
+    return NextResponse.json({ ok: false, error: apiMsg(locale, "deviceIdRequired") }, { status: 400 });
   }
   try {
     const user = await getSessionUser();

@@ -1,5 +1,6 @@
 import { decryptKey } from "./crypto";
 import { db } from "./db";
+import { isNoName } from "@/lib/no-name";
 import { resolveConfigRow } from "./user-config";
 
 // Server-side Gemini client. The user's own API key is fetched from DB
@@ -93,9 +94,9 @@ export async function getAiLevel(deviceId: string): Promise<string> {
 export async function getUserName(deviceId: string): Promise<string> {
   const cfg = await resolveConfigRow(deviceId);
   const n = cfg?.displayName?.trim();
-  // "শিক্ষার্থী" is the internal no-name marker — AI conversations are in
-  // English, so fall back to the international default instead.
-  return n && n !== "শিক্ষার্থী" ? n.slice(0, 24) : "Student";
+  // "" / the legacy no-name marker → AI conversations are in English, so
+  // fall back to the international default instead (src/lib/no-name.ts).
+  return isNoName(n) ? "Student" : (n as string).slice(0, 24);
 }
 
 /* ── JSON extraction & repair ─────────────────────────────────────────────

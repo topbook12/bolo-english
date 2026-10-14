@@ -30,7 +30,8 @@
       "desc": "অ্যাপের মতো খুলুন — অফলাইনেও কাজ করবে।",
       "cta": "ইনস্টল",
       "later": "পরে",
-      "iosHint": "iPhone/iPad: নিচের Share (↑) বাটনে চাপ দিয়ে “Add to Home Screen” বেছে নিন।"
+      "iosHint": "iPhone/iPad: নিচের Share (↑) বাটনে চাপ দিয়ে “Add to Home Screen” বেছে নিন।",
+      "close": "বন্ধ করুন"
     }
   },
   "nav": {

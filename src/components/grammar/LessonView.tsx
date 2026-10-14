@@ -26,6 +26,7 @@ import { callAi } from "@/lib/client-api";
 import { cn } from "@/lib/utils";
 import type { GrammarLessonContent } from "@/lib/types";
 import { errMessage, fmtNum, type GrammarTopic, type Level } from "@/components/grammar/shared";
+import { bankLessonToContent, getBankLesson } from "@/components/grammar/bank";
 
 interface LessonViewProps {
   topic: GrammarTopic;
@@ -102,9 +103,23 @@ export default function LessonView({
   const topicName = t(`topics.${topic.key}.name`);
 
   const load = useCallback(async () => {
-    if (!deviceId) return;
     setLoading(true);
     setError(null);
+    // 1) Static bank first — stored in this site's own source, zero API keys,
+    //    zero network. Covers foundation×beginner and advanced×advanced in
+    //    bn/en/hi (see bank/index.ts).
+    const banked = getBankLesson(topic.topic, level, locale);
+    if (banked) {
+      setData(bankLessonToContent(banked));
+      setLoading(false);
+      return;
+    }
+    // 2) Bank miss → AI generation (needs the user's Gemini key; the result
+    //    is cached in the site's own DB so it loads from storage afterwards).
+    if (!deviceId) {
+      setLoading(false);
+      return;
+    }
     try {
       const d = await callAi<GrammarLessonContent>(deviceId, "grammar-lesson", {
         topic: topic.topic,
@@ -116,7 +131,7 @@ export default function LessonView({
     } finally {
       setLoading(false);
     }
-  }, [deviceId, topic.topic, level, t]);
+  }, [deviceId, topic.topic, level, locale, t]);
 
   useEffect(() => {
     void load();

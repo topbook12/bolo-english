@@ -21,7 +21,7 @@ type VocabTab = "daily" | "wordbook" | "quiz";
 // VOCAB SECTION — আজকের শব্দ / ওয়ার্ডবুক / কুইজ
 export default function VocabSection() {
   const t = useTranslations("vocab");
-  const { deviceId, hasKey, loaded } = useDevice();
+  const { deviceId, loaded } = useDevice();
   const { toast } = useToast();
 
   const [tab, setTab] = useState<VocabTab>("daily");
@@ -164,7 +164,6 @@ export default function VocabSection() {
         <TabsContent value="daily" className="mt-0">
           <DailyWordsTab
             deviceId={deviceId}
-            hasKey={hasKey}
             deviceLoaded={loaded}
             isSaved={isSaved}
             onSave={handleSave}

@@ -32,6 +32,7 @@ import LocaleSwitcher from "@/i18n/LocaleSwitcher";
 import { usePwaInstall } from "@/components/pwa/PwaRegister";
 import { useToast } from "@/hooks/use-toast";
 import { sanitizeApiKey } from "@/lib/key-format";
+import { displayNameOr } from "@/lib/no-name";
 import SectionHeader from "@/components/shared/SectionHeader";
 import PointList from "@/components/shared/PointList";
 import type { UserConfig as ApiUserConfig } from "@/hooks/use-device";
@@ -152,7 +153,8 @@ export default function SettingsSection() {
     }
   };
 
-  const avatarInitial = (user?.name || user?.email || "?").trim().charAt(0).toUpperCase();
+  const shownName = displayNameOr(user?.name, "");
+  const avatarInitial = (shownName || user?.email || "?").trim().charAt(0).toUpperCase();
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -178,7 +180,7 @@ export default function SettingsSection() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold">{user.name}</p>
+                    <p className="truncate text-sm font-semibold">{shownName || tAuth("guest")}</p>
                     <p className="truncate text-xs text-muted-foreground">{user.email}</p>
                   </div>
                   <Button

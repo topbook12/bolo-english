@@ -52,6 +52,11 @@ const POLL_INTERVAL_MS = 1200;
 const POLL_TIMEOUT_MS = 15_000;
 const RETRY_1_MS = 2000;
 const RETRY_2_MS = 4000; // cap — keep going forever while the room is open
+// Heartbeat whenever this much time has passed since the last one — NOT every
+// Nth poll. Backgrounded tabs poll as rarely as once a minute (Chrome timer
+// throttling); a tick-counted heartbeat starved and let the server prune the
+// room mid-call. Time-based + a visibility/online catch-up fixes that.
+const HEARTBEAT_MS = 45_000;
 
 interface CallClientOptions {
   /** Base URL for tests (bun/node). Browser always uses relative paths. */
@@ -67,10 +72,12 @@ export class CallClient {
   private alive = false;
   private left = false;
   private beaconBound = false;
-  private tick = 0;
   private since = 0;
   private failures = 0;
   private warmup = true;
+  private lastHbAt = 0;
+  private wake: (() => void) | null = null;
+  private wakeEventsBound = false;
   private lastPeersJson = "";
   private loopTimer: ReturnType<typeof setTimeout> | null = null;
   private pollCtrl: AbortController | null = null;
@@ -88,10 +95,13 @@ export class CallClient {
     this.lastPeersJson = JSON.stringify(result.peers ?? []);
     this.alive = true;
     this.bindUnloadBeaconOnce();
+    this.bindWakeEventsOnce();
+    // First poll right away also acts as the initial heartbeat.
+    this.lastHbAt = 0;
     void this.loop();
   }
 
-  /** POST /api/call/join — throws Error with a user-friendly (Bengali) message on failure. */
+  /** POST /api/call/join — throws Error with a user-friendly localized message on failure. */
   static async join(opts: JoinOpts, baseUrl = ""): Promise<JoinResult> {
     let res: Response;
     try {
@@ -178,9 +188,36 @@ export class CallClient {
       clearTimeout(this.loopTimer);
       this.loopTimer = null;
     }
+    this.wake = null;
     this.pollCtrl?.abort();
     this.pollCtrl = null;
+    this.unbindWakeEvents();
   }
+
+  /** Tab regains focus / network returns → finish the pending sleep NOW so
+   *  the next poll (which will carry a heartbeat if >45s elapsed) fires
+   *  immediately instead of up to POLL_INTERVAL_MS later. */
+  private bindWakeEventsOnce(): void {
+    if (this.wakeEventsBound) return;
+    if (typeof window === "undefined" || typeof document === "undefined") return;
+    this.wakeEventsBound = true;
+    this.onWake = () => {
+      if (document.visibilityState === "hidden") return;
+      this.wake?.();
+    };
+    window.addEventListener("visibilitychange", this.onWake);
+    window.addEventListener("online", this.onWake);
+  }
+
+  private unbindWakeEvents(): void {
+    if (!this.wakeEventsBound || !this.onWake) return;
+    window.removeEventListener("visibilitychange", this.onWake);
+    window.removeEventListener("online", this.onWake);
+    this.wakeEventsBound = false;
+    this.onWake = null;
+  }
+
+  private onWake: (() => void) | null = null;
 
   /** Tab close / navigation fallback so the server learns we're gone even
    *  if leave() never runs. Registered exactly once. */
@@ -208,8 +245,9 @@ export class CallClient {
 
   private async loop(): Promise<void> {
     while (this.alive) {
-      this.tick += 1;
-      const hb = this.tick % 4 === 0; // heartbeat every 4th poll keeps the room alive
+      const now = Date.now();
+      const hb = now - this.lastHbAt >= HEARTBEAT_MS;
+      if (hb) this.lastHbAt = now;
       const ok = await this.pollOnce(hb);
       if (!this.alive) return;
       if (ok) {
@@ -281,7 +319,16 @@ export class CallClient {
 
   private sleep(ms: number): Promise<void> {
     return new Promise((resolve) => {
-      this.loopTimer = setTimeout(resolve, ms);
+      const done = () => {
+        if (this.loopTimer) {
+          clearTimeout(this.loopTimer);
+          this.loopTimer = null;
+        }
+        this.wake = null;
+        resolve();
+      };
+      this.wake = done;
+      this.loopTimer = setTimeout(done, ms);
     });
   }
 }

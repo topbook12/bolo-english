@@ -7,8 +7,12 @@ import { db } from "./db";
 // server needed). Media still flows peer-to-peer — signaling rows are tiny
 // and pruned aggressively, so it stays essentially free.
 
-export const STALE_ROOM_MS = 90_000; // no heartbeat for 90s → pruned
-export const MAX_MESSAGE_BYTES = 16_000;
+// STALE_ROOM_MS is generous (3 min) because backgrounded tabs poll slowly
+// (Chrome throttles timers); the client heartbeats whenever >45s elapsed, so
+// an alive caller always refreshes well inside this window.
+export const STALE_ROOM_MS = 180_000;
+// Offers/answers with large ICE candidate lists can reach ~40 KB of SDP.
+export const MAX_MESSAGE_BYTES = 64_000;
 
 export interface RoomParticipant {
   peerId: string;

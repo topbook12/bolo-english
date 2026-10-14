@@ -2,11 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSessionUserId } from "@/lib/auth";
 import type { DailyWord } from "@/lib/types";
+import { reqLocale, apiMsg } from "@/lib/api-i18n";
 
 // GET /api/vocab?deviceId=...  → wordbook
 export async function GET(req: NextRequest) {
+  const locale = reqLocale(req);
   const deviceId = req.nextUrl.searchParams.get("deviceId");
-  if (!deviceId) return NextResponse.json({ ok: false, error: "deviceId required" }, { status: 400 });
+  if (!deviceId)
+    return NextResponse.json({ ok: false, error: apiMsg(locale, "deviceIdRequired") }, { status: 400 });
   const items = await db.wordBookItem.findMany({
     where: { deviceId },
     orderBy: { createdAt: "desc" },
