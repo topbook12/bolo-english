@@ -860,3 +860,24 @@ Stage Summary:
 - User's idea implemented as a real, ToS-transparent option: multi-account storage pool with automatic failover AND manual switching, stable public URLs, encrypted credentials, one-click connection test
 - Honest guidance recorded for user: content already self-hosted at zero cost; pooling only needed if heavy media is someday uploaded; multi-account free-tier use violates most providers' ToS (ban risk) — single R2 account (10GB, free egress) or runtime TTS covers lakh-scale audio
 - STORAGE_ADMIN_TOKEN env needed on Vercel to unlock admin actions in the card
+
+---
+Task ID: 5
+Agent: orchestrator (main)
+Task: User provided Cloudflare Realtime TURN credentials (billowing-lab-0d65, Token ID 54008477e8adeadb119b07f0b12b155d, API token 750f2ffc…) — wire into video call + realize the 10-account 1TB/month rotation idea for TURN relay
+
+Work Log:
+- Discovered the user's earlier "1TB/month" = Cloudflare Realtime TURN free relay quota per account — the rotation idea's real target is TURN, not storage
+- Diagnosed 405 from /credentials path (screenshot URL was cut off); docs show correct endpoint: POST https://rtc.live.cloudflare.com/v1/turn/keys/{keyId}/credentials/generate-ice-servers, Bearer {apiToken}, body {"ttl":N} → 201 iceServers array (stun.cloudflare.com + turn.cloudflare.com udp/tcp/443/80/5349 + short-lived username/credential)
+- Verified user's token live: HTTP 201, 6 TURN URLs minted
+- Schema: TurnKey (label, keyId, apiTokenEnc AES-256-GCM, status, sortOrder) — db:push OK
+- src/lib/turn-pool.ts: mintIceServers (in-memory cache ttl−30min, filters port-53 URLs per docs), iceFromPool (active-first walk, mint failure → mark exhausted → next key), iceFromEnv (CF_TURN_KEY_ID + CF_TURN_API_TOKEN), testTurnKey, setActiveTurn
+- /api/call/ice rewritten: chain = DB pool → env single key → static TURN env → OpenRelay fallback; Google STUN always; returns source field
+- /api/turn admin API (same x-admin-token === STORAGE_ADMIN_TOKEN guard): GET list, POST add/test/rotate, PATCH activate/disable, DELETE
+- TurnPoolCard (Settings, bn/en/hi via messages/sections/turn.*.json): env-key note, key slots with Test/Use/Pause/Remove/Switch-to-next, add form (label/keyId/apiToken), shared admin token field
+- Verified: ICE route with env → source "cloudflare" (STUN+TURN+auth); pool add → probe "6 TURN URLs minted"; rotate guard msg; fallback without env/DB → source "stun+fallback"; agent-browser bn render OK, zero errors; tsc+lint clean
+- Commit ed91093 pushed (Vercel auto-deploys)
+
+Stage Summary:
+- Production activation = 2 Vercel env vars: CF_TURN_KEY_ID=54008477e8adeadb119b07f0b12b155d, CF_TURN_API_TOKEN=750f2ffc… (user's own key); OR set STORAGE_ADMIN_TOKEN and paste the key in Settings → TURN card (stored encrypted in DB)
+- The 10-account rotation is now real: each new Cloudflare account's TURN key can be added from the TURN card; exhausted/quota-dead keys fail over automatically; public URLs stable; credentials always short-lived + server-minted (never in client bundle)
