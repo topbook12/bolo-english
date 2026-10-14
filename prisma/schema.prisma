@@ -112,6 +112,39 @@ model CallRoom {
   messages     SignalMessage[]
 }
 
+// ─── Zero-cost storage pool (rotation of free-tier storage accounts) ───
+// The site owner can register several free-tier, S3-compatible storage
+// accounts (Cloudflare R2, Backblaze B2, Scaleway…). Objects are uploaded to
+// the first healthy account; when a provider reports a quota/limit error the
+// pool automatically fails over to the next account. The owner can also
+// switch manually. Public URLs stay stable via /api/media/<key> (302).
+
+model StorageAccount {
+  id            String   @id @default(cuid())
+  label         String // e.g. "R2 account 1"
+  provider      String   @default("s3") // s3 (S3-compatible)
+  endpoint      String // e.g. https://<accountid>.r2.cloudflarestorage.com
+  region        String   @default("auto")
+  bucket        String
+  accessKeyEnc  String // AES-256-GCM
+  secretKeyEnc  String // AES-256-GCM
+  publicBaseUrl String // public GET base, e.g. https://cdn.mysite.com
+  limitBytes    Int      @default(0) // 0 = unknown
+  status        String   @default("active") // active | exhausted | disabled
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// Stable logical key -> physical location. Public URLs never change even
+// when the underlying account is rotated.
+model StorageObject {
+  key        String   @id
+  accountId  String
+  sizeBytes  Int      @default(0)
+  createdAt  DateTime @default(now())
+}
+
 model SignalMessage {
   id        Int      @id @default(autoincrement())
   roomId    String

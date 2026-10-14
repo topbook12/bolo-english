@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { reqLocale, apiMsg, type ApiLocale } from "@/lib/api-i18n";
 import { GeminiError, geminiJson, getAiLevel, getUserName, getUserApiKey } from "@/lib/gemini";
+import { pruneAiCache } from "@/lib/ai-cache-prune";
 import type {
   CallAnalysis,
   ChatPartnerReply,
@@ -97,6 +98,9 @@ async function cachedJson<T>(
   await db.aiCache
     .create({ data: { feature, cacheKey, response: JSON.stringify(data) } })
     .catch(() => null);
+  // Keep the cache under its byte cap (LRU) so the free Turso tier never
+  // overflows — fire-and-forget, never blocks the response.
+  void pruneAiCache();
   return data;
 }
 

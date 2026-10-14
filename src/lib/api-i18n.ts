@@ -199,6 +199,38 @@ const M = {
     hi: "शिक्षार्थी",
   },
 
+  /* ── storage pool (site owner) ── */
+  storageAdminRequired: {
+    en: "Storage admin token missing or wrong — set STORAGE_ADMIN_TOKEN and try again.",
+    bn: "স্টোরেজ অ্যাডমিন টোকেন নেই বা ভুল — STORAGE_ADMIN_TOKEN সেট করে আবার চেষ্টা করুন।",
+    hi: "स्टोरेज एडमिन टोकन गायब या गलत — STORAGE_ADMIN_TOKEN सेट करें और फिर कोशिश करें।",
+  },
+  storageFieldsRequired: {
+    en: "Fill every field: label, endpoint, bucket, access key, secret key, public URL.",
+    bn: "সব ঘর পূরণ করুন: নাম, endpoint, bucket, access key, secret key, পাবলিক URL।",
+    hi: "सभी फ़ील्ड भरें: label, endpoint, bucket, access key, secret key, public URL.",
+  },
+  storageHttpsRequired: {
+    en: "Endpoint and public URL must start with https://",
+    bn: "Endpoint এবং পাবলিক URL অবশ্যই https:// দিয়ে শুরু হবে।",
+    hi: "Endpoint और public URL https:// से शुरू होने चाहिए।",
+  },
+  storageNoOther: {
+    en: "No other account in the pool to switch to — add one first.",
+    bn: "পুলে অন্য কোনো অ্যাকাউন্ট নেই — আগে একটি যোগ করুন।",
+    hi: "पूल में बदलने के लिए कोई दूसरा अकाउंट नहीं — पहले एक जोड़ें।",
+  },
+  mediaNotFound: {
+    en: "This media file does not exist on the site storage.",
+    bn: "এই মিডিয়া ফাইলটি সাইটের স্টোরেজে নেই।",
+    hi: "यह मीडिया फ़ाइल साइट के स्टोरेज में नहीं है।",
+  },
+  unknownAction: {
+    en: "Unknown action.",
+    bn: "অজানা কাজ।",
+    hi: "अज्ञात कार्य।",
+  },
+
   /* ── video call ── */
   roomCodeRequired: {
     en: "Enter the room code.",

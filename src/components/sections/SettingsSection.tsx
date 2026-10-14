@@ -35,6 +35,7 @@ import { sanitizeApiKey } from "@/lib/key-format";
 import { displayNameOr } from "@/lib/no-name";
 import SectionHeader from "@/components/shared/SectionHeader";
 import PointList from "@/components/shared/PointList";
+import StoragePoolCard from "@/components/settings/StoragePoolCard";
 import type { UserConfig as ApiUserConfig } from "@/hooks/use-device";
 
 // Labels render via tCommon("level.*") — always in the user's UI language.
@@ -370,6 +371,9 @@ export default function SettingsSection() {
             </ul>
           </CardContent>
         </Card>
+
+        {/* ── Storage & Quota (site-owner pool) ── */}
+        <StoragePoolCard />
 
         {/* ── Profile ── */}
         <Card className="premium-card border-border/70 rounded-2xl bg-card">
