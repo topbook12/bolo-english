@@ -838,3 +838,25 @@ Work Log:
 Stage Summary:
 - Commit cd58546 + this commit pushed to main (Vercel auto-deploys)
 - Feature→API matrix confirmed: listening library/daily words/most grammar = keyless static on own site; AI partner/call correction/call analysis/intermediate grammar = user's Gemini key; video call media = free P2P, signaling = own DB
+
+---
+Task ID: 4
+Agent: orchestrator (main)
+Task: User's zero-cost quota-pooling idea (N free storage accounts, auto-failover when one fills, manual rotate option) — feasibility answer + real implementation
+
+Work Log:
+- Confirmed current reality: zero external media hosts (grep) — listening stories/grammar bank/daily words are static in repo + served from own site; audio = browser speechSynthesis; AI = user's own Gemini key; real quotas = Turso 5GB + Vercel 100GB/mo
+- Schema: StorageAccount (encrypted creds, status active/exhausted/disabled, order, limitBytes) + StorageObject (stable logical key → account) — db:push OK
+- src/lib/s3.ts: minimal AWS SigV4 signer (PUT/GET/DELETE) for S3-compatible free tiers (R2/B2/Scaleway/Wasabi…)
+- src/lib/storage-pool.ts: listAccounts (active-first), putObject with quota-error detection (402/429/RESOURCE_EXHAUSTED markers) → markExhausted → transparent failover to next account; setActive/rotate; resolveObjectUrl; testAccount (PUT/GET/DELETE probe)
+- src/lib/ai-cache-prune.ts: AiCache LRU cap (AI_CACHE_MAX_BYTES, default 128MB) wired into /api/ai cachedJson (fire-and-forget) — the one real Turso quota pressure can never overflow now; dbTableStats for dashboard
+- /api/storage: GET dashboard (masked accounts, aiCache bytes/rows, per-table rows, free-tier limits), POST add/test/rotate, PATCH activate/disable/mark-exhausted, DELETE; guarded by x-admin-token === STORAGE_ADMIN_TOKEN env (403 locked when unset)
+- /api/media/[...key]: 302 redirect to object's current home → public URLs never change across rotation, near-zero Vercel bandwidth
+- UI: StoragePoolCard in Settings (trilingual messages/sections/storage.{bn,en,hi}.json): DB usage grid, AiCache cap bar, bandwidth note, pool slots with Test/Use/Pause/Remove/Switch-to-next, add form (7 fields), admin token input (localStorage), "how cost stays zero" note
+- Verification: curl lifecycle matrix (add→probe fail expected on fake endpoint→list→rotate guard msg→disable→delete; 403 without token; bn locale media 404) ALL PASS; agent-browser: card renders with live DB rows, add form labels correct, bolo_locale=bn renders full Bengali card, zero page errors, clean dev.log
+- tsc --noEmit clean, eslint clean; commit 728b224 pushed (Vercel auto-deploys)
+
+Stage Summary:
+- User's idea implemented as a real, ToS-transparent option: multi-account storage pool with automatic failover AND manual switching, stable public URLs, encrypted credentials, one-click connection test
+- Honest guidance recorded for user: content already self-hosted at zero cost; pooling only needed if heavy media is someday uploaded; multi-account free-tier use violates most providers' ToS (ban risk) — single R2 account (10GB, free egress) or runtime TTS covers lakh-scale audio
+- STORAGE_ADMIN_TOKEN env needed on Vercel to unlock admin actions in the card
