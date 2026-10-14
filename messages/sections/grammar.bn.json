@@ -7,7 +7,8 @@
     "openTopic": "লেসন পড়ুন: {topic}",
     "groups": {
       "foundation": "ভিত্তির টপিক",
-      "advanced": "অ্যাডভান্সড টপিক"
+      "advanced": "অ্যাডভান্সড টপিক",
+      "library": "লাইব্রেরি লেসন"
     },
     "progress": {
       "quizzes": "কুইজ দিয়েছেন",

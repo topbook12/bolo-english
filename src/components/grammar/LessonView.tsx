@@ -1,9 +1,10 @@
 "use client";
 
-// Lesson view — renders AI-generated grammar lesson (Bangla explanation +
-// English examples) for one topic/level, with a sticky CTA into the quiz.
+// Lesson view — renders one grammar lesson for a topic/level, with a sticky
+// CTA into the quiz. Load order: owner-authored DB lesson (zero keys) →
+// static bank (zero keys) → AI generation (BYO Gemini key).
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import {
   ArrowLeft,
@@ -22,17 +23,60 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useDevice } from "@/hooks/use-device";
-import { callAi } from "@/lib/client-api";
+import { apiGet, callAi } from "@/lib/client-api";
 import { cn } from "@/lib/utils";
 import type { GrammarLessonContent } from "@/lib/types";
+import { pickTri, type LibraryGrammarEntry } from "@/lib/library-types";
 import { errMessage, fmtNum, type GrammarTopic, type Level } from "@/components/grammar/shared";
 import { bankLessonToContent, getBankLesson } from "@/components/grammar/bank";
+import LibraryAskBox from "@/components/library/AskBox";
 
 interface LessonViewProps {
   topic: GrammarTopic;
   level: Level;
   onBack: () => void;
   onStartQuiz: () => void;
+  /**
+   * Display name for owner-made topics that have no i18n topic key.
+   * Always preferred when present — `t()` on a missing key throws in dev.
+   */
+  topicName?: string;
+}
+
+/** Owner-authored DB entry → the AI-shaped content this view renders. */
+function dbEntryToContent(
+  entry: LibraryGrammarEntry,
+  locale: string
+): GrammarLessonContent {
+  return {
+    title: pickTri(entry.data.title, locale),
+    level: entry.level,
+    intro: pickTri(entry.data.intro, locale),
+    sections: (entry.data.sections ?? []).map((s) => ({
+      heading: pickTri(s.heading, locale),
+      explanation: pickTri(s.body, locale),
+      examples: (s.examples ?? []).map((ex) => ({
+        wrong: ex.wrong,
+        right: ex.right,
+        note: pickTri(ex.note, locale),
+      })),
+    })),
+    tips: (entry.data.tips ?? []).map((tip) => pickTri(tip, locale)),
+  };
+}
+
+/** Compact pre-localized context for the "ask a question" teacher (≤3500 chars). */
+function lessonContextOf(d: GrammarLessonContent): string {
+  const parts: string[] = [`Intro: ${d.intro}`];
+  for (const s of d.sections ?? []) {
+    parts.push(
+      `## ${s.heading}\n${s.explanation}\nExamples: ${(s.examples ?? [])
+        .map((e) => e.right)
+        .join(" | ")}`
+    );
+  }
+  parts.push(`Tips: ${(d.tips ?? []).join("; ")}`);
+  return parts.join("\n").slice(0, 3500);
 }
 
 /** One AI example as a premium "wrong → right" card. */
@@ -89,6 +133,7 @@ export default function LessonView({
   level,
   onBack,
   onStartQuiz,
+  topicName,
 }: LessonViewProps) {
   const t = useTranslations("grammar");
   const tc = useTranslations("common");
@@ -99,13 +144,34 @@ export default function LessonView({
   const [data, setData] = useState<GrammarLessonContent | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const reqIdRef = useRef(0);
 
-  const topicName = t(`topics.${topic.key}.name`);
+  // Owner topics have no i18n topic key — GrammarSection passes the DB title
+  // as `topicName`. `t()` on a missing key throws in dev, so the prop wins.
+  const name = topicName ?? t(`topics.${topic.key}.name`);
 
   const load = useCallback(async () => {
+    const reqId = ++reqIdRef.current;
     setLoading(true);
     setError(null);
-    // 1) Static bank first — stored in this site's own source, zero API keys,
+    // 1) Owner-authored library lesson first — stored in the site's own DB,
+    //    zero API keys, editable by the owner from the Content Studio.
+    //    Any DB problem stays SILENT: we just fall through to the bank/AI.
+    try {
+      const res = await apiGet<{ items: LibraryGrammarEntry[] }>(
+        `/api/library?kind=grammar&topic=${encodeURIComponent(topic.topic)}&level=${level}`
+      );
+      if (reqId !== reqIdRef.current) return; // stale (topic switched)
+      const entry = res.items?.[0];
+      if (entry) {
+        setData(dbEntryToContent(entry, locale));
+        setLoading(false);
+        return;
+      }
+    } catch {
+      // DB miss/offline → static bank or AI below (never an error state)
+    }
+    // 2) Static bank — stored in this site's own source, zero API keys,
     //    zero network. Covers foundation×beginner and advanced×advanced in
     //    bn/en/hi (see bank/index.ts).
     const banked = getBankLesson(topic.topic, level, locale);
@@ -114,10 +180,10 @@ export default function LessonView({
       setLoading(false);
       return;
     }
-    // 2) Bank miss → AI generation (needs the user's Gemini key; the result
+    // 3) Bank miss → AI generation (needs the user's Gemini key; the result
     //    is cached in the site's own DB so it loads from storage afterwards).
     if (!deviceId) {
-      setLoading(false);
+      if (reqId === reqIdRef.current) setLoading(false);
       return;
     }
     try {
@@ -125,11 +191,13 @@ export default function LessonView({
         topic: topic.topic,
         level,
       });
+      if (reqId !== reqIdRef.current) return;
       setData(d);
     } catch (e) {
+      if (reqId !== reqIdRef.current) return;
       setError(errMessage(e, t("errors.unknown")));
     } finally {
-      setLoading(false);
+      if (reqId === reqIdRef.current) setLoading(false);
     }
   }, [deviceId, topic.topic, level, locale, t]);
 
@@ -176,7 +244,7 @@ export default function LessonView({
         <>
           {/* Hero */}
           <section
-            aria-label={topicName}
+            aria-label={name}
             className="premium-card animate-fade-in-up rounded-2xl border-border/70 bg-gradient-to-br from-emerald-500/10 via-card to-amber-500/10 p-5 sm:p-6"
           >
             <div className="flex flex-wrap items-center gap-1.5">
@@ -184,11 +252,11 @@ export default function LessonView({
                 {tc(`level.${level}`)}
               </Badge>
               <Badge variant="outline" className="text-[11px]">
-                {topicName}
+                {name}
               </Badge>
             </div>
             <h1 className="mt-2.5 text-xl font-bold tracking-tight sm:text-2xl">
-              {data.title || topicName}
+              {data.title || name}
             </h1>
             {data.intro && (
               <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
@@ -276,11 +344,19 @@ export default function LessonView({
             </Card>
           )}
 
+          {/* Ask the teacher — reading is free; asking uses the learner's key */}
+          <LibraryAskBox
+            compact
+            className="mt-2"
+            title={data.title || name}
+            context={lessonContextOf(data)}
+          />
+
           {/* Sticky quiz CTA (above the mobile bottom nav) */}
           <div className="sticky bottom-20 z-20 mt-6 md:bottom-4">
             <div className="premium-card flex items-center gap-3 rounded-2xl bg-card/95 p-3 shadow-lg backdrop-blur">
               <div className="hidden min-w-0 flex-1 sm:block">
-                <p className="truncate text-sm font-semibold">{topicName}</p>
+                <p className="truncate text-sm font-semibold">{name}</p>
                 <p className="text-xs text-muted-foreground">{tc(`level.${level}`)}</p>
               </div>
               <Button

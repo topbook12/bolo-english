@@ -311,6 +311,58 @@ const M = {
     bn: "এই ব্রাউজারে স্পিচ রিকগনিশন সাপোর্ট নেই। Chrome বা Edge ব্যবহার করুন।",
     hi: "इस ब्राउज़र में स्पीच रिकग्निशन सपोर्ट नहीं है। Chrome या Edge इस्तेमाल करें।",
   },
+
+  /* ── library (owner-authored content) ── */
+  libraryAdminRequired: {
+    en: "Admin token missing or wrong — set ADMIN_TOKEN (or STORAGE_ADMIN_TOKEN) and try again.",
+    bn: "অ্যাডমিন টোকেন নেই বা ভুল — ADMIN_TOKEN (অথবা STORAGE_ADMIN_TOKEN) সেট করে আবার চেষ্টা করুন।",
+    hi: "एडमिन टोकन गायब या गलत — ADMIN_TOKEN (या STORAGE_ADMIN_TOKEN) सेट करें और फिर कोशिश करें।",
+  },
+  libraryKindInvalid: {
+    en: "Unknown library kind — use vocab, grammar or listening.",
+    bn: "অজানা লাইব্রেরি ধরন — vocab, grammar অথবা listening হতে হবে।",
+    hi: "अज्ञात लाइब्रेरी प्रकार — vocab, grammar या listening होना चाहिए।",
+  },
+  libraryEntryRequired: {
+    en: "Entry data missing — send the full entry object.",
+    bn: "এন্ট্রির তথ্য নেই — সম্পূর্ণ entry অবজেক্ট পাঠান।",
+    hi: "एंट्री डेटा गायब है — पूरा entry ऑब्जेक्ट भेजें।",
+  },
+  libraryWordRequired: {
+    en: "The word field is required.",
+    bn: "শব্দ (word) ঘরটি পূরণ করুন।",
+    hi: "शब्द (word) फ़ील्ड भरें।",
+  },
+  libraryTopicRequired: {
+    en: "The topic and title fields are required.",
+    bn: "topic এবং title ঘর দুটি পূরণ করুন।",
+    hi: "topic और title फ़ील्ड भरें।",
+  },
+  libraryDataInvalid: {
+    en: "Content data is invalid — check the required fields (title, sections, paragraphs…).",
+    bn: "কনটেন্টের তথ্য সঠিক নয় — দরকারি ঘরগুলো (title, sections, paragraphs…) দেখে নিন।",
+    hi: "कंटेंट डेटा अमान्य है — आवश्यक फ़ील्ड (title, sections, paragraphs…) जांचें।",
+  },
+  libraryIdRequired: {
+    en: "Entry id is required.",
+    bn: "এন্ট্রির id দরকার।",
+    hi: "एंट्री की id चाहिए।",
+  },
+  libraryNotFound: {
+    en: "This library entry does not exist (anymore).",
+    bn: "এই লাইব্রেরি এন্ট্রিটি নেই (বা আর নেই)।",
+    hi: "यह लाइब्रेरी एंट्री मौजूद नहीं है (अब नहीं है)।",
+  },
+  sentenceRequired: {
+    en: "Write a sentence first, then check it.",
+    bn: "আগে একটি বাক্য লিখুন, তারপর চেক করুন।",
+    hi: "पहले एक वाक्य लिखें, फिर जांचें।",
+  },
+  questionRequired: {
+    en: "Write your question first.",
+    bn: "আগে আপনার প্রশ্ন লিখুন।",
+    hi: "पहले अपना प्रश्न लिखें।",
+  },
 } satisfies Record<string, Catalog>;
 
 export type ApiMsgKey = keyof typeof M;

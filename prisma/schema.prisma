@@ -173,3 +173,51 @@ model SignalMessage {
 
   @@index([roomId, id])
 }
+
+// ─── Owner-authored Library ───
+// The site owner curates learning content (vocabulary, grammar lessons,
+// listening stories) via the admin Content Studio. Learners browse ALL of it
+// with ZERO API keys — AI (the learner's own Gemini key) is only used when
+// they ask a question or check a sentence they wrote.
+
+model LibraryVocab {
+  id        String   @id @default(cuid())
+  word      String
+  level     String   @default("beginner") // beginner | intermediate | advanced
+  category  String   @default("general") // general | daily | work | travel | academic
+  data      String // JSON: LibraryVocabData (see src/lib/library-types.ts)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([word, level])
+  @@index([level])
+}
+
+model LibraryGrammar {
+  id        String   @id @default(cuid())
+  topic     String // canonical topic id (matches GrammarTopic.topic when it exists)
+  level     String   @default("beginner") // beginner | intermediate | advanced
+  title     String // display title (English base)
+  data      String // JSON: LibraryGrammarData
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([topic, level])
+  @@index([level])
+}
+
+model LibraryListening {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  level     String   @default("beginner") // beginner | intermediate | advanced
+  category  String   @default("daily") // daily | travel | work | culture | science | inspire
+  minutes   Int      @default(2)
+  data      String // JSON: LibraryListeningData
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([level])
+}

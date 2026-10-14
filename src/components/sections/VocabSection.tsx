@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { BookMarked, CalendarDays, LibraryBig, Target } from "lucide-react";
+import { BookMarked, BookOpenCheck, CalendarDays, LibraryBig, Target } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToastAction } from "@/components/ui/toast";
@@ -14,9 +14,10 @@ import type { SavedWord } from "@/components/vocab/types";
 import DailyWordsTab from "@/components/vocab/DailyWordsTab";
 import WordbookTab from "@/components/vocab/WordbookTab";
 import QuizTab from "@/components/vocab/QuizTab";
+import VocabLibraryTab from "@/components/vocab/VocabLibraryTab";
 import { cancelSpeech } from "@/components/vocab/speech";
 
-type VocabTab = "daily" | "wordbook" | "quiz";
+type VocabTab = "daily" | "library" | "wordbook" | "quiz";
 
 // VOCAB SECTION — আজকের শব্দ / ওয়ার্ডবুক / কুইজ
 export default function VocabSection() {
@@ -146,10 +147,14 @@ export default function VocabSection() {
       />
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as VocabTab)} className="gap-4">
-        <TabsList className="grid h-12 w-full grid-cols-3 gap-1 rounded-2xl bg-muted/70 p-1">
+        <TabsList className="grid h-12 w-full grid-cols-4 gap-1 rounded-2xl bg-muted/70 p-1">
           <TabsTrigger value="daily" className={tabTrigger}>
             <CalendarDays className="h-4 w-4" aria-hidden />
             {t("tabs.daily")}
+          </TabsTrigger>
+          <TabsTrigger value="library" className={tabTrigger}>
+            <BookOpenCheck className="h-4 w-4" aria-hidden />
+            {t("tabs.library")}
           </TabsTrigger>
           <TabsTrigger value="wordbook" className={tabTrigger}>
             <BookMarked className="h-4 w-4" aria-hidden />
@@ -170,6 +175,10 @@ export default function VocabSection() {
             savingWord={savingWord}
             onGoQuiz={() => setTab("quiz")}
           />
+        </TabsContent>
+
+        <TabsContent value="library" className="mt-0">
+          <VocabLibraryTab />
         </TabsContent>
 
         <TabsContent value="wordbook" className="mt-0">

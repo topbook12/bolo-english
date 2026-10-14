@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import {
@@ -32,6 +32,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { apiGet } from "@/lib/client-api";
+import type { LibraryListeningEntry } from "@/lib/library-types";
 import { useDeviceValue } from "@/hooks/use-device";
 import SectionHeader from "@/components/shared/SectionHeader";
 import StoryPlayer, {
@@ -87,6 +89,52 @@ const CATEGORY_GRADIENTS: Record<LibraryCategory, string> = {
   inspire: "from-rose-500 to-orange-500",
 };
 
+/**
+ * Owner-authored DB story (LibraryListening row) → LibraryStory.
+ * `db:${slug}` ids keep completion tracking working (ids are just strings in
+ * the localStorage done-list). Defensive defaults keep malformed rows from
+ * breaking the whole grid: unknown category → "daily", bad quiz answer → 0.
+ */
+function dbEntryToStory(e: LibraryListeningEntry): LibraryStory | null {
+  try {
+    const d = e.data;
+    const paragraphs = Array.isArray(d.paragraphs) ? d.paragraphs : [];
+    if (paragraphs.length === 0) return null;
+    const tri = (x: { bn?: string; en?: string; hi?: string }) => ({
+      bn: x?.bn ?? "",
+      en: x?.en ?? "",
+      hi: x?.hi ?? "",
+    });
+    return {
+      id: `db:${e.slug}`,
+      level: e.level,
+      category: (LIBRARY_CATEGORIES as readonly string[]).includes(e.category)
+        ? (e.category as LibraryCategory)
+        : "daily",
+      minutes: typeof e.minutes === "number" && e.minutes > 0 ? e.minutes : 2,
+      title: tri(d.title),
+      summary: tri(d.summary),
+      paragraphs,
+      vocabulary: (Array.isArray(d.vocabulary) ? d.vocabulary : []).map((v) => ({
+        word: v.word,
+        meaning: tri(v.meaning),
+        example: v.example,
+      })),
+      quiz: (Array.isArray(d.quiz) ? d.quiz : []).map((q) => ({
+        question: tri(q.question),
+        options: (Array.isArray(q.options) ? q.options : []).map(tri),
+        answer:
+          Number.isInteger(q.answer) && q.answer >= 0 && q.answer <= 3
+            ? (q.answer as 0 | 1 | 2 | 3)
+            : 0,
+        explain: tri(q.explain),
+      })),
+    };
+  } catch {
+    return null; // one broken row must not break the whole library
+  }
+}
+
 export default function ListeningSection() {
   const t = useTranslations("listening");
   const tc = useTranslations("common");
@@ -111,11 +159,41 @@ export default function ListeningSection() {
     getDoneIdsServerSnapshot
   );
 
+  // Owner-authored DB stories — null = still loading (static stories render
+  // instantly either way; DB stories append on arrival). Errors stay graceful:
+  // the library simply remains static-only.
+  const [dbStories, setDbStories] = useState<LibraryStory[] | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    apiGet<{ items: LibraryListeningEntry[] }>("/api/library?kind=listening")
+      .then((res) => {
+        if (!alive) return;
+        const converted = (res.items ?? [])
+          .map(dbEntryToStory)
+          .filter((s): s is LibraryStory => s !== null)
+          .filter((s) => !LIBRARY_STORIES.some((x) => x.id === s.id));
+        setDbStories(converted);
+      })
+      .catch(() => {
+        if (alive) setDbStories([]); // loading finished, nothing to add
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  // Static catalog + DB stories (dedupe against static ids just in case).
+  const allStories = useMemo(
+    () => [...LIBRARY_STORIES, ...(dbStories ?? [])],
+    [dbStories]
+  );
+
   const categoryLabel = (c: LibraryCategory) => t(`library.categories.${c}`);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return LIBRARY_STORIES.filter((s) => {
+    return allStories.filter((s) => {
       if (s.level !== level) return false;
       if (category !== "all" && s.category !== category) return false;
       if (!q) return true;
@@ -125,11 +203,11 @@ export default function ListeningSection() {
         s.title.en.toLowerCase().includes(q)
       );
     });
-  }, [level, category, query, locale]);
+  }, [allStories, level, category, query, locale]);
 
   const doneCount = useMemo(
-    () => LIBRARY_STORIES.filter((s) => doneIds.includes(s.id)).length,
-    [doneIds]
+    () => allStories.filter((s) => doneIds.includes(s.id)).length,
+    [allStories, doneIds]
   );
 
   return (
@@ -234,7 +312,7 @@ export default function ListeningSection() {
                 </div>
                 <Badge variant="outline" className="justify-center gap-1.5 px-3 py-2 text-xs">
                   <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" aria-hidden />
-                  {t("library.progress", { done: doneCount, total: LIBRARY_STORIES.length })}
+                  {t("library.progress", { done: doneCount, total: allStories.length })}
                 </Badge>
               </div>
 

@@ -37,6 +37,8 @@ import { getBankQuiz } from "@/components/grammar/bank";
 interface QuizPlayerProps {
   topic: GrammarTopic;
   level: Level;
+  /** Display name for owner-created topics with no i18n key. */
+  topicName?: string;
   onBack: () => void;
   /** Fired once when the quiz is finished (for the completed-topics badge). */
   onFinished?: () => void;
@@ -57,6 +59,7 @@ function motivationKey(correct: number, total: number): string {
 export default function QuizPlayer({
   topic,
   level,
+  topicName,
   onBack,
   onFinished,
 }: QuizPlayerProps) {
@@ -145,10 +148,10 @@ export default function QuizPlayer({
     }
   };
 
-  const topicName = t(`topics.${topic.key}.name`);
+  const name = topicName ?? t(`topics.${topic.key}.name`);
   const header = (
     <HeaderRow
-      topicName={topicName}
+      topicName={name}
       topicIcon={topic.icon}
       level={level}
       quizBadge={t("quiz.badge")}

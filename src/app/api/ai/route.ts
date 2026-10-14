@@ -7,11 +7,13 @@ import { pruneAiCache } from "@/lib/ai-cache-prune";
 import type {
   CallAnalysis,
   ChatPartnerReply,
+  ContentAnswer,
   DailyWord,
   GrammarLessonContent,
   ListeningStoryContent,
   QuizQuestion,
   RealtimeCorrections,
+  SentenceCheckResult,
   TranscriptLine,
 } from "@/lib/types";
 
@@ -323,6 +325,60 @@ Return STRICT JSON:
   "betterDialogue": [ { "original": "user sentence", "improved": "native-like improved version" } ]
 }
 Scores must reflect honest assessment — be encouraging but realistic. Return ONLY the JSON.`,
+          { temperature: 0.4 }
+        );
+        return jsonOk(data);
+      }
+
+      /* ---------------- LIBRARY: SENTENCE CHECK ---------------- */
+      // Used by the owner-authored Vocabulary Library: the learner writes a
+      // sentence with a library word and asks "is my sentence correct?".
+      // This is the moment the learner's own Gemini key is consumed —
+      // BROWSING the library itself stays 100% free.
+      case "sentence-check": {
+        const word = String(payload.word ?? "").trim().slice(0, 60);
+        const sentence = String(payload.sentence ?? "").trim().slice(0, 300);
+        if (!sentence) return jsonErr(apiMsg(locale, "sentenceRequired"), 400);
+        const meaning = String(payload.meaning ?? "").trim().slice(0, 200);
+        const data = await geminiJson<SentenceCheckResult>(
+          apiKey,
+          `You are a patient English teacher. An English learner wrote a sentence using the word "${word}"${meaning ? ` (word meaning: ${meaning})` : ""}.
+Their sentence: "${sentence}"
+${lang.rule}
+Check the sentence and return STRICT JSON:
+{
+  "verdict": "correct" or "incorrect",
+  "corrected": "the corrected sentence (exactly the learner's sentence if it is already correct)",
+  "explanation": "what was right or wrong ${lang.short}, 1-3 short sentences",
+  "suggestions": ["2-3 short tips to use this word better ${lang.short}"],
+  "improved": "a more natural, advanced version of their sentence"
+}
+Rules: ignore missing capitalization of "i" only if everything else is fine — still mark verdict correct but mention it in a suggestion. If the sentence does not actually use the word "${word}", set verdict "incorrect" and say so in the explanation. Be encouraging, never harsh. Return ONLY the JSON.`,
+          { temperature: 0.3 }
+        );
+        return jsonOk(data);
+      }
+
+      /* ---------------- LIBRARY: ASK A QUESTION ---------------- */
+      // The learner is viewing FREE stored content (a library word, grammar
+      // lesson or listening story) and asks about something they did not
+      // understand. The content itself is passed in as context; only this
+      // interaction uses the learner's Gemini key.
+      case "content-ask": {
+        const question = String(payload.question ?? "").trim().slice(0, 400);
+        if (!question) return jsonErr(apiMsg(locale, "questionRequired"), 400);
+        const title = String(payload.title ?? "").trim().slice(0, 120);
+        const context = String(payload.context ?? "").trim().slice(0, 4000);
+        const data = await geminiJson<ContentAnswer>(
+          apiKey,
+          `You are a friendly English teacher on a learning site. A learner is reading this stored content:
+Title: ${title || "(library content)"}
+Content: ${context || "(no extra context)"}
+The learner asks: "${question}"
+${lang.rule}
+Answer their question clearly and simply (max ~120 words), based on the content above. If the answer is not in the content, still help — you are their teacher. If the learner asks in Bengali or Hindi, follow the language rule anyway. Return STRICT JSON:
+{ "answer": "clear answer ${lang.short} (2-6 sentences)", "bullets": ["optional 2-4 very short key points ${lang.short}"] }
+"bullets" may be an empty array. Return ONLY the JSON.`,
           { temperature: 0.4 }
         );
         return jsonOk(data);

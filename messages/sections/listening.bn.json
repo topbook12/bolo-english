@@ -63,7 +63,8 @@
       "fallbackError": "গল্পটা আনা যায়নি",
       "backToTopic": "বিষয়ে ফিরুন",
       "loadingAria": "গল্প লোড হচ্ছে",
-      "vocabTitle": "গুরুত্বপূর্ণ শব্দ"
+      "vocabTitle": "গুরুত্বপূর্ণ শব্দ",
+      "askSection": "বুঝতে সমস্যা? প্রশ্ন করুন"
     },
     "quiz": {
       "noQuestions": "এই গল্পে কোনো প্রশ্ন পাওয়া যায়নি।",

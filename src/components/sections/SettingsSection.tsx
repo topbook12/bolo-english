@@ -37,6 +37,7 @@ import SectionHeader from "@/components/shared/SectionHeader";
 import PointList from "@/components/shared/PointList";
 import StoragePoolCard from "@/components/settings/StoragePoolCard";
 import TurnPoolCard from "@/components/settings/TurnPoolCard";
+import LibraryStudioCard from "@/components/settings/LibraryStudioCard";
 import type { UserConfig as ApiUserConfig } from "@/hooks/use-device";
 
 // Labels render via tCommon("level.*") — always in the user's UI language.
@@ -376,6 +377,9 @@ export default function SettingsSection() {
 
         {/* ── Storage & Quota (site-owner pool) ── */}
         <StoragePoolCard />
+
+        {/* ── Content Studio (owner-authored library: vocab/grammar/listening) ── */}
+        <LibraryStudioCard />
 
         {/* ── Video call relay (TURN pool) ── */}
         <TurnPoolCard />

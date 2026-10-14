@@ -7,7 +7,8 @@
     "openTopic": "लेसन पढ़ें: {topic}",
     "groups": {
       "foundation": "फ़ाउंडेशन टॉपिक",
-      "advanced": "एडवांस्ड टॉपिक"
+      "advanced": "एडवांस्ड टॉपिक",
+      "library": "लाइब्रेरी पाठ"
     },
     "progress": {
       "quizzes": "क्विज़ दिए",

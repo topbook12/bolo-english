@@ -78,6 +78,27 @@ export interface TranscriptLine {
   at: number;
 }
 
+/** Result of the library "check my sentence" feature (feature: sentence-check). */
+export interface SentenceCheckResult {
+  verdict: "correct" | "incorrect";
+  /** The corrected sentence (same as the learner's if already correct). */
+  corrected: string;
+  /** What was right / wrong, in the learner's UI language. */
+  explanation: string;
+  /** 2-3 short tips to use the word better, in the UI language. */
+  suggestions: string[];
+  /** A more natural, advanced rewrite of the learner's sentence. */
+  improved: string;
+}
+
+/** Result of the library "ask a question" feature (feature: content-ask). */
+export interface ContentAnswer {
+  /** Clear answer in the learner's UI language (may contain \n). */
+  answer: string;
+  /** Optional 2-4 short key points in the UI language. */
+  bullets: string[];
+}
+
 // Feature payload map for POST /api/ai
 export type AiFeature =
   | "grammar-lesson"
@@ -88,7 +109,9 @@ export type AiFeature =
   | "vocab-quiz"
   | "chat-partner"
   | "realtime-correction"
-  | "call-analysis";
+  | "call-analysis"
+  | "sentence-check"
+  | "content-ask";
 
 export interface AiRequestBody {
   deviceId: string;

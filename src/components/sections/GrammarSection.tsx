@@ -1,10 +1,12 @@
 "use client";
 
 // GRAMMAR SECTION — topic picker → lesson view → quiz player.
-// Lessons/quizzes come from the unified /api/ai endpoint (server-cached per
-// topic+level); results are logged to /api/practice on quiz finish.
+// Lesson load order (inside LessonView): owner-authored DB lesson → static
+// bank → AI. Topics the owner authored outside the static curriculum appear
+// as an extra "Library lessons" group. Results are logged to /api/practice
+// on quiz finish.
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { BookOpenText, Check, CircleCheck, KeyRound, ListChecks, Target } from "lucide-react";
@@ -31,11 +33,12 @@ import {
   type GrammarTopic,
   type Level,
 } from "@/components/grammar/shared";
+import type { LibraryGrammarMeta } from "@/lib/library-types";
 
 type View =
   | { kind: "topics" }
-  | { kind: "lesson"; topic: GrammarTopic; level: Level }
-  | { kind: "quiz"; topic: GrammarTopic; level: Level };
+  | { kind: "lesson"; topic: GrammarTopic; level: Level; topicName?: string }
+  | { kind: "quiz"; topic: GrammarTopic; level: Level; topicName?: string };
 
 interface QuizStat {
   count: number;
@@ -69,6 +72,24 @@ export default function GrammarSection() {
   const [doneTopics, setDoneTopics] = useState<string[]>([]);
   const [quizStat, setQuizStat] = useState<QuizStat | null>(null);
 
+  // Owner-authored grammar meta (no heavy payload) — powers the extra
+  // "Library lessons" group and unlocks non-banked topics without a key.
+  const [dbTopics, setDbTopics] = useState<LibraryGrammarMeta[]>([]);
+
+  useEffect(() => {
+    if (view.kind !== "topics") return;
+    let alive = true;
+    apiGet<{ items: LibraryGrammarMeta[] }>("/api/library?kind=grammar")
+      .then((d) => {
+        if (!alive) return;
+        setDbTopics(Array.isArray(d.items) ? d.items : []);
+      })
+      .catch(() => undefined); // optional enhancement — never block the grid
+    return () => {
+      alive = false;
+    };
+  }, [view.kind]);
+
   useEffect(() => {
     if (view.kind !== "topics") return;
     let alive = true;
@@ -93,6 +114,18 @@ export default function GrammarSection() {
   const markDone = useCallback((topicId: string) => {
     setDoneTopics(saveDoneTopic(topicId));
   }, []);
+
+  // Owner topics not part of the static curriculum → extra library group.
+  const staticTopicSet = useMemo(() => new Set(TOPICS.map((tp) => tp.topic)), []);
+  const libraryTopics = useMemo(
+    () => dbTopics.filter((m) => !staticTopicSet.has(m.topic)),
+    [dbTopics, staticTopicSet]
+  );
+  // `${topic}::${level}` set — a DB lesson opens keyless, even off-bank.
+  const dbLessonKeys = useMemo(
+    () => new Set(dbTopics.map((m) => `${m.topic}::${m.level}`)),
+    [dbTopics]
+  );
 
   /* ---- config still loading ---- */
   if (!loaded) {
@@ -120,12 +153,24 @@ export default function GrammarSection() {
   const openTopic = (topic: (typeof TOPICS)[number]) => {
     // Static bank lessons open instantly with NO key — foundation×beginner
     // and advanced×advanced are stored in this site's own source (bn/en/hi).
-    // Only non-banked combos (intermediate etc.) need the AI key.
-    if (!getBankLesson(topic.topic, level, locale) && !hasKey) {
+    // Owner-authored DB lessons (any topic/level) also open keyless. Only
+    // combos with neither bank nor DB content need the AI key.
+    const hasDb = dbLessonKeys.has(`${topic.topic}::${level}`);
+    if (!getBankLesson(topic.topic, level, locale) && !hasDb && !hasKey) {
       toast({ title: t("noKey.title"), description: t("noKey.body") });
       return;
     }
     setView({ kind: "lesson", topic, level });
+  };
+
+  /** Open an owner-made topic card (no i18n key — title comes from the DB). */
+  const openLibraryTopic = (meta: LibraryGrammarMeta) => {
+    setView({
+      kind: "lesson",
+      topic: { topic: meta.topic, key: meta.topic, icon: BookOpenText },
+      level: meta.level,
+      topicName: meta.title,
+    });
   };
 
   /* ---- lesson ---- */
@@ -134,8 +179,11 @@ export default function GrammarSection() {
       <LessonView
         topic={view.topic}
         level={view.level}
+        topicName={view.topicName}
         onBack={() => setView({ kind: "topics" })}
-        onStartQuiz={() => setView({ kind: "quiz", topic: view.topic, level: view.level })}
+        onStartQuiz={() =>
+          setView({ kind: "quiz", topic: view.topic, level: view.level, topicName: view.topicName })
+        }
       />
     );
   }
@@ -146,6 +194,7 @@ export default function GrammarSection() {
       <QuizPlayer
         topic={view.topic}
         level={view.level}
+        topicName={view.topicName}
         onBack={() => setView({ kind: "topics" })}
         onFinished={() => markDone(view.topic.topic)}
       />
@@ -282,6 +331,56 @@ export default function GrammarSection() {
             </div>
           );
         })}
+
+        {/* Owner-authored topics outside the static curriculum — same card
+            markup, emerald/teal accent (GROUP_ACCENT.foundation), DB title. */}
+        {libraryTopics.length > 0 && (
+          <div className="animate-fade-in-up-1">
+            <div className="mb-2.5 flex items-center gap-2.5">
+              <span
+                className={cn(
+                  "h-4 w-1 rounded-full bg-gradient-to-b",
+                  GROUP_ACCENT.foundation.bar
+                )}
+                aria-hidden
+              />
+              <h2 className="text-sm font-bold tracking-tight">
+                {t("groups.library")}
+              </h2>
+              <span
+                className={cn(
+                  "rounded-full px-2 py-0.5 text-[11px] font-semibold",
+                  GROUP_ACCENT.foundation.chip
+                )}
+              >
+                {fmt(libraryTopics.length)}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+              {libraryTopics.map((meta) => (
+                <button
+                  key={meta.id}
+                  type="button"
+                  onClick={() => openLibraryTopic(meta)}
+                  className="group relative text-left"
+                  aria-label={t("openTopic", { topic: meta.title })}
+                >
+                  <div className="premium-card h-full rounded-2xl bg-card p-4">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-sm">
+                      <BookOpenText className="h-5 w-5" aria-hidden />
+                    </span>
+                    <span className="mt-2.5 block text-sm font-semibold leading-snug">
+                      {meta.title}
+                    </span>
+                    <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
+                      {tc(`level.${meta.level}`)}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
 
       <HowItWorksCard />

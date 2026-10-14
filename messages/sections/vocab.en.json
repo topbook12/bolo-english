@@ -5,7 +5,8 @@
     "tabs": {
       "daily": "Daily Words",
       "wordbook": "Wordbook",
-      "quiz": "Quiz"
+      "quiz": "Quiz",
+      "library": "Word library"
     },
     "aria": {
       "section": "Vocabulary",
@@ -88,6 +89,27 @@
       "deleteFailed": "Couldn’t delete the word",
       "undo": "Undo",
       "undoDone": "“{word}” is back in your wordbook ⭐"
+    },
+    "lib": {
+      "search": "Search a word or meaning…",
+      "searchAria": "Search the word library",
+      "count": "{n} words",
+      "levelAria": "Choose level",
+      "pickHint": "Pick a word from the list to see details, examples and practice tools.",
+      "closeAria": "Close word details",
+      "error": {
+        "title": "Couldn’t load the library words"
+      },
+      "empty": {
+        "title": "No words here yet",
+        "body": "No words have been added for this level yet — try another level or come back soon."
+      },
+      "meaningLabel": "Meaning",
+      "englishLabel": "In English",
+      "examplesLabel": "Examples",
+      "tipLabel": "Usage tip",
+      "synonymsLabel": "Similar:",
+      "antonymsLabel": "Opposite:"
     }
   }
 }

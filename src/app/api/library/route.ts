@@ -1,0 +1,261 @@
+import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { reqLocale, apiMsg } from "@/lib/api-i18n";
+import {
+  isLibraryLevel,
+  type LibraryListeningData,
+  type LibraryVocabData,
+  type LibraryGrammarData,
+} from "@/lib/library-types";
+
+export const runtime = "nodejs";
+
+/* ── Owner-authored Library API ──────────────────────────────────────────
+ * GET    /api/library?kind=vocab|grammar|listening  → public, ZERO keys.
+ *          Learners browse everything free — no Gemini key, no login.
+ * POST   /api/library   → admin upsert (Content Studio), x-admin-token.
+ * DELETE /api/library?kind=&id= → admin delete, x-admin-token.
+ *
+ * Admin token: ADMIN_TOKEN env, falling back to STORAGE_ADMIN_TOKEN so the
+ * owner only ever configures ONE token for all admin cards.
+ * ─────────────────────────────────────────────────────────────────────── */
+
+function jsonOk(data: unknown) {
+  return NextResponse.json({ ok: true, data });
+}
+function jsonErr(message: string, status = 500) {
+  return NextResponse.json({ ok: false, error: message }, { status });
+}
+
+function authorized(req: NextRequest): boolean {
+  const token = process.env.ADMIN_TOKEN || process.env.STORAGE_ADMIN_TOKEN;
+  if (!token) return false; // locked until the owner configures a token
+  return req.headers.get("x-admin-token") === token;
+}
+
+type LibraryKind = "vocab" | "grammar" | "listening";
+
+function parseKind(raw: string | null): LibraryKind | null {
+  return raw === "vocab" || raw === "grammar" || raw === "listening" ? raw : null;
+}
+
+/** Minimal structural guard — the Content Studio validates deeply client-side. */
+function looksValidData(kind: LibraryKind, d: unknown): boolean {
+  if (!d || typeof d !== "object") return false;
+  const o = d as Record<string, unknown>;
+  if (kind === "vocab") {
+    const v = o as Partial<LibraryVocabData>;
+    return typeof v.meaning === "object" && !!v.meaning;
+  }
+  if (kind === "grammar") {
+    const g = o as Partial<LibraryGrammarData>;
+    return (
+      typeof g.title === "object" &&
+      !!g.title &&
+      Array.isArray(g.sections) &&
+      g.sections.length > 0
+    );
+  }
+  const l = o as Partial<LibraryListeningData>;
+  return (
+    typeof l.title === "object" &&
+    !!l.title &&
+    Array.isArray(l.paragraphs) &&
+    l.paragraphs.length > 0
+  );
+}
+
+function slugify(input: string): string {
+  const base = input
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .slice(0, 60);
+  return base || `story-${Date.now().toString(36)}`;
+}
+
+export async function GET(req: NextRequest) {
+  const locale = reqLocale(req);
+  const kind = parseKind(req.nextUrl.searchParams.get("kind"));
+  if (!kind) return jsonErr(apiMsg(locale, "libraryKindInvalid"), 400);
+
+  const level = req.nextUrl.searchParams.get("level");
+  const levelFilter = level && isLibraryLevel(level) ? { level } : undefined;
+
+  try {
+    if (kind === "vocab") {
+      const q = (req.nextUrl.searchParams.get("q") ?? "").trim().toLowerCase();
+      const rows = await db.libraryVocab.findMany({
+        where: levelFilter,
+        orderBy: [{ sortOrder: "asc" }, { word: "asc" }],
+        take: 1000,
+      });
+      const items = rows
+        .map((r) => ({
+          id: r.id,
+          word: r.word,
+          level: r.level,
+          category: r.category,
+          data: JSON.parse(r.data) as LibraryVocabData,
+        }))
+        .filter(
+          (it) =>
+            !q ||
+            it.word.toLowerCase().includes(q) ||
+            (it.data.englishMeaning ?? "").toLowerCase().includes(q)
+        );
+      return jsonOk({ items });
+    }
+
+    if (kind === "grammar") {
+      const topic = req.nextUrl.searchParams.get("topic");
+      // Single full entry (for the lesson view)
+      if (topic) {
+        const lv = level && isLibraryLevel(level) ? level : undefined;
+        const row = await db.libraryGrammar.findFirst({
+          where: { topic, ...(lv ? { level: lv } : {}) },
+          orderBy: { sortOrder: "asc" },
+        });
+        if (!row) return jsonOk({ items: [] });
+        return jsonOk({
+          items: [
+            {
+              id: row.id,
+              topic: row.topic,
+              level: row.level,
+              title: row.title,
+              data: JSON.parse(row.data) as LibraryGrammarData,
+            },
+          ],
+        });
+      }
+      // Meta list (for topic grids)
+      const rows = await db.libraryGrammar.findMany({
+        where: levelFilter,
+        orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
+        take: 500,
+      });
+      return jsonOk({
+        items: rows.map((r) => ({
+          id: r.id,
+          topic: r.topic,
+          level: r.level,
+          title: r.title,
+        })),
+      });
+    }
+
+    // listening
+    const rows = await db.libraryListening.findMany({
+      where: levelFilter,
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+      take: 500,
+    });
+    return jsonOk({
+      items: rows.map((r) => ({
+        id: r.id,
+        slug: r.slug,
+        level: r.level,
+        category: r.category,
+        minutes: r.minutes,
+        data: JSON.parse(r.data) as LibraryListeningData,
+      })),
+    });
+  } catch {
+    return jsonErr(apiMsg(locale, "dbConnectFailed"), 503);
+  }
+}
+
+export async function POST(req: NextRequest) {
+  const locale = reqLocale(req);
+  if (!authorized(req)) {
+    return jsonErr(apiMsg(locale, "libraryAdminRequired"), 403);
+  }
+  const body = await req.json().catch(() => null);
+  const kind = parseKind(body?.kind ?? null);
+  const entry = body?.entry;
+  if (!kind) return jsonErr(apiMsg(locale, "libraryKindInvalid"), 400);
+  if (!entry || typeof entry !== "object") {
+    return jsonErr(apiMsg(locale, "libraryEntryRequired"), 400);
+  }
+
+  const data = entry.data;
+  if (!looksValidData(kind, data)) {
+    return jsonErr(apiMsg(locale, "libraryDataInvalid"), 400);
+  }
+  const dataJson = JSON.stringify(data);
+  const sortOrder = Number.isFinite(Number(entry.sortOrder)) ? Number(entry.sortOrder) : 0;
+
+  try {
+    if (kind === "vocab") {
+      const word = String(entry.word ?? "").trim().slice(0, 60);
+      if (!word) return jsonErr(apiMsg(locale, "libraryWordRequired"), 400);
+      const level = isLibraryLevel(entry.level) ? entry.level : "beginner";
+      const category = String(entry.category ?? "general").slice(0, 30);
+      const row = await db.libraryVocab.upsert({
+        where: { word_level: { word, level } },
+        create: { word, level, category, data: dataJson, sortOrder },
+        update: { category, data: dataJson, sortOrder },
+      });
+      return jsonOk({ id: row.id });
+    }
+
+    if (kind === "grammar") {
+      const topic = String(entry.topic ?? "").trim().slice(0, 80);
+      const title = String(entry.title ?? "").trim().slice(0, 120);
+      if (!topic || !title) {
+        return jsonErr(apiMsg(locale, "libraryTopicRequired"), 400);
+      }
+      const level = isLibraryLevel(entry.level) ? entry.level : "beginner";
+      const row = await db.libraryGrammar.upsert({
+        where: { topic_level: { topic, level } },
+        create: { topic, level, title, data: dataJson, sortOrder },
+        update: { title, data: dataJson, sortOrder },
+      });
+      return jsonOk({ id: row.id });
+    }
+
+    // listening
+    const titleEn = String(data?.title?.en ?? data?.title?.bn ?? "").trim();
+    const slug = slugify(String(entry.slug ?? "") || titleEn);
+    const level = isLibraryLevel(entry.level) ? entry.level : "beginner";
+    const category = String(entry.category ?? "daily").slice(0, 30);
+    const minutes = Math.max(1, Math.min(60, Number(entry.minutes ?? 2) || 2));
+    const row = await db.libraryListening.upsert({
+      where: { slug },
+      create: { slug, level, category, minutes, data: dataJson, sortOrder },
+      update: { level, category, minutes, data: dataJson, sortOrder },
+    });
+    return jsonOk({ id: row.id });
+  } catch {
+    return jsonErr(apiMsg(locale, "dbConnectFailed"), 503);
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  const locale = reqLocale(req);
+  if (!authorized(req)) {
+    return jsonErr(apiMsg(locale, "libraryAdminRequired"), 403);
+  }
+  const kind = parseKind(req.nextUrl.searchParams.get("kind"));
+  const id = (req.nextUrl.searchParams.get("id") ?? "").trim();
+  if (!kind) return jsonErr(apiMsg(locale, "libraryKindInvalid"), 400);
+  if (!id) return jsonErr(apiMsg(locale, "libraryIdRequired"), 400);
+
+  try {
+    if (kind === "vocab") {
+      const row = await db.libraryVocab.delete({ where: { id } }).catch(() => null);
+      if (!row) return jsonErr(apiMsg(locale, "libraryNotFound"), 404);
+    } else if (kind === "grammar") {
+      const row = await db.libraryGrammar.delete({ where: { id } }).catch(() => null);
+      if (!row) return jsonErr(apiMsg(locale, "libraryNotFound"), 404);
+    } else {
+      const row = await db.libraryListening.delete({ where: { id } }).catch(() => null);
+      if (!row) return jsonErr(apiMsg(locale, "libraryNotFound"), 404);
+    }
+    return jsonOk({ deleted: id });
+  } catch {
+    return jsonErr(apiMsg(locale, "dbConnectFailed"), 503);
+  }
+}

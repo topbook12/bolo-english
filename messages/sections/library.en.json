@@ -1,0 +1,36 @@
+{
+  "library": {
+    "freeBadge": "Free",
+    "freeNote": "Reading the library is 100% free — your Gemini key is used only when you ask or check something.",
+    "ask": {
+      "aria": "Ask a question about this content",
+      "title": "Ask a question",
+      "subtitle": "Didn't understand something? Ask here — the teacher answers in your language.",
+      "placeholder": "e.g. Can you explain this more simply?",
+      "send": "Ask",
+      "sending": "Asking…",
+      "needKeyTitle": "Asking needs your Gemini key",
+      "needKeyBody": "Reading stays free. Add your free key in Settings → AI key to ask questions.",
+      "answerTitle": "Answer",
+      "errorTitle": "Could not get an answer"
+    },
+    "check": {
+      "aria": "Check whether your sentence is correct",
+      "title": "Check my sentence",
+      "subtitle": "Write your own sentence with this word — see if it is correct and how to improve it.",
+      "placeholder": "e.g. I go to school everyday.",
+      "send": "Check",
+      "sending": "Checking…",
+      "needKeyTitle": "Checking needs your Gemini key",
+      "needKeyBody": "Reading stays free. Add your free key in Settings → AI key to check sentences.",
+      "verdictCorrect": "Your sentence is correct!",
+      "verdictWrong": "Almost — let's fix it",
+      "correctedLabel": "Corrected sentence",
+      "explanationLabel": "Why",
+      "suggestionsLabel": "Tips for this word",
+      "improvedLabel": "Even better version",
+      "emptySentence": "Write a sentence first.",
+      "errorTitle": "Could not check the sentence"
+    }
+  }
+}

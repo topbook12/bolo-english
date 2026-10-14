@@ -43,6 +43,7 @@ import { cn } from "@/lib/utils";
 import { callAi } from "@/lib/client-api";
 import type { ListeningStoryContent } from "@/lib/types";
 import EmptyState from "@/components/shared/EmptyState";
+import LibraryAskBox from "@/components/library/AskBox";
 import QuizPlayer, { useDigits } from "@/components/listening/QuizPlayer";
 import { markStoryDone, toStoryContent } from "@/components/listening/library";
 import { pickLang, type LibraryStory } from "@/components/listening/types";
@@ -125,6 +126,28 @@ export default function StoryPlayer({
   // Library story wins when present; otherwise the AI-loaded story is used.
   const story: ListeningStoryContent | null =
     libraryContent ?? (loadState.status === "ready" ? loadState.story : null);
+
+  // ---- "Ask a question" AI box context (both library + AI stories) ----
+  // English paragraphs are the skill content; summary + vocabulary meanings
+  // are pre-localized so the teacher answers in the learner's language.
+  // askSection heading comes from listening.player.askSection.
+  const askContext = useMemo(() => {
+    if (!story) return "";
+    const paras = Array.isArray(story.story) ? story.story : [];
+    const parts = [
+      `Paragraphs (English):\n${paras.join("\n\n")}`,
+      `Summary (${locale}): ${story.banglaSummary}`,
+    ];
+    const vocab = libraryStory?.vocabulary ?? [];
+    if (vocab.length > 0) {
+      parts.push(
+        `Vocabulary: ${vocab
+          .map((v) => `${v.word} = ${pickLang(v.meaning, locale)}`)
+          .join("; ")}`
+      );
+    }
+    return parts.join("\n\n").slice(0, 3500);
+  }, [story, libraryStory, locale]);
 
   const cancelSpeech = useCallback(() => {
     speechRef.current.stopped = true;
@@ -517,6 +540,13 @@ export default function StoryPlayer({
             </CollapsibleContent>
           </Collapsible>
         </div>
+
+        {/* কিছু বুঝতে সমস্যা? — AI শিক্ষককে প্রশ্ন করুন (AskBox নিজেই deviceId/
+           কী-পলিসি সামলায়; লাইব্রেরি ও AI দুই গল্পেই কাজ করে) */}
+        <section aria-label={t("askSection")} className="space-y-2">
+          <p className="text-sm font-semibold">{t("askSection")}</p>
+          <LibraryAskBox compact title={story.title} context={askContext} className="mt-1" />
+        </section>
       </div>
     );
   }

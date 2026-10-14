@@ -63,7 +63,8 @@
       "fallbackError": "Couldn't fetch the story",
       "backToTopic": "Back to topic",
       "loadingAria": "Loading story",
-      "vocabTitle": "Key words"
+      "vocabTitle": "Key words",
+      "askSection": "Something unclear? Ask"
     },
     "quiz": {
       "noQuestions": "No questions were found for this story.",
