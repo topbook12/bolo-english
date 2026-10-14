@@ -314,9 +314,9 @@ const M = {
 
   /* ── library (owner-authored content) ── */
   libraryAdminRequired: {
-    en: "Admin token missing or wrong — set ADMIN_TOKEN (or STORAGE_ADMIN_TOKEN) and try again.",
-    bn: "অ্যাডমিন টোকেন নেই বা ভুল — ADMIN_TOKEN (অথবা STORAGE_ADMIN_TOKEN) সেট করে আবার চেষ্টা করুন।",
-    hi: "एडमिन टोकन गायब या गलत — ADMIN_TOKEN (या STORAGE_ADMIN_TOKEN) सेट करें और फिर कोशिश करें।",
+    en: "Admin token missing or wrong — open Settings and paste the owner token in Library content studio.",
+    bn: "অ্যাডমিন টোকেন নেই বা ভুল — Settings-এ গিয়ে Library content studio-তে মালিকের টোকেন দিন।",
+    hi: "एडमिन टोकन गायब या गलत — Settings में Library content studio में मालिक का टोकन डालें।",
   },
   libraryKindInvalid: {
     en: "Unknown library kind — use vocab, grammar or listening.",

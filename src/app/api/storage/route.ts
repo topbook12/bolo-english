@@ -9,6 +9,7 @@ import {
   testAccount,
 } from "@/lib/storage-pool";
 import { aiCacheStats, dbTableStats } from "@/lib/ai-cache-prune";
+import { isAdminToken, adminAvailable } from "@/lib/admin-auth";
 
 // Site-owner admin API for the zero-cost storage pool + quota dashboard.
 //
@@ -19,9 +20,7 @@ import { aiCacheStats, dbTableStats } from "@/lib/ai-cache-prune";
 export const runtime = "nodejs";
 
 function authorized(req: NextRequest): boolean {
-  const token = process.env.STORAGE_ADMIN_TOKEN;
-  if (!token) return false; // locked unless the owner configured a token
-  return req.headers.get("x-admin-token") === token;
+  return isAdminToken(req.headers.get("x-admin-token"));
 }
 
 function jsonErr(locale: ApiLocale, key: ApiMsgKey, status: number) {
@@ -46,7 +45,7 @@ export async function GET(req: NextRequest) {
   });
   const [cache, tables] = await Promise.all([aiCacheStats(), dbTableStats()]);
   return NextResponse.json({
-    adminConfigured: Boolean(process.env.STORAGE_ADMIN_TOKEN),
+    adminConfigured: adminAvailable(),
     accounts: accounts.map((a) => ({
       ...a,
       endpoint: maskUrl(a.endpoint),

@@ -7,6 +7,7 @@ import {
   setActiveTurn,
   testTurnKey,
 } from "@/lib/turn-pool";
+import { isAdminToken, adminAvailable } from "@/lib/admin-auth";
 
 // Site-owner admin API for the TURN relay pool (Cloudflare Realtime keys).
 // Same guard as /api/storage: header x-admin-token must equal the
@@ -15,9 +16,7 @@ import {
 export const runtime = "nodejs";
 
 function authorized(req: NextRequest): boolean {
-  const token = process.env.STORAGE_ADMIN_TOKEN;
-  if (!token) return false;
-  return req.headers.get("x-admin-token") === token;
+  return isAdminToken(req.headers.get("x-admin-token"));
 }
 
 function jsonErr(locale: ApiLocale, key: ApiMsgKey, status: number) {
@@ -28,7 +27,7 @@ export async function GET(req: NextRequest) {
   const locale = reqLocale(req);
   const keys = await listTurnKeys().catch(() => []);
   return NextResponse.json({
-    adminConfigured: Boolean(process.env.STORAGE_ADMIN_TOKEN),
+    adminConfigured: adminAvailable(),
     keys,
     envKeyConfigured: Boolean(
       process.env.CF_TURN_KEY_ID && process.env.CF_TURN_API_TOKEN

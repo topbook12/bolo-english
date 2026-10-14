@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { reqLocale, apiMsg } from "@/lib/api-i18n";
+import { isAdminToken } from "@/lib/admin-auth";
+import { ensureLibrary } from "@/lib/library-bootstrap";
 import {
   isLibraryLevel,
   type LibraryListeningData,
@@ -16,8 +18,11 @@ export const runtime = "nodejs";
  * POST   /api/library   → admin upsert (Content Studio), x-admin-token.
  * DELETE /api/library?kind=&id= → admin delete, x-admin-token.
  *
- * Admin token: ADMIN_TOKEN env, falling back to STORAGE_ADMIN_TOKEN so the
- * owner only ever configures ONE token for all admin cards.
+ * Admin token: src/lib/admin-auth.ts — ADMIN_TOKEN/STORAGE_ADMIN_TOKEN env
+ * or the shipped owner-token hash, so ONE token unlocks all admin cards.
+ * Every handler first runs ensureLibrary(): creates the tables when the
+ * production DB predates the Library models and seeds the starter content
+ * once — the owner never runs db:push or a seed script.
  * ─────────────────────────────────────────────────────────────────────── */
 
 function jsonOk(data: unknown) {
@@ -28,9 +33,7 @@ function jsonErr(message: string, status = 500) {
 }
 
 function authorized(req: NextRequest): boolean {
-  const token = process.env.ADMIN_TOKEN || process.env.STORAGE_ADMIN_TOKEN;
-  if (!token) return false; // locked until the owner configures a token
-  return req.headers.get("x-admin-token") === token;
+  return isAdminToken(req.headers.get("x-admin-token"));
 }
 
 type LibraryKind = "vocab" | "grammar" | "listening";
@@ -82,6 +85,9 @@ export async function GET(req: NextRequest) {
 
   const level = req.nextUrl.searchParams.get("level");
   const levelFilter = level && isLibraryLevel(level) ? { level } : undefined;
+
+  // Self-bootstrap: create tables + one-time seed when missing.
+  await ensureLibrary(kind);
 
   try {
     if (kind === "vocab") {
@@ -179,6 +185,7 @@ export async function POST(req: NextRequest) {
   if (!entry || typeof entry !== "object") {
     return jsonErr(apiMsg(locale, "libraryEntryRequired"), 400);
   }
+  await ensureLibrary(kind);
 
   const data = entry.data;
   if (!looksValidData(kind, data)) {
@@ -242,6 +249,7 @@ export async function DELETE(req: NextRequest) {
   const id = (req.nextUrl.searchParams.get("id") ?? "").trim();
   if (!kind) return jsonErr(apiMsg(locale, "libraryKindInvalid"), 400);
   if (!id) return jsonErr(apiMsg(locale, "libraryIdRequired"), 400);
+  await ensureLibrary(kind);
 
   try {
     if (kind === "vocab") {
