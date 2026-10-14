@@ -308,7 +308,11 @@ export default function CallRoom({
               stream={p.stream}
               name={p.name}
               selfSuffix={t("selfSuffix")}
-              connectingLabel={t("connecting")}
+              connectingLabel={
+                p.connectionState === "new" || p.connectionState === "connecting"
+                  ? t("connecting")
+                  : t("reconnecting")
+              }
               isConnecting={p.connectionState !== "connected"}
             />
           ))}
@@ -316,7 +320,7 @@ export default function CallRoom({
         {/* live caption overlay (text-shadow via .caption-text) */}
         {captionsOpen && lastCaption && (
           <div className="pointer-events-none absolute inset-x-4 bottom-4 z-10">
-            <p className="caption-text mx-auto max-w-lg rounded-xl bg-black/65 px-4 py-2 text-center text-sm font-medium text-white backdrop-blur-sm">
+            <p className="caption-text mx-auto max-w-lg rounded-xl bg-black/65 px-4 py-2 text-center text-sm font-medium text-white backdrop-blur-sm lg:max-w-2xl">
               <span className="font-semibold text-emerald-300">{lastCaption.speaker}: </span>
               {lastCaption.text}
             </p>

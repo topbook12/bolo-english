@@ -11,6 +11,15 @@ import { db } from "./db";
 // (Chrome throttles timers); the client heartbeats whenever >45s elapsed, so
 // an alive caller always refreshes well inside this window.
 export const STALE_ROOM_MS = 180_000;
+
+// A participant that has not polled for this long is considered gone (killed
+// tab, crashed app, lost network — cases where the client never managed to
+// POST /leave). The poll route prunes such peers from the roster and
+// broadcasts a "bye" so every remaining caller drops their video tile
+// immediately. 150s is safely above the ~60s worst-case background-tab poll
+// gap, so a live (throttled) caller is never wrongly dropped.
+export const STALE_PARTICIPANT_MS = 150_000;
+
 // Offers/answers with large ICE candidate lists can reach ~40 KB of SDP.
 export const MAX_MESSAGE_BYTES = 64_000;
 
@@ -19,6 +28,14 @@ export interface RoomParticipant {
   name: string;
   deviceId: string;
   joinedAt: number;
+  /** Last time this peer polled (set by /poll). Optional for rooms created
+   *  before the field existed — those fall back to joinedAt. */
+  lastSeenAt?: number;
+}
+
+/** Best-known proof of life for a participant. */
+export function participantLastSeen(p: RoomParticipant): number {
+  return typeof p.lastSeenAt === "number" && p.lastSeenAt > 0 ? p.lastSeenAt : p.joinedAt;
 }
 
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";

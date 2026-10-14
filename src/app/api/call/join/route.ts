@@ -9,6 +9,7 @@ import {
   serializeParticipants,
   pruneStaleRooms,
   findQuickRoom,
+  type RoomParticipant,
 } from "@/lib/signaling";
 
 export const dynamic = "force-dynamic";
@@ -72,6 +73,13 @@ export async function POST(req: NextRequest) {
       if (!room) {
         // create new room
         const newCode = await allocateCode();
+        const me: RoomParticipant = {
+          peerId,
+          name,
+          deviceId,
+          joinedAt: Date.now(),
+          lastSeenAt: Date.now(),
+        };
         room = await db.callRoom.create({
           data: {
             code: newCode,
@@ -80,9 +88,7 @@ export async function POST(req: NextRequest) {
             hostPeerId: peerId,
             status: "open",
             maxPeers,
-            participants: serializeParticipants([
-              { peerId, name, deviceId, joinedAt: Date.now() },
-            ]),
+            participants: serializeParticipants([me]),
           },
         });
         return respond(room.id, room.code, peerId, intent, [
@@ -99,7 +105,7 @@ export async function POST(req: NextRequest) {
         const participants = parseParticipants(fresh.participants);
         if (participants.length >= fresh.maxPeers) return "full" as const;
         if (participants.some((p) => p.deviceId === deviceId)) return "already" as const;
-        participants.push({ peerId, name, deviceId, joinedAt: Date.now() });
+        participants.push({ peerId, name, deviceId, joinedAt: Date.now(), lastSeenAt: Date.now() });
         await tx.callRoom.update({
           where: { id: fresh.id },
           data: { participants: serializeParticipants(participants) },

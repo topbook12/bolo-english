@@ -101,7 +101,10 @@ export function useWebRTC({ onSendSignal, getMyId }: UseWebRTCOpts) {
     if (!mediaInitRef.current) {
       mediaInitRef.current = (async () => {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
+          // 720p ideal: on laptop/desktop the call tiles are large, so 640×480
+          // looked soft. Chrome's bandwidth estimation downscales the sender
+          // automatically on weak mobile links, so this stays safe there too.
+          video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
           audio: { echoCancellation: true, noiseSuppression: true },
         });
         localStreamRef.current = stream;

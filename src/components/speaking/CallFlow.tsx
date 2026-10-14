@@ -121,6 +121,10 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
   deviceIdRef.current = deviceId;
   const modeRef = useRef(mode);
   modeRef.current = mode;
+  const durationRef = useRef(0);
+  durationRef.current = duration;
+  const oneToOneRef = useRef(intent === "one");
+  oneToOneRef.current = intent === "one";
 
   const recStopRef = useRef<() => void>(() => null);
   const cleanupRef = useRef<() => void>(() => null);
@@ -339,6 +343,32 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
     return () => clearInterval(iv);
   }, [mode]);
 
+  /* ── 1:1 auto-end when the partner leaves ──
+   * In a quick-match call the partner's presence is guaranteed, so an empty
+   * roster mid-call means they ended the call (or their client died and the
+   * server pruned them). Give signaling ~3s to settle (bye + roster update
+   * can arrive a poll apart), then end the call here too — the user lands on
+   * the normal ended screen with the AI analysis option instead of staring
+   * at an empty "live" room. Group calls keep the room open for the host. */
+  useEffect(() => {
+    if (mode !== "call" || !oneToOneRef.current) return;
+    if (webrtc.remotePeers.length > 0) return;
+    const timer = setTimeout(() => {
+      if (modeRef.current !== "call") return;
+      recStopRef.current();
+      clientRef.current?.leave();
+      clientRef.current = null;
+      cleanupRef.current();
+      setEndedInfo({
+        durationSec: durationRef.current,
+        partnerCount: 0,
+        type: callTypeRef.current,
+      });
+      setMode("ended");
+    }, 3_000);
+    return () => clearTimeout(timer);
+  }, [mode, webrtc.remotePeers.length]);
+
   /* ── live AI correction loop (first check @12s, then every 30s) ── */
   useEffect(() => {
     if (!liveCorrection || mode !== "call" || !hasKey) return;
@@ -493,7 +523,7 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
 
   if (mode === "call") {
     return (
-      <div className="mx-auto max-w-3xl space-y-3">
+      <div className="mx-auto max-w-3xl space-y-3 lg:max-w-6xl">
         <CallRoom
           localStream={webrtc.localStream}
           remotePeers={webrtc.remotePeers}

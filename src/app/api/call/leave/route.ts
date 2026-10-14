@@ -16,6 +16,13 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    /* The transaction does ONLY the roster change. Appending the "bye" used
+     * to run INSIDE the transaction on the global Prisma client while the
+     * transaction itself held the SQLite write lock — a self-deadlock that
+     * timed out, rolled back the participant removal (leaver stayed in the
+     * roster forever) yet still wrote the bye on the outer connection. That
+     * kept a frozen video tile on every remaining caller's screen. */
+    let byePending = false;
     await db.$transaction(async (tx) => {
       const room = await tx.callRoom.findUnique({ where: { id: roomId } });
       if (!room) return;
@@ -29,12 +36,17 @@ export async function POST(req: NextRequest) {
           where: { id: roomId },
           data: { participants: serializeParticipants(participants) },
         });
-        // tell the others immediately
-        await appendSignalMessage(roomId, peerId, null, "bye", { peerId });
+        byePending = true;
       }
     });
+    // After commit — the write lock is released, so this insert cannot
+    // deadlock. The poll-route staleness prune is the safety net if the
+    // process dies before it runs.
+    if (byePending) {
+      await appendSignalMessage(roomId, peerId, null, "bye", { peerId });
+    }
   } catch {
-    /* leave is best-effort; the heartbeat pruner will clean the room up */
+    /* leave is best-effort; the poll-route staleness prune cleans the roster up */
   }
   return NextResponse.json({ ok: true });
 }
