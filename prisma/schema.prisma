@@ -145,6 +145,22 @@ model StorageObject {
   createdAt  DateTime @default(now())
 }
 
+// ─── Video-call relay (TURN) pool ───
+// Each Cloudflare account gives 1 TB/month of free TURN relay. The owner can
+// register several TURN keys (keyId + API token, encrypted); /api/call/ice
+// mints short-lived credentials from the active key and fails over to the
+// next one when a key errors or its quota runs out.
+model TurnKey {
+  id           String   @id @default(cuid())
+  label        String // e.g. "Cloudflare account 1 (billowing-lab-0d65)"
+  keyId        String // Cloudflare TURN Token ID
+  apiTokenEnc  String // Cloudflare TURN API token (AES-256-GCM)
+  status       String   @default("active") // active | exhausted | disabled
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
 model SignalMessage {
   id        Int      @id @default(autoincrement())
   roomId    String

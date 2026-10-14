@@ -1,0 +1,29 @@
+{
+  "turn": {
+    "title": "वीडियो कॉल रिले (TURN)",
+    "subtitle": "कड़े नेटवर्क पर भी कॉल जुड़े — हर Cloudflare अकाउंट माह में 1 TB मुफ़्त देता है",
+    "poolSub": "हर अकाउंट की TURN Token ID + API token यहाँ जोड़ें; एक की कोटा खत्म होने पर अगला अपने आप चालू हो जाएगा — चाहें तो हाथ से भी बदलें",
+    "envNote": "Vercel पर सेट की (CF_TURN_KEY_ID + CF_TURN_API_TOKEN) अपने आप उपयोग होती है।",
+    "empty": "पूल में अभी कोई TURN key नहीं।",
+    "active": "चालू",
+    "exhausted": "भर गया",
+    "disabled": "बंद",
+    "test": "टेस्ट",
+    "activate": "यही उपयोग करें",
+    "disable": "रोकें",
+    "del": "हटाएँ",
+    "rotate": "अगले पर जाएँ",
+    "add": "की जोड़ें",
+    "addField": {
+      "label": "नाम (जैसे Cloudflare account 1)",
+      "keyId": "TURN Token ID",
+      "apiToken": "API token"
+    },
+    "token": "एडमिन टोकन",
+    "tokenHint": "Vercel के STORAGE_ADMIN_TOKEN एनवायरनमेंट वेरिएबल जैसा ही मान",
+    "needToken": "पहले एडमिन टोकन डालें।",
+    "ok": "सफल",
+    "probeOk": "की सत्यापित — क्रेडेंशियल बने",
+    "probeFail": "की विफल"
+  }
+}

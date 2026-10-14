@@ -1,0 +1,29 @@
+{
+  "turn": {
+    "title": "ভিডিও কল রিলে (TURN)",
+    "subtitle": "কড়া নেটওয়ার্কেও কল যাতে সংযোগ হয় — প্রতিটি Cloudflare অ্যাকাউন্ট দেয় মাসে ১ TB ফ্রি",
+    "poolSub": "প্রতিটি অ্যাকাউন্টের TURN Token ID + API token এখানে যোগ করুন; একটির কোটা শেষ হলে পরেরটি নিজে থেকেই চালু হবে — চাইলে হাতেও বদলাতে পারবেন",
+    "envNote": "Vercel-এ সেট করা কী (CF_TURN_KEY_ID + CF_TURN_API_TOKEN) নিজে থেকেই ব্যবহৃত হয়।",
+    "empty": "পুলে এখনো কোনো TURN কী নেই।",
+    "active": "চালু",
+    "exhausted": "ভরে গেছে",
+    "disabled": "বন্ধ",
+    "test": "টেস্ট",
+    "activate": "এটি ব্যবহার করুন",
+    "disable": "বিরতি",
+    "del": "সরান",
+    "rotate": "পরেরটিতে যান",
+    "add": "কী যোগ করুন",
+    "addField": {
+      "label": "নাম (যেমন Cloudflare account 1)",
+      "keyId": "TURN Token ID",
+      "apiToken": "API token"
+    },
+    "token": "অ্যাডমিন টোকেন",
+    "tokenHint": "Vercel-এর STORAGE_ADMIN_TOKEN এনভায়রনমেন্ট ভেরিয়েবলের সঙ্গে একই মান",
+    "needToken": "আগে অ্যাডমিন টোকেন দিন।",
+    "ok": "সফল",
+    "probeOk": "কী যাচাই হয়েছে — ক্রেডেনশিয়াল তৈরি হয়েছে",
+    "probeFail": "কী ব্যর্থ"
+  }
+}

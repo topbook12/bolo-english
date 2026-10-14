@@ -230,6 +230,16 @@ const M = {
     bn: "অজানা কাজ।",
     hi: "अज्ञात कार्य।",
   },
+  turnFieldsRequired: {
+    en: "Fill every field: name, TURN Token ID, API token.",
+    bn: "সব ঘর পূরণ করুন: নাম, TURN Token ID, API token।",
+    hi: "सभी फ़ील्ड भरें: नाम, TURN Token ID, API token.",
+  },
+  turnNoOther: {
+    en: "No other TURN key in the pool — add one first.",
+    bn: "পুলে অন্য কোনো TURN কী নেই — আগে একটি যোগ করুন।",
+    hi: "पूल में कोई दूसरी TURN key नहीं — पहले एक जोड़ें।",
+  },
 
   /* ── video call ── */
   roomCodeRequired: {

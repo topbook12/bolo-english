@@ -1,0 +1,29 @@
+{
+  "turn": {
+    "title": "Video call relay (TURN)",
+    "subtitle": "Helps calls connect on strict networks — each Cloudflare account gives 1 TB/month free",
+    "poolSub": "Add each account's TURN Token ID + API token here; when one runs out the next takes over automatically, or switch manually",
+    "envNote": "A key set on Vercel (CF_TURN_KEY_ID + CF_TURN_API_TOKEN) is also used automatically.",
+    "empty": "No TURN keys in the pool yet.",
+    "active": "Active",
+    "exhausted": "Full",
+    "disabled": "Off",
+    "test": "Test",
+    "activate": "Use this",
+    "disable": "Pause",
+    "del": "Remove",
+    "rotate": "Switch to next",
+    "add": "Add key",
+    "addField": {
+      "label": "Name (e.g. Cloudflare account 1)",
+      "keyId": "TURN Token ID",
+      "apiToken": "API token"
+    },
+    "token": "Admin token",
+    "tokenHint": "Same value as the STORAGE_ADMIN_TOKEN environment variable on Vercel",
+    "needToken": "Enter the admin token first.",
+    "ok": "Done",
+    "probeOk": "Key verified — credentials minted",
+    "probeFail": "Key failed"
+  }
+}
