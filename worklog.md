@@ -818,3 +818,23 @@ Work Log:
 
 Stage Summary:
 - foundation-bn.ts ships 12/12 foundation lessons in natural Bengali for the static grammar bank; topic strings match shared.ts FOUNDATION_META exactly and in order; no other files touched; ready for orchestrator tsc/lint/browser verification.
+---
+Task ID: 3
+Agent: orchestrator (main)
+Task: Full problem audit + fixes + verification loops (user request: identify all problems, fix, loop; video call limitations explained)
+
+Work Log:
+- Ran exhaustive Explore audit (4 categories: hydration, i18n leaks, content storage, WebRTC) — 20+ issues found, ranked
+- Fixed Bengali sentinel leak: new src/lib/no-name.ts (isNoName/displayNameOr); schema displayName default "" (db:push); UserMenu/SettingsSection/HomeSection/gemini.ts/config route localized fallbacks
+- Daily words key gate removed (DailyWordsTab/HomeSection/VocabSection) — static bank is keyless
+- API i18n completion: new catalog keys (deviceIdRequired, nothingToUpdate, unknownFeature, paramsRequired, signalInvalidType, signalRoomClosed, notInRoom, learnerName); applied to ai/config/auth/call/progress/sessions/vocab/practice routes
+- Video call: ensurePC duplicate-PC race fixed (pendingPCRef reservation); time-based heartbeat (45s) + visibilitychange/online catch-up + STALE_ROOM_MS 3min (background tabs no longer killed); join/leave wrapped in db.$transaction; MAX_MESSAGE_BYTES 64KB; TURN creds removed from client bundle (server env remains source)
+- Hydration armor: speech-recognition supported probe via useSyncExternalStore; HomeSection greeting/tip via useMounted() (no setState-in-effect)
+- Static grammar bank: bank/types.ts + 6 data files (78 lessons: 12 foundation×beginner + 14 advanced×advanced, each bn/en/hi) written by 6 parallel agents; bank/index.ts lookup; LessonView/QuizPlayer/GrammarSection serve bank-first, AI fallback for intermediate; grammar.noKey + settings.apiKey.desc + lesson.langNote copy updated to new reality
+- Cleanup: dead GrammarLesson/ListeningStory models dropped; tests/signaling-e2e.ts + /api hello-world deleted; CallFlow dead ternary; InstallPrompt aria-label localized (install.close)
+- Loop 1 (fresh browser): zero page errors, zero console errors
+- Loop 2 (3 locales bn/en/hi + simulated key state): grammar lessons open offline in all 3 languages, quiz plays from bank, daily words + home preview keyless, listening library renders, speak section renders, no hydration mismatches
+
+Stage Summary:
+- Commit cd58546 + this commit pushed to main (Vercel auto-deploys)
+- Feature→API matrix confirmed: listening library/daily words/most grammar = keyless static on own site; AI partner/call correction/call analysis/intermediate grammar = user's Gemini key; video call media = free P2P, signaling = own DB

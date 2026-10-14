@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiGet } from "@/lib/client-api";
 import { cn } from "@/lib/utils";
 import LessonView from "@/components/grammar/LessonView";
+import { getBankLesson } from "@/components/grammar/bank";
 import QuizPlayer from "@/components/grammar/QuizPlayer";
 import {
   fmtNum,
@@ -117,7 +118,10 @@ export default function GrammarSection() {
   /* ---- no Gemini key: topics stay browsable; a banner explains and clicks
      guide the user to Settings instead of dead-ending on an AI error ---- */
   const openTopic = (topic: (typeof TOPICS)[number]) => {
-    if (!hasKey) {
+    // Static bank lessons open instantly with NO key — foundation×beginner
+    // and advanced×advanced are stored in this site's own source (bn/en/hi).
+    // Only non-banked combos (intermediate etc.) need the AI key.
+    if (!getBankLesson(topic.topic, level, locale) && !hasKey) {
       toast({ title: t("noKey.title"), description: t("noKey.body") });
       return;
     }

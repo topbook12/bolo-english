@@ -18,7 +18,7 @@
       "title": "Gemini API Key",
       "active": "Active",
       "needed": "Required",
-      "desc": "Every AI feature (live correction, analysis, lessons, words) runs on your own free Gemini key — that's why the platform is completely free.",
+      "desc": "Live call correction, AI partner chat, call analysis and intermediate grammar lessons run on your own free Gemini key. Daily words and most grammar lessons work even without it.",
       "currentKey": "Current key:",
       "newKey": "New key (optional)",
       "yourKey": "Your Gemini API key",
