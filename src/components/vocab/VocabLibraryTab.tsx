@@ -46,6 +46,7 @@ import {
   toggleLearnedWord,
 } from "@/components/vocab/learned-store";
 import { takeNavIntent } from "@/lib/nav-intent";
+import { speakEnglish } from "@/components/vocab/speech";
 import SentenceCheckCard from "@/components/library/SentenceCheckCard";
 import LibraryAskBox from "@/components/library/AskBox";
 
@@ -501,6 +502,7 @@ function WordGrid({
   locale: string;
   levelLabel: string;
 }) {
+  const t = useTranslations("vocab");
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
       {items.map((e) => {
@@ -543,10 +545,28 @@ function WordGrid({
                   )}
                 </div>
                 {e.data.pronunciation && (
-                  <p className="flex items-center gap-1 truncate text-[11px] text-muted-foreground" dir="auto">
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    onClick={(ev) => {
+                      ev.stopPropagation();
+                      speakEnglish(e.word);
+                    }}
+                    onKeyDown={(ev) => {
+                      if (ev.key === "Enter" || ev.key === " ") {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        speakEnglish(e.word);
+                      }
+                    }}
+                    className="-mx-1 -my-0.5 flex max-w-full items-center gap-1 rounded px-1 py-0.5 text-[11px] text-muted-foreground transition-colors hover:bg-emerald-500/10 hover:text-emerald-700 focus-visible:outline-2 focus-visible:outline-emerald-600 dark:hover:text-emerald-300"
+                    dir="auto"
+                    aria-label={t("lib.speakAria")}
+                    title={t("lib.speakAria")}
+                  >
                     <Volume2 className="h-3 w-3 shrink-0 text-emerald-600" aria-hidden />
                     <span className="truncate">{e.data.pronunciation}</span>
-                  </p>
+                  </span>
                 )}
                 <p className="mt-auto line-clamp-2 text-xs leading-relaxed text-muted-foreground" dir="auto">
                   {pickTri(e.data.meaning, locale)}
@@ -598,6 +618,7 @@ function WordDetail({
     saveWordbook: string;
   };
 }) {
+  const t = useTranslations("vocab");
   const d: LibraryVocabData = entry.data;
   const meaning = pickTri(d.meaning, locale);
   const tip = pickTri(d.tip, locale);
@@ -652,10 +673,16 @@ function WordDetail({
           </div>
           <h2 className="break-words text-2xl font-bold tracking-tight">{entry.word}</h2>
           {d.pronunciation && (
-            <p className="flex items-center gap-1.5 text-sm text-muted-foreground" dir="auto">
+            <button
+              type="button"
+              onClick={() => speakEnglish(entry.word)}
+              className="flex min-h-9 items-center gap-1.5 rounded-lg px-2 py-1 -ml-2 text-sm text-muted-foreground transition-colors hover:bg-emerald-500/10 hover:text-emerald-700 dark:hover:text-emerald-300"
+              aria-label={t("lib.speakAria")}
+              title={t("lib.speakAria")}
+            >
               <Volume2 className="h-4 w-4 shrink-0 text-emerald-600" aria-hidden />
               {d.pronunciation}
-            </p>
+            </button>
           )}
           <div>
             <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">

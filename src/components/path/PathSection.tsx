@@ -16,6 +16,7 @@ import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 
 import { useLocale, useTranslations } from "next-intl";
 import {
   BookOpenText,
+  BrainCircuit,
   Check,
   CircleCheck,
   GraduationCap,
@@ -24,6 +25,7 @@ import {
   Play,
   Route,
   RotateCcw,
+  Sparkles,
   Trophy,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -45,6 +47,14 @@ import {
   getLearnedWordsSnapshot,
   subscribeLearnedWords,
 } from "@/components/vocab/learned-store";
+import {
+  countDue,
+  countMastered,
+  getReviewMapServerSnapshot,
+  getReviewMapSnapshot,
+  subscribeReviewMap,
+} from "@/components/vocab/review-store";
+import ReviewDialog from "@/components/vocab/ReviewDialog";
 import {
   getDoneTopicsServerSnapshot,
   getDoneTopicsSnapshot,
@@ -106,6 +116,7 @@ const LEVEL_ORDER: LibraryLevel[] = ["beginner", "intermediate", "advanced"];
 
 export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => void }) {
   const t = useTranslations("path");
+  const tr = useTranslations("review");
   const tc = useTranslations("common");
   const locale = useLocale();
   const fmt = useCallback((n: number) => fmtNum(n, locale), [locale]);
@@ -135,6 +146,25 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
     getDoneIdsSnapshot,
     getDoneIdsServerSnapshot
   );
+  // Spaced-repetition state — drives the "মনে রাখার রিভিউ" card.
+  const reviewMap = useSyncExternalStore(
+    subscribeReviewMap,
+    getReviewMapSnapshot,
+    getReviewMapServerSnapshot
+  );
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [dueCount, setDueCount] = useState(0);
+  const [masteredCount, setMasteredCount] = useState(0);
+
+  // Time-dependent counts are computed after mount (hydration-safe).
+  const refreshReviewCounts = useCallback(() => {
+    setDueCount(countDue(learned));
+    setMasteredCount(countMastered(learned));
+  }, [learned]);
+
+  useEffect(() => {
+    queueMicrotask(refreshReviewCounts);
+  }, [refreshReviewCounts, reviewMap]);
 
   /* ---- data loading (vocab+listening are level-filtered server-side) ---- */
   const load = useCallback(async () => {
@@ -394,6 +424,42 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
         </CardContent>
       </Card>
 
+      {/* Spaced-repetition review — the 4th phase: memory. Rendered once the
+          learner has learned their first word, so it always feels relevant. */}
+      {learned.length > 0 && (
+        <Card className="animate-fade-in-up border-amber-200/70 bg-gradient-to-br from-amber-50 via-background to-orange-50 shadow-sm dark:border-amber-900/50 dark:from-amber-950/30 dark:via-background dark:to-orange-950/20">
+          <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-sm">
+                <BrainCircuit className="h-5 w-5" aria-hidden />
+              </span>
+              <div className="min-w-0">
+                <p className="text-sm font-bold">{tr("title")}</p>
+                <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                  {tr("subtitle")}
+                </p>
+                <p className="mt-1.5 text-xs font-semibold text-amber-700 dark:text-amber-300">
+                  {dueCount > 0
+                    ? tr("dueToday", { n: fmt(dueCount) })
+                    : tr("noneDue")}
+                  {masteredCount > 0 && ` · ${tr("mastered", { n: fmt(masteredCount) })}`}
+                </p>
+              </div>
+            </div>
+            <Button
+              size="lg"
+              disabled={dueCount === 0}
+              className="btn-shine min-h-11 shrink-0 gap-2 bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-md hover:from-amber-600 hover:to-orange-700"
+              onClick={() => setReviewOpen(true)}
+              aria-label={tr("startAria")}
+            >
+              <Sparkles className="h-4 w-4" aria-hidden />
+              {tr("start")}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Unit cards */}
       <section aria-label={t("unitsAria")} className="space-y-4">
         {units.map((u, i) => {
@@ -519,6 +585,14 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
           />
         </CardContent>
       </Card>
+
+      {/* Spaced-repetition flashcard session */}
+      <ReviewDialog
+        open={reviewOpen}
+        onOpenChange={setReviewOpen}
+        learned={learned}
+        onReviewed={refreshReviewCounts}
+      />
     </div>
   );
 }

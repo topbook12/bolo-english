@@ -1179,3 +1179,26 @@ Stage Summary:
 - Content grew 5×: vocab 36→180, grammar DB 4→16, listening 8→23 (41 total with static)
 - Production-safe: v2 bootstrap self-migrates Turso (ALTER + re-seed) on first request; owner studio edits/deletions preserved
 - Committed and pushed to main (Vercel auto-deploy)
+
+---
+Task ID: 9.2
+Agent: main (Z.ai Code)
+Task: Library round 2 — spaced-repetition memory review + pronunciation audio everywhere (psychology + linguistics mandate)
+
+Work Log:
+- Audited the deployed Learning Path (production 200, v2 units live) and identified the two highest-impact gaps per the owner's "human psychology + linguistics" directive
+- Gap 1 (psychology): learned words were never resurfaced — Ebbinghaus forgetting curve. Built a full spaced-repetition loop:
+  - src/components/vocab/review-store.ts — Leitner boxes (10min→1d→3d→7d→14d→30d) in localStorage bolo_vocab_review_v1, event-based external store (hydration-safe), dueWords ordering (lowest box, oldest due), countDue/countMastered
+  - src/components/vocab/ReviewDialog.tsx — flashcard session: active recall → reveal (meaning bn-primary + example + pronunciation) → self-grade পেরেছি/পারিনি; forgot cards requeue once per session; 10-card winnable chunk; PartyPopper completion screen with next-interval explainer; Web Speech audio on every card
+  - PathSection: amber "মনে রাখার রিভিউ" card between hero and units (renders once the learner has learned ≥1 word), due-count badge auto-refreshes, Start button disabled when nothing is due
+- Gap 2 (linguistics): pronunciation was display-only in the Vocabulary Library. Made both surfaces speakable via speakEnglish(word):
+  - WordGrid cards: span role=button + keyboard support + stopPropagation (nested inside the card button)
+  - WordDetail rail: real button with hover state
+- i18n: new messages/sections/review.{en,bn,hi}.json (25 keys each) + vocab lib.speakAria in en/bn/hi
+- React hooks compliance: queueMicrotask-wrapped session init, zero setState-in-effect violations
+- Verified end-to-end with agent-browser: desktop + mobile(390px) × en + bn — learned 3 words → review card appeared with "3 words are ready for review today" → full flashcard session (remembered→box1 tomorrow, forgot→box0 10min verified in localStorage, requeue→"You reviewed 4 words — 3 remembered") → Start disabled at 0 due → Bengali flashcard renders পেরেছি/পারিনি with Bengali numerals → console clean, tsc clean, eslint clean
+
+Stage Summary:
+- The path now covers the FULL memory cycle: LEARN → BUILD → LISTEN → RECALL → spaced REVIEW (Ebbinghaus-correct)
+- Every library word is now audible on all vocab surfaces (hearing = correct pronunciation for Bengali speakers)
+- 100% free, keyless, localStorage-only — works for every device with zero backend cost

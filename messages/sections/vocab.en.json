@@ -118,7 +118,8 @@
       "markLearned": "I learned this",
       "learned": "Learned",
       "saveWordbook": "Save to wordbook",
-      "saved": "Saved to your wordbook"
+      "saved": "Saved to your wordbook",
+      "speakAria": "Hear the pronunciation"
     }
   }
 }

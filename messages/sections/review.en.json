@@ -1,0 +1,24 @@
+{
+  "review": {
+    "title": "Memory review",
+    "subtitle": "Recalling a word just before you forget it makes it permanent",
+    "dueToday": "{n} words are ready for review today",
+    "noneDue": "No words to review right now",
+    "noneDueBody": "Words you learn on the path come back here right before you would forget them — that is how they become permanent.",
+    "mastered": "{n} words fully memorised",
+    "start": "Start review",
+    "startAria": "Start the spaced-repetition review session",
+    "loading": "Preparing your review",
+    "cardHint": "First try to recall the meaning from memory — then reveal it",
+    "reveal": "Show answer",
+    "remembered": "I remembered",
+    "forgot": "I forgot",
+    "doneTitle": "Review complete!",
+    "doneBody": "You reviewed {n} words — {ok} remembered.",
+    "doneNext": "These words will come back on their own: tomorrow, then after 3, 7, 14 and 30 days.",
+    "close": "Done",
+    "speakAria": "Hear the pronunciation",
+    "cardAria": "Review flashcard",
+    "progressAria": "Review progress"
+  }
+}
