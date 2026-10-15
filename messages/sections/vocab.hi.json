@@ -109,7 +109,16 @@
       "examplesLabel": "उदाहरण",
       "tipLabel": "इस्तेमाल की टिप",
       "synonymsLabel": "समानार्थी:",
-      "antonymsLabel": "विलोम:"
+      "antonymsLabel": "विलोम:",
+      "allUnits": "सभी यूनिट",
+      "unitsAria": "लर्निंग पाथ यूनिट के अनुसार फ़िल्टर",
+      "learnedCount": "{learned}/{total} सीखे गए",
+      "extraGroup": "अतिरिक्त शब्द",
+      "unitChip": "यूनिट {n}",
+      "markLearned": "यह सीख गया",
+      "learned": "सीख गया",
+      "saveWordbook": "वर्डबुक में सेव",
+      "saved": "वर्डबुक में सेव हो गया"
     }
   }
 }

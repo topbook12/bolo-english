@@ -140,7 +140,9 @@
       "startQuizAria": "Start the quiz for this topic",
       "wrongLabel": "Wrong:",
       "rightLabel": "Correct:",
-      "errorTitle": "Couldn't load the lesson"
+      "errorTitle": "Couldn't load the lesson",
+      "markRead": "Mark as read",
+      "markReadAria": "Mark this lesson as read"
     },
     "quiz": {
       "badge": "Quiz",

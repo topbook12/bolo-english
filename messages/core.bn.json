@@ -32,11 +32,14 @@
       "later": "পরে",
       "iosHint": "iPhone/iPad: নিচের Share (↑) বাটনে চাপ দিয়ে “Add to Home Screen” বেছে নিন।",
       "close": "বন্ধ করুন"
-    }
+    },
+    "minutesShort": "মিনিট"
   },
   "nav": {
     "home": "হোম",
     "homeDesc": "আজকের দিনলিপি",
+    "path": "শেখার পথ",
+    "pathDesc": "ধাপে ধাপে পুরো কোর্স",
     "speaking": "কথা বলুন",
     "speakingDesc": "ভিডিও কলে ইংরেজি প্র্যাকটিস",
     "grammar": "গ্রামার",

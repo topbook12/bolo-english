@@ -207,6 +207,9 @@ export function errMessage(e: unknown, fallback: string): string {
 /* ---- completed topics (per device/browser, tiny localStorage list) ---- */
 
 const DONE_KEY = "bolo_grammar_done";
+const DONE_EVENT = "bolo_grammar_done_changed";
+
+let doneCache: string[] | null = null;
 
 export function readDoneTopics(): string[] {
   if (typeof window === "undefined") return [];
@@ -219,6 +222,25 @@ export function readDoneTopics(): string[] {
   }
 }
 
+/** Hydration-safe external-store snapshot for useSyncExternalStore users. */
+export function subscribeDoneTopics(onChange: () => void): () => void {
+  if (typeof window === "undefined") return () => undefined;
+  window.addEventListener(DONE_EVENT, onChange);
+  return () => window.removeEventListener(DONE_EVENT, onChange);
+}
+
+export function getDoneTopicsSnapshot(): string[] {
+  if (typeof window === "undefined") return [];
+  if (doneCache === null) doneCache = readDoneTopics();
+  return doneCache;
+}
+
+const EMPTY_DONE_TOPICS: string[] = [];
+
+export function getDoneTopicsServerSnapshot(): string[] {
+  return EMPTY_DONE_TOPICS;
+}
+
 export function saveDoneTopic(topicId: string): string[] {
   const list = readDoneTopics();
   if (!list.includes(topicId)) list.push(topicId);
@@ -227,5 +249,8 @@ export function saveDoneTopic(topicId: string): string[] {
   } catch {
     // private mode / quota — completion badge just won't persist
   }
+  doneCache = list;
+  // Notify live consumers (the Learning Path listens for this).
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(DONE_EVENT));
   return list;
 }

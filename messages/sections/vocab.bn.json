@@ -109,7 +109,16 @@
       "examplesLabel": "উদাহরণ",
       "tipLabel": "ব্যবহারের টিপস",
       "synonymsLabel": "সমার্থক:",
-      "antonymsLabel": "বিপরীত:"
+      "antonymsLabel": "বিপরীত:",
+      "allUnits": "সব ইউনিট",
+      "unitsAria": "শেখার পথের ইউনিট অনুযায়ী ফিল্টার",
+      "learnedCount": "{learned}/{total} টি শেখা",
+      "extraGroup": "অতিরিক্ত শব্দ",
+      "unitChip": "ইউনিট {n}",
+      "markLearned": "এটা শিখেছি",
+      "learned": "শিখেছি",
+      "saveWordbook": "ওয়ার্ডবুকে সেভ",
+      "saved": "ওয়ার্ডবুকে সেভ হয়েছে"
     }
   }
 }

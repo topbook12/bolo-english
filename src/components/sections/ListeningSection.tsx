@@ -33,6 +33,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { apiGet } from "@/lib/client-api";
+import { takeNavIntent } from "@/lib/nav-intent";
 import type { LibraryListeningEntry } from "@/lib/library-types";
 import { useDeviceValue } from "@/hooks/use-device";
 import SectionHeader from "@/components/shared/SectionHeader";
@@ -112,6 +113,7 @@ function dbEntryToStory(e: LibraryListeningEntry): LibraryStory | null {
         ? (e.category as LibraryCategory)
         : "daily",
       minutes: typeof e.minutes === "number" && e.minutes > 0 ? e.minutes : 2,
+      unit: typeof e.unit === "number" && e.unit > 0 ? e.unit : undefined,
       title: tri(d.title),
       summary: tri(d.summary),
       paragraphs,
@@ -164,6 +166,15 @@ export default function ListeningSection() {
   // the library simply remains static-only.
   const [dbStories, setDbStories] = useState<LibraryStory[] | null>(null);
 
+  // Deep link from the Learning Path: open the exact episode when it arrives.
+  const [pendingSlug, setPendingSlug] = useState<string | null>(null);
+  useEffect(() => {
+    queueMicrotask(() => {
+      const intent = takeNavIntent();
+      if (intent && intent.tab === "listening") setPendingSlug(intent.slug);
+    });
+  }, []);
+
   useEffect(() => {
     let alive = true;
     apiGet<{ items: LibraryListeningEntry[] }>("/api/library?kind=listening")
@@ -189,11 +200,27 @@ export default function ListeningSection() {
     [dbStories]
   );
 
+  // Consume a pending deep link once the target story is available.
+  useEffect(() => {
+    if (!pendingSlug) return;
+    const story = allStories.find(
+      (s) => s.id === `db:${pendingSlug}` || s.id === pendingSlug
+    );
+    if (!story) return;
+    // Microtask keeps setState out of the effect body (no cascading renders).
+    queueMicrotask(() => {
+      setLevelOverride(story.level);
+      setCategory("all");
+      setLibSel(story);
+      setPendingSlug(null);
+    });
+  }, [pendingSlug, allStories]);
+
   const categoryLabel = (c: LibraryCategory) => t(`library.categories.${c}`);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return allStories.filter((s) => {
+    const list = allStories.filter((s) => {
       if (s.level !== level) return false;
       if (category !== "all" && s.category !== category) return false;
       if (!q) return true;
@@ -202,6 +229,16 @@ export default function ListeningSection() {
         pickLang(s.summary, locale).toLowerCase().includes(q) ||
         s.title.en.toLowerCase().includes(q)
       );
+    });
+    // Path episodes first (unit 1→5, in order), then standalone stories —
+    // the serial order is the learning order.
+    return [...list].sort((a, b) => {
+      const au = a.unit ?? 0;
+      const bu = b.unit ?? 0;
+      if (au > 0 && bu > 0) return au - bu;
+      if (au > 0) return -1;
+      if (bu > 0) return 1;
+      return 0;
     });
   }, [allStories, level, category, query, locale]);
 
@@ -372,6 +409,14 @@ export default function ListeningSection() {
                                 <Headphones className="h-4.5 w-4.5" aria-hidden />
                               </span>
                               <div className="flex flex-wrap justify-end gap-1">
+                                {(s.unit ?? 0) > 0 && (
+                                  <Badge
+                                    variant="outline"
+                                    className="border-teal-500/40 text-[10px] text-teal-700 dark:text-teal-300"
+                                  >
+                                    {t("library.episode", { n: s.unit ?? 0 })}
+                                  </Badge>
+                                )}
                                 {done && (
                                   <Badge
                                     variant="outline"

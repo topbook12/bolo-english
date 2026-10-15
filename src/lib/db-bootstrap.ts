@@ -2,18 +2,35 @@ import { db } from "@/lib/db";
 import { SEED_VOCAB } from "../../scripts/seed-data/vocab-data";
 import { SEED_GRAMMAR } from "../../scripts/seed-data/grammar-data";
 import { SEED_LISTENING } from "../../scripts/seed-data/listening-data";
+import { SEED_VOCAB_V2_BEGINNER } from "../../scripts/seed-data/vocab-v2-beginner";
+import { SEED_VOCAB_V2_INTERMEDIATE } from "../../scripts/seed-data/vocab-v2-intermediate";
+import { SEED_VOCAB_V2_ADVANCED } from "../../scripts/seed-data/vocab-v2-advanced";
+import { SEED_GRAMMAR_V2_A1 } from "../../scripts/seed-data/grammar-v2-a1";
+import { SEED_GRAMMAR_V2_A2 } from "../../scripts/seed-data/grammar-v2-a2";
+import { SEED_GRAMMAR_V2_B } from "../../scripts/seed-data/grammar-v2-b";
+import { SEED_LISTENING_V2_BEGINNER } from "../../scripts/seed-data/listening-v2-beginner";
+import { SEED_LISTENING_V2_INTERMEDIATE } from "../../scripts/seed-data/listening-v2-intermediate";
+import { SEED_LISTENING_V2_ADVANCED } from "../../scripts/seed-data/listening-v2-advanced";
+import type { LibraryLevel } from "./library-types";
 
 /* ─── Database self-bootstrap (zero-config production) ──────────────────────
  * The owner should NEVER have to run db:push or a seed script against the
  * production database. When a schema area is touched for the first time:
  *
  *   1. Missing tables are created (CREATE TABLE IF NOT EXISTS matches the
- *      Prisma schema exactly, so a future db:push stays a no-op). This
- *      covers the production Turso DB that predates the Storage pool,
- *      TURN pool and Library models.
- *   2. Seeds the owner's starter content ONCE per kind. A marker row in
- *      AiCache (feature="library_bootstrap") records completion, so owner
- *      edits and deletions are never overwritten and seeding never re-runs.
+ *      Prisma schema exactly, so a future db:push stays a no-op).
+ *   2. Missing columns are added in place (e.g. the v2 learning-path `unit`
+ *      column) — safe, idempotent ALTERs guarded by PRAGMA probes.
+ *   3. Seeds content ONCE per seed version. A marker row in AiCache
+ *      (feature="library_bootstrap") records completion, so seeding never
+ *      re-runs.
+ *
+ * v2 seeding rules (owner-edit safe):
+ *   • v1 rows that already exist are NOT rewritten — only their `unit` /
+ *     `sortOrder` path metadata is corrected via updateMany. Rows the owner
+ *     deleted stay deleted; data the owner edited stays edited.
+ *   • v2 entries are created if missing; if present, only `unit`/`sortOrder`
+ *     metadata is refreshed (never `data`).
  *
  * Everything is idempotent and safe to race (unique-key upserts + marker
  * guards). Failures are logged and swallowed — the calling API keeps its
@@ -24,9 +41,9 @@ export type LibraryKind = "vocab" | "grammar" | "listening";
 
 const MARKER_FEATURE = "library_bootstrap";
 const MARKERS: Record<LibraryKind, string> = {
-  vocab: "vocab_v1",
-  grammar: "grammar_v1",
-  listening: "listening_v1",
+  vocab: "vocab_v2",
+  grammar: "grammar_v2",
+  listening: "listening_v2",
 };
 
 /** Single-flight per kind so parallel requests share one bootstrap. */
@@ -50,6 +67,7 @@ const DDL: string[] = [
     "level" TEXT NOT NULL DEFAULT 'beginner',
     "category" TEXT NOT NULL DEFAULT 'general',
     "data" TEXT NOT NULL,
+    "unit" INTEGER NOT NULL DEFAULT 1,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
@@ -63,6 +81,7 @@ const DDL: string[] = [
     "level" TEXT NOT NULL DEFAULT 'beginner',
     "title" TEXT NOT NULL,
     "data" TEXT NOT NULL,
+    "unit" INTEGER NOT NULL DEFAULT 1,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
@@ -77,6 +96,7 @@ const DDL: string[] = [
     "category" TEXT NOT NULL DEFAULT 'daily',
     "minutes" INTEGER NOT NULL DEFAULT 2,
     "data" TEXT NOT NULL,
+    "unit" INTEGER NOT NULL DEFAULT 0,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
@@ -120,6 +140,35 @@ const DDL: string[] = [
   )`,
 ];
 
+/* In-place column migrations for databases created before the learning-path
+ * (v2) schema: the Library tables exist but lack the `unit` column. */
+const COLUMN_MIGRATIONS: { table: string; ddl: string }[] = [
+  { table: "LibraryVocab", ddl: `ALTER TABLE "LibraryVocab" ADD COLUMN "unit" INTEGER NOT NULL DEFAULT 1` },
+  { table: "LibraryGrammar", ddl: `ALTER TABLE "LibraryGrammar" ADD COLUMN "unit" INTEGER NOT NULL DEFAULT 1` },
+  { table: "LibraryListening", ddl: `ALTER TABLE "LibraryListening" ADD COLUMN "unit" INTEGER NOT NULL DEFAULT 0` },
+];
+
+let columnsReady = false;
+
+/** Add any missing `unit` columns once per process (PRAGMA-probed, idempotent). */
+async function ensureColumns(): Promise<void> {
+  if (columnsReady) return;
+  let ok = true;
+  for (const t of COLUMN_MIGRATIONS) {
+    try {
+      const cols = await db.$queryRawUnsafe<{ name: string }[]>(
+        `PRAGMA table_info("${t.table}")`
+      );
+      if (Array.isArray(cols) && cols.some((c) => c.name === "unit")) continue;
+      await db.$executeRawUnsafe(t.ddl);
+    } catch (err) {
+      ok = false;
+      console.warn(`[library-bootstrap] unit column on ${t.table}:`, err);
+    }
+  }
+  if (ok) columnsReady = true;
+}
+
 /** Cheap probe — a missing sentinel table means the DDL batch must run. */
 async function tablesExist(): Promise<boolean> {
   try {
@@ -132,10 +181,12 @@ async function tablesExist(): Promise<boolean> {
 }
 
 async function ensureTables(): Promise<void> {
-  if (await tablesExist()) return;
-  for (const stmt of DDL) {
-    await db.$executeRawUnsafe(stmt);
+  if (!(await tablesExist())) {
+    for (const stmt of DDL) {
+      await db.$executeRawUnsafe(stmt);
+    }
   }
+  await ensureColumns();
 }
 
 async function markerExists(cacheKey: string): Promise<boolean> {
@@ -154,13 +205,121 @@ async function setMarker(cacheKey: string): Promise<void> {
     .catch(() => undefined);
 }
 
-/* ── Seeders (mirror scripts/seed-library.ts; identical upsert keys) ── */
+/* ── Seeders ──────────────────────────────────────────────────────────────
+ * v2 merged seed model:
+ *   • v1 entries: created when MISSING (fresh DBs get the full starter
+ *     library); when a row already exists ONLY unit/sortOrder metadata is
+ *     refreshed — owner data edits are never overwritten. Rows the owner
+ *     deleted before the v2 migration are restored once (the intentional
+ *     v1→v2 migration), after which the v2 marker prevents re-seeding.
+ *   • v2 entries: create if missing; if present, refresh unit/sortOrder only.
+ * ──────────────────────────────────────────────────────────────────────── */
+
+interface VocabSeedEntry {
+  word: string;
+  level: LibraryLevel;
+  category: string;
+  unit: number;
+  data: unknown;
+}
+
+/* Unit mapping for the 36 v1 words (they were authored before the path
+ * existed; each level's 12 words fold into the 5 thematic units). */
+const V1_VOCAB_UNITS: Record<string, number> = {
+  // beginner
+  hungry: 1, tired: 1, happy: 1,
+  friend: 2,
+  buy: 3, cheap: 3,
+  help: 4, walk: 4, early: 4,
+  rain: 5, beautiful: 5, easy: 5,
+  // intermediate
+  improve: 1, suggest: 1,
+  manage: 2, afford: 2, gain: 2,
+  borrow: 3, rent: 3, delay: 3,
+  brave: 4, confident: 4, polite: 4,
+  achieve: 5,
+  // advanced
+  acknowledge: 1, dilemma: 1,
+  neglect: 2,
+  negotiate: 3, feasible: 3,
+  meticulous: 4, deteriorate: 4,
+  reluctant: 5, overwhelmed: 5, ambitious: 5, persevere: 5, versatile: 5,
+};
+
+const V1_GRAMMAR_UNITS: Record<string, number> = {
+  "Tense basics": 1,
+  "Articles (a/an/the)": 2,
+  "Prepositions (in/on/at)": 3,
+  Conditionals: 4,
+};
+
+const V1_VOCAB: VocabSeedEntry[] = SEED_VOCAB.map((e) => ({
+  word: e.word,
+  level: e.level,
+  category: e.category || "general",
+  unit: V1_VOCAB_UNITS[e.word] ?? 1,
+  data: e.data,
+}));
+
+const V2_VOCAB: VocabSeedEntry[] = [
+  ...SEED_VOCAB_V2_BEGINNER,
+  ...SEED_VOCAB_V2_INTERMEDIATE,
+  ...SEED_VOCAB_V2_ADVANCED,
+];
+
+interface GrammarSeedEntry {
+  topic: string;
+  level: LibraryLevel;
+  title: string;
+  unit: number;
+  data: unknown;
+}
+
+const V1_GRAMMAR: GrammarSeedEntry[] = SEED_GRAMMAR.map((e) => ({
+  topic: e.topic,
+  level: e.level,
+  title: e.title,
+  unit: V1_GRAMMAR_UNITS[e.topic] ?? 0,
+  data: e.data,
+}));
+
+const V2_GRAMMAR: GrammarSeedEntry[] = [
+  ...SEED_GRAMMAR_V2_A1,
+  ...SEED_GRAMMAR_V2_A2,
+  ...SEED_GRAMMAR_V2_B,
+];
+
+interface ListeningSeedEntry {
+  slug: string;
+  level: LibraryLevel;
+  category: string;
+  minutes: number;
+  unit: number;
+  data: unknown;
+}
+
+const V1_LISTENING: ListeningSeedEntry[] = SEED_LISTENING.map((e) => ({
+  slug: e.slug,
+  level: e.level,
+  category: e.category,
+  minutes: e.minutes,
+  unit: 0, // standalone stories — extra practice off the path
+  data: e.data,
+}));
+
+const V2_LISTENING: ListeningSeedEntry[] = [
+  ...SEED_LISTENING_V2_BEGINNER,
+  ...SEED_LISTENING_V2_INTERMEDIATE,
+  ...SEED_LISTENING_V2_ADVANCED,
+];
 
 async function seedVocab(): Promise<number> {
   let fails = 0;
-  for (let i = 0; i < SEED_VOCAB.length; i++) {
-    const e = SEED_VOCAB[i];
-    const levelIdx = SEED_VOCAB.filter((x, j) => j < i && x.level === e.level).length;
+
+  // v1 rows — create-if-missing; refresh path metadata only when present.
+  for (let i = 0; i < V1_VOCAB.length; i++) {
+    const e = V1_VOCAB[i];
+    const levelIdx = V1_VOCAB.filter((x, j) => j < i && x.level === e.level).length;
     try {
       await db.libraryVocab.upsert({
         where: { word_level: { word: e.word, level: e.level } },
@@ -169,13 +328,32 @@ async function seedVocab(): Promise<number> {
           level: e.level,
           category: e.category || "general",
           data: JSON.stringify(e.data),
+          unit: e.unit,
           sortOrder: levelIdx,
         },
-        update: {
+        update: { unit: e.unit, sortOrder: levelIdx },
+      });
+    } catch {
+      fails++;
+    }
+  }
+
+  // v2 entries — create if missing; refresh path metadata if present.
+  for (let i = 0; i < V2_VOCAB.length; i++) {
+    const e = V2_VOCAB[i];
+    const levelIdx = V2_VOCAB.filter((x, j) => j < i && x.level === e.level).length + 12;
+    try {
+      await db.libraryVocab.upsert({
+        where: { word_level: { word: e.word, level: e.level } },
+        create: {
+          word: e.word,
+          level: e.level,
           category: e.category || "general",
           data: JSON.stringify(e.data),
+          unit: e.unit,
           sortOrder: levelIdx,
         },
+        update: { unit: e.unit, sortOrder: levelIdx },
       });
     } catch {
       fails++;
@@ -186,8 +364,9 @@ async function seedVocab(): Promise<number> {
 
 async function seedGrammar(): Promise<number> {
   let fails = 0;
-  for (let i = 0; i < SEED_GRAMMAR.length; i++) {
-    const e = SEED_GRAMMAR[i];
+
+  for (let i = 0; i < V1_GRAMMAR.length; i++) {
+    const e = V1_GRAMMAR[i];
     try {
       await db.libraryGrammar.upsert({
         where: { topic_level: { topic: e.topic, level: e.level } },
@@ -196,9 +375,33 @@ async function seedGrammar(): Promise<number> {
           level: e.level,
           title: e.title,
           data: JSON.stringify(e.data),
+          unit: e.unit,
           sortOrder: i,
         },
-        update: { title: e.title, data: JSON.stringify(e.data), sortOrder: i },
+        update: { unit: e.unit, sortOrder: i },
+      });
+    } catch {
+      fails++;
+    }
+  }
+
+  const perLevelSeen = new Map<string, number>();
+  for (let i = 0; i < V2_GRAMMAR.length; i++) {
+    const e = V2_GRAMMAR[i];
+    const seen = perLevelSeen.get(e.level) ?? 4; // v1 intermediate occupies 0-3
+    perLevelSeen.set(e.level, seen + 1);
+    try {
+      await db.libraryGrammar.upsert({
+        where: { topic_level: { topic: e.topic, level: e.level } },
+        create: {
+          topic: e.topic,
+          level: e.level,
+          title: e.title,
+          data: JSON.stringify(e.data),
+          unit: e.unit,
+          sortOrder: seen,
+        },
+        update: { unit: e.unit, sortOrder: seen },
       });
     } catch {
       fails++;
@@ -209,8 +412,9 @@ async function seedGrammar(): Promise<number> {
 
 async function seedListening(): Promise<number> {
   let fails = 0;
-  for (let i = 0; i < SEED_LISTENING.length; i++) {
-    const e = SEED_LISTENING[i];
+
+  for (let i = 0; i < V1_LISTENING.length; i++) {
+    const e = V1_LISTENING[i];
     try {
       await db.libraryListening.upsert({
         where: { slug: e.slug },
@@ -220,15 +424,31 @@ async function seedListening(): Promise<number> {
           category: e.category,
           minutes: e.minutes,
           data: JSON.stringify(e.data),
+          unit: 0,
           sortOrder: i,
         },
-        update: {
+        update: { unit: 0, sortOrder: i },
+      });
+    } catch {
+      fails++;
+    }
+  }
+
+  for (let i = 0; i < V2_LISTENING.length; i++) {
+    const e = V2_LISTENING[i];
+    try {
+      await db.libraryListening.upsert({
+        where: { slug: e.slug },
+        create: {
+          slug: e.slug,
           level: e.level,
           category: e.category,
           minutes: e.minutes,
           data: JSON.stringify(e.data),
-          sortOrder: i,
+          unit: e.unit,
+          sortOrder: V1_LISTENING.length + i,
         },
+        update: { unit: e.unit, sortOrder: V1_LISTENING.length + i },
       });
     } catch {
       fails++;

@@ -10,6 +10,7 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
+  CircleCheckBig,
   CircleX,
   Languages,
   Lightbulb,
@@ -27,7 +28,7 @@ import { apiGet, callAi } from "@/lib/client-api";
 import { cn } from "@/lib/utils";
 import type { GrammarLessonContent } from "@/lib/types";
 import { pickTri, type LibraryGrammarEntry } from "@/lib/library-types";
-import { errMessage, fmtNum, type GrammarTopic, type Level } from "@/components/grammar/shared";
+import { errMessage, fmtNum, saveDoneTopic, type GrammarTopic, type Level } from "@/components/grammar/shared";
 import { bankLessonToContent, getBankLesson } from "@/components/grammar/bank";
 import LibraryAskBox from "@/components/library/AskBox";
 
@@ -359,6 +360,17 @@ export default function LessonView({
                 <p className="truncate text-sm font-semibold">{name}</p>
                 <p className="text-xs text-muted-foreground">{tc(`level.${level}`)}</p>
               </div>
+              {/* Mark-as-read: keyless completion for the Learning Path —
+                  reading the lesson fully counts even without a quiz. */}
+              <Button
+                variant="outline"
+                onClick={() => saveDoneTopic(topic.topic)}
+                className="min-h-11 gap-1.5 rounded-xl border-emerald-500/40 px-3 text-emerald-700 hover:bg-emerald-500/10 dark:text-emerald-300"
+                aria-label={t("lesson.markReadAria")}
+              >
+                <CircleCheckBig className="h-4 w-4" aria-hidden />
+                <span className="hidden sm:inline">{t("lesson.markRead")}</span>
+              </Button>
               <Button
                 onClick={onStartQuiz}
                 className="btn-shine min-h-11 flex-1 gap-2 rounded-xl text-base sm:flex-none sm:px-8"

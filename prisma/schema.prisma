@@ -186,6 +186,7 @@ model LibraryVocab {
   level     String   @default("beginner") // beginner | intermediate | advanced
   category  String   @default("general") // general | daily | work | travel | academic
   data      String // JSON: LibraryVocabData (see src/lib/library-types.ts)
+  unit      Int      @default(1) // learning-path unit within the level (1-5; 0 = extra practice)
   sortOrder Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -200,6 +201,7 @@ model LibraryGrammar {
   level     String   @default("beginner") // beginner | intermediate | advanced
   title     String // display title (English base)
   data      String // JSON: LibraryGrammarData
+  unit      Int      @default(1) // learning-path unit within the level (1-5; 0 = extra lesson)
   sortOrder Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -215,6 +217,7 @@ model LibraryListening {
   category  String   @default("daily") // daily | travel | work | culture | science | inspire
   minutes   Int      @default(2)
   data      String // JSON: LibraryListeningData
+  unit      Int      @default(0) // learning-path episode number within the level (1-5; 0 = standalone)
   sortOrder Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

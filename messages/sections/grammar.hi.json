@@ -140,7 +140,9 @@
       "startQuizAria": "इस टॉपिक का क्विज़ शुरू करें",
       "wrongLabel": "गलत:",
       "rightLabel": "सही:",
-      "errorTitle": "लेसन लोड नहीं हो सका"
+      "errorTitle": "लेसन लोड नहीं हो सका",
+      "markRead": "पढ़ लिया",
+      "markReadAria": "इस पाठ को पढ़ा हुआ चिह्नित करें"
     },
     "quiz": {
       "badge": "क्विज़",

@@ -68,6 +68,12 @@ const VOCAB_CATEGORIES = ["general", "daily", "work", "travel", "academic"] as c
 /** TriText with bn value copied into en/hi — the documented bn-fallback rule. */
 const tri = (v: string): TriText => ({ bn: v, en: v, hi: v });
 
+/** Parse a unit form field: 0-99, fallback to the provided default. */
+const unitNum = (v: string, fallback: number): number => {
+  const n = Math.floor(Number(v));
+  return Number.isFinite(n) && n >= 0 && n <= 99 ? n : fallback;
+};
+
 const splitList = (v: string): string[] =>
   v
     .split(",")
@@ -184,6 +190,7 @@ interface VocabFormState {
   word: string;
   level: LibraryLevel;
   category: (typeof VOCAB_CATEGORIES)[number];
+  unit: string;
   pronunciation: string;
   partOfSpeech: string;
   meaningBn: string;
@@ -199,6 +206,7 @@ const emptyVocabForm = (): VocabFormState => ({
   word: "",
   level: "beginner",
   category: "general",
+  unit: "1",
   pronunciation: "",
   partOfSpeech: "",
   meaningBn: "",
@@ -215,6 +223,7 @@ interface GrammarFormState {
   topic: string;
   level: LibraryLevel;
   title: string;
+  unit: string;
   introBn: string;
   sectionsText: string;
   tipsText: string;
@@ -223,6 +232,7 @@ const emptyGrammarForm = (): GrammarFormState => ({
   topic: "",
   level: "beginner",
   title: "",
+  unit: "1",
   introBn: "",
   sectionsText: "",
   tipsText: "",
@@ -234,6 +244,7 @@ interface ListenFormState {
   level: LibraryLevel;
   category: LibraryListeningCategory;
   minutes: string;
+  unit: string;
   summaryBn: string;
   paragraphsText: string;
   vocabText: string;
@@ -245,6 +256,7 @@ const emptyListenForm = (): ListenFormState => ({
   level: "beginner",
   category: "daily",
   minutes: "2",
+  unit: "0",
   summaryBn: "",
   paragraphsText: "",
   vocabText: "",
@@ -383,7 +395,7 @@ export default function LibraryStudioCard() {
       synonyms: splitList(vf.synonyms),
       antonyms: splitList(vf.antonyms),
     };
-    void postEntry("vocab", { word, level: vf.level, category: vf.category, data });
+    void postEntry("vocab", { word, level: vf.level, category: vf.category, unit: unitNum(vf.unit, 1), data });
   };
 
   const submitGrammar = () => {
@@ -408,7 +420,7 @@ export default function LibraryStudioCard() {
         .filter(Boolean)
         .map(tri),
     };
-    void postEntry("grammar", { topic, level: gf.level, title, data });
+    void postEntry("grammar", { topic, level: gf.level, title, unit: unitNum(gf.unit, 1), data });
   };
 
   const submitListening = () => {
@@ -436,7 +448,7 @@ export default function LibraryStudioCard() {
     };
     const minutes = Math.max(1, Math.min(60, Number(lf.minutes) || 2));
     // slug is derived server-side from title.en/bn when blank — same title = same slug = update.
-    void postEntry("listening", { level: lf.level, category: lf.category, minutes, data });
+    void postEntry("listening", { level: lf.level, category: lf.category, minutes, unit: unitNum(lf.unit, 0), data });
   };
 
   /* ── Render helpers ── */
@@ -664,6 +676,21 @@ export default function LibraryStudioCard() {
                 (v) => setVf((f) => ({ ...f, level: v })),
                 t("studio.vLevel")
               )}
+              <div className="space-y-1">
+                <Label htmlFor="st-vunit" className={LABEL_CLS}>
+                  {t("studio.vUnit")}
+                </Label>
+                <Input
+                  id="st-vunit"
+                  type="number"
+                  min={0}
+                  max={99}
+                  value={vf.unit}
+                  onChange={(e) => setVf((f) => ({ ...f, unit: e.target.value }))}
+                  className={FIELD}
+                  autoComplete="off"
+                />
+              </div>
             </div>
             <div className="space-y-1">
               <Label htmlFor="st-vcat" className={LABEL_CLS}>
@@ -856,6 +883,21 @@ export default function LibraryStudioCard() {
                 (v) => setGf((f) => ({ ...f, level: v })),
                 t("studio.gLevel")
               )}
+              <div className="space-y-1">
+                <Label htmlFor="st-gunit" className={LABEL_CLS}>
+                  {t("studio.gUnit")}
+                </Label>
+                <Input
+                  id="st-gunit"
+                  type="number"
+                  min={0}
+                  max={99}
+                  value={gf.unit}
+                  onChange={(e) => setGf((f) => ({ ...f, unit: e.target.value }))}
+                  className={FIELD}
+                  autoComplete="off"
+                />
+              </div>
             </div>
             <div className="space-y-1">
               <Label htmlFor="st-gtitle" className={LABEL_CLS}>
@@ -992,6 +1034,21 @@ export default function LibraryStudioCard() {
                   inputMode="numeric"
                   value={lf.minutes}
                   onChange={(e) => setLf((f) => ({ ...f, minutes: e.target.value }))}
+                  className={FIELD}
+                  autoComplete="off"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="st-lunit" className={LABEL_CLS}>
+                  {t("studio.lUnit")}
+                </Label>
+                <Input
+                  id="st-lunit"
+                  type="number"
+                  min={0}
+                  max={99}
+                  value={lf.unit}
+                  onChange={(e) => setLf((f) => ({ ...f, unit: e.target.value }))}
                   className={FIELD}
                   autoComplete="off"
                 />

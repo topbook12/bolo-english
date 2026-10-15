@@ -53,6 +53,7 @@ export interface LibraryVocabEntry {
   word: string;
   level: LibraryLevel;
   category: string; // general | daily | work | travel | academic
+  unit?: number; // learning-path unit within the level (1-5; 0 = extra)
   data: LibraryVocabData;
 }
 
@@ -91,6 +92,7 @@ export interface LibraryGrammarMeta {
   topic: string;
   level: LibraryLevel;
   title: string;
+  unit?: number; // learning-path unit within the level (1-5; 0 = extra)
 }
 
 export interface LibraryGrammarEntry extends LibraryGrammarMeta {
@@ -144,6 +146,7 @@ export interface LibraryListeningEntry {
   level: LibraryLevel;
   category: LibraryListeningCategory;
   minutes: number;
+  unit?: number; // learning-path episode number (1-5; 0 = standalone)
   data: LibraryListeningData;
 }
 

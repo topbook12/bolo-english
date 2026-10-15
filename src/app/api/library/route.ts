@@ -94,7 +94,7 @@ export async function GET(req: NextRequest) {
       const q = (req.nextUrl.searchParams.get("q") ?? "").trim().toLowerCase();
       const rows = await db.libraryVocab.findMany({
         where: levelFilter,
-        orderBy: [{ sortOrder: "asc" }, { word: "asc" }],
+        orderBy: [{ unit: "asc" }, { sortOrder: "asc" }, { word: "asc" }],
         take: 1000,
       });
       const items = rows
@@ -103,6 +103,7 @@ export async function GET(req: NextRequest) {
           word: r.word,
           level: r.level,
           category: r.category,
+          unit: r.unit,
           data: JSON.parse(r.data) as LibraryVocabData,
         }))
         .filter(
@@ -139,7 +140,7 @@ export async function GET(req: NextRequest) {
       // Meta list (for topic grids)
       const rows = await db.libraryGrammar.findMany({
         where: levelFilter,
-        orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
+        orderBy: [{ unit: "asc" }, { sortOrder: "asc" }, { title: "asc" }],
         take: 500,
       });
       return jsonOk({
@@ -148,6 +149,7 @@ export async function GET(req: NextRequest) {
           topic: r.topic,
           level: r.level,
           title: r.title,
+          unit: r.unit,
         })),
       });
     }
@@ -155,7 +157,7 @@ export async function GET(req: NextRequest) {
     // listening
     const rows = await db.libraryListening.findMany({
       where: levelFilter,
-      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+      orderBy: [{ unit: "asc" }, { sortOrder: "asc" }, { createdAt: "asc" }],
       take: 500,
     });
     return jsonOk({
@@ -165,6 +167,7 @@ export async function GET(req: NextRequest) {
         level: r.level,
         category: r.category,
         minutes: r.minutes,
+        unit: r.unit,
         data: JSON.parse(r.data) as LibraryListeningData,
       })),
     });
@@ -193,6 +196,9 @@ export async function POST(req: NextRequest) {
   }
   const dataJson = JSON.stringify(data);
   const sortOrder = Number.isFinite(Number(entry.sortOrder)) ? Number(entry.sortOrder) : 0;
+  // Learning-path unit: 1-5 on the path, 0 = extra/standalone. Owner-settable.
+  const unitRaw = Math.floor(Number(entry.unit));
+  const unit = Number.isFinite(unitRaw) && unitRaw >= 0 && unitRaw <= 99 ? unitRaw : 1;
 
   try {
     if (kind === "vocab") {
@@ -202,8 +208,8 @@ export async function POST(req: NextRequest) {
       const category = String(entry.category ?? "general").slice(0, 30);
       const row = await db.libraryVocab.upsert({
         where: { word_level: { word, level } },
-        create: { word, level, category, data: dataJson, sortOrder },
-        update: { category, data: dataJson, sortOrder },
+        create: { word, level, category, data: dataJson, unit, sortOrder },
+        update: { category, data: dataJson, unit, sortOrder },
       });
       return jsonOk({ id: row.id });
     }
@@ -217,8 +223,8 @@ export async function POST(req: NextRequest) {
       const level = isLibraryLevel(entry.level) ? entry.level : "beginner";
       const row = await db.libraryGrammar.upsert({
         where: { topic_level: { topic, level } },
-        create: { topic, level, title, data: dataJson, sortOrder },
-        update: { title, data: dataJson, sortOrder },
+        create: { topic, level, title, data: dataJson, unit, sortOrder },
+        update: { title, data: dataJson, unit, sortOrder },
       });
       return jsonOk({ id: row.id });
     }
@@ -231,8 +237,8 @@ export async function POST(req: NextRequest) {
     const minutes = Math.max(1, Math.min(60, Number(entry.minutes ?? 2) || 2));
     const row = await db.libraryListening.upsert({
       where: { slug },
-      create: { slug, level, category, minutes, data: dataJson, sortOrder },
-      update: { level, category, minutes, data: dataJson, sortOrder },
+      create: { slug, level, category, minutes, data: dataJson, unit, sortOrder },
+      update: { level, category, minutes, data: dataJson, unit, sortOrder },
     });
     return jsonOk({ id: row.id });
   } catch {

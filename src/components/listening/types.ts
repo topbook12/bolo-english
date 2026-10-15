@@ -42,6 +42,8 @@ export interface LibraryStory {
   readonly category: LibraryCategory;
   /** Approximate listening time in minutes. */
   readonly minutes: number;
+  /** Learning-path episode number (1-5) when the story belongs to a serial; 0/undefined = standalone. */
+  readonly unit?: number;
   readonly title: Tri;
   /** 2-3 sentence summary in all three languages. */
   readonly summary: Tri;

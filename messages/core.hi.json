@@ -32,11 +32,14 @@
       "later": "बाद में",
       "iosHint": "iPhone/iPad: नीचे Share (↑) बटन दबाकर “Add to Home Screen” चुनें।",
       "close": "बंद करें"
-    }
+    },
+    "minutesShort": "मिनट"
   },
   "nav": {
     "home": "होम",
     "homeDesc": "आज की डायरी",
+    "path": "सीखने का रास्ता",
+    "pathDesc": "कदम-दर-कदम पूरा कोर्स",
     "speaking": "बोलें",
     "speakingDesc": "वीडियो कॉल पर अंग्रेज़ी अभ्यास",
     "grammar": "ग्रामर",

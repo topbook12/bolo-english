@@ -1,0 +1,101 @@
+{
+  "path": {
+    "title": "Learning Path",
+    "subtitle": "One small step at a time — words → grammar → listening",
+    "loading": "Loading your path",
+    "levelAria": "Choose your level",
+    "unitsAria": "Path units",
+    "unitDone": "Unit done",
+    "upNext": "Up next",
+    "hero": {
+      "progress": "{done}/{total} steps done",
+      "continue": "Continue",
+      "allDone": "Level complete!",
+      "allDoneBody": "All 5 units of this level are done. Switch to the next level and keep going."
+    },
+    "phase": {
+      "words": "Learn words",
+      "wordsDetail": "{learned}/{total} words marked learned",
+      "grammar": "Grammar lesson",
+      "listening": "Listening",
+      "episode": "Episode {n}",
+      "start": "Start",
+      "continue": "Continue",
+      "listen": "Listen",
+      "review": "Review"
+    },
+    "serial": {
+      "sadia-dhaka": "Serial story: Sadia Moves to Dhaka — one episode per unit",
+      "internship": "Serial story: The Internship — one episode per unit",
+      "green-startup": "Serial story: The Green Startup — one episode per unit"
+    },
+    "units": {
+      "b1": {
+        "theme": "My feelings & body",
+        "goal": "Say how you feel — I am hungry, I am tired, I am happy"
+      },
+      "b2": {
+        "theme": "Family & people",
+        "goal": "Introduce your family and the people around you in English"
+      },
+      "b3": {
+        "theme": "Home, food & market",
+        "goal": "Kitchen and market words — the things you use every day"
+      },
+      "b4": {
+        "theme": "Everyday actions",
+        "goal": "From morning to night — say everything you do in English"
+      },
+      "b5": {
+        "theme": "Weather, time & describing",
+        "goal": "Sky, rain, big and small — describe the world around you"
+      },
+      "i1": {
+        "theme": "Talking & opinions",
+        "goal": "Explain, agree and disagree, complain politely, make promises"
+      },
+      "i2": {
+        "theme": "Work & money",
+        "goal": "Salary, interviews, budgets — the language of working life"
+      },
+      "i3": {
+        "theme": "Travel & moving around",
+        "goal": "From the station to the hotel — every word of a journey"
+      },
+      "i4": {
+        "theme": "Character & feelings",
+        "goal": "Describe people's character and emotions precisely"
+      },
+      "i5": {
+        "theme": "Study & goals",
+        "goal": "Effort, habits, goals — the language of getting things done"
+      },
+      "a1": {
+        "theme": "Ideas & argument",
+        "goal": "Advocate, refute, justify — win an argument with precision"
+      },
+      "a2": {
+        "theme": "Society & policy",
+        "goal": "Inequality, infrastructure, welfare — discuss how society works"
+      },
+      "a3": {
+        "theme": "Business & negotiation",
+        "goal": "Stakeholders, liability, term sheets — professional deal-making English"
+      },
+      "a4": {
+        "theme": "Research & evidence",
+        "goal": "Hypothesis, methodology, correlation — academic and scientific language"
+      },
+      "a5": {
+        "theme": "Personality & nuance",
+        "goal": "Resilient, pragmatic, tenacious — describe people with exact words"
+      }
+    },
+    "why": {
+      "title": "Why this order works",
+      "point1": "Small chunks: 12 words + 1 lesson + 1 story — finishable in one sitting",
+      "point2": "Every step reuses the last: the story recycles the exact words you just learned",
+      "point3": "You recall at every step — marking words and taking the story quiz makes it stick"
+    }
+  }
+}

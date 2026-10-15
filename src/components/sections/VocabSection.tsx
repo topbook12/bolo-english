@@ -16,6 +16,7 @@ import WordbookTab from "@/components/vocab/WordbookTab";
 import QuizTab from "@/components/vocab/QuizTab";
 import VocabLibraryTab from "@/components/vocab/VocabLibraryTab";
 import { cancelSpeech } from "@/components/vocab/speech";
+import { peekNavIntent } from "@/lib/nav-intent";
 
 type VocabTab = "daily" | "library" | "wordbook" | "quiz";
 
@@ -54,6 +55,15 @@ export default function VocabSection() {
   // Stop any ongoing speech when leaving the section
   useEffect(() => {
     return () => cancelSpeech();
+  }, []);
+
+  // Deep link from the Learning Path: reveal the Word library tab (the inner
+  // VocabLibraryTab consumes the same intent for the unit filter).
+  useEffect(() => {
+    queueMicrotask(() => {
+      const intent = peekNavIntent();
+      if (intent && intent.tab === "vocab") setTab("library");
+    });
   }, []);
 
   const refreshWordbook = useCallback(() => setRefreshKey((k) => k + 1), []);

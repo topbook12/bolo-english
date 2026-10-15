@@ -18,6 +18,7 @@ import StatCard from "@/components/shared/StatCard";
 import { useDevice } from "@/hooks/use-device";
 import { useToast } from "@/hooks/use-toast";
 import { apiGet } from "@/lib/client-api";
+import { takeNavIntent } from "@/lib/nav-intent";
 import { cn } from "@/lib/utils";
 import LessonView from "@/components/grammar/LessonView";
 import { getBankLesson } from "@/components/grammar/bank";
@@ -89,6 +90,27 @@ export default function GrammarSection() {
       alive = false;
     };
   }, [view.kind]);
+
+  // Deep link from the Learning Path: jump straight into the unit's lesson.
+  // Path lessons are always bank or DB content (keyless), so no key guard.
+  useEffect(() => {
+    queueMicrotask(() => {
+      const intent = takeNavIntent();
+      if (!intent || intent.tab !== "grammar") return;
+      setLevelOverride(intent.level);
+      const staticTopic = TOPICS.find((tp) => tp.topic === intent.topic);
+      setView({
+        kind: "lesson",
+        topic: staticTopic ?? {
+          topic: intent.topic,
+          key: intent.topic,
+          icon: BookOpenText,
+        },
+        level: intent.level,
+        topicName: intent.topicName,
+      });
+    });
+  }, []);
 
   useEffect(() => {
     if (view.kind !== "topics") return;

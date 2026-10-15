@@ -106,7 +106,8 @@
         "culture": "Culture",
         "science": "Science & Nature",
         "inspire": "Inspiration"
-      }
+      },
+      "episode": "Ep {n}"
     }
   }
 }

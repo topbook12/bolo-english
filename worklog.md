@@ -1044,3 +1044,138 @@ Work Log:
 Stage Summary:
 - The user's two reported issues are fixed at the root: (1) remote video cuts within ~1.2s of a proper leave (deadlock fix), within ~150s for dead clients (staleness + auto-bye), and 1:1 calls now END for the survivor with the analysis screen; (2) the call UI fills up to 1152px on lg+ with 720p camera and state-aware tiles.
 - Key learning recorded: NEVER call global-db writes inside a Prisma interactive transaction on SQLite — use tx or move the write after commit.
+
+---
+Task ID: 9-f
+Agent: content-agent (listening beginner serial)
+Task: Write 5-episode beginner serial "Sadia Moves to Dhaka" in scripts/seed-data/listening-v2-beginner.ts
+
+Work Log:
+- Read worklog for context
+- Wrote listening-v2-beginner.ts: 5 episodes (sadia-dhaka-ep1..ep5), unit 1-5, A2 English ~200-240 words each, 4-5 story vocab + 3 quiz per episode
+
+Stage Summary:
+- Beginner listening serial ready for db-bootstrap integration
+
+---
+Task ID: 9-g
+Agent: content-agent (listening intermediate serial)
+Task: Write 5-episode intermediate serial "The Internship" in scripts/seed-data/listening-v2-intermediate.ts
+
+Work Log:
+- Read worklog for context
+- Wrote listening-v2-intermediate.ts: 5 episodes (internship-ep1..ep5), unit 1-5, B1 English ~310-380 words each, 5-6 story vocab + 3 quiz per episode
+
+Stage Summary:
+- Intermediate listening serial ready for db-bootstrap integration
+
+---
+Task ID: 9-a
+Agent: content-agent (vocab beginner)
+Task: Generate 48 new beginner vocab seed entries (units 1-5) in scripts/seed-data/vocab-v2-beginner.ts
+
+Work Log:
+- Read worklog for context
+- Wrote scripts/seed-data/vocab-v2-beginner.ts with 48 SeedVocabV2Entry entries following LibraryVocabData contract (bn-primary TriText, Bengali pronunciation, 2 examples each)
+
+Stage Summary:
+- Beginner vocab v2 seeds ready for db-bootstrap integration (48 words across units 1-5)
+
+---
+Task ID: 9-e
+Agent: content-agent (grammar batch B)
+Task: Write 6 new intermediate grammar lessons in scripts/seed-data/grammar-v2-b.ts
+
+Work Log:
+- Read worklog for context
+- Wrote grammar-v2-b.ts: Linking Words & Connectors, Phrasal Verbs in Daily Talk, Present Perfect Continuous, Used to & Would, Quantifiers, Question Tags & Short Answers (each 4 sections × 3 wrong→right examples + 4 tips, bn-primary TriText)
+
+Stage Summary:
+- Intermediate grammar batch B ready for db-bootstrap integration
+
+---
+Task ID: 9-h
+Agent: content-agent (listening advanced serial)
+Task: Write 5-episode advanced serial "The Green Startup" in scripts/seed-data/listening-v2-advanced.ts
+
+Work Log:
+- Read worklog for context
+- Wrote listening-v2-advanced.ts: 5 episodes (green-startup-ep1..ep5), unit 1-5, C1 English ~450-540 words each, 6 story vocab + 4 quiz per episode
+
+Stage Summary:
+- Advanced listening serial ready for db-bootstrap integration
+
+---
+Task ID: 9-b
+Agent: content-agent (vocab intermediate)
+Task: Generate 48 new intermediate vocab seed entries (units 1-5) in scripts/seed-data/vocab-v2-intermediate.ts
+
+Work Log:
+- Read worklog for context
+- Wrote scripts/seed-data/vocab-v2-intermediate.ts with 48 SeedVocabV2Entry entries (bn-primary TriText, work/travel/academic categories per unit)
+
+Stage Summary:
+- Intermediate vocab v2 seeds ready for db-bootstrap integration (48 words across units 1-5)
+
+---
+Task ID: 9-c
+Agent: content-agent (vocab advanced)
+Task: Generate 48 new advanced vocab seed entries (units 1-5) in scripts/seed-data/vocab-v2-advanced.ts
+
+Work Log:
+- Read worklog for context
+- Wrote scripts/seed-data/vocab-v2-advanced.ts with 48 SeedVocabV2Entry entries (bn-primary TriText, academic/work/general categories per unit)
+
+Stage Summary:
+- Advanced vocab v2 seeds ready for db-bootstrap integration (48 words across units 1-5)
+
+---
+Task ID: 9-d2
+Agent: content-agent (grammar A2)
+Task: Write 3 new intermediate grammar lessons in scripts/seed-data/grammar-v2-a2.ts
+
+Work Log:
+- Wrote grammar-v2-a2.ts: Relative Clauses (unit 0), Gerunds & Infinitives (unit 0), Modals: Deduction & Politeness (unit 0)
+
+Stage Summary:
+- Grammar batch A2 ready for db-bootstrap integration
+
+---
+Task ID: 9-d1
+Agent: content-agent (grammar A1)
+Task: Write 3 new intermediate grammar lessons in scripts/seed-data/grammar-v2-a1.ts
+
+Work Log:
+- Wrote grammar-v2-a1.ts: Comparatives & Superlatives (unit 5), Passive Voice — All Tenses (unit 0), Reported Speech Basics (unit 0)
+
+Stage Summary:
+- Grammar batch A1 ready for db-bootstrap integration
+
+---
+Task ID: 9
+Agent: main (Z.ai Code)
+Task: Library enrichment — psychology-based "শেখার পথ" (Learning Path): sequential units, massive content growth, free keyless progression
+
+Work Log:
+- Studied entire library system (schema, seeds, API, 3 learner surfaces, Studio, banks) via Explore agent + direct reads
+- Designed pedagogy: 5 units/level × (12 thematic words → 1 grammar lesson → 1 serial story episode → quiz); ZPD/chunking/schema-theory/testing-effect/i+1/narrative-motivation
+- Schema: added `unit Int` to LibraryVocab/LibraryGrammar/LibraryListening + db:push; DDL + PRAGMA-probed ALTER TABLE migration in db-bootstrap (fresh + pre-existing DBs)
+- Dispatched 9 parallel content agents: 144 new vocab (48/level, bn-primary TriText), 12 new intermediate grammar lessons (A1/A2/B batches), 15 serial episodes (Sadia Moves to Dhaka / The Internship / The Green Startup)
+- db-bootstrap v2: markers vocab_v2/grammar_v2/listening_v2; v1 entries create-if-missing + metadata-only update (owner edits preserved); v2 create-if-missing; library totals now 180 vocab / 16 grammar / 23 listening (+18 static = 41)
+- API: /api/library orderBy unit→sortOrder, unit in GET payloads + POST upserts (0-99 clamp)
+- New src/lib/learning-path.ts (PATH_UNITS curriculum, VOCAB_UNIT_MASTERY=10) + src/lib/nav-intent.ts (sessionStorage deep links, peek/take)
+- New PathSection ("Learning Path" tab, Route icon): level selector, overall progress bar, Continue→exact next step, 5 unit cards with 3 phase rows, why-it-works card; hydration-safe external stores
+- learned-store.ts (localStorage bolo_vocab_learned_v1) + grammar done-store got event/external-store snapshot; LessonView "Mark as read" for keyless completion
+- VocabLibraryTab: unit-grouped grid with theme headers + learned counts, unit chips filter, "I learned this" toggle, "Save to wordbook" (POST /api/vocab DailyWord mapping), deep-link intent
+- ListeningSection: Ep badges, serial-first sorting, deep-link opens StoryPlayer; GrammarSection deep-links into lessons; AppShell adds "path" tab (desktop sidebar #2, mobile More sheet)
+- HomeSection: Learning Path quick-start card + generated illustration (ill-path.webp)
+- Studio: unit inputs for all 3 forms; seed-library.ts CLI mirrors v2 semantics
+- i18n: new path.{en,bn,hi}.json namespace (units/serials/phases), nav.path, home.quick.path, vocab.lib.{markLearned,learned,saveWordbook,saved,unitChip,extraGroup,learnedCount,allUnits,unitsAria}, listening.library.episode, grammar.lesson.markRead, common.minutesShort — all 3 locales
+- Fixed en route: path namespace wrapper missing (raw keys), fresh-DB v1 re-seed bug (updateMany→create-if-missing upserts), stale Prisma client after schema change (dev restart), minutesShort key, ICU undefined params
+- Verified: tsc clean, eslint clean, API counts (60/60/60 vocab, 16 grammar, 7+5+5+6 listening), agent-browser end-to-end (desktop en + mobile bn): Continue→Word library Unit-1 filter→learned toggle→wordbook toast→path progress 1/15→grammar deep-link→Mark as read→green phase→episode player; console clean
+
+Stage Summary:
+- Library is now a psychology-based sequential course: 5 units × 3 phases × 3 levels, all 100% free (zero API key anywhere on the path)
+- Content grew 5×: vocab 36→180, grammar DB 4→16, listening 8→23 (41 total with static)
+- Production-safe: v2 bootstrap self-migrates Turso (ALTER + re-seed) on first request; owner studio edits/deletions preserved
+- Committed and pushed to main (Vercel auto-deploy)

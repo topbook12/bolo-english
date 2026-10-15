@@ -109,7 +109,16 @@
       "examplesLabel": "Examples",
       "tipLabel": "Usage tip",
       "synonymsLabel": "Similar:",
-      "antonymsLabel": "Opposite:"
+      "antonymsLabel": "Opposite:",
+      "allUnits": "All units",
+      "unitsAria": "Filter by learning-path unit",
+      "learnedCount": "{learned}/{total} learned",
+      "extraGroup": "Extra words",
+      "unitChip": "Unit {n}",
+      "markLearned": "I learned this",
+      "learned": "Learned",
+      "saveWordbook": "Save to wordbook",
+      "saved": "Saved to your wordbook"
     }
   }
 }

@@ -12,6 +12,7 @@ import {
   Settings,
   Menu,
   KeyRound,
+  Route,
   Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ import AuthButton from "@/components/auth/AuthButton";
 import { useMounted } from "@/hooks/use-mounted";
 import { useDeviceInit, useDeviceValue } from "@/hooks/use-device";
 import HomeSection from "@/components/sections/HomeSection";
+import PathSection from "@/components/path/PathSection";
 import SpeakingSection from "@/components/sections/SpeakingSection";
 import GrammarSection from "@/components/sections/GrammarSection";
 import ListeningSection from "@/components/sections/ListeningSection";
@@ -33,6 +35,7 @@ import SettingsSection from "@/components/sections/SettingsSection";
 
 export type TabId =
   | "home"
+  | "path"
   | "speaking"
   | "grammar"
   | "listening"
@@ -49,6 +52,7 @@ export const TABS: {
   descKey: string;
 }[] = [
   { id: "home", labelKey: "home", icon: Home, descKey: "homeDesc" },
+  { id: "path", labelKey: "path", icon: Route, descKey: "pathDesc" },
   { id: "speaking", labelKey: "speaking", icon: MessagesSquare, descKey: "speakingDesc" },
   { id: "grammar", labelKey: "grammar", icon: BookOpenText, descKey: "grammarDesc" },
   { id: "listening", labelKey: "listening", icon: Headphones, descKey: "listeningDesc" },
@@ -58,7 +62,7 @@ export const TABS: {
 ];
 
 const BOTTOM_TABS: TabId[] = ["home", "speaking", "grammar", "vocab"];
-const MORE_TABS: TabId[] = ["listening", "progress", "settings"];
+const MORE_TABS: TabId[] = ["path", "listening", "progress", "settings"];
 
 export default function AppShell() {
   const t = useTranslations();
@@ -94,6 +98,8 @@ export default function AppShell() {
     switch (tab) {
       case "home":
         return <HomeSection onNavigate={setTab} />;
+      case "path":
+        return <PathSection onNavigate={setTab} />;
       case "speaking":
         return <SpeakingSection />;
       case "grammar":

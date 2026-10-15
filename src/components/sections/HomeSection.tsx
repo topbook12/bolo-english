@@ -16,6 +16,7 @@ import {
   ChevronRight,
   ArrowRight,
   KeyRound,
+  Route,
   Target,
   Lightbulb,
   Sparkles,
@@ -53,6 +54,14 @@ const MODULES: {
   illustration: string;
   chip: string;
 }[] = [
+  {
+    id: "path",
+    titleKey: "quick.path",
+    descKey: "quick.pathDesc",
+    icon: Route,
+    illustration: "/illustrations/ill-path.webp",
+    chip: "from-teal-500/90 to-emerald-500/90 text-white",
+  },
   {
     id: "grammar",
     titleKey: "quick.grammar",
