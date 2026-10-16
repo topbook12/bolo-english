@@ -12,8 +12,17 @@ export interface DailyWord {
 }
 
 export interface GrammarSectionItem {
-  heading: string;
-  explanation: string; // Bangla explanation
+  heading: string; // may start with an emoji
+  /** One-line lead-in (v4 DB lessons). */
+  lead?: string;
+  /** v4 point-form bullets — the primary explanation. */
+  points?: string[];
+  /** v4 formula/pattern highlighted box. */
+  formula?: string;
+  /** v4 optional comparison table. */
+  table?: { head: string[]; rows: string[][] };
+  /** Legacy paragraph explanation (bank/AI content) — fallback. */
+  explanation?: string;
   examples: { wrong: string; right: string; note: string }[];
 }
 
@@ -21,6 +30,8 @@ export interface GrammarLessonContent {
   title: string;
   level: string;
   intro: string; // Bangla intro
+  /** v4 roadmap — one step per section, shown at the top of the lesson. */
+  roadmap?: string[];
   sections: GrammarSectionItem[];
   tips: string[]; // practical tips in Bangla
 }

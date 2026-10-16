@@ -3,6 +3,12 @@
 // Lesson view — renders one grammar lesson for a topic/level, with a sticky
 // CTA into the quiz. Load order: owner-authored DB lesson (zero keys) →
 // static bank (zero keys) → AI generation (BYO Gemini key).
+//
+// v4 UX (Task 10, owner mandate): lessons are POINT-FORM, not paragraphs —
+// every lesson shows a clickable ROADMAP ("এই লেসনে আমরা যা শিখব"), and each
+// section renders as a color-tinted step card with an emoji, a one-line lead,
+// scannable bullet points, an optional formula box and an optional mini table.
+// Legacy paragraph lessons (static bank / AI) still render via the fallback.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
@@ -12,9 +18,12 @@ import {
   Check,
   CircleCheckBig,
   CircleX,
+  Code2,
+  GraduationCap,
   Languages,
   Lightbulb,
   ListChecks,
+  Map,
   RefreshCw,
   TriangleAlert,
 } from "lucide-react";
@@ -46,7 +55,106 @@ interface LessonViewProps {
   onNextLesson?: () => void;
 }
 
-/** Owner-authored DB entry → the AI-shaped content this view renders. */
+/* ─── v4 section palette — rotating premium tints (no blue/indigo) ───────── */
+
+interface SectionTint {
+  bar: string; // gradient accent bar
+  chip: string; // emoji chip bg
+  step: string; // "ধাপ ১" label color
+  check: string; // bullet check icon color
+  checkBg: string; // bullet check circle bg
+  formula: string; // formula box border+bg
+  th: string; // table header cell
+}
+
+const SECTION_TINTS: SectionTint[] = [
+  {
+    bar: "from-emerald-500 to-teal-500",
+    chip: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+    step: "text-emerald-600 dark:text-emerald-400",
+    check: "text-emerald-600 dark:text-emerald-400",
+    checkBg: "bg-emerald-500/10 dark:bg-emerald-500/15",
+    formula: "border-emerald-500/25 bg-gradient-to-r from-emerald-500/[0.07] to-teal-500/[0.07]",
+    th: "bg-emerald-500/10 text-emerald-800 dark:text-emerald-200",
+  },
+  {
+    bar: "from-amber-500 to-orange-500",
+    chip: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+    step: "text-amber-600 dark:text-amber-400",
+    check: "text-amber-600 dark:text-amber-400",
+    checkBg: "bg-amber-500/10 dark:bg-amber-500/15",
+    formula: "border-amber-500/25 bg-gradient-to-r from-amber-500/[0.07] to-orange-500/[0.07]",
+    th: "bg-amber-500/10 text-amber-800 dark:text-amber-200",
+  },
+  {
+    bar: "from-rose-500 to-pink-500",
+    chip: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
+    step: "text-rose-600 dark:text-rose-400",
+    check: "text-rose-600 dark:text-rose-400",
+    checkBg: "bg-rose-500/10 dark:bg-rose-500/15",
+    formula: "border-rose-500/25 bg-gradient-to-r from-rose-500/[0.07] to-pink-500/[0.07]",
+    th: "bg-rose-500/10 text-rose-800 dark:text-rose-200",
+  },
+  {
+    bar: "from-teal-500 to-cyan-600",
+    chip: "bg-teal-500/10 text-teal-600 dark:text-teal-400",
+    step: "text-teal-600 dark:text-teal-400",
+    check: "text-teal-600 dark:text-teal-400",
+    checkBg: "bg-teal-500/10 dark:bg-teal-500/15",
+    formula: "border-teal-500/25 bg-gradient-to-r from-teal-500/[0.07] to-cyan-600/[0.07]",
+    th: "bg-teal-500/10 text-teal-800 dark:text-teal-200",
+  },
+  {
+    bar: "from-orange-500 to-amber-600",
+    chip: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
+    step: "text-orange-600 dark:text-orange-400",
+    check: "text-orange-600 dark:text-orange-400",
+    checkBg: "bg-orange-500/10 dark:bg-orange-500/15",
+    formula: "border-orange-500/25 bg-gradient-to-r from-orange-500/[0.07] to-amber-600/[0.07]",
+    th: "bg-orange-500/10 text-orange-800 dark:text-orange-200",
+  },
+];
+
+const ANIM_STEPS = [
+  "animate-fade-in-up-1",
+  "animate-fade-in-up-2",
+  "animate-fade-in-up-3",
+];
+
+function tintOf(i: number): SectionTint {
+  return SECTION_TINTS[i % SECTION_TINTS.length];
+}
+
+/** Split a leading emoji (+ optional FE0F/ZWJ continuation) from a heading. */
+const LEADING_EMOJI_RE =
+  /^(\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*)\s*/u;
+
+function splitEmoji(heading: string): [string, string] {
+  const m = heading.match(LEADING_EMOJI_RE);
+  return m ? [m[1], heading.slice(m[0].length)] : ["", heading];
+}
+
+/** Minimal rich text: converts **bold** spans to <strong>, escapes the rest. */
+function Rich({ text }: { text: string }) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return (
+    <>
+      {parts.map((p, i) =>
+        p.startsWith("**") && p.endsWith("**") && p.length > 4 ? (
+          <strong key={i} className="font-semibold text-foreground">
+            {p.slice(2, -2)}
+          </strong>
+        ) : (
+          p
+        )
+      )}
+    </>
+  );
+}
+
+/* ─── content mapping ─────────────────────────────────────────────────────── */
+
+/** Owner-authored DB entry → the render-shaped content this view renders. */
 function dbEntryToContent(
   entry: LibraryGrammarEntry,
   locale: string
@@ -55,9 +163,19 @@ function dbEntryToContent(
     title: pickTri(entry.data.title, locale),
     level: entry.level,
     intro: pickTri(entry.data.intro, locale),
+    roadmap: (entry.data.roadmap ?? []).map((r) => pickTri(r, locale)),
     sections: (entry.data.sections ?? []).map((s) => ({
       heading: pickTri(s.heading, locale),
-      explanation: pickTri(s.body, locale),
+      lead: s.lead ? pickTri(s.lead, locale) : undefined,
+      points: s.points?.length ? s.points.map((p) => pickTri(p, locale)) : undefined,
+      formula: s.formula ? pickTri(s.formula, locale) : undefined,
+      table: s.table
+        ? {
+            head: s.table.head.map((h) => pickTri(h, locale)),
+            rows: s.table.rows.map((row) => row.map((c) => pickTri(c, locale))),
+          }
+        : undefined,
+      explanation: s.body ? pickTri(s.body, locale) : undefined,
       examples: (s.examples ?? []).map((ex) => ({
         wrong: ex.wrong,
         right: ex.right,
@@ -72,8 +190,10 @@ function dbEntryToContent(
 function lessonContextOf(d: GrammarLessonContent): string {
   const parts: string[] = [`Intro: ${d.intro}`];
   for (const s of d.sections ?? []) {
+    const body =
+      (s.points ?? []).join(" • ") || s.explanation || "";
     parts.push(
-      `## ${s.heading}\n${s.explanation}\nExamples: ${(s.examples ?? [])
+      `## ${s.heading}\n${body}\nExamples: ${(s.examples ?? [])
         .map((e) => e.right)
         .join(" | ")}`
     );
@@ -81,6 +201,8 @@ function lessonContextOf(d: GrammarLessonContent): string {
   parts.push(`Tips: ${(d.tips ?? []).join("; ")}`);
   return parts.join("\n").slice(0, 3500);
 }
+
+/* ─── pieces ──────────────────────────────────────────────────────────────── */
 
 /** One AI example as a premium "wrong → right" card. */
 function ExampleCard({ wrong, right, note }: { wrong: string; right: string; note?: string }) {
@@ -209,6 +331,13 @@ export default function LessonView({
     void load();
   }, [load]);
 
+  /** Roadmap chip → smooth-scroll to the matching section card. */
+  const scrollToSection = useCallback((i: number) => {
+    document
+      .getElementById(`gsec-${i}`)
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
   return (
     <div className="mx-auto max-w-4xl space-y-4 pb-4">
       {/* Header */}
@@ -258,6 +387,11 @@ export default function LessonView({
               <Badge variant="outline" className="text-[11px]">
                 {name}
               </Badge>
+              {(data.sections ?? []).length > 0 && (
+                <Badge variant="outline" className="text-[11px]">
+                  {t("lesson.stepLabel", { n: fmt((data.sections ?? []).length) })}
+                </Badge>
+              )}
             </div>
             <h1 className="mt-2.5 text-xl font-bold tracking-tight sm:text-2xl">
               {data.title || name}
@@ -275,50 +409,225 @@ export default function LessonView({
             )}
           </section>
 
-          {/* Sections */}
-          <div className="space-y-4">
-            {(data.sections ?? []).map((s, i) => (
-              <Card
-                key={`${s.heading}-${i}`}
-                className={cn(
-                  "premium-card rounded-2xl border-border/70 bg-card shadow-sm",
-                  i === 0 && "animate-fade-in-up-1",
-                  i === 1 && "animate-fade-in-up-2",
-                  i >= 2 && "animate-fade-in-up-3"
-                )}
-              >
-                <CardContent className="space-y-3 p-4 sm:p-6">
-                  <div className="flex items-center gap-2.5">
-                    <span
-                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 text-xs font-bold text-white shadow-sm"
-                      aria-hidden
-                    >
-                      {fmt(i + 1)}
-                    </span>
-                    <h2 className="font-semibold leading-snug">{s.heading}</h2>
-                  </div>
-                  {s.explanation && (
-                    <div className="rounded-r-xl border-l-2 border-emerald-500/50 bg-emerald-500/[0.04] py-2.5 pl-3.5 pr-3">
-                      <p className="min-w-0 break-words text-[15px] leading-7 text-foreground/90">
-                        {s.explanation}
-                      </p>
-                    </div>
-                  )}
-                  {(s.examples ?? []).length > 0 && (
-                    <div className="max-h-96 space-y-3 overflow-y-auto nice-scroll pr-1">
-                      {(s.examples ?? []).map((ex, j) => (
-                        <ExampleCard
-                          key={j}
-                          wrong={ex.wrong}
-                          right={ex.right}
-                          note={ex.note}
+          {/* Roadmap — the lesson's visible follow-up map (v4) */}
+          {(data.roadmap ?? []).length > 0 && (
+            <section
+              aria-label={t("lesson.roadmapAria")}
+              className="premium-card animate-fade-in-up-1 rounded-2xl border-border/70 bg-card p-4 shadow-sm sm:p-5"
+            >
+              <h2 className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-wide text-muted-foreground">
+                <Map className="h-4 w-4 text-emerald-500" aria-hidden />
+                {t("lesson.roadmapTitle")}
+              </h2>
+              <ol className="mt-3 grid gap-2 sm:grid-cols-2">
+                {(data.roadmap ?? []).map((r, i) => {
+                  const tint = tintOf(i);
+                  const [, text] = splitEmoji(r);
+                  return (
+                    <li key={i}>
+                      <button
+                        type="button"
+                        onClick={() => scrollToSection(i)}
+                        className="group flex w-full items-center gap-2.5 rounded-xl border border-border/60 bg-muted/20 p-2.5 text-start transition-colors hover:border-emerald-500/40 hover:bg-emerald-500/[0.06] focus-visible:ring-2 focus-visible:ring-emerald-500/40 focus-visible:outline-none"
+                        aria-label={`${t("lesson.stepLabel", { n: fmt(i + 1) })}: ${text}`}
+                      >
+                        <span
+                          className={cn(
+                            "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br text-xs font-bold text-white shadow-sm transition-transform group-hover:scale-105",
+                            tint.bar
+                          )}
+                          aria-hidden
+                        >
+                          {fmt(i + 1)}
+                        </span>
+                        <span className="min-w-0 flex-1 text-sm leading-snug">{text}</span>
+                        <ArrowRight
+                          className="h-3.5 w-3.5 shrink-0 text-muted-foreground/50 transition group-hover:translate-x-0.5 group-hover:text-emerald-500"
+                          aria-hidden
                         />
-                      ))}
-                    </div>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ol>
+            </section>
+          )}
+
+          {/* Sections — one tinted step card each (v4 point-form) */}
+          <div className="space-y-4">
+            {(data.sections ?? []).map((s, i) => {
+              const tint = tintOf(i);
+              const [emoji, headingText] = splitEmoji(s.heading);
+              const points = s.points ?? [];
+              const exs = s.examples ?? [];
+              return (
+                <Card
+                  key={`${s.heading}-${i}`}
+                  id={`gsec-${i}`}
+                  className={cn(
+                    "premium-card scroll-mt-24 overflow-hidden rounded-2xl border-border/70 bg-card shadow-sm",
+                    ANIM_STEPS[Math.min(i, 2)]
                   )}
-                </CardContent>
-              </Card>
-            ))}
+                >
+                  {/* top accent bar */}
+                  <div className={cn("h-1 w-full bg-gradient-to-r", tint.bar)} aria-hidden />
+                  <CardContent className="space-y-3.5 p-4 sm:p-6">
+                    <header className="flex items-start gap-3">
+                      <span
+                        className={cn(
+                          "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-xl shadow-sm",
+                          tint.chip
+                        )}
+                        aria-hidden
+                      >
+                        {emoji || fmt(i + 1)}
+                      </span>
+                      <div className="min-w-0">
+                        <span
+                          className={cn(
+                            "text-[11px] font-bold uppercase tracking-wider",
+                            tint.step
+                          )}
+                        >
+                          {t("lesson.stepLabel", { n: fmt(i + 1) })}
+                        </span>
+                        <h2 className="mt-0.5 text-base font-bold leading-snug sm:text-lg">
+                          {headingText}
+                        </h2>
+                      </div>
+                    </header>
+
+                    {s.lead && (
+                      <p className="text-sm leading-relaxed text-muted-foreground">
+                        {s.lead}
+                      </p>
+                    )}
+
+                    {/* Point-form bullets — the v4 core (paragraph fallback below) */}
+                    {points.length > 0 ? (
+                      <ul className="space-y-2" role="list">
+                        {points.map((p, j) => (
+                          <li
+                            key={j}
+                            className="flex items-start gap-2.5 rounded-lg py-0.5"
+                          >
+                            <span
+                              className={cn(
+                                "mt-1 flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full",
+                                tint.checkBg
+                              )}
+                              aria-hidden
+                            >
+                              <Check
+                                className={cn("h-3 w-3", tint.check)}
+                                strokeWidth={3}
+                              />
+                            </span>
+                            <span className="min-w-0 flex-1 text-[15px] leading-7 text-foreground/90">
+                              <Rich text={p} />
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      s.explanation && (
+                        <div className="rounded-r-xl border-l-2 border-emerald-500/50 bg-emerald-500/[0.04] py-2.5 pl-3.5 pr-3">
+                          <p className="min-w-0 break-words text-[15px] leading-7 text-foreground/90">
+                            {s.explanation}
+                          </p>
+                        </div>
+                      )
+                    )}
+
+                    {/* Formula box */}
+                    {s.formula && (
+                      <div
+                        className={cn(
+                          "flex items-start gap-2.5 rounded-xl border p-3",
+                          tint.formula
+                        )}
+                      >
+                        <Code2
+                          className={cn("mt-0.5 h-4 w-4 shrink-0", tint.check)}
+                          aria-hidden
+                        />
+                        <div className="min-w-0">
+                          <span
+                            className={cn(
+                              "text-[11px] font-bold uppercase tracking-wider",
+                              tint.step
+                            )}
+                          >
+                            {t("lesson.formulaLabel")}
+                          </span>
+                          <p className="mt-0.5 text-[15px] leading-relaxed font-semibold break-words">
+                            <Rich text={s.formula} />
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Mini comparison table */}
+                    {s.table && s.table.head.length > 0 && (
+                      <div className="overflow-x-auto rounded-xl border border-border/70">
+                        <table className="w-full border-collapse text-sm">
+                          <thead>
+                            <tr>
+                              {s.table.head.map((h, k) => (
+                                <th
+                                  key={k}
+                                  scope="col"
+                                  className={cn(
+                                    "px-3 py-2 text-start text-[13px] font-bold whitespace-nowrap",
+                                    tint.th
+                                  )}
+                                >
+                                  {h}
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {s.table.rows.map((row, ri) => (
+                              <tr key={ri} className="border-t border-border/60 odd:bg-muted/20">
+                                {row.map((c, ci) => (
+                                  <td
+                                    key={ci}
+                                    className="px-3 py-2 align-top leading-relaxed break-words"
+                                  >
+                                    {c}
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* Examples */}
+                    {exs.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-2 text-[11px] font-bold tracking-wider text-muted-foreground uppercase">
+                          <GraduationCap className="h-3.5 w-3.5" aria-hidden />
+                          {t("lesson.examplesLabel")} · {fmt(exs.length)}
+                        </div>
+                        <div className="nice-scroll mt-2 max-h-96 space-y-3 overflow-y-auto pr-1">
+                          {exs.map((ex, j) => (
+                            <ExampleCard
+                              key={j}
+                              wrong={ex.wrong}
+                              right={ex.right}
+                              note={ex.note}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
 
           {/* Tips */}
@@ -329,7 +638,7 @@ export default function LessonView({
                   <Lightbulb className="h-4.5 w-4.5 text-amber-500" aria-hidden />
                   {t("lesson.tipsTitle")}
                 </h2>
-                <div className="mt-3 max-h-96 overflow-y-auto nice-scroll pr-1">
+                <div className="nice-scroll mt-3 max-h-96 overflow-y-auto pr-1">
                   <ul className="space-y-2.5">
                     {(data.tips ?? []).map((tip, i) => (
                       <li key={i} className="flex items-start gap-2.5 text-sm leading-relaxed">

@@ -129,7 +129,7 @@ function parseGrammarSections(text: string): LibraryGrammarSection[] {
       continue;
     }
     const s = ensure();
-    s.body = tri(s.body.bn ? `${s.body.bn}\n${line}` : line);
+    s.body = tri(s.body?.bn ? `${s.body.bn}\n${line}` : line);
   }
   return sections;
 }
@@ -406,7 +406,7 @@ export default function LibraryStudioCard() {
     if (!title) return fail(t("studio.errTitle"));
     if (
       sections.length === 0 ||
-      !sections.some((s) => s.body.bn.trim().length > 0 || s.examples.length > 0)
+      !sections.some((s) => (s.body?.bn ?? s.points?.[0]?.bn ?? "").trim().length > 0 || s.examples.length > 0)
     ) {
       return fail(t("studio.errSections"));
     }

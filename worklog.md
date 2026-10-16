@@ -1512,3 +1512,305 @@ Stage Summary:
 - Every lesson self-sufficient: usage → formation → signal words → deep dives → Bengali-speaker error families → story → recap + 10-question quiz, all keyless
 - Sequential flow: reordered topic grid (anchors first) + per-lesson "পরের পাঠ" navigation + prerequisite mentions in every intro
 - Committed and pushed to main (Vercel auto-deploy)
+
+---
+Task ID: 10-C8
+Agent: v4-content-agent
+Task: Comparatives & Superlatives + Passive Voice — All Tenses + Reported Speech Basics (intermediate, v2 source) → grammar-v4-v2a1.ts
+
+Work Log:
+- Read v4 spec + v2 source (scripts/seed-data/grammar-v2-a1.ts); all three lessons had NO quiz → quiz omitted per spec
+- Transformed each v2 body paragraph into 4-8 standalone bullet points (no fact dropped: spelling rules, elder/older, twice as big, by/with, to-must, if/whether, not to, shift-table words all survived); bn written first, en/hi faithful; **bold** key terms, one bold span per bullet
+- Every section: distinct emoji heading + ≤18-word lead; lesson roadmap = one TriText per section with the SAME emoji
+- Formula boxes: L1 (-er/-est vs more/most; as+adj+as), L2 (be+V3 with tense inside be; being vs been), L3 (say/tell; reported-question order; told/asked+to+verb)
+- Tables: L1 irregular 5-row (good→better→best …), L2 7-row tense→active→passive recap section "📊 সব tense-এর passive এক নজরে" (task special note), L3 6-row backshift table + 9-row time/place shift table
+- title/intro/tips/examples (36 wrong→right cards, 3-language notes) copied EXACTLY — verified programmatically: zero unintended diffs vs source (only bodies + old import path absent)
+- roadmap 4/5/4 = sections; points 22/27/23 (all 4-8); tsc --strict clean; no body/quiz fields; export SEED_GRAMMAR_V4_V2A1 + default
+
+Stage Summary:
+- scripts/seed-data/grammar-v4-v2a1.ts written (~700 lines): 3 lessons, 13 sections (4+5+4), 72 points, 36 examples, 3 formula-rich sections per lesson (formula or table), roadmap items 13; quiz omitted (v2 source had none)
+
+---
+Task ID: 10-C3
+Agent: v4-content-agent
+Task: Prepositions (in/on/at) (beginner) → grammar-v4-b1c.ts
+
+Work Log:
+- Read .agent-specs/v4-spec.md + worklog tail (offset 1490); Grep located the Prepositions lesson at lines 1888-2516 of grammar-v3-b1.ts (8 v3 sections, 37 examples, 10 tips, 10 quiz) and read the full slice
+- Confirmed the v4 contract in src/lib/library-types.ts (lead/points/formula/table on LibraryGrammarSection, roadmap on LibraryGrammarData; table head = TriText[], rows = TriText[][])
+- Transformed the single lesson: kept the 8 source sections and split the final story section (would exceed 8 points) into 📖 story + 🧠 এক নজরে recap → 9 sections, one distinct emoji each (🎯 🏗️ 🚦 🗺️ ⏰ 🔗 ⚠️ 📖 🧠)
+- Body paragraphs → 61 scannable bullets (bn first, en/hi faithful; every fact kept: 3 grounds, formation, time families, staircase, place map incl. vehicles/station contrast, 4 time exceptions, fixed pairs, 5 error families, Sabina story, recap); **bold** key terms, max one bold span per bullet, no emojis inside points
+- Added 9-item roadmap (same emoji per section, ≤12 words), section leads (≤18 words), formula boxes in গঠন (কর্তা + ক্রিয়া + in/on/at + স্থান) and আভাস শব্দ (in → on → at সিঁড়ি)
+- Built 2 tables per task note: time section (word | কখন | example) and place section (word | কোথায় | example)
+- examples (37), tips (10), quiz (10), title/intro/topic/level/unit copied EXACTLY from source (byte-level verified via transpile+deep-compare; fixed 5 Hindi strings whose Unicode normalization had drifted from the source bytes); body omitted everywhere
+- Wrote scripts/seed-data/grammar-v4-b1c.ts (SEED_GRAMMAR_V4_B1C + default, sortOrder 3, type-only import from ./grammar-v4-types); scoped tsc --strict passes; JSON-serializable check passes
+
+Stage Summary:
+- scripts/seed-data/grammar-v4-b1c.ts: 1 lesson (Prepositions in/on/at, beginner, unit 4, sortOrder 3) — 9 sections / 9 roadmap items / 61 points / 37 examples kept / 10 tips / 10 quiz / 2 tables (time + place) / 2 formula boxes, zero body paragraphs
+
+---
+Task ID: 10-C9
+Agent: v4-content-agent
+Task: Relative Clauses + Gerunds & Infinitives + Modals: Deduction & Politeness (intermediate, v2 source) → grammar-v4-v2a2.ts
+
+Work Log:
+- Read v4 spec (.agent-specs/v4-spec.md) + worklog tail; read source grammar-v2-a2.ts (3 intermediate lessons, 4 sections × 3 examples each, no quiz in source, unit 0)
+- Transformed all 3 lessons to v4 point-form: roadmap 1:1 with sections (emoji-matched, ≤12 words), emoji headings (distinct per section, same across bn/en/hi), ≤18-word leads, body paragraphs → 4-8 bullet points (every rule/contrast/English snippet survived; **bold** key terms only), body field omitted
+- Relative Clauses: added who/whom/which/that/whose reference table (special note honoured) + defining vs non-defining comparison table + 2 formula boxes (where/when/whose mantra, formal-vs-informal preposition patterns)
+- Gerunds & Infinitives: 3-column family table (verb + gerund | verb + to-infinitive | both — meaning changes) + preposition/adjective pattern table + 4 formula boxes
+- Modals: Deduction & Politeness: certainty-scale table (must 95% / may-might 50% / can't), politeness-ladder table (Can → Could → Would you mind + -ing), offer/permission table + 4 formula boxes (incl. modal + have + V3)
+- title/intro/tips/examples copied EXACTLY (36 examples with all TriText notes; verified byte-exact via compiled diff against source — fixed one Devanagari/Bengali codepoint slip in a copied hi note); quiz omitted (absent in source); topic/level/title/unit kept exactly; sortOrder 7/8/9
+- Wrote scripts/seed-data/grammar-v4-v2a2.ts in ONE Write call (934 lines; exports SEED_GRAMMAR_V4_V2A2 + default); tsc --noEmit clean; emitted to /tmp and programmatically verified counts, emoji/roadmap consistency, no body fields, no undefined
+
+Stage Summary:
+- File: scripts/seed-data/grammar-v4-v2a2.ts — 3 lessons: Relative Clauses (s7), Gerunds & Infinitives (s8), Modals: Deduction & Politeness (s9)
+- Sections 4+4+4 = 12 (every section: emoji heading + lead + points, zero bodies); points 23+24+25 = 72; roadmap items 12
+- Formula/table coverage ≥3 per lesson: L1 2 tables + 2 formulas, L2 2 tables + 4 formulas, L3 3 tables + 4 formulas
+- Examples kept: 36 (12 × 3); quiz: y/n per lesson = n/n/n (source had none)
+
+---
+Task ID: 10-C17
+Agent: v4-content-agent
+Task: Used to & Would + Quantifiers + Question Tags & Short Answers (intermediate, v2 source) → grammar-v4-v2b2.ts
+
+Work Log:
+- Read v4 spec + grammar-v4-types.ts; located the 3 assigned lessons in grammar-v2-b.ts (lines 641-845, 848-1053, 1056-1261) via rg topic search.
+- Verified source lessons have NO quiz field → quiz omitted in all three outputs (per spec).
+- Transformed all 12 v2 body paragraphs into point-form: 12 sections (4 per lesson), each with distinct emoji heading, ≤18-word lead, 4-8 bullets (≤22 words, **bold** key terms, every rule/contrast/English snippet preserved).
+- Lesson 1 (Used to & Would, sortOrder 13): used-to/would decision table (one-off | state: only used to | repeated: both | story openings), 3 formula boxes.
+- Lesson 2 (Quantifiers, sortOrder 14): countable-vs-uncountable feature table + quantifier×countable/uncountable table with a few/few + a little/little meaning-change pairs, 3 formulas.
+- Lesson 3 (Question Tags & Short Answers, sortOrder 15): tag rule formula ("পজিটিভ বাক্য → নেগেটিভ ট্যাগ...") + special-tag table (I am→aren't I?, Let's→shall we?, imperative→will you?, there, everyone→they), 3 formulas.
+- Copied title/intro/tips/examples EXACTLY from source (automated check: 315 source strings, 279 verbatim in output; the only 36 non-matches are precisely the omitted body paragraphs).
+- Wrote output in ONE Write call (845 lines); validated with tsc --noEmit --strict (exit 0) and emoji-pairing check (roadmap emojis == heading emojis, all 3 lessons).
+- Did not modify any other file; no dev server, no git.
+
+Stage Summary:
+- File: scripts/seed-data/grammar-v4-v2b2.ts, export SEED_GRAMMAR_V4_V2B2 (+ default), 845 lines, TS-valid.
+- 3 lessons: Used to & Would (13), Quantifiers (14), Question Tags & Short Answers (15); unit 0 kept.
+- Sections: 12 total (4 per lesson); points: 69 total (24/22/23); examples: 36 kept exact (12 per lesson); roadmap: 12 items (one per section, emoji-matched).
+- Tables: 4 (decision table, countable/uncountable, quantifier pairs, special tags); formulas: 9; quiz: none (source had none).
+
+---
+Task ID: 10-C16
+Agent: v4-content-agent
+Task: Linking Words & Connectors + Phrasal Verbs in Daily Talk + Present Perfect Continuous (intermediate, v2 source) → grammar-v4-v2b1.ts
+
+Work Log:
+- Read .agent-specs/v4-spec.md + grammar-v4-types.ts/LibraryGrammarSection contract; located the 3 assigned lessons in grammar-v2-b.ts (lines 17 / 225 / 433).
+- Transformed each v2 paragraph lesson into v4 point-form: added roadmap (1 TriText item per section, same emoji as heading), section headings prefixed with distinct emoji (same across bn/en/hi), one-line lead (≤18 words), and 4-8 bullet points replacing every body paragraph (split don't drop; **bold** key terms; one bold span per bullet). body omitted everywhere.
+- Formula boxes: L1 "Clause + and/but/so/because + clause", "পূর্ণ বাক্য। However/Therefore, ...", "although+subject+verb • despite+noun/-ing"; L2 "verb + particle = নতুন অর্থ", separable/inseparable ✓✗ rule; L3 mandated "কর্তা + have/has been + ক্রিয়া+ing", "মাপ→for • বিন্দু→since", stative → have+V3.
+- Tables: L1 mandated function table (স্তর | যোগ | বিপরীত | কারণ | ফলাফল | শর্ত × রোজকার/আনুষ্ঠানিক rows); L2 mandated phrasal verb table (verb | অর্থ | বাস্তব বাক্য, 12 rows across সকাল/কাজ/ঘর clusters); L3 mandated since/for/how-long table + perfect simple vs continuous comparison table.
+- Copied EXACTLY from source: topic, level, title, unit (0), data.title, intro, all 4 tips per lesson, and all section examples (wrong/right/note, all 3 languages) — verified via node deep-equal script against the source objects. quiz absent in source → field omitted in all 3 lessons.
+- Wrote scripts/seed-data/grammar-v4-v2b1.ts (SEED_GRAMMAR_V4_V2B1 + export default, type-only import from ./grammar-v4-types); tsc --noEmit strict check passed; structural checks passed (distinct emojis, roadmap↔heading emoji alignment, 0 body fields, points 4-8/section).
+
+Stage Summary:
+- File: scripts/seed-data/grammar-v4-v2b1.ts — 3 lessons (sortOrder 10/11/12, unit 0), 1283 lines.
+- Sections: 12 total (Linking Words 4, Phrasal Verbs 4, Present Perfect Continuous 4); roadmap items 12; formula boxes 9; tables 4.
+- Points: 73 total (L1: 8+7+5+6=26, L2: 8+7+5+6=26, L3: 6+5+5+5=21).
+- Examples kept: 36/36 source examples copied verbatim (3 per section).
+- Quiz: omitted in all 3 lessons (absent in v2 source).
+
+---
+Task ID: 10-C15
+Agent: v4-content-agent
+Task: Advanced Reported Speech (advanced) → grammar-v4-a2c.ts
+
+Work Log:
+- Read .agent-specs/v4-spec.md and source lesson "Advanced Reported Speech" in scripts/seed-data/grammar-v3-a2c.ts (8 v3 sections, 41 examples, 10 tips, 10 quiz questions).
+- Studied contract: grammar-v4-types.ts (SeedGrammarV4Entry) + sibling v4 files (b1a/b1b/b3a…) for style precedent (emoji headings, lead, points, formula, table, roadmap).
+- Transformed 1 lesson into 16 v4 sections: split v3 bodies into lead + 4-8 point bullets (93 points total), bodies omitted; every body fact kept (split, never dropped), key terms bolded (one bold span per bullet).
+- SPECIAL NOTE items built: (1) 12-row modal/backshift table (Direct | Reported | Example: am/is→was … have to→had to); (2) 5-row reporting-verb family table (reporting verb | প্যাটার্ন | উদাহরণ: admit/deny/mention + -ing, promise/agree/refuse/offer + to, suggest + -ing/that, apologise for + -ing, advise/remind/warn/tell/ask + ব্যক্তি + to); (3) 12-row time/place shift table (now→then … come→go).
+- Speech acts / verb families got their OWN sections: foundation say/tell (formula box), backshift table, signals + golden test (formula), backshift exceptions, family map (table), -ing family, to-infinitive family, suggest's rule (formula), person+to family (formula), reported questions 3 steps (formula), commands/requests/prohibitions (formula), time/place journey, 5 groups of subtle advanced errors, news-paragraph walkthrough, 7-rule at-a-glance + practice.
+- Copied EXACTLY from source: topic/level/title/unit (unit 0), data.title, intro (bn/en/hi), all 41 examples incl. trilingual notes (distributed across matching sections), all 10 tips, all 10 quiz questions; sortOrder: 9; exports SEED_GRAMMAR_V4_A2C + default; type-only import from ./grammar-v4-types.
+- Validated: tsc --strict noEmit passes; transpiled + script-checked (roadmap length = sections = 16, same distinct emoji per heading/roadmap item, no body fields, examples multiset identical to source, title/intro/tips/quiz byte-identical, JSON.stringify clean); trimmed 2 overlong bn bullets; remaining 4 longer bullets are verbatim quoted news sentences mandated by the no-drop rule.
+
+Stage Summary:
+- File written: scripts/seed-data/grammar-v4-a2c.ts (1 lesson, export SEED_GRAMMAR_V4_A2C, default export, sortOrder 9).
+- 16 sections, 93 points, 16 leads, 8 formula boxes, 3 tables (12+5+12 rows), roadmap = 16 emoji items matching headings.
+- 41/41 examples preserved exactly; 10 tips, 10 quiz questions copied unchanged; body paragraphs fully converted to points (0 dropped facts).
+
+---
+Task ID: 10-C12
+Agent: v4-content-agent
+Task: Discourse Markers & Cohesion + Collocations & Word Partnerships (advanced) → grammar-v4-a1c.ts
+
+Work Log:
+- Read .agent-specs/v4-spec.md; located the 2 assigned lessons in scripts/seed-data/grammar-v3-a1.ts (lines 1808-1998 and 2002-2192) via rg line scan; read all 8+8 source sections in slices.
+- Transformed lesson 1 "Discourse Markers & Cohesion" (unit 4, sortOrder 3): 8 sections, each with distinct emoji heading + lead + 4-8 point-form bullets; body paragraphs fully converted to bullets (no facts dropped); added formula boxes (semicolon/full-stop law; despite-vs-although border formula) and 4 tables — 3-team conjunction/linking-adverb table, marker FUNCTION table (যোগ | বিপরীত | কারণ | ফলাফল | উদাহরণ দিলে | ক্রম | সংশোধন-জোর), despite/although/because-of follow-up table, reference-device table; model paragraph preserved by splitting it into 3 quote bullets + 2 instruction bullets.
+- Transformed lesson 2 "Collocations & Word Partnerships" (unit 5, sortOrder 4): 9 sections (split source's combined "ছোট লেখায় দেখা যাক + এক নজরে" into two per spec); 5-family collocation-type table (verb+noun, adj+noun, adverb+adj, noun+noun, verb/adverb), heavy-verb do/make table with full partnership rows, calque wrong→right table (open the light → turn on, gave an exam → took, said a lie → told, made a party → had/threw), adjective-partner kingdoms table (rain/tea/sleep/schedule/awake); formulas: middle-word-swap rule, chunk rule, do/make born-vs-running rule.
+- Copied EXACTLY from source (all three languages): topic, level, title, unit, data.title, data.intro, all 73 examples (wrong/right/note), 10 tips + 10-question quiz per lesson.
+- Wrote scripts/seed-data/grammar-v4-a1c.ts in ONE Write call (708 lines), export SEED_GRAMMAR_V4_A1C + export default, type-only import from ./grammar-v4-types.
+- Verified: tsc --strict --noEmit PASS; JSON round-trip PASS (no undefined/functions); automated deep-compare vs v3 source — all copied fields byte-identical; roadmap items = section count with matching emoji per section (17/17); only intentional diff is the mandated L2 section split.
+
+Stage Summary:
+- File written: scripts/seed-data/grammar-v4-a1c.ts (2 lessons, 17 sections, 110 points, 73 examples, 17 roadmap items, 2 formulas + 7 tables, tips 10+10, quiz 10+10 kept from source).
+
+---
+Task ID: 10-C14
+Agent: v4-content-agent
+Task: Subjunctive & Unreal Uses + Hedging & Softening Language (advanced) → grammar-v4-a2b.ts
+
+Work Log:
+- Read v4 spec (.agent-specs/v4-spec.md) + worklog tail; read full source grammar-v3-a2b.ts (2 advanced lessons, 8 sections each, 38 examples each, 10 tips + 10 quiz each, unit 0)
+- Transformed both lessons to v4 point-form in ONE Write call (1774 lines; exports SEED_GRAMMAR_V4_A2B + default; type-only import from ./grammar-v4-types; sortOrder 7/8; topic/level/title/unit kept EXACTLY)
+- Subjunctive special note honoured: trigger TABLE (Verb | Adjective | Noun → trigger words + example) in 🚦 signals section; formula box per unreal-use family — ⭐ mandative (Subject + suggest/insist/demand + that + subject + V1), 🪞 unreal were (If/as if/wish + subject + were), 🏛️ formulaic (museum-statue frozen forms) + golden-rule formula in 🏗️ formation
+- Hedging special note honoured: strength-ladder TABLE (মজবুত দাবি → নরম দাবি: will → is likely to → may → might → could, one example sentence per rung) in 📊 cautious-claims section
+- Per-lesson 7 source sections → 9 v4 sections (split final story+recap into 📖 passage/email + 🧠 এক নজরে); distinct emoji per section, same emoji in bn/en/hi + roadmap; roadmap 9 items ≤12 words each
+- Body paragraphs → 60+62 = 122 bullets (≤8 per section; every rule/contrast/English snippet survived — verified by snippet scan: mandative patterns, negative/passive, was-vs-were contrast, frozen-phrase list, BrE should, 5 error groups, certainty ladder, 3-step criticism recipe, email hunting list, maybe/may be, 3-second scan); **bold** key terms only, no emojis inside points
+- Tables: L1 3 (7-pattern formation, 3-class trigger, 10 frozen phrases with bn/en/hi meanings); L2 4 (8 softening patterns, 5 hedging-device classes, certainty ladder, blunt→softened email pairs); formula boxes: L1 4, L2 3
+- title/intro/tips/examples/quiz copied EXACTLY (byte-verified via transpiled deep-compare against source: data.title, data.intro, 10 tips, 10 quiz, all 38 examples per lesson — all identical); body field omitted everywhere; recap sections carry examples: [] (all source examples live in their story/passage sections)
+- Verified: scoped tsc --strict --noEmit passes; JSON-serializable; no undefined; roadmap length = sections length; emoji consistency heading↔roadmap; lead ≤18 words; lessons share the v4-b1a..b3b conventions
+
+Stage Summary:
+- File: scripts/seed-data/grammar-v4-a2b.ts — 2 lessons: Subjunctive & Unreal Uses (s7), Hedging & Softening Language (s8)
+- Sections 9+9 = 18 (zero body paragraphs; every section = emoji heading + lead + points); points 60+62 = 122; roadmap 9+9
+- Tables 3+4 = 7; formula boxes 4+3 = 7; examples kept 38+38 = 76; tips 10+10; quiz y/y (10+10 questions)
+
+---
+Task ID: 10-C10
+Agent: v4-content-agent
+Task: Advanced Tense & Aspect Nuances (advanced) → grammar-v4-a1a.ts
+
+Work Log:
+- Read v4-spec.md; located source lesson in grammar-v3-a1.ts (lines 15-605) via rg topic search.
+- Verified v4 contract in grammar-v4-types.ts + src/lib/library-types.ts (lead/points/formula/table/roadmap fields).
+- Split the 7 v3 sections into 16 v4 sections: per-aspect sections (⏰ simple, 🏃 continuous, 🏁 perfect, 🌊 perfect continuous) each with its own formula box; 🧊 state-verb section with formula; 🎭 dual-verb (think/have/see) section; decision-ladder, 7-pattern table (🏗️), signal-word table (🚦), four-futures table (🎯), future-continuous (📸) vs future-perfect (✅) split with FC-vs-FP contrast table, subtle-errors (⚠️), story (📖) and at-a-glance + practice (📊) sections.
+- Converted every v3 body paragraph into 82 bullet points (no fact dropped: decision steps, by/at key words, polite-enquiry & anyway jobs, casual state-verb colour, backshift, dual-verb sense shifts, story sentences with aspect labels, practice task all preserved); bolded key terms; aspect-comparison tables built where the source enumerates contrasts.
+- Copied EXACTLY from source: title, intro (3 langs), all 34 examples (wrong/right/note ×3), 9 tips, 10-question quiz; body omitted everywhere; 16-item roadmap with one distinct emoji per section (16/16 unique).
+- Validated: npx tsc --noEmit (no errors in file); tsx runtime check — JSON.stringify OK (no undefined), 34/34 example pairs byte-identical to source, quiz questions/options/answers verbatim, title/intro/tips exact strings present.
+
+Stage Summary:
+- Wrote scripts/seed-data/grammar-v4-a1a.ts (export SEED_GRAMMAR_V4_A1A + default), 1 lesson (advanced, unit 1, sortOrder 0).
+- 16 sections, 82 points, 34 examples kept (100%), 16 roadmap items, 8 formula boxes, 6 tables, 0 body paragraphs; quiz: yes (10 Qs).
+
+---
+Task ID: 10-C20
+Agent: v4-content-agent
+Task: Present Perfect vs Past Simple + Subject-Verb Agreement (intermediate) → grammar-v4-i1a.ts
+
+Work Log:
+- Read .agent-specs/v4-spec.md + source grammar-v3-i1a.ts (both lessons, unit 0)
+- Transformed both v3 paragraph lessons into v4 point-form roadmap shape (headings = 1 emoji + source text; lead ≤18 words; 4-8 bullets per section; body OMITTED)
+- Lesson 1 (sortOrder 16): 8 sections ⏰🏗️🚦⏳📰⚠️📖📊 — closed-frame vs open-frame signal-word comparison table (special note) in ⏰ section, formation table in 🏗️, 6-word signal table in 🚦; 5 formula boxes
+- Lesson 2 (sortOrder 17): 8 sections 🤝🏗️🚦🧩🙈⚠️📖📊 — tricky-subject agreement-rule table (কর্তা | ক্রিয়া রূপ | উদাহরণ: each/every, everyone, one of, either/neither, and-pair, collective, The/A number of) in 📊 section (special note), core-forms table in 🏗️; 3 formula boxes
+- Split long body sentences into standalone bullets; every rule/contrast/English snippet from v3 body preserved; bn written first, en/hi faithful
+- title/intro/tips/quiz/examples copied EXACTLY (programmatic deep-equal check vs v3 source: ALL PASS, incl. heading = emoji + exact source heading per language)
+- Validated: tsc --noEmit clean, JSON-stringify OK (no undefined), roadmap length == sections length (8==8 both lessons)
+
+Stage Summary:
+- File written: scripts/seed-data/grammar-v4-i1a.ts (730 lines, exports SEED_GRAMMAR_V4_I1A + default, imports SeedGrammarV4Entry type-only from ./grammar-v4-types)
+- Lessons covered: 2 (Present Perfect vs Past Simple → sortOrder 16; Subject-Verb Agreement → sortOrder 17)
+- Sections: 8 + 8 = 16 | Points: 42 + 46 = 88 | Roadmap items: 16 | Formula boxes: 8 | Tables: 5
+- Examples kept: 38 + 39 = 77 (100% of source, all 3 note languages) | Tips: 9 + 9 | Quiz: 10 + 10 (kept in both)
+
+---
+Task ID: 10-C22
+Agent: v4-content-agent
+Task: Modals + Phrasal Verbs (intermediate) → grammar-v4-i2a.ts
+
+Work Log:
+- Read v4-spec.md; located both source lessons in grammar-v3-i2.ts (Modals lines 19-205, Phrasal Verbs lines 209-395) via rg topic index; read both slices in full.
+- Wrote scripts/seed-data/grammar-v4-i2a.ts in ONE Write call: export SEED_GRAMMAR_V4_I2A (+ default), type-only import from ./grammar-v4-types, sortOrder 20/21, unit 0 kept.
+- Modals: 8 sections (📊 matrix+obligation ladder, 🏗️ formation, 🚦 choosing, ⛔ mustn't vs don't have to, 🔁 past regret/deduction, 🧩 semi-modals, ⚠️ Bengali-speaker mistakes, 📖 story). Special note delivered: modal-meaning matrix table (modal | অর্থ/কাজ | উদাহরণ) with can/could/permission/should/must/have to/mustn't/deduction rows + mustn't vs don't have to comparison table; 4 formula boxes.
+- Phrasal Verbs: 8 sections (🗣️ what/why, 🏗️ three types, 🚦 particle moods, 🧩 take & get families, 🏙️ top pairs in clusters, ⚖️ register, ⚠️ mistakes, 📖 story). Special note delivered: separable vs inseparable vs three-word comparison table + 12-row high-frequency phrasal table (phrasal | অর্থ | ক্লাস্টার) + 8-row phrasal↔formal register table; 1 formula box.
+- Copied EXACTLY from source (all 3 languages): title, data.title, intro, tips (9 each), quiz (10 each), all 66 examples, and every section heading text (only prepended emoji + space).
+- Every body paragraph converted to lead (≤18 words) + 4-7 bold-term bullets; no fact dropped (all English snippets preserved inline); body field omitted everywhere; roadmap = 8 TriText items per lesson, emoji-matched to sections.
+- Verified with tsc --noEmit (exit 0) and a transpile harness: 2 lessons, counts below; deep JSON-compared title/intro/tips/quiz/headings/examples against v3 source; Intl.Segmenter check confirmed emoji+space prefix, distinct emojis, roadmap↔heading emoji match; zero `body` fields.
+
+Stage Summary:
+- File: scripts/seed-data/grammar-v4-i2a.ts (2 lessons, valid TS, tsc clean)
+- Modals (sortOrder 20): 8 sections, 41 points, 33 examples, 2 tables, 4 formulas, roadmap 8, tips 9, quiz 10 (kept)
+- Phrasal Verbs (sortOrder 21): 8 sections, 45 points, 33 examples, 3 tables, 1 formula, roadmap 8, tips 9, quiz 10 (kept)
+- Total: 16 sections, 86 points, 66 examples kept, 16 roadmap items, 0 body paragraphs
+
+---
+Task ID: 10-C23
+Agent: v4-content-agent
+Task: Common Mistakes + Since vs For (intermediate) → grammar-v4-i2b.ts
+
+Work Log:
+- Read .agent-specs/v4-spec.md and located the two assigned lessons in scripts/seed-data/grammar-v3-i2.ts (rg topic lines: 399, 592); read both source slices fully.
+- Wrote scripts/seed-data/grammar-v4-i2b.ts (one Write, 645 lines): import type from ./grammar-v4-types only; exports SEED_GRAMMAR_V4_I2B + default; unit kept = 0 for both; sortOrder 22 / 23.
+- Common Mistakes (int): split source sections so EVERY error family is its own section — 9 sections: translation shadows 🧭, word order 🏗️ (formula + SOV/SVO table), self-edit checklist ✍️ (4-pass table), preposition collocations 🧩 (10-pair table), verb-form traps ⚠️ (didn't + V1 formula), uncountable nouns 🚫 (measure-word formula), suggest pattern 🎯 (formula), pronunciation traps 🗣️ (split out per "each family its own section"), story 📖. Points styled like "**ভুল চিন্তা** — ..." with key term bolded; wrong/right examples all kept.
+- Since vs For (int): 8 sections ⏰🏗️🚦👬🧱⏳⚠️📖; since/for comparison table in the formation section (special note) and "How long have you been + verb-ing? → Since/For" Q&A formula box in the perfect-continuous section; formulas in 5 sections.
+- Roadmaps written 1 item per section, same order, each starting with its section's emoji; leads ≤ 18 words bn-first; body omitted everywhere; title/intro/tips/quiz copied verbatim.
+- Verified with tsx: TS strict compile OK; roadmap/section emoji match; no emoji inside points; every section has lead + 4-8 points; JSON-compared title/intro/tips/quiz and all 68 examples against v3 source — exact match (fixed one transcribed word in quiz item 7, থাকে not থাকবে).
+
+Stage Summary:
+- File: scripts/seed-data/grammar-v4-i2b.ts — 2 lessons, export SEED_GRAMMAR_V4_I2B, sortOrders 22-23.
+- Lesson 1 (Common Mistakes, sortOrder 22): 9 sections, 50 points, 36 examples, 4 formulas + 3 tables, roadmap 9, tips 9, quiz 10.
+- Lesson 2 (Since vs For, sortOrder 23): 8 sections, 50 points, 32 examples, 5 formulas + 1 table, roadmap 8, tips 9, quiz 10.
+- Totals: 17 sections, 100 points, 68 examples, 9 formulas, 4 tables; quiz present in both; no body paragraphs.
+
+---
+Task ID: 10-C21
+Agent: v4-content-agent
+Task: Question Formation + Passive Voice (intermediate) → grammar-v4-i1b.ts
+
+Work Log:
+- Read v4-spec.md + source grammar-v3-i1b.ts (both lessons, all sections/bodies/examples/tips/quiz).
+- Transformed "Question Formation" (intermediate, unit 0, sortOrder 18): 8 v4 sections from 8 source sections; body → points; added QUASM formula box + 5-type question table (yes-no | wh | subject | tag | indirect) in the Formation section, 10-row key-phrase table, formulas for negative-question answers, subject-vs-object wh, and Would you mind + -ing.
+- Transformed "Passive Voice" (intermediate, unit 0, sortOrder 19): 9 v4 sections from 8 source sections (source "গঠন — be + V3: আটটা রূপ" split into core-machine + tense-by-tense list); 8 passive shapes as one-point-per-tense formula list; by-agent keep/drop rules as points + 3-col decision table; no-passive verb table (intransitive/stative); signal-sign table.
+- title/intro/tips/quiz/examples copied byte-exact; section example arrays kept with their source section (split section "আটটা রূপ" carries examples: [] per sibling-batch precedent); body omitted everywhere; emoji headings + roadmap (same emoji per section) + leads (bn-first) written fresh in bn/en/hi.
+- Validated: npx tsc --noEmit --strict (exit 0); tsx runtime check — deep-equal title/intro/tips/quiz vs v3 source, examples concatenation byte-identical (78/78), roadmap emoji == heading emoji, no `body` field, JSON.stringify clean (no undefined), 92.7KB.
+
+Stage Summary:
+- Wrote scripts/seed-data/grammar-v4-i1b.ts (export SEED_GRAMMAR_V4_I1B + default), 2 lessons (intermediate, unit 0, sortOrder 18/19).
+- 17 sections (8 + 9), 116 points (55 + 61), 78 examples kept (100%), 17 roadmap items, 6 formula boxes, 5 tables, 0 body paragraphs; quiz: yes (10 Qs per lesson).
+
+---
+Task ID: 10-C18
+Agent: v4-content-agent
+Task: Nominalisation & Academic Style + Ellipsis & Substitution (advanced) → grammar-v4-a3a.ts
+
+Work Log:
+- Read v4-spec.md; located the 2 assigned lessons in grammar-v3-a3.ts (sortOrder 10 → lines 19-391, sortOrder 11 → lines 394-771) and read both fully.
+- Transformed each paragraph body into lead + 4-8 bolded-term bullets; split each lesson's final showcase section into (passage/dialogue) + a new "এক নজরে" recap section → L1: 9 sections, L2: 9 sections.
+- Built the special-brief tables: Nominalisation verb/adjective→noun suffix factory (10 rows: -tion/-sion, -ment, -ance/-ence, -al, -ure/-age, -ness/-ity/-cy/-th, irregulars), preposition-pair table (increase in / effect on / discussion of·on / proposal for / contribution to), 15-row academic verb→noun bank, and the ellipsis-vs-substitution overview table (do/does/did, So do I/Neither do I, do so, one/ones, it, so/not, that of, the latter).
+- Added 7 formula boxes (noun-vs-verb rule of thumb, transformation algorithm, recovery formula "বাংলা কর্তা লুকায় · ইংরেজি ক্রিয়া-গুচ্ছ লুকায়", short-answer pattern, one-vs-it/so-vs-not, recap cards).
+- Copied EXACTLY from source in all three languages: title, intro, tips (9+9), quiz (9+9 with explanations), heading texts (emoji prepended), and all 71 examples with trilingual notes; body field omitted everywhere.
+- One Write call wrote grammar-v4-a3a.ts (SEED_GRAMMAR_V4_A3A + default export, imports type-only from ./grammar-v4-types); verified with tsc --strict --noEmit (exit 0), confirmed 0 `body:` fields, 0 `undefined`, 71/71 wrong+right example pairs, 18 quiz items, 18 tips, 18 roadmap items, 18 leads, 4 tables, 7 formulas.
+
+Stage Summary:
+- File written: scripts/seed-data/grammar-v4-a3a.ts (1384 lines, 2 lessons, export SEED_GRAMMAR_V4_A3A).
+- Lesson 1 "Nominalisation & Academic Style" (sortOrder 10): 9 sections, 51 points, 35 examples kept, 9 roadmap items, 3 tables + 3 formulas.
+- Lesson 2 "Ellipsis & Substitution" (sortOrder 11): 9 sections, 55 points, 36 examples kept, 9 roadmap items, 1 table + 4 formulas.
+- Totals: 18 sections, 106 points, 71 examples (all preserved), 18 roadmap items, 5 tables, 7 formula boxes; quiz kept in both lessons.
+
+---
+Task ID: 10-C24R
+Agent: v4-content-agent
+Task: Articles (a/an/the) intermediate appended to grammar-v4-i3.ts
+
+Work Log:
+- Read .agent-specs/v4-spec.md; read source lesson "Articles (a/an/the)" (intermediate, unit 2) at grammar-v3-i3.ts lines 214-409.
+- Transformed the lesson per v4 rules: roadmap (9 items, one per section, each starting with its section's emoji), emoji headings, lead (≤18 words) per section, body paragraph converted to 61 crisp bullets (split, nothing dropped — every rule/contrast/English snippet preserved), **bold** key terms, formula boxes (4) and precision tables (6) where the source enumerates; body field omitted everywhere.
+- Split the final source section (story + recap combined) into two sections per spec split rule: 📖 story (8 bullets covering the Mithu narrative facts) + 🧾 at-a-glance recap (5 bullets); roadmap updated accordingly.
+- Copied EXACTLY from source (verified byte-identical via diff): topic/level/title, data.title, intro, all 39 examples (3-language notes), 10 tips, 10-question quiz.
+- Appended the new lesson object into SEED_GRAMMAR_V4_I3 before the closing `];` via Edit — unit kept as source (2), sortOrder 1; Tense basics lesson untouched.
+- Verified: typescript parse OK, `tsc --noEmit --strict` exit 0 against ./grammar-v4-types, JSON.stringify passes, default===named export, emoji uniqueness + roadmap/heading emoji match, lesson-1 counts unchanged (15 sections / 77 points / 44 examples).
+
+Stage Summary:
+- scripts/seed-data/grammar-v4-i3.ts now holds 2 lessons (Tense basics sortOrder 0 + Articles sortOrder 1, units 1/2).
+- Articles lesson: 9 sections, 9 roadmap items, 61 points, 39 examples kept unchanged, 4 formula boxes, 6 tables, 10 tips, 10 quiz questions.
+
+---
+Task ID: 10-C19R
+Agent: v4-content-agent
+Task: Register + Precision Articles & Quantifiers (advanced) → grammar-v4-a3b.ts
+
+Work Log:
+- REDO task: file was never written by the original agent. Read .agent-specs/v4-spec.md in full.
+- Located both lessons in grammar-v3-a3.ts via `rg -n 'topic: "'` (lines 774 & 1421) and read them in slices (did NOT touch Nominalisation/Ellipsis — sibling already did those).
+- Created scripts/seed-data/grammar-v4-a3b.ts in ONE Write call: import type { SeedGrammarV4Entry } from "./grammar-v4-types"; export const SEED_GRAMMAR_V4_A3B (+ export default).
+- Register lesson → 8 sections (🎯 audience/layers, 🏗️ word-pair scale + 4 mechanical rules, 🚦 email/chat/exam arenas, ✉️ 5-part email anatomy, 🔁 phrasal↔Latin pairs, ⚠️ two-registers-in-one-sentence + 3-step fix, 🧠 C1 slips, 📖 recap). SPECIAL NOTE honoured: informal↔formal phrase-mapping table (15 word pairs) in 🏗️, 13-row phrasal→Latin table in 🔁, 4-row officialese→global table in ⚠️.
+- Precision Articles & Quantifiers lesson → 8 sections (🎯 three viewpoints + 3-question test, 📊 quantifier chart, 🚦 which word calls which article, 🏛️ institution-purpose grid, 👑 where 'the' rules, 🧮 fine machinery, ⚠️ C1 slips, 📖 recap). SPECIAL NOTE honoured: few/little/less/fewer precision table (with mood column) in 🧮 + quantifier chart table.
+- Every body paragraph → lead (≤18 words, bn first) + 4-8 crisp bullets (split, never dropped; **bold** key term; English snippets inline); formula boxes in 5+5 sections, tables in 5+4 sections; body field omitted everywhere.
+- Copied EXACTLY from source: topic, level, title, unit, data.title, intro, tips (10×2), quiz (10×2), all 80 examples (wrong/right/note ×3 langs). Roadmap = 1 TriText per section, same order, same emoji as heading; distinct emoji per section.
+- Verified: `npx tsc --noEmit` clean; tsx structural audit (16 sections, points 4-8 each, roadmap length == sections, emoji match, no body, JSON-stringify safe); tsx copy-fidelity diff vs grammar-v3-a3.ts = ALL EXACT MATCHES.
+
+Stage Summary:
+- File written: scripts/seed-data/grammar-v4-a3b.ts (1685 lines), 2 lessons, sortOrder 12 & 13, advanced, unit 0.
+- Sections: Register 8 (5 formula / 5 table), Precision 8 (5 formula / 4 table) → 16 total.
+- Points: 124 total (Register 61, Precision 63); leads 16; formula boxes 10; tables 9.
+- Examples kept: 80/80 unchanged (40 per lesson); roadmap items: 16 (8 per lesson); tips 20; quiz 20 (10 per lesson, kept).

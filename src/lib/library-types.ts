@@ -65,9 +65,24 @@ export interface LibraryGrammarExample {
   note: TriText; // why wrong/right
 }
 
+/** Optional small comparison table inside a grammar section (e.g. signal words). */
+export interface LibraryGrammarTable {
+  head: TriText[];
+  rows: TriText[][];
+}
+
 export interface LibraryGrammarSection {
-  heading: TriText;
-  body: TriText; // detailed explanation
+  heading: TriText; // may start with an emoji (rendered inline by the UI)
+  /** One-line lead-in under the heading (v4). */
+  lead?: TriText;
+  /** v4 point-form bullets — the PRIMARY explanation format. */
+  points?: TriText[];
+  /** v4 formula/pattern shown in a highlighted box (e.g. "Subject + will + V1"). */
+  formula?: TriText;
+  /** v4 optional comparison table (signal words, forms, pairs). */
+  table?: LibraryGrammarTable;
+  /** Legacy paragraph explanation (v1-v3 content) — renderer fallback. */
+  body?: TriText;
   examples: LibraryGrammarExample[];
 }
 
@@ -81,6 +96,9 @@ export interface LibraryGrammarQuizQuestion {
 export interface LibraryGrammarData {
   title: TriText;
   intro: TriText;
+  /** v4 lesson roadmap — the step list shown at the top ("এই লেসনে যা শিখব").
+   *  One item per section, same order; each item starts with an emoji. */
+  roadmap?: TriText[];
   sections: LibraryGrammarSection[];
   tips: TriText[];
   quiz?: LibraryGrammarQuizQuestion[]; // optional — reserved for future DB quizzes
