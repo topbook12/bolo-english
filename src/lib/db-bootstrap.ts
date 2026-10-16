@@ -8,6 +8,23 @@ import { SEED_VOCAB_V2_ADVANCED } from "../../scripts/seed-data/vocab-v2-advance
 import { SEED_GRAMMAR_V2_A1 } from "../../scripts/seed-data/grammar-v2-a1";
 import { SEED_GRAMMAR_V2_A2 } from "../../scripts/seed-data/grammar-v2-a2";
 import { SEED_GRAMMAR_V2_B } from "../../scripts/seed-data/grammar-v2-b";
+// v3 — the comprehensive "develop every topic properly" upgrade (Task 9.3):
+// deep multi-section lessons for ALL 12 beginner + 14 advanced topics and the
+// 8 missing intermediate topics. One TriText row covers bn/en/hi.
+import { SEED_GRAMMAR_V3_B1 } from "../../scripts/seed-data/grammar-v3-b1";
+import { SEED_GRAMMAR_V3_B2A } from "../../scripts/seed-data/grammar-v3-b2a";
+import { SEED_GRAMMAR_V3_B2B } from "../../scripts/seed-data/grammar-v3-b2b";
+import { SEED_GRAMMAR_V3_B3 } from "../../scripts/seed-data/grammar-v3-b3";
+import { SEED_GRAMMAR_V3_I1A } from "../../scripts/seed-data/grammar-v3-i1a";
+import { SEED_GRAMMAR_V3_I1B } from "../../scripts/seed-data/grammar-v3-i1b";
+import { SEED_GRAMMAR_V3_I2 } from "../../scripts/seed-data/grammar-v3-i2";
+import { SEED_GRAMMAR_V3_I3 } from "../../scripts/seed-data/grammar-v3-i3";
+import { SEED_GRAMMAR_V3_I4 } from "../../scripts/seed-data/grammar-v3-i4";
+import { SEED_GRAMMAR_V3_A1 } from "../../scripts/seed-data/grammar-v3-a1";
+import { SEED_GRAMMAR_V3_A2A } from "../../scripts/seed-data/grammar-v3-a2a";
+import { SEED_GRAMMAR_V3_A2B } from "../../scripts/seed-data/grammar-v3-a2b";
+import { SEED_GRAMMAR_V3_A2C } from "../../scripts/seed-data/grammar-v3-a2c";
+import { SEED_GRAMMAR_V3_A3 } from "../../scripts/seed-data/grammar-v3-a3";
 import { SEED_LISTENING_V2_BEGINNER } from "../../scripts/seed-data/listening-v2-beginner";
 import { SEED_LISTENING_V2_INTERMEDIATE } from "../../scripts/seed-data/listening-v2-intermediate";
 import { SEED_LISTENING_V2_ADVANCED } from "../../scripts/seed-data/listening-v2-advanced";
@@ -42,7 +59,7 @@ export type LibraryKind = "vocab" | "grammar" | "listening";
 const MARKER_FEATURE = "library_bootstrap";
 const MARKERS: Record<LibraryKind, string> = {
   vocab: "vocab_v2",
-  grammar: "grammar_v2",
+  grammar: "grammar_v3", // v3 = the deep per-topic content upgrade
   listening: "listening_v2",
 };
 
@@ -289,6 +306,34 @@ const V2_GRAMMAR: GrammarSeedEntry[] = [
   ...SEED_GRAMMAR_V2_B,
 ];
 
+/* v3 — deep per-topic upgrade, authored in course order per level:
+ *   beginner  → 12 lessons (path anchors u1-u5 first, then extras)
+ *   advanced  → 14 lessons (path anchors u1-u5 first, then extras)
+ *   intermediate → 8 gap-filling lessons (v1/v2 rows keep sortOrder 0-15)
+ * v3 rows are a deliberate CONTENT upgrade mandated by the owner: unlike
+ * v1/v2, the `data` payload is overwritten on every (re)seed run. */
+const V3_GRAMMAR: GrammarSeedEntry[] = [
+  // beginner — course order
+  ...SEED_GRAMMAR_V3_B1,
+  ...SEED_GRAMMAR_V3_B2A,
+  ...SEED_GRAMMAR_V3_B2B,
+  ...SEED_GRAMMAR_V3_B3,
+  // advanced — course order
+  ...SEED_GRAMMAR_V3_A1,
+  ...SEED_GRAMMAR_V3_A2A,
+  ...SEED_GRAMMAR_V3_A2B,
+  ...SEED_GRAMMAR_V3_A2C,
+  ...SEED_GRAMMAR_V3_A3,
+  // intermediate — fills the 8 gaps left by v1/v2, then REPLACES the four
+  // thin v1 anchor lessons with the full-depth versions (same topic strings,
+  // same path units 1-4, same sortOrder slots 0-3)
+  ...SEED_GRAMMAR_V3_I1A,
+  ...SEED_GRAMMAR_V3_I1B,
+  ...SEED_GRAMMAR_V3_I2,
+  ...SEED_GRAMMAR_V3_I3,
+  ...SEED_GRAMMAR_V3_I4,
+];
+
 interface ListeningSeedEntry {
   slug: string;
   level: LibraryLevel;
@@ -402,6 +447,39 @@ async function seedGrammar(): Promise<number> {
           sortOrder: seen,
         },
         update: { unit: e.unit, sortOrder: seen },
+      });
+    } catch {
+      fails++;
+    }
+  }
+
+  // v3 — deep per-topic upgrade: CREATE or OVERWRITE data (owner-mandated
+  // content upgrade). Path anchors (unit 1-5) keep sortOrder = unit-1 so
+  // they stay in their v1 slots; extras continue after v1/v2 per level.
+  const v3Seen = new Map<string, number>();
+  for (let i = 0; i < V3_GRAMMAR.length; i++) {
+    const e = V3_GRAMMAR[i];
+    const base = e.level === "intermediate" ? 16 : 0;
+    const seen = (v3Seen.get(e.level) ?? base - 1) + 1;
+    v3Seen.set(e.level, seen);
+    const sortOrder = e.unit >= 1 && e.unit <= 5 ? e.unit - 1 : seen;
+    try {
+      await db.libraryGrammar.upsert({
+        where: { topic_level: { topic: e.topic, level: e.level } },
+        create: {
+          topic: e.topic,
+          level: e.level,
+          title: e.title,
+          data: JSON.stringify(e.data),
+          unit: e.unit,
+          sortOrder: seen,
+        },
+        update: {
+          title: e.title,
+          data: JSON.stringify(e.data),
+          unit: e.unit,
+          sortOrder: seen,
+        },
       });
     } catch {
       fails++;

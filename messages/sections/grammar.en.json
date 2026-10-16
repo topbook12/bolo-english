@@ -142,7 +142,9 @@
       "rightLabel": "Correct:",
       "errorTitle": "Couldn't load the lesson",
       "markRead": "Mark as read",
-      "markReadAria": "Mark this lesson as read"
+      "markReadAria": "Mark this lesson as read",
+      "nextLesson": "Next lesson",
+      "nextLessonAria": "Go to the next lesson"
     },
     "quiz": {
       "badge": "Quiz",

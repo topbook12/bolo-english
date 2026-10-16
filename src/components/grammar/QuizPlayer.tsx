@@ -1,8 +1,8 @@
 "use client";
 
-// Quiz player — 5 MCQs for one topic/level (static bank first, AI fallback),
-// one question at a time, instant feedback, score screen with wrong-answer
-// review and a practice-log POST on finish.
+// Quiz player — MCQs for one topic/level (owner DB quiz first → static bank
+// → AI fallback), one question at a time, instant feedback, score screen with
+// wrong-answer review and a practice-log POST on finish.
 
 import { useCallback, useEffect, useState } from "react";
 import type { ComponentType } from "react";
@@ -23,8 +23,9 @@ import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import PointList from "@/components/shared/PointList";
 import { useDevice } from "@/hooks/use-device";
-import { apiPost, callAi } from "@/lib/client-api";
+import { apiGet, apiPost, callAi } from "@/lib/client-api";
 import { cn } from "@/lib/utils";
+import { pickTri, type LibraryGrammarEntry } from "@/lib/library-types";
 import type { QuizQuestion } from "@/lib/types";
 import {
   errMessage,
@@ -86,14 +87,37 @@ export default function QuizPlayer({
     setCorrect(0);
     setAnswers([]);
     setLogged(false);
-    // 1) Static bank first — stored in this site's own source, zero API keys.
+    // 1) Owner-authored library lesson quiz — stored in the site's own DB,
+    //    zero API keys, multilingual explanations (bn/en/hi). Any DB problem
+    //    stays silent: we fall through to the bank/AI below.
+    try {
+      const res = await apiGet<{ items: LibraryGrammarEntry[] }>(
+        `/api/library?kind=grammar&topic=${encodeURIComponent(topic.topic)}&level=${level}`
+      );
+      const dbQuiz = res.items?.[0]?.data?.quiz ?? [];
+      if (Array.isArray(dbQuiz) && dbQuiz.length > 0) {
+        setQuestions(
+          dbQuiz.map((q) => ({
+            question: q.question,
+            options: q.options,
+            answer: q.answer,
+            explanation: pickTri(q.explanation, locale),
+          }))
+        );
+        setPhase("playing");
+        return;
+      }
+    } catch {
+      // DB miss/offline → static bank or AI below (never an error state)
+    }
+    // 2) Static bank — stored in this site's own source, zero API keys.
     const banked = getBankQuiz(topic.topic, level, locale);
     if (banked && banked.length > 0) {
       setQuestions(banked);
       setPhase("playing");
       return;
     }
-    // 2) Bank miss → AI generation (needs the user's Gemini key).
+    // 3) Bank miss → AI generation (needs the user's Gemini key).
     if (!deviceId) return;
     try {
       const qs = await callAi<QuizQuestion[]>(deviceId, "grammar-quiz", {

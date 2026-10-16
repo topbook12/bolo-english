@@ -42,6 +42,8 @@ interface LessonViewProps {
    * Always preferred when present — `t()` on a missing key throws in dev.
    */
   topicName?: string;
+  /** Present when a next topic exists in the sequential course order. */
+  onNextLesson?: () => void;
 }
 
 /** Owner-authored DB entry → the AI-shaped content this view renders. */
@@ -135,6 +137,7 @@ export default function LessonView({
   onBack,
   onStartQuiz,
   topicName,
+  onNextLesson,
 }: LessonViewProps) {
   const t = useTranslations("grammar");
   const tc = useTranslations("common");
@@ -362,6 +365,17 @@ export default function LessonView({
               </div>
               {/* Mark-as-read: keyless completion for the Learning Path —
                   reading the lesson fully counts even without a quiz. */}
+              {onNextLesson && (
+                <Button
+                  variant="outline"
+                  onClick={onNextLesson}
+                  className="min-h-11 gap-1.5 rounded-xl border-teal-500/40 px-3 text-teal-700 hover:bg-teal-500/10 dark:text-teal-300"
+                  aria-label={t("lesson.nextLessonAria")}
+                >
+                  <ArrowRight className="h-4 w-4" aria-hidden />
+                  <span className="hidden sm:inline">{t("lesson.nextLesson")}</span>
+                </Button>
+              )}
               <Button
                 variant="outline"
                 onClick={() => saveDoneTopic(topic.topic)}

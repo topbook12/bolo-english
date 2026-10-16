@@ -71,33 +71,53 @@ const ADVANCED_TINT_CYCLE = [
 ] as const;
 
 // Foundation grid — the core A2/B1 topics every learner needs first.
+// ORDER = the sequential course order: the five Learning-Path anchors come
+// first (units 1-5), then the extras — so "next topic" always makes sense.
 const FOUNDATION_META: Pick<GrammarTopic, "topic" | "key" | "icon">[] = [
   { topic: "Tense basics", key: "tense", icon: Clock3 },
+  { topic: "Subject-Verb Agreement", key: "agreement", icon: Users },
+  { topic: "Question Formation", key: "questions", icon: CircleHelp },
+  { topic: "Prepositions (in/on/at)", key: "prepositions", icon: MapPin },
+  { topic: "Articles (a/an/the)", key: "articles", icon: LetterText },
   {
     topic: "Present Perfect vs Past Simple",
     key: "presentPerfect",
     icon: Scale,
   },
-  { topic: "Articles (a/an/the)", key: "articles", icon: LetterText },
-  { topic: "Prepositions (in/on/at)", key: "prepositions", icon: MapPin },
-  { topic: "Subject-Verb Agreement", key: "agreement", icon: Users },
-  { topic: "Question Formation", key: "questions", icon: CircleHelp },
   { topic: "Conditionals", key: "conditionals", icon: GitBranch },
   { topic: "Passive Voice", key: "passive", icon: Repeat },
   { topic: "Modals (can/should/must)", key: "modals", icon: KeyRound },
   { topic: "Phrasal Verbs", key: "phrasal", icon: Blocks },
+  { topic: "Since vs For", key: "sinceFor", icon: Hourglass },
   {
     topic: "Common Mistakes by Bengali Speakers",
     key: "mistakes",
     icon: TriangleAlert,
   },
-  { topic: "Since vs For", key: "sinceFor", icon: Hourglass },
 ];
 
 // Advanced grid — C1-level topics: nuance, style and academic English.
 // `topic` is the canonical English string sent to the AI (also the cache key
 // part and the completed-topics id), so it must stay stable once released.
+// ORDER = sequential course order: the five Learning-Path anchors first.
 const ADVANCED_META: Pick<GrammarTopic, "topic" | "key" | "icon">[] = [
+  {
+    topic: "Advanced Tense & Aspect Nuances",
+    key: "tenseAspect",
+    icon: History,
+  },
+  { topic: "Participle Clauses", key: "participleClauses", icon: Combine },
+  { topic: "Cleft Sentences", key: "cleft", icon: Split },
+  {
+    topic: "Discourse Markers & Cohesion",
+    key: "discourse",
+    icon: Workflow,
+  },
+  {
+    topic: "Collocations & Word Partnerships",
+    key: "collocations",
+    icon: Puzzle,
+  },
   {
     topic: "Inversion & Emphasis Structures",
     key: "inversion",
@@ -108,14 +128,7 @@ const ADVANCED_META: Pick<GrammarTopic, "topic" | "key" | "icon">[] = [
     key: "mixedConditionals",
     icon: Shuffle,
   },
-  { topic: "Cleft Sentences", key: "cleft", icon: Split },
   { topic: "Subjunctive & Unreal Uses", key: "subjunctive", icon: WandSparkles },
-  { topic: "Participle Clauses", key: "participleClauses", icon: Combine },
-  {
-    topic: "Discourse Markers & Cohesion",
-    key: "discourse",
-    icon: Workflow,
-  },
   {
     topic: "Hedging & Softening Language",
     key: "hedging",
@@ -129,19 +142,9 @@ const ADVANCED_META: Pick<GrammarTopic, "topic" | "key" | "icon">[] = [
   },
   { topic: "Ellipsis & Substitution", key: "ellipsis", icon: Ellipsis },
   {
-    topic: "Collocations & Word Partnerships",
-    key: "collocations",
-    icon: Puzzle,
-  },
-  {
     topic: "Register: Formal vs Informal English",
     key: "register",
     icon: SlidersHorizontal,
-  },
-  {
-    topic: "Advanced Tense & Aspect Nuances",
-    key: "tenseAspect",
-    icon: History,
   },
   {
     topic: "Precision Articles & Quantifiers",
@@ -165,6 +168,21 @@ export const TOPICS: (GrammarTopic & { tint: string })[] = [
   ...FOUNDATION_TOPICS,
   ...ADVANCED_TOPICS,
 ];
+
+/**
+ * The next topic in the sequential course, within the group the given topic
+ * belongs to (foundation or advanced). Returns null for the last topic of a
+ * group and for owner-made topics outside the static curriculum.
+ */
+export function nextTopicInCourse(topic: string): GrammarTopic | null {
+  for (const group of TOPIC_GROUPS) {
+    const idx = group.topics.findIndex((tp) => tp.topic === topic);
+    if (idx !== -1) {
+      return idx + 1 < group.topics.length ? group.topics[idx + 1] : null;
+    }
+  }
+  return null;
+}
 
 /** Topic grid grouped by difficulty, in display order. */
 export const TOPIC_GROUPS: GrammarTopicGroup[] = [

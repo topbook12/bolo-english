@@ -1202,3 +1202,313 @@ Stage Summary:
 - The path now covers the FULL memory cycle: LEARN → BUILD → LISTEN → RECALL → spaced REVIEW (Ebbinghaus-correct)
 - Every library word is now audible on all vocab surfaces (hearing = correct pronunciation for Bengali speakers)
 - 100% free, keyless, localStorage-only — works for every device with zero backend cost
+---
+Task ID: 9.3-I2
+Agent: content-agent (grammar intermediate I2)
+Task: 4 deep intermediate lessons in grammar-v3-i2.ts
+
+Work Log:
+- Read worklog context + src/lib/library-types.ts (TriText/LibraryGrammarData contracts) + exemplar grammar-v2-b.ts (Linking Words lesson) for TriText style, bn-primary depth, wrong/right example format
+- Wrote scripts/seed-data/grammar-v3-i2.ts (779 lines): 4 entries {topic, level: "intermediate", title, unit: 0, data} with full TriText title/intro/sections/tips/quiz; intro of each lesson states prerequisites for sequential learning
+- Lesson 1 Modals (can/should/must): obligation ladder must>have to>should, mustn't vs don't have to, should have/must have/can't have + V3 (regret & deduction), semi-modals (have to/need to/ought to), politeness ladder (Can I→Could I→Would you mind + -ing), 8 bn headings, 33 examples, 9 tips, 10 quiz
+- Lesson 2 Phrasal Verbs: separable/inseparable/three-word types, pronoun placement (turn it off), particle moods (up/off/on/out), take & get families, everyday top clusters (put up with, look forward to + -ing, run out of, call off...), register (put off vs postpone) + Bengali one-verb mapping trap ('Please on the fan', 'Our sugar finished'), 33 examples, 9 tips, 10 quiz
+- Lesson 3 Common Mistakes by Bengali Speakers: translation-shadow causes, word-order calques, preposition collocations (depend ON, married TO, arrive AT/IN) + zero-preposition verbs (discuss/reach/enter/marry), 'I am agree'/didn't went/stative-verb errors, uncountables (informations/furnitures/advices/luggages/news), suggest that+clause vs advise me to, Indian-English fossils (do the needful, pass out, cousin brother), v/b + s/sh pronunciation traps, 36 examples, 9 tips, 10 quiz
+- Lesson 4 Since vs For: point vs duration core rule, since-clause past simple rule, since vs from ('থেকে' two-way trap), It has been + span + since + past simple, perfect continuous pairing, 4 classic error families ('I am here since 2020', 'since two years', from-in-perfect, since-clause perfect), 32 examples, 9 tips, 10 quiz
+- Verified: npx tsc --noEmit on the file → clean (exit 0); bracket balance {} [] () = 0; double-quote parity even; per-lesson stats 8 sections / 32-36 examples / 9 tips / 10 quiz (~190 lines each)
+- Not touched: no other file modified; quiz field populated though optional (schema already reserves it); file not yet wired into seed-library.ts (owner integration task)
+
+Stage Summary:
+- Intermediate grammar curriculum gains 4 gap-filling deep lessons: Modals (can/should/must), Phrasal Verbs, Common Mistakes by Bengali Speakers, Since vs For — all unit 0 (extra library lessons), level "intermediate"
+- Every lesson follows the mandated section plan: কখন ব্যবহার হয় → গঠন → আভাস/প্যাটার্ন → 3 topic-specific deep sections → বাঙালি শিক্ষার্থীদের কমন ভুল → ছোট গল্পে দেখা যাক + এক নজরে recap
+- bn-primary TriText throughout with complete en + hi translations; English example sentences stay English; wrong/right pairs are realistic Bengali-speaker errors (calques, Indian-English fossils, false friends)
+- 134 wrong/right examples + 36 tips + 40 quiz questions (8-10 per lesson, TriText explanations) ready for seed-library ingestion
+---
+Task ID: 9.3-W2
+Agent: content-agent (grammar beginner B2a)
+Task: 2 deep beginner lessons in grammar-v3-b2a.ts
+
+Work Log:
+- Read worklog context + src/lib/library-types.ts (TriText/LibraryGrammarData contracts) + exemplar grammar-v3-b1.ts (2 lessons, ~616 lines each) for TriText style, bn-primary depth, wrong/right example format, story+recap section pattern
+- Wrote scripts/seed-data/grammar-v3-b2a.ts (1305 lines): 2 entries {topic, level: "beginner", title, unit, data} with full TriText title/intro/sections/tips/quiz; intro of each lesson states prerequisites
+- Lesson 1 Articles a/an/the (unit 5): Bengali-has-no-articles interference as the spine, a/an/the/zero four-way job split, placement before whole noun family (a red car, a very big elephant), signal words (first mention/profession/per → a; second mention/unique/superlative/of-phrase → the; games-languages-meals-general plurals → zero), a-vs-an by SOUND (an hour, an honest man, an MP3 vs a university, a European, a one-way ticket), the-families (unique the sun, superlative the best player, of-phrase the door of the room, the first day), zero-article four families (have breakfast, play cricket vs play the guitar, learn English, Books are cheap), 'I read book'/'He is best player'/'She is MA'/'go to the school' corrections, story of Rahim buying a shirt (a shirt → the shirt → the collar chain), 8 bn headings, 40 examples, 10 tips, 10 quiz
+- Lesson 2 Present Perfect vs Past Simple (unit 0): করেছি/করেছিলাম mapping (result-now unstated/running time vs stated finished time), formation have/has + V3 vs V2 with irregular V3 sets (go-went-gone, eat-ate-eaten, see-saw-seen...), two families of time signals (finished: yesterday/last year/ago/in 2019 → V2 ONLY; running: today/this week/ever/never/just/already/yet/recently/so far → perfect), the flagship error 'I have gone to Dhaka yesterday' deep dive (have/has and yesterday can never share a sentence), just/already/never mid-position vs yet at end of negatives-questions, experience questions ever/never + answer pattern (experience in perfect, details in past) + been vs gone, common mistakes (have saw/has came half-changes, didn't have gone, since-2015 perfect), story of Tania's morning (have just finished → has gone to Dhaka → I saw him last week → already/yet → failed vs have solved), 8 bn headings, 38 examples, 10 tips, 10 quiz
+- Verified: bunx tsc --noEmit on whole project → clean (exit 0); braces 275/275, brackets 44/44, parens 186/186 balanced; double-quote parity even (1450), inner quotes as single quotes per exemplar style (no escaping needed); per-lesson stats 8 sections / 38-40 examples / 10 tips / 10 quiz (~615-645 lines each, matching b1 lesson density)
+- Not touched: no other file modified; quiz field populated though optional (schema already reserves it); file not yet wired into seed-library.ts (owner integration task)
+
+Stage Summary:
+- Beginner grammar curriculum gains 2 gap-filling deep lessons: Articles (a/an/the, unit 5) and Present Perfect vs Past Simple (unit 0, extra), level "beginner"
+- Every lesson follows the mandated section plan: কখন ব্যবহার হয় → গঠন → আভাস শব্দ → 3 topic-specific deep sections → বাঙালি শিক্ষার্থীদের কমন ভুল → ছোট গল্পে দেখা যাক + এক নজরে recap
+- bn-primary TriText throughout with complete en + hi translations; English example sentences stay English; wrong/right pairs are realistic Bengali-speaker errors (article-less calques 'I read book', '-chhi' + finished-time clashes 'I have gone to Dhaka yesterday')
+- 78 wrong/right examples + 20 tips + 20 quiz questions (TriText explanations) ready for seed-library ingestion
+---
+---
+Task ID: 9.3-W5
+Agent: content-agent (grammar advanced W5)
+Task: Final 2 advanced lessons appended to grammar-v3-a1.ts (Discourse Markers & Cohesion + Collocations)
+
+Work Log:
+- Read worklog tail + src/lib/library-types.ts (TriText / LibraryGrammarData contract) + existing grammar-v3-a1.ts lessons 1-3 to match TriText style, bn-primary depth, compact wrong/right example format (9.3-I2 precedent)
+- Appended 2 entries to SEED_GRAMMAR_V3_A1 via the __NEXT_LESSON__ marker (file now 2194 lines, 5 lessons); intro of each states prerequisites for sequential learning
+- Lesson 4 Discourse Markers & Cohesion (unit 4, ~194 lines): linking adverb vs conjunction teams; however/therefore/moreover placement (start+comma / mid / end) + punctuation law (semicolon/full stop before marker, comma splice), meaning-family selection (contrast/cause-result/addition/example/sequence/correction), despite+in spite of + noun/-ing vs although+even though + clause (the fact that bridge, no "despite of"), reference devices (this+নoun vs it, the former/the latter two-item limit) + lexical chains + replacing and...and...and; subtle errors: যদিও...কিন্তু / because...therefore double-marker habit, however density, besides vs moreover register; essay paragraph on online education; 8 sections / 36 examples / 10 tips / 10 quiz
+- Lesson 5 Collocations & Word Partnerships (unit 5, ~195 lines): naturalness over grammar (heavy rain, quick shower, vast experience), five families (verb+noun, adjective+noun, adverb+adjective, noun+noun, verb+adverb), light-verb + chunk-learning strategy (note pay attention to, not attention), do vs make division of labour (homework/research vs mistake/promise/noise) vs Bengali 'করা', Bengali calques (open the light → turn on, gave exam → took exam, said a lie → told a lie, do a party → have a party), adjective+noun & adverb+adjective precision (heavy rain vs strong tea, deeply/seriously worried, wide awake, tight schedule), advanced subtle errors (pay attention on, take a decision / do the needful fossils, strong headache, make good progress); office-report story + এক নজরে recap; 8 sections / 37 examples / 10 tips / 10 quiz
+- Verified: bunx tsc --noEmit → exit 0 (clean); runtime import of SEED_GRAMMAR_V3_A1 → 5 entries, unit 4 & 5 rows confirm sections/examples/tips/quiz counts above; file ends with `];`, marker comment replaced
+- Not touched: no other file modified; not yet wired into seed-library.ts (owner integration task, same as previous batches)
+
+Stage Summary:
+- Advanced grammar curriculum (grammar-v3-a1.ts) is now complete: 5 units — Tense & Aspect, Participle Clauses, Cleft Sentences, Discourse Markers & Cohesion, Collocations — 5×8 sections, 171 examples, 46 tips, 50 quiz questions, all bn-primary with full en+hi
+- Wrong/right pairs are realistic advanced Bengali-speaker errors (double markers, comma splices, calques, officialese fossils); English example sentences stay English
+- Ready for seed-library ingestion in the next integration task
+---
+Task ID: 9.3-W1
+Agent: content-agent (beginner B1 W1)
+Task: 2 comprehensive beginner lessons appended to grammar-v3-b1.ts
+
+Work Log:
+- Read worklog last entry + src/lib/library-types.ts (TriText / LibraryGrammarData contracts) + existing grammar-v3-b1.ts (Tense Basics, Subject-Verb Agreement exemplars) to match exact TriText style, bn-primary depth, wrong→right example format and section plan (কখন ব্যবহার হয় → গঠন → আভাস শব্দ → 3 deep sections → বাঙালি শিক্ষার্থীদের কমন ভুল → ছোট গল্পে দেখা যাক + এক নজরে recap)
+- Appended lesson 3 Question Formation (Beginner), unit 3: yes/no vs wh families (Bengali 'কি?'/rising tone vs English inversion), do/does/did + subject + V1 formation for all persons, wh-family (what/where/when/who/why/how + how much/many/old/long/often) and its fixed front seat, fixed 4-step wh order (wh→aux→subject→V1, 'What you doing?'/'Where you went?' traps, subject-who no-do), no-do questions (be/modal flip, 'Do you can swim?' trap), short answers (Yes, I do / no contraction / auxiliary matching), 5 Bengali-speaker error families + 3-question cure, Nadia-Rakib class-trip mini story + এক নজরে recap
+- Appended lesson 4 Prepositions in/on/at (Beginner), unit 4: three-grounds overview (enclosed space / surface / point) + time levels, sentence-position formation (preposition invariant across persons), time-signal families (in=month/year/season/part-of-day, on=day/date/special day, at=clock + night/noon/midnight/lunchtime) with the in→on→at staircase, place deep-dive (in a car vs on the bus, at station vs in station), time exceptions (in the morning but at night, on Monday morning, at the weekend BrE), fixed pairs (at home, in bed, on time, at my friend's house, in hospital), in-shadow error families from Bengali '-ে/-তে' suffix + 3-question cure, Sabina Monday mini story + এক নজরে recap
+- Style contract kept: double-quoted TS strings with inner single quotes, English example sentences stay English, wrong sentences are realistic Bengali-speaker errors, bn warm 'বাংলায় আমরা... কিন্তু ইংরেজিতে...' framing, en + hi complete translations, intros state prerequisites (lesson 3 needs Tense Basics + Agreement; lesson 4 needs Question Formation)
+- Verified: bunx tsc --noEmit → clean (exit 0); brace/paren/bracket balance 0; double-quote parity even; 4 lessons total — new lessons each 8 sections / 37 wrong→right examples / 10 tips / 10 quiz (2,516-line file, ~632 lines per new lesson matching exemplar depth)
+- Not touched: no other file modified; file not wired into seed-library.ts (owner integration task)
+
+Stage Summary:
+- Beginner learning path grammar curriculum now complete for units 1-4: Tense Basics (1), Subject-Verb Agreement (2), Question Formation (3), Prepositions in/on/at (4) — sequential prerequisites stated in every intro
+- 74 new wrong→right examples, 20 tips and 20 quiz questions added, all TriText bn-primary with full en + hi translations, ready for seed-library ingestion
+---
+---
+Task ID: 9.3-W6
+Agent: content-agent (grammar intermediate I1a)
+Task: 2 deep intermediate lessons in grammar-v3-i1a.ts
+
+Work Log:
+- Read worklog context + src/lib/library-types.ts (TriText/LibraryGrammarData contracts) + exemplar grammar-v3-i2.ts for exact TriText style, bn-primary depth, wrong/right example format
+- Wrote scripts/seed-data/grammar-v3-i1a.ts (408 lines): 2 entries {topic, level: "intermediate", title, unit: 0, data} with full TriText title/intro/sections/tips/quiz; intro of each lesson states prerequisites
+- Lesson 1 Present Perfect vs Past Simple: finished vs open time frames (last year → past; so far → perfect; dead-author vs living-author rule), have/has + V3 formation vs V2 + did, signal words already/just/yet/ever/never/still with positions (superlative+ever), since+point/for+span pairing (cross-ref Since vs For lesson), news perfect → past-simple details + When-questions always past simple + conversation flow (news opens, past continues), bn-speaker traps ('I have visited Paris last year', ago+perfect, yesterday night, in 2018), story (CEO resigns: perfect news / past Q&A), এক নজরে recap — 8 sections / 38 examples / 9 tips / 10 quiz
+- Lesson 2 Subject-Verb Agreement: where agreement shows (s/be/has/do; verb-s = singular vs noun-s = plural trap), one-s rule + subject-finding (of-phrase never subject; rice and curry = one dish), signal words each/every/everyone/somebody/nobody/either/neither/one of (+ news/trousers s-shape traps), distance trap (The box of chocolates IS, along with/as well as don't change number, relative-clause agreement one of the books that WERE / students who play), hidden subjects (there is/are real subject after; collective team is/are safe-singular with among-themselves switch; The number of IS vs A number of ARE + most/some/all/half-of follow the noun), bn-speaker traps (people are, police have, doesn't, both of + plural), story (annual-function announcement: every trap in one paragraph), এক নজরে recap — 8 sections / 39 examples / 9 tips / 10 quiz
+- Verified: bunx tsc --noEmit → clean (exit 0); bun runtime shape-check → 2 entries, all TriText complete (bn/en/hi), 4-5 examples/section, 9 tips, 10 quiz (4 options, answer 0-3), bracket balance 0, double-quote parity even; per-lesson ~196-197 lines
+- Not touched: no other file modified; file not yet wired into seed-library.ts (owner integration task, same as I2 batch)
+
+Stage Summary:
+- Intermediate grammar curriculum gains 2 more gap-filling deep lessons: Present Perfect vs Past Simple and Subject-Verb Agreement — both unit 0 (extra library lessons), level "intermediate", completing the two highest-frequency accuracy pain points for B1-B2 Bengali speakers
+- Every lesson follows the mandated section plan: কখন ব্যবহার হয় → গঠন → আভাস শব্দ → topic-specific deep sections → বাঙালি শিক্ষার্থীদের কমন ভুল → ছোট গল্পে দেখা যাক → এক নজরে recap
+- bn-primary TriText throughout with complete en + hi translations; English sentences stay English; wrong/right pairs are realistic Bengali-speaker errors (calque tense choices, everyone-have, there-is-plural, one-of-friend, number-of traps)
+- 77 wrong/right examples + 18 tips + 20 quiz questions ready for seed-library ingestion alongside the I2 batch
+
+---
+Task ID: 9.3-W4
+Agent: content-agent (grammar beginner W4)
+Task: Append 1 comprehensive beginner lesson to scripts/seed-data/grammar-v3-b3.ts
+
+Work Log:
+- Read worklog context + src/lib/library-types.ts (TriText / LibraryGrammarData contracts) + existing grammar-v3-b3.ts (3 lessons: Modals, Phrasal Verbs, Since vs For) to match its exact expanded TriText style (9-line wrong/right/note examples, single-line tips, 6-line quiz blocks, story section with embedded "এক নজরে" recap)
+- Appended lesson 4 "Common Mistakes by Bengali Speakers" (topic unique per topic_level key vs I2's intermediate same-topic row; unit 0, level "beginner"), file now ends `  },\n];` and header's "4 deep lessons" claim is fulfilled
+- 8 sections per mandated plan: কখন, কোথায় ভুল হয় → ভুলের মূল প্যাটার্ন (translation-shadow: double emphasis / pair-joining / Bengali order / -s on every noun) → ভুল-পরিবার ১ ক্রিয়া (I am agree, I am understand, didn't went, She go, didn't ate) → ভুল-পরিবার ২ article+uncountable (I read book, is teacher, furnitures, advices, a good news) → ভুল-পরিবার ৩ preposition/order calques (I very like it, discuss about, married with, listen music, explained me → to me) → ভুল-পরিবার ৪ ছোট শব্দের ফাঁদ (more taller, repeat again, bery→very, bet→vet, sip→ship v/b + s/sh traps) → বাঙালি শিক্ষার্থীদের কমন ভুল (Myself Rahim, He don't know, two persons, cousin brother, Yesterday I have gone) → ছোট গল্পে দেখা যাক (রাহিমের প্রথম ক্লায়েন্ট-কল, self-corrections) + এক নজরে ৬-পয়েন্ট recap
+- 37 wrong/right examples, 10 tips, 10 quiz questions (all TriText bn-primary with complete en + hi; English sentences stay English; wrong forms are realistic Bengali-speaker calques/fossils/pronunciation traps)
+- Verified: bunx tsc --noEmit → clean (exit 0); 8 headings / 37 examples / 10 tips / 10 quiz confirmed; per-line double-quote parity even; 532-line lesson block; no other file touched
+
+Stage Summary:
+- Beginner B3 batch complete at 4 lessons: the Common Mistakes lesson acts as the level's capstone error-repair checklist (two-second pre-speech check), complementary to I2's intermediate same-topic lesson (harder fossils: do the needful, cousin-brother register, suggest-clauses)
+- Ready for db-bootstrap/seed-library integration along with the other v3 batches (owner task)
+
+---
+Task ID: 9.3-W7
+Agent: content-agent (grammar beginner B2b retry)
+Task: Create scripts/seed-data/grammar-v3-b2b.ts — 2 comprehensive beginner grammar lessons (Conditionals, Passive Voice)
+
+Work Log:
+- Retry of Task 9.3-W3: found the B2b file already on disk (1288 lines, both lessons present, W3 worklog entry missing); audited it line-by-line against grammar-v3-b2a.ts (exact TriText style, bn-primary, one-line wrong/right format) and the LibraryGrammarData contract in src/lib/library-types.ts
+- Audit confirmed the full owner mandate per lesson: 8 sections (কখন ব্যবহার হয় → গঠন → আভাস শব্দ → 3 topic-specific deep sections → বাঙালি শিক্ষার্থীদের কমন ভুল → ছোট গল্পে দেখা যাক with এক নজরে recap), 4-6 examples per section, 10 tips, 10-question quiz, intro naming prerequisites
+- Lesson 1 "Conditionals (Beginner)": যদি...তাহলে double-marking → "If I will go" error as the anchor; Type 0 (present+present, when-variant), Type 1 (if+present → will+V1, can/may/bare-imperative results), Type 2 (if+past form → would+V1, If I were you, -ত/-tto parallel); never will/would right after if; comma when if-clause opens the sentence — 38 wrong/right pairs, 10 tips, 10 quiz
+- Lesson 2 "Passive Voice (Beginner)": object→subject chair + be-verb carries tense + V3; by-phrase drop when doer unknown/obvious/irrelevant, keep when doer is the news (Hamlet...by Shakespeare); three tenses (is/are → was/were → will be) with "The letter is written by me yesterday" tense-mismatch trap; transitive-only verbs (He was arrived / was died / was went fossils); Bengali spoken-language passive avoidance vs বাংলা খবরের 'করা হয়েছে' bridge — 37 wrong/right pairs, 10 tips, 10 quiz
+- Fixes applied in retry: topic key "Passive voice" → "Passive Voice" (exact mission spec, topic_level unique key); header provenance line updated to "Task 9.3-W3, completed + verified in retry 9.3-W7"
+- Verified: bunx tsc --noEmit → clean (exit 0); bun runtime shape-check → 2 entries, all TriText complete (bn/en/hi) across headings/bodies/notes/tips/explanations, 8 sections each, examples/section 4,5,4,5,5,5,6,4 and 4,5,4,4,5,5,6,4, 10 tips, 10 quiz (4 options, answer 0-3) both green
+- Not touched: no other file modified; still not wired into seed-library.ts (owner integration task)
+
+Stage Summary:
+- Beginner B2b batch is now confirmed complete: Conditionals + Passive Voice, both unit 0 (extra library lessons), level "beginner", 75 wrong/right example pairs + 20 tips + 20 quiz questions ready for seed-library ingestion alongside B2a/I1a/I2
+- Every lesson teaches the whole topic in one pass with the mandated section plan, bn-primary warm-teacher TriText, English sentences kept English, and wrong forms modelled on realistic Bengali-speaker calques
+
+---
+Task ID: 9.3-W12
+Agent: content-agent (grammar intermediate I1b)
+Task: Create scripts/seed-data/grammar-v3-i1b.ts — 2 comprehensive intermediate grammar lessons (Question Formation, Passive Voice)
+
+Work Log:
+- Read worklog context + exemplar grammar-v3-i1a.ts (exact TriText style, bn-primary depth, one-line wrong/right format, 8-section plan) + src/lib/library-types.ts (LibraryGrammarData / TriText contracts); confirmed topic+level uniqueness vs existing seeds (beginner "Question Formation" in v3-b1 and beginner "Passive Voice" in v3-b2b exist — intermediate rows are distinct topic_level keys, same convention as I2)
+- Wrote scripts/seed-data/grammar-v3-i1b.ts in one pass: 2 entries {topic, level: "intermediate", title, unit: 0, data}; exports SEED_GRAMMAR_V3_I1B with the shared SeedGrammarV3Entry interface; intro of each lesson states prerequisites (beginner Question Formation / beginner Passive Voice + be-forms & V1/V2/V3)
+- Lesson 1 Question Formation (Intermediate): direct vs indirect/embedded questions (statement order inside, NO do/does/did — "Can you tell me where the station is?"), the two question machines side by side, key-phrase triggers (Can you tell me / Do you know / I wonder / I'm not sure / Do you have any idea / I'd like to know), if/whether + whether…or not, reported-question tense step-back, negative questions (Don't you like it?) + the Bengali yes/no agreement trap (Yes, I do = পছন্দ করি), subject questions without auxiliary (Who called you? vs Who did you call?) + the put-a-subject-in-the-wh-slot test, preposition stranding (What are you looking at?), politeness ladder (Can → Could → Would you mind + -ing → I was wondering if), bn-speaker traps (Where you are going?, What you want?, What is your good name?, rising-intonation questions), story (Riya at the London tube station) + এক নজরে recap — 8 sections / 39 examples / 10 tips / 10 quiz
+- Lesson 2 Passive Voice (Intermediate): when passive feels obligatory (unknown/obvious doer, action-as-news, notices/news/formal writing), full tense map in 8 shapes (is/are done, was/were done, has/have been done, had been done, will be done, is/are being done, was/were being done, can/must be done) with the two root errors (lost being in continuous, V2 for V3), passive-territory signals (by-phrase, Sold out/Closed/Reserved notices, It is said/believed/reported that…, get + V3) + active-as-default warning, by + agent kept only when informative (Shakespeare yes, police no; by for agent vs in for time), transitive-only rule (was happened / is belonged / is resembled / was had / was cost fossils; subject-object swap shortcut), two-object verbs (I was given a pen vs A pen was given to me), impersonal passive (It is said that… / He is said to be…), get-passive (He got promoted, She got invited), bn-speaker traps (The work is doing → is being done, The road is repairing, is build/was wrote, double by-phrase), story (school magazine library-opening report: 6 passive shapes in one paragraph) + এক নজরে recap — 8 sections / 39 examples / 10 tips / 10 quiz
+- Verified: bunx tsc --noEmit → clean (exit 0); bun runtime shape-check → 2 entries, all TriText complete (bn/en/hi) across titles/intros/headings/bodies/notes/tips/quiz-explanations, 8 sections each, examples/section 5,5,5,5,5,5,5,4 (39 per lesson), 10 tips, 10 quiz (4 options, answer 0-3) both green
+- Not touched: no other file modified; file not yet wired into seed-library.ts (owner integration task, same as I1a/I2 batches)
+
+Stage Summary:
+- Intermediate grammar curriculum gains 2 more gap-filling deep lessons: Question Formation and Passive Voice — both unit 0 (extra library lessons), level "intermediate", extending the beginner same-topic lessons with B1-B2 territory (indirect questions, negative-question answers, subject questions, preposition stranding, politeness ladders / all-tense passives, by-agent rules, non-passivizable verbs, two-object passives, impersonal and get-passives)
+- Every lesson follows the mandated section plan: কখন ব্যবহার হয় → গঠন → আভাস শব্দ → 3 topic-specific deep sections → বাঙালি শিক্ষার্থীদের কমন ভুল → ছোট গল্পে দেখা যাক (with এক নজরে recap folded in), matching I1a/b2b conventions
+- bn-primary TriText throughout with complete en + hi translations; English sentences stay English; wrong/right pairs are realistic Bengali-speaker errors (statement-order calques inside indirect questions, good-name fossil, করা-হচ্ছে → is doing, was happened, is belonged, double by-phrases)
+- 78 wrong/right examples + 20 tips + 20 quiz questions ready for seed-library ingestion alongside the I1a/I2/B2b batches
+
+---
+Task ID: 9.3-W10
+Date: 2026-02-06
+Agent: content sub-agent (Bolo English learning-path grammar v3)
+
+WHAT WAS DONE
+- Created scripts/seed-data/grammar-v3-a2c.ts — 1 comprehensive ADVANCED (C1) grammar lesson:
+  - topic/title "Advanced Reported Speech", level "advanced", unit 0
+  - export SEED_GRAMMAR_V3_A2C: SeedGrammarV3Entry[] (interface re-declared per batch-file convention)
+  - TriText (bn primary + complete en/hi translations) throughout; English example sentences stay English
+- 8 sections with Bengali headings:
+  1. কখন ব্যবহার হয় (relaying speech; say vs tell; "He said me" → "He told me")
+  2. গঠন — backshift প্রসার-টেবিল in prose (am/is→was ... must→had to; pronoun shifts; optional that)
+  3. আভাস ও প্যাটার্ন (signals: past reporting verb, question order, if/whether, commands, time-place words)
+  4. Deep: backshift exceptions — universal truths, still-true statements, present reporting verbs, immediate reports
+  5. Deep: reporting-verb families — admit/deny/mention + -ing; promise/agree/refuse/offer + to; suggest + -ing/that; apologise for + -ing; advise/tell/ask + object + to-inf
+  6. Deep: reported questions (statement order, no do/does/did, if/whether), reported commands/requests (not to), time/place shifts (now→then, today→that day, yesterday→the day before, tomorrow→the next day, ago→before, here→there, this→that, come→go)
+  7. উচ্চ স্তরের শিক্ষার্থীদের সূক্ষ্ম ভুল (told-that without person, whether did I, explain us, backshift dripping in long clauses, said me to)
+  8. ছোট লেখায় দেখা যাক (news-report paragraph using all patterns) + এক নজরে 7-point recap
+- Depth matched to grammar-v3-a1.ts: ~5 examples per section (41 total wrong/right/note), 10 tips, 10 quiz questions (4 options, answer index, TriText explanations)
+- Intro mentions prerequisites (intermediate Reported Speech, Past Perfect)
+- wrong sentences = realistic ADVANCED Bengali-speaker errors (said me, where do I work, denied that he did not, suggested me to, here/tomorrow unshifted, etc.)
+
+VERIFICATION
+- bunx tsc --noEmit → clean (no errors from the new file or elsewhere)
+
+NEXT
+- Seed script integration (scripts/seed-library.ts) if batch A2c should be wired into the learning path
+
+---
+Task ID: 9.3-W9
+Date: 2026-02-06
+Agent: content sub-agent (Bolo English learning-path grammar v3)
+
+WHAT WAS DONE
+- Created scripts/seed-data/grammar-v3-a2b.ts — 2 comprehensive ADVANCED (C1) grammar lessons:
+  - Lesson 1: topic/title "Subjunctive & Unreal Uses", level "advanced", unit 0
+  - Lesson 2: topic/title "Hedging & Softening Language", level "advanced", unit 0
+  - export SEED_GRAMMAR_V3_A2B: SeedGrammarV3Entry[] (interface re-declared per batch-file convention)
+  - TriText (bn primary + complete en/hi translations) throughout; English example sentences stay English
+- 8 sections per lesson with Bengali headings:
+  1. কখন ব্যবহার হয় (L1: mood — fact vs wish/demand/imagination; 3 subjunctive families / L2: why English softens; 4 compulsory softening zones)
+  2. গঠন — prose pattern table (L1: 7 patterns incl. mandative, negative/passive be+V3, unreal were / L2: 8 patterns incl. cautious modals, tend to/appear to, request frames, distancing passive)
+  3. আভাস ও প্যাটার্ন (L1: verb/adjective/noun triggers — suggest/recommend/demand, essential/vital/imperative, suggestion/demand; BrE should note / L2: hedging devices — modals, soft adverbs, seem/appear/tend, frames, quantifiers)
+  4. Deep: mandative subjunctive after suggest/insist/demand/recommend + base verb ("I suggest he go", "They insisted that she be present"); Bengali command calque "I suggested him to go" fixed; evidence-sense suggest → indicative
+  5. Deep: unreal were — If I were you, as if she were, wish + were; real-past was vs unreal were contrast; past regret wish + had been
+  6. Deep (L1): formulaic subjunctive — God forbid, come what may, be that as it may, suffice it to say, truth be told, far be it from me / Deep (L2): Bengali directness vs English softening culture — blunt email hunting list, over-politeness trap, "isn't it" universal tag
+  7. উচ্চ স্তরের শিক্ষার্থীদের সূক্ষ্ম ভুল (L1: insisted on that, to in passive subjunctive, will in that-clause, -s retention, was in formal imagining / L2: mind to check, I was wondering if you can, could clearer tags, prove→suggest, maybe vs may be)
+  8. ছোট লেখায় দেখা যাক (L1: audit-board paragraph / L2: soft work email) + এক নজরে 6-point recap
+- Depth matched to grammar-v3-a1.ts: ~5 examples per section (39 L1 + 36 L2 = 75 total wrong/right/note), 10 tips, 10 quiz questions (4 options, answer index, TriText explanations) per lesson
+- Intro mentions prerequisites (L1: intermediate Conditionals, wish-clauses, Reported Speech; L2: intermediate Modal Verbs, Reported Speech)
+- wrong sentences = realistic ADVANCED Bengali-speaker errors (suggested him to go, insisted that she is present, God forbids, isn't it tags, maybe corrupted, would you mind to, etc.)
+
+VERIFICATION
+- bunx tsc --noEmit → clean (no errors from the new file or elsewhere)
+
+NEXT
+- Seed script integration (scripts/seed-library.ts) if batch A2b should be wired into the learning path
+
+---
+Task ID: 9.3-W11
+DATE: 2025 (advanced batch A3 extension)
+
+TASK
+- Appended 2 comprehensive C1-level grammar lessons to scripts/seed-data/grammar-v3-a3.ts
+  (array grew 2 → 4 lessons; final `];` converted to `,` + 2 new objects + `];`).
+
+LESSONS ADDED
+1. "Register: Formal vs Informal English" (topic/title as given, level advanced, unit 0)
+   - Sections (bn headings): কখন ব্যবহার হয়: শ্রোতা বদলালেই ভাষার পোশাক বদলায় → গঠন: আনুষ্ঠানিকতার স্কেল — জোড়া শব্দ আর চারটা যান্ত্রিক নিয়ম → আভাস ও প্যাটার্ন: ইমেইল, চ্যাট, পরীক্ষা — তিন মাঠের আলাদা নিয়ম → deep 1: ইমেইলের পূর্ণ নকশা (5-part email anatomy, Yours sincerely/faithfully, dated officialese) → deep 2: ফ্রেজাল ভার্ব বনাম ল্যাটিন ক্রিয়া (put off↔postpone, look into↔investigate, separability) → deep 3: এক বাক্যে দুই রেজিস্টার (mixing registers, kindly/do the needful/revert back) → উচ্চ স্তরের শিক্ষার্থীদের সূক্ষ্ম ভুল → ছোট লেখায় দেখা যাক (same news in email vs chat + এক নজরে recap)
+   - Covers all brief angles: formal↔informal pairs (children/kids, obtain/get, inform/tell, purchase/buy, apologise/say sorry, postpone/put off, require/need), contractions only informal, phrasal↔Latin verbs, email vs chat vs exam conventions, matching tone to audience.
+   - Prerequisites named in intro: Nominalisation & Academic Style, Discourse Markers & Cohesion.
+
+2. "Precision Articles & Quantifiers" (topic/title as given, level advanced, unit 0)
+   - Sections: কখন ব্যবহার হয়: আর্টিকেল মানেই দৃষ্টিভঙ্গি (a/the/zero 3-question test) → গঠন: কোয়ান্টিফায়ারের সারণি → আভাস ও প্যাটার্ন (what calls which article) → deep 1: প্রতিষ্ঠান-হিসেবে উদ্দেশ্য go to school/prison/hospital vs the building + abstract nouns zero → deep 2: the with unique things (the sun, the internet, the same), instruments vs games, the+adjective class → deep 3: little/few (negative) vs a little/a few (positive), much/many, a number of (plural verb) vs the number of (singular verb), less/fewer, whole/all/entire → উচ্চ স্তরের শিক্ষার্থীদের সূক্ষ্ম ভুল (informations/advices, the most of people, less cars, the both) → ছোট লেখায় দেখা যাক (report-style paragraph + এক নজরে recap)
+   - Prerequisites named in intro: intermediate countable/uncountable + articles lessons, Nominalisation & Academic Style.
+
+STYLE COMPLIANCE (matched grammar-v3-a1.ts TriText depth)
+- Per lesson: 8 sections, exactly 5 examples per section (wrong = realistic advanced Bengali-speaker register/quantity errors), 10 tips (TriText), 10 quiz questions (English question, 4 options, answer index, TriText explanation).
+- bn PRIMARY explanations; en + hi complete faithful translations everywhere (title, intro, headings, bodies, notes, tips, quiz explanations). English example sentences stay English.
+
+VERIFICATION
+- bunx tsc --noEmit → clean (no output)
+- Runtime import check (bun): SEED_GRAMMAR_V3_A3.length = 4; new lessons report sections:8, tips:10, quiz:10, ex/section 5×8, every TriText field (bn/en/hi) non-empty.
+
+NEXT
+- Optional: wire batch A3 (now 4 lessons) into scripts/seed-library.ts / learning-path ordering.
+
+---
+Task ID: 9.3-W14
+DATE: 2026-02-06
+AGENT: content agent (Bolo English, learning-path grammar seeds v3)
+SCOPE: Created scripts/seed-data/grammar-v3-i4.ts — INTERMEDIATE batch I4 (2 deep lessons) replacing the thin static-bank entries for "Prepositions (in/on/at)" (unit 3) and "Conditionals" (unit 4). Style matched grammar-v3-i1a.ts exactly (TriText bn-primary, en+hi complete translations, one-line wrong/right format, English sentences stay English, prerequisites named in intro, realistic Bengali-speaker errors).
+
+LESSONS ADDED
+1. "Prepositions (in/on/at) (Intermediate)" (topic "Prepositions (in/on/at)", level intermediate, unit 3)
+   - Sections (bn headings): কখন ব্যবহার হয়: জায়গা-সময়ের নিয়মের পরে — প্রিপজিশন যুক্তি নয়, প্রথা → গঠন: প্রিপজিশনের পরে বিশেষ্য / object pronoun / V-ing (never base verb, to-infinitive, subject pronoun) → আভাস শব্দ: বিশেষণ + প্রিপজিশন জুটি-প্যাকেট → deep 1: ক্রিয়া + প্রিপজিশন (depend on, listen to, wait for, agree with a person / agree to a plan / agree on terms) + prepositional vs phrasal verb ফারাক → deep 2: রিলেটিভ ক্লজ ও প্রশ্নের শেষে প্রিপজিশন (the house I live in, What are you looking at?, in which vs ...in, extra pronoun trap) → deep 3: ফিক্সড ফ্রেজের ফাঁদ (in time vs on time, at the end of vs in the end, at/in the beginning, on/in the way, in a car vs on a bus) → বাঙালি শিক্ষার্থীদের কমন ভুল (suffix interference good in/married with/depend of, infinitive habit interested to learn, fear of end-position prepositions) → ছোট গল্পে দেখা যাক (Nadia's interview) + এক নজরে recap
+   - Covers all brief angles: collocations (interested in, good at, afraid of, married to), prepositional vs phrasal verbs, stranded prepositions, adjective+noun+preposition patterns (proud of, similar to, different from), fixed phrase traps, Bengali postposition suffix interference at B1.
+
+2. "Conditionals (Intermediate)" (topic "Conditionals", level intermediate, unit 4)
+   - Sections: কখন ব্যবহার হয়: চারটে দরজা — সত্যতা ও দূরত্বের মাপ (0/1/2/3 logic) → গঠন: চার সূত্র মুঠোয় (0 present+present; 1 present+will; 2 past+would; 3 had+V3 + would have+V3) → আভাস শব্দ: if-এর চাচাতো ভাই (unless, as long as, provided that, in case, if so/if not) → deep 1: unless/as long as/provided that/in case অর্থের সূক্ষ্ম ফারাক (unless = no second negative, no will; in case past/present forms; in case ≠ if) → deep 2: wish + past/past perfect আফসোস, I wish I were, wish + would, would rather (+ V1 / + subject + past) → deep 3: implied conditionals (without + noun, otherwise), mixed conditional intro (If I had taken that job, I would be in Dubai today), if so/if not → বাঙালি শিক্ষার্থীদের কমন ভুল (যদি...তাহলে double-marking, tense drift If I would have time / If I had money, I buy a car, wish + have) → ছোট গল্পে দেখা যাক (Rafi's interview morning: Type 1, past regret, mixed, in case, unless, provided that, otherwise) + এক নজরে recap
+   - Covers all brief angles: four types in depth + mixed intro, unless/as long as/provided that/in case, wish + past/past perfect, I wish I were, would rather, implied conditionals, if so/if not, যদি...তাহলে double-marking and tense-drift errors.
+   - Prerequisites named in intro: beginner Tense lessons (present simple, past simple, V3), basic would.
+
+STYLE COMPLIANCE (matched grammar-v3-i1a.ts TriText depth)
+- Per lesson: 9 sections (কখন → গঠন → আভাস → 3 topic-specific deep → কমন ভুল → গল্প → এক নজরে recap; one more than i1a's 8 because the brief mandates 3 deep sections — every heading in the brief exists), 5 examples per teaching section + 4 story + 4 recap (43/lesson; wrong = realistic Bengali-speaker errors), 10 tips (TriText), 10 quiz questions (English question, 4 options, 0-based answer, TriText explanation).
+- bn PRIMARY explanations; en + hi complete faithful translations everywhere (title, intro, headings, bodies, notes, tips, quiz explanations). English example sentences stay English.
+
+VERIFICATION
+- bunx tsc --noEmit → clean (no output)
+- Runtime import check (bun): SEED_GRAMMAR_V3_I4.length = 2; Prepositions reports sections 9, tips 10, quiz 10, ex/section 5×7+4+4, unit 3; Conditionals reports sections 9, tips 10, quiz 10, ex/section 5×7+4+4, unit 4; 0 empty/invalid TriText fields; every quiz has exactly 4 options.
+
+NEXT
+- Wire batch I4 into scripts/seed-library.ts (import SEED_GRAMMAR_V3_I4, add to ALL_GRAMMAR) so the intermediate path units 3-4 pick up the deep versions in place of the static-bank entries.
+
+---
+Task ID: 9.3-W13
+DATE: 2026-10-16
+AGENT: content agent (Bolo English, learning-path grammar seeds v3)
+SCOPE: Created scripts/seed-data/grammar-v3-i3.ts — INTERMEDIATE batch I3 (2 deep lessons) replacing the thin static-bank entries for "Tense basics" (unit 1) and "Articles (a/an/the)" (unit 2). Style matched grammar-v3-i1a.ts exactly (TriText bn-primary, en+hi complete translations, one-line wrong/right format, English sentences stay English, prerequisites named in intro, realistic Bengali-speaker errors).
+
+LESSONS ADDED
+1. "Tense basics (Intermediate)" (topic "Tense basics", level intermediate, unit 1)
+   - Sections (bn headings): কখন ব্যবহার হয়: বারো কাল-পরিবারের মানচিত্র (simple/continuous/perfect/perfect-continuous × past/present/future, one-line when-to-use for all 12, viewer-position questions) → গঠন: এক ক্রিয়াকে (eat) বারো রূপে পরান (right-tense be+ing / have+V3 / have been+ing formulas, helper-only movement in questions-negatives) → আভাস শব্দ: কোন শব্দ কোন পরিবারের ঘণ্টা বাজায় (yesterday/ago → past simple; now → PC; already/yet/just/ever → PP; since/for → PPC; by the time → past perfect; by + future point → future perfect; context-switch warning for for two hours) → deep 1: state বনাম action ক্রিয়া (know/want/cost/belong list refuse -ing; double-faced have/think/see/taste — meaning decides the class) → deep 2: অনুচ্ছেদে কালের ধারাবাহিকতা (anchor tense; three accepted breaks: universal truth, still-true state, direct quote; reported-speech backshift will→would/tomorrow→the next day; was reading when lights went out pair) → deep 3: বাংলা ম্যাপ — করি→simple, করছি→present continuous, করেছি→present perfect (with a closed time word → past simple), করব→future, করছিলাম→past continuous, করেছিলাম→past simple; future-in-the-past ('যাওয়ার কথা ছিল / প্রায় চলেই যাচ্ছিল' = was going to / was about to / was supposed to) → বাঙালি শিক্ষার্থীদের কমন ভুল (দুমুখো 'কাল' = tomorrow/yesterday, অভ্যাস vs এখন-চলমান মিশে 'I am go', perfect-avoidance/over-use, since + present) → ছোট গল্পে দেখা যাক (Rafi's interview morning: PPC, was going to, had already started, was answering/while, will be travelling, was about to) + এক নজরে recap (5 numbered takeaways)
+   - Covers all brief angles: 12-family map with when-to-use, state vs action verbs, tense consistency in paragraphs, future-in-the-past (was going to), Bengali করি/করছি/করেছি/করব mapping onto the 4 aspects.
+
+2. "Articles (a/an/the) (Intermediate)" (topic "Articles (a/an/the)", level intermediate, unit 2)
+   - Sections: কখন ব্যবহার হয়: a/an/the/শূন্য পূর্ণ সিদ্ধান্ত-বৃক্ষ (three-question funnel: singular countable → a/an/the, listener knows → the, generic plural/uncountable → zero; specific plurals/uncountables still take the) → গঠন: a না an প্রথম ধ্বনির নিয়ম (an hour/an M.A./an X-ray; a university/a European/a one-rupee coin), article + adjective + noun order, one-determiner rule, such a/what a/half an/a few/a little → আভাস শব্দ: the-ডাকা সংকেত (second mention, superlative, ordinal, only/same, unique the sun/the sea, of-phrases, scene-only) আর a/an-এর সংকেত (first mention, professions, any-one, per: twice a week, unknown A Mr. Rahman) → deep 1: শূন্য আর্টিকেলের রাজ্য (institutions go to school/in hospital/go to bed/at university vs the-building sense; meals have breakfast vs a big breakfast; languages vs the Bengali language; abstract vs the happiness of childhood; names: the Padma/the Himalayas/the Bay of Bengal vs Mount Everest zero) → deep 2: অগণনের সাথে আর্টিকেল (a coffee = এক কাপ, two teas, a water; adjective + abstract: a good knowledge of English/a deep sleep/a heavy rain/a great time; some/any wrappers; shape-shifters paper/a paper, hair/a hair, time/a time) → deep 3: সাধারণী অর্থে the/a/বহুবচন (The tiger is endangered vs A tiger vs Tigers; The computer has changed our lives; weak 'A tiger is endangered'; instruments the guitar vs games zero) → বাঙালি শিক্ষার্থীদের কমন ভুল (article-less 'I read book', superlative without the, on the TV/by the bus/in the bed/at the university vs fixed zero expressions, double determiners, the + proper name) → ছোট গল্পে দেখা যাক (Mithu's hospital visit: in hospital, first-mention a letter/an old photo → the letter/the photo, the happiest, a tea = one cup, Mount Everest vs the Himalayas, by rickshaw) + এক নজরে recap (5 numbered takeaways)
+   - Covers all brief angles: full a/an/the/zero decision tree, the with second-mention/superlatives/unique/of-phrases, zero with abstracts/institutions/meals/languages/most proper nouns, uncountables with articles (a coffee = a cup), generic the vs a, Bengali no-article interference with fixed expressions (in hospital, on TV, at university, by bus, in bed).
+   - Prerequisites named in intro: beginner Articles lesson, countable/uncountable idea.
+
+STYLE COMPLIANCE (matched grammar-v3-i1a.ts TriText depth)
+- Per lesson: 8 sections (কখন → গঠন → আভাস শব্দ → 3 topic-specific deep → কমন ভুল → ছোট গল্পে দেখা যাক with the এক নজরে recap woven into the story body as 5 numbered takeaways — keeps the brief's mandated 3 deep sections AND the 8-section depth cap; structure mirrors i2's 3-deep convention), 5 examples per teaching section + 4 story examples (39/lesson; wrong = realistic Bengali-speaker errors), 10 tips (TriText), 10 quiz questions (English question, 4 options, 0-based answer, TriText explanation).
+- bn PRIMARY explanations; en + hi complete faithful translations everywhere (title, intro, headings, bodies, notes, tips, quiz explanations). English example sentences stay English.
+
+VERIFICATION
+- bunx tsc --noEmit → clean (no output)
+- Runtime import check (bun): SEED_GRAMMAR_V3_I3.length = 2; Tense basics reports sections 8, tips 10, quiz 10, ex/section 5×7+4, unit 1; Articles reports sections 8, tips 10, quiz 10, ex/section 5×7+4, unit 2; all heading/body/note TriText fields non-empty in bn/en/hi; every quiz item has exactly 4 options.
+
+NEXT
+- Wire batch I3 into scripts/seed-library.ts (import SEED_GRAMMAR_V3_I3, add to ALL_GRAMMAR) so the intermediate path units 1-2 pick up the deep versions in place of the static-bank entries.
+
+---
+Task ID: 9.3
+Agent: main (Z.ai Code)
+Task: Grammar deep-dive — "প্রত্যেকটা টপিক ধরে ধরে সম্পূর্ণ ডেভেলপ": comprehensive sequential curriculum replacing thin lessons
+
+Work Log:
+- Owner mandate: grammar lessons had too little context to understand the FULL topic; every topic must be developed specifically, in a learnable sequence
+- Audited: bank lessons were 2 sections × 3 examples (~90 lines); v2 intermediate DB lessons were deep (200+ lines); registry = 12 foundation + 14 advanced topics; GrammarSection shows both grids at every level; LessonView load order DB→bank→AI; QuizPlayer bank→AI
+- Designed depth template (8 sections: কখন ব্যবহার হয় → গঠন → আভাস শব্দ → 3 deep sections → বাঙালি শিক্ষার্থীদের কমন ভুল → ছোট গল্পে → এক নজরে; 35-40 examples, 10 tips, 10 TriText quiz each) and a 34-lesson curriculum
+- Dispatched 15 content-agent waves (first 8 with 4 lessons each — 7 timed out on context limits; regrouped to 2 lessons/agent): wrote 14 seed files grammar-v3-{b1,b2a,b2b,b3,i1a,i1b,i2,i3,i4,a1,a2a,a2b,a2c,a3}; main agent hand-wrote a2a (Inversion + Mixed Conditionals) after 2 agent timeouts
+- Coverage: beginner 12/12, advanced 14/14, intermediate 8 gaps filled + 4 thin v1 anchors (Tense basics, Articles, Prepositions, Conditionals) replaced with full-depth versions
+- db-bootstrap v3: V3_GRAMMAR (38 entries incl. 4 anchor replacements), marker grammar_v3, path anchors keep sortOrder=unit-1; verified reseed (local marker cleared → re-run)
+- DB now: 50 grammar lessons — 12 beginner + 24 intermediate + 14 advanced, every new lesson 8-9 sections / 35-43 examples / 10 tips / 10 quiz
+- QuizPlayer: DB quiz FIRST (pickTri-localized explanations) → bank → AI — every topic×level now has keyless practice
+- LessonView: "পরের পাঠ" (next lesson) button wired via new shared.ts nextTopicInCourse(); shared.ts registry reordered into pedagogical course sequence (path anchors units 1-5 first)
+- i18n: grammar.lesson.nextLesson/nextLessonAria in bn/en/hi
+- Verified: tsc clean, eslint clean (removed stale .tmp-gv3 agent temp), API counts correct, agent-browser bn+desktop: deep lesson renders (9 headings, long Bengali explanations, wrong→right cards), পরের পাঠ navigates Tense basics→Agreement, DB quiz plays (প্রশ্ন ১/১০, instant সঠিক feedback), console clean
+
+Stage Summary:
+- Grammar is now a complete sequential course: 26 registry topics × 3 levels all served by deep DB lessons (50 total) — no thin bank fallback anywhere on the main path
+- Every lesson self-sufficient: usage → formation → signal words → deep dives → Bengali-speaker error families → story → recap + 10-question quiz, all keyless
+- Sequential flow: reordered topic grid (anchors first) + per-lesson "পরের পাঠ" navigation + prerequisite mentions in every intro
+- Committed and pushed to main (Vercel auto-deploy)

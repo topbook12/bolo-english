@@ -142,7 +142,9 @@
       "rightLabel": "सही:",
       "errorTitle": "लेसन लोड नहीं हो सका",
       "markRead": "पढ़ लिया",
-      "markReadAria": "इस पाठ को पढ़ा हुआ चिह्नित करें"
+      "markReadAria": "इस पाठ को पढ़ा हुआ चिह्नित करें",
+      "nextLesson": "अगला पाठ",
+      "nextLessonAria": "अगले पाठ पर जाएँ"
     },
     "quiz": {
       "badge": "क्विज़",

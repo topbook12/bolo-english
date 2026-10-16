@@ -27,6 +27,7 @@ import {
   fmtNum,
   GROUP_ACCENT,
   LEVEL_ORDER,
+  nextTopicInCourse,
   readDoneTopics,
   saveDoneTopic,
   TOPIC_GROUPS,
@@ -197,6 +198,7 @@ export default function GrammarSection() {
 
   /* ---- lesson ---- */
   if (view.kind === "lesson") {
+    const nextTopic = nextTopicInCourse(view.topic.topic);
     return (
       <LessonView
         topic={view.topic}
@@ -205,6 +207,14 @@ export default function GrammarSection() {
         onBack={() => setView({ kind: "topics" })}
         onStartQuiz={() =>
           setView({ kind: "quiz", topic: view.topic, level: view.level, topicName: view.topicName })
+        }
+        onNextLesson={
+          nextTopic
+            ? () => {
+                setView({ kind: "lesson", topic: nextTopic, level: view.level });
+                queueMicrotask(() => window.scrollTo({ top: 0, behavior: "smooth" }));
+              }
+            : undefined
         }
       />
     );

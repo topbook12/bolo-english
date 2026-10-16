@@ -142,7 +142,9 @@
       "rightLabel": "সঠিক:",
       "errorTitle": "লেসন লোড করা যায়নি",
       "markRead": "পড়া শেষ",
-      "markReadAria": "এই পাঠটি পড়া হয়েছে হিসেবে চিহ্নিত করুন"
+      "markReadAria": "এই পাঠটি পড়া হয়েছে হিসেবে চিহ্নিত করুন",
+      "nextLesson": "পরের পাঠ",
+      "nextLessonAria": "পরের পাঠে যান"
     },
     "quiz": {
       "badge": "কুইজ",
