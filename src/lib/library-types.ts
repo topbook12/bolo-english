@@ -168,6 +168,83 @@ export interface LibraryListeningEntry {
   data: LibraryListeningData;
 }
 
+/* ─────────────────────────── READING ─────────────────────────── */
+
+export type LibraryReadingCategory =
+  | "daily"
+  | "travel"
+  | "work"
+  | "culture"
+  | "science"
+  | "inspire";
+
+export const LIBRARY_READING_CATEGORIES: LibraryReadingCategory[] = [
+  "daily",
+  "travel",
+  "work",
+  "culture",
+  "science",
+  "inspire",
+];
+
+/** Reading genres — drive the emoji + tint on cards (genre stays English, UI translates it). */
+export type LibraryReadingGenre =
+  | "story"
+  | "dialog"
+  | "letter"
+  | "diary"
+  | "article"
+  | "news";
+
+export const LIBRARY_READING_GENRES: LibraryReadingGenre[] = [
+  "story",
+  "dialog",
+  "letter",
+  "diary",
+  "article",
+  "news",
+];
+
+/** One bilingual paragraph: English (the skill) + bn/hi assist translation. */
+export interface LibraryReadingParagraph {
+  en: string;
+  bn: string;
+  hi: string;
+}
+
+export interface LibraryReadingVocab {
+  word: string;
+  meaning: TriText;
+  example: string; // English example sentence
+}
+
+export interface LibraryReadingQuiz {
+  question: TriText;
+  options: TriText[]; // exactly 4
+  answer: number; // 0-3
+  explain: TriText;
+}
+
+export interface LibraryReadingData {
+  title: TriText;
+  summary: TriText; // short card description (UI language)
+  genre: LibraryReadingGenre;
+  /** The passage itself — always English + line-by-line bn/hi assist. */
+  paragraphs: LibraryReadingParagraph[];
+  vocabulary: LibraryReadingVocab[];
+  quiz: LibraryReadingQuiz[];
+}
+
+export interface LibraryReadingEntry {
+  id: string;
+  slug: string;
+  level: LibraryLevel;
+  category: LibraryReadingCategory;
+  minutes: number;
+  unit?: number; // learning-path episode number (1-5; 0 = standalone)
+  data: LibraryReadingData;
+}
+
 /** Level guard used by the API + admin studio. */
 export function isLibraryLevel(v: unknown): v is LibraryLevel {
   return v === "beginner" || v === "intermediate" || v === "advanced";

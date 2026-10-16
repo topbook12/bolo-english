@@ -150,7 +150,18 @@
       "setupFailed": "Couldn't save the admin token.",
       "vUnit": "Path unit (1-5, 0 = extra)",
       "gUnit": "Path unit (1-5, 0 = extra)",
-      "lUnit": "Episode number (1-5, 0 = standalone)"
+      "lUnit": "Episode number (1-5, 0 = standalone)",
+      "tabReading": "Reading",
+      "listReading": "Saved passages",
+      "rSlug": "Slug",
+      "rSlugHint": "Generated from the English title — or set your own here",
+      "rLevel": "Level",
+      "rCategory": "Category",
+      "rMinutes": "Minutes",
+      "rUnit": "Episode number (0 = standalone)",
+      "rJson": "Passage data (JSON)",
+      "rJsonHint": "Paste JSON in the format above: title/summary/genre/paragraphs(en+bn+hi)/vocabulary/quiz",
+      "errReadingJson": "Provide valid JSON — it needs a title and at least one paragraph"
     },
     "errors": {
       "saveFailed": "Couldn't save",

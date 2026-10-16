@@ -224,3 +224,18 @@ model LibraryListening {
 
   @@index([level])
 }
+
+model LibraryReading {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  level     String   @default("beginner") // beginner | intermediate | advanced
+  category  String   @default("daily") // daily | travel | work | culture | science | inspire
+  minutes   Int      @default(3)
+  data      String // JSON: LibraryReadingData
+  unit      Int      @default(0) // learning-path episode number within the level (1-5; 0 = standalone)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([level])
+}

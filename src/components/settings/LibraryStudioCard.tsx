@@ -46,6 +46,7 @@ import {
   type LibraryListeningEntry,
   type LibraryListeningQuiz,
   type LibraryListeningVocab,
+  type LibraryReadingEntry,
   type LibraryVocabData,
   type LibraryVocabEntry,
   type LibraryVocabExample,
@@ -59,7 +60,7 @@ import {
  * Admin token is shared with StoragePoolCard/TurnPoolCard (bolo.storageAdmin).
  * ──────────────────────────────────────────────────────────────────────── */
 
-type LibraryKind = "vocab" | "grammar" | "listening";
+type LibraryKind = "vocab" | "grammar" | "listening" | "reading";
 
 const TOKEN_KEY = "bolo.storageAdmin";
 
@@ -263,6 +264,25 @@ const emptyListenForm = (): ListenFormState => ({
   quizText: "",
 });
 
+// Reading (Task 11): the passage data is rich trilingual JSON, so the studio
+// edits it as a JSON document — same shape as scripts/seed-data/reading-v1-*.ts.
+interface ReadingFormState {
+  slug: string;
+  level: LibraryLevel;
+  category: LibraryListeningCategory;
+  minutes: string;
+  unit: string;
+  dataJson: string;
+}
+const emptyReadingForm = (): ReadingFormState => ({
+  slug: "",
+  level: "beginner",
+  category: "daily",
+  minutes: "3",
+  unit: "0",
+  dataJson: "",
+});
+
 /* Shared input styling — 44px touch targets, compact type. */
 const FIELD = "min-h-11 text-sm";
 const LABEL_CLS = "text-xs font-semibold text-muted-foreground";
@@ -284,10 +304,12 @@ export default function LibraryStudioCard() {
   const [vocabList, setVocabList] = useState<LibraryVocabEntry[]>([]);
   const [grammarList, setGrammarList] = useState<LibraryGrammarMeta[]>([]);
   const [listenList, setListenList] = useState<LibraryListeningEntry[]>([]);
+  const [readingList, setReadingList] = useState<LibraryReadingEntry[]>([]);
 
   const [vf, setVf] = useState<VocabFormState>(emptyVocabForm);
   const [gf, setGf] = useState<GrammarFormState>(emptyGrammarForm);
   const [lf, setLf] = useState<ListenFormState>(emptyListenForm);
+  const [rf, setRf] = useState<ReadingFormState>(emptyReadingForm);
 
   useEffect(() => {
     setToken(localStorage.getItem(TOKEN_KEY) ?? "");
@@ -301,6 +323,7 @@ export default function LibraryStudioCard() {
       const items = Array.isArray(data.items) ? data.items : [];
       if (k === "vocab") setVocabList(items as LibraryVocabEntry[]);
       else if (k === "grammar") setGrammarList(items as LibraryGrammarMeta[]);
+      else if (k === "reading") setReadingList(items as LibraryReadingEntry[]);
       else setListenList(items as LibraryListeningEntry[]);
     } catch (e) {
       setListError((e as Error).message);
@@ -341,6 +364,7 @@ export default function LibraryStudioCard() {
       toast({ title: t("studio.saved") });
       if (k === "vocab") setVf(emptyVocabForm());
       else if (k === "grammar") setGf(emptyGrammarForm());
+      else if (k === "reading") setRf(emptyReadingForm());
       else setLf(emptyListenForm());
       void load(k);
     } catch (e) {
@@ -423,6 +447,35 @@ export default function LibraryStudioCard() {
     void postEntry("grammar", { topic, level: gf.level, title, unit: unitNum(gf.unit, 1), data });
   };
 
+  /* Reading (Task 11): slug + meta fields + the rich data as one JSON doc. */
+  const submitReading = () => {
+    const raw = rf.dataJson.trim();
+    if (!raw) return fail(t("studio.errReadingJson"));
+    let data: unknown;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      return fail(t("studio.errReadingJson"));
+    }
+    const d = data as {
+      title?: { bn?: string; en?: string };
+      paragraphs?: unknown[];
+      vocabulary?: unknown[];
+      quiz?: unknown[];
+    };
+    if (typeof d?.title !== "object" || !Array.isArray(d?.paragraphs) || d.paragraphs.length === 0) {
+      return fail(t("studio.errReadingJson"));
+    }
+    void postEntry("reading", {
+      slug: rf.slug.trim(),
+      level: rf.level,
+      category: rf.category,
+      minutes: Math.max(1, Math.min(60, Number(rf.minutes) || 3)),
+      unit: unitNum(rf.unit, 0),
+      data,
+    });
+  };
+
   const submitListening = () => {
     const titleBn = lf.titleBn.trim();
     const summaryBn = lf.summaryBn.trim();
@@ -500,13 +553,17 @@ export default function LibraryStudioCard() {
       ? t("studio.listVocab")
       : kind === "grammar"
         ? t("studio.listGrammar")
-        : t("studio.listListening");
+        : kind === "reading"
+          ? t("studio.listReading")
+          : t("studio.listListening");
   const rowCount =
     kind === "vocab"
       ? vocabList.length
       : kind === "grammar"
         ? grammarList.length
-        : listenList.length;
+        : kind === "reading"
+          ? readingList.length
+          : listenList.length;
 
   return (
     <Card className="premium-card border-border/70 rounded-2xl bg-card">
@@ -547,7 +604,7 @@ export default function LibraryStudioCard() {
 
         {/* ── Kind tabs ── */}
         <Tabs value={kind} onValueChange={(v) => setKind(v as LibraryKind)}>
-          <TabsList className="grid h-auto w-full grid-cols-3">
+          <TabsList className="grid h-auto w-full grid-cols-4">
             <TabsTrigger value="vocab" className="min-h-11 px-2 text-xs sm:text-sm">
               {t("studio.tabVocab")}
             </TabsTrigger>
@@ -556,6 +613,9 @@ export default function LibraryStudioCard() {
             </TabsTrigger>
             <TabsTrigger value="listening" className="min-h-11 px-2 text-xs sm:text-sm">
               {t("studio.tabListening")}
+            </TabsTrigger>
+            <TabsTrigger value="reading" className="min-h-11 px-2 text-xs sm:text-sm">
+              {t("studio.tabReading")}
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -639,6 +699,26 @@ export default function LibraryStudioCard() {
                         </p>
                         <p className="truncate text-[11px] text-muted-foreground">
                           {t(`studio.cat.${it.category}`)} · {it.minutes} {t("studio.min")}
+                        </p>
+                      </div>
+                      <Badge variant="outline" className="shrink-0 text-[11px]">
+                        {tCommon(`level.${it.level}`)}
+                      </Badge>
+                      {delBtn(it.id)}
+                    </div>
+                  ))}
+                {kind === "reading" &&
+                  readingList.map((it) => (
+                    <div
+                      key={it.id}
+                      className="flex items-center gap-2 rounded-lg border border-border/50 bg-background/60 p-2.5"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">
+                          {pickTri(it.data.title, locale)}
+                        </p>
+                        <p className="truncate text-[11px] text-muted-foreground">
+                          {t(`studio.cat.${it.category}`)} · {it.minutes} {t("studio.min")} · {it.slug}
                         </p>
                       </div>
                       <Badge variant="outline" className="shrink-0 text-[11px]">
@@ -1107,6 +1187,112 @@ export default function LibraryStudioCard() {
             </div>
             <Button
               onClick={submitListening}
+              disabled={submitting}
+              className="min-h-11 w-full gap-1.5 rounded-xl text-sm font-semibold"
+            >
+              {submitting ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+              ) : (
+                <Plus className="h-4 w-4" aria-hidden />
+              )}
+              {submitting ? t("studio.saving") : t("studio.save")}
+            </Button>
+          </div>
+        )}
+
+        {/* ── Reading form (JSON document editor) ── */}
+        {kind === "reading" && (
+          <div className="space-y-3 rounded-xl border border-border/60 bg-muted/40 p-3.5">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1">
+                <Label htmlFor="st-rslug" className={LABEL_CLS}>
+                  {t("studio.rSlug")}
+                </Label>
+                <Input
+                  id="st-rslug"
+                  value={rf.slug}
+                  onChange={(e) => setRf((f) => ({ ...f, slug: e.target.value }))}
+                  className={FIELD}
+                  placeholder="my-reading-passage"
+                  autoComplete="off"
+                />
+                <p className={HINT_CLS}>{t("studio.rSlugHint")}</p>
+              </div>
+              {levelSelect(
+                "st-rlevel",
+                rf.level,
+                (v) => setRf((f) => ({ ...f, level: v })),
+                t("studio.rLevel")
+              )}
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="space-y-1">
+                <Label htmlFor="st-rcat" className={LABEL_CLS}>
+                  {t("studio.rCategory")}
+                </Label>
+                <Select
+                  value={rf.category}
+                  onValueChange={(v) => setRf((f) => ({ ...f, category: v as LibraryListeningCategory }))}
+                >
+                  <SelectTrigger id="st-rcat" className={`${FIELD} w-full`} aria-label={t("studio.rCategory")}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LIBRARY_LISTENING_CATEGORIES.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        {t(`studio.cat.${c}`)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="st-rmin" className={LABEL_CLS}>
+                  {t("studio.rMinutes")}
+                </Label>
+                <Input
+                  id="st-rmin"
+                  type="number"
+                  min={1}
+                  max={60}
+                  inputMode="numeric"
+                  value={rf.minutes}
+                  onChange={(e) => setRf((f) => ({ ...f, minutes: e.target.value }))}
+                  className={FIELD}
+                  autoComplete="off"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="st-runit" className={LABEL_CLS}>
+                  {t("studio.rUnit")}
+                </Label>
+                <Input
+                  id="st-runit"
+                  type="number"
+                  min={0}
+                  max={99}
+                  value={rf.unit}
+                  onChange={(e) => setRf((f) => ({ ...f, unit: e.target.value }))}
+                  className={FIELD}
+                  autoComplete="off"
+                />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="st-rjson" className={LABEL_CLS}>
+                {t("studio.rJson")}
+              </Label>
+              <Textarea
+                id="st-rjson"
+                rows={10}
+                value={rf.dataJson}
+                onChange={(e) => setRf((f) => ({ ...f, dataJson: e.target.value }))}
+                className="text-xs font-mono"
+                placeholder={'{\n  "title": { "bn": "...", "en": "...", "hi": "..." },\n  "summary": { "bn": "...", "en": "...", "hi": "..." },\n  "genre": "story",\n  "paragraphs": [ { "en": "...", "bn": "...", "hi": "..." } ],\n  "vocabulary": [ { "word": "...", "meaning": { "bn": "...", "en": "...", "hi": "..." }, "example": "..." } ],\n  "quiz": [ { "question": { "bn": "..." }, "options": [ { "bn": "..." } ], "answer": 0, "explain": { "bn": "..." } } ]\n}'} />
+              <p className={HINT_CLS}>{t("studio.rJsonHint")}</p>
+            </div>
+            <Button
+              onClick={submitReading}
               disabled={submitting}
               className="min-h-11 w-full gap-1.5 rounded-xl text-sm font-semibold"
             >

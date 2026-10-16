@@ -5,9 +5,11 @@ import { isAdminToken } from "@/lib/admin-auth";
 import { ensureLibrary } from "@/lib/db-bootstrap";
 import {
   isLibraryLevel,
+  LIBRARY_READING_GENRES,
   type LibraryListeningData,
   type LibraryVocabData,
   type LibraryGrammarData,
+  type LibraryReadingData,
 } from "@/lib/library-types";
 
 export const runtime = "nodejs";
@@ -36,10 +38,12 @@ function authorized(req: NextRequest): boolean {
   return isAdminToken(req.headers.get("x-admin-token"));
 }
 
-type LibraryKind = "vocab" | "grammar" | "listening";
+type LibraryKind = "vocab" | "grammar" | "listening" | "reading";
 
 function parseKind(raw: string | null): LibraryKind | null {
-  return raw === "vocab" || raw === "grammar" || raw === "listening" ? raw : null;
+  return raw === "vocab" || raw === "grammar" || raw === "listening" || raw === "reading"
+    ? raw
+    : null;
 }
 
 /** Minimal structural guard — the Content Studio validates deeply client-side. */
@@ -66,6 +70,15 @@ function looksValidData(kind: LibraryKind, d: unknown): boolean {
     Array.isArray(l.paragraphs) &&
     l.paragraphs.length > 0
   );
+}
+
+function looksValidReading(d: Record<string, unknown>): boolean {
+  const r = d as Partial<LibraryReadingData>;
+  if (typeof r.title !== "object" || !r.title) return false;
+  if (!Array.isArray(r.paragraphs) || r.paragraphs.length === 0) return false;
+  // genre is optional at the API guard level (UI falls back to "story")
+  if (r.genre !== undefined && !LIBRARY_READING_GENRES.includes(r.genre)) return false;
+  return true;
 }
 
 function slugify(input: string): string {
@@ -155,7 +168,27 @@ export async function GET(req: NextRequest) {
     }
 
     // listening
-    const rows = await db.libraryListening.findMany({
+    if (kind === "listening") {
+      const rows = await db.libraryListening.findMany({
+        where: levelFilter,
+        orderBy: [{ unit: "asc" }, { sortOrder: "asc" }, { createdAt: "asc" }],
+        take: 500,
+      });
+      return jsonOk({
+        items: rows.map((r) => ({
+          id: r.id,
+          slug: r.slug,
+          level: r.level,
+          category: r.category,
+          minutes: r.minutes,
+          unit: r.unit,
+          data: JSON.parse(r.data) as LibraryListeningData,
+        })),
+      });
+    }
+
+    // reading (Task 11): trilingual passages, ordered path-first like listening
+    const rows = await db.libraryReading.findMany({
       where: levelFilter,
       orderBy: [{ unit: "asc" }, { sortOrder: "asc" }, { createdAt: "asc" }],
       take: 500,
@@ -168,7 +201,7 @@ export async function GET(req: NextRequest) {
         category: r.category,
         minutes: r.minutes,
         unit: r.unit,
-        data: JSON.parse(r.data) as LibraryListeningData,
+        data: JSON.parse(r.data) as LibraryReadingData,
       })),
     });
   } catch {
@@ -191,7 +224,11 @@ export async function POST(req: NextRequest) {
   await ensureLibrary(kind);
 
   const data = entry.data;
-  if (!looksValidData(kind, data)) {
+  const valid =
+    kind === "reading"
+      ? !!data && typeof data === "object" && looksValidReading(data as Record<string, unknown>)
+      : looksValidData(kind, data);
+  if (!valid) {
     return jsonErr(apiMsg(locale, "libraryDataInvalid"), 400);
   }
   const dataJson = JSON.stringify(data);
@@ -230,12 +267,27 @@ export async function POST(req: NextRequest) {
     }
 
     // listening
+    if (kind === "listening") {
+      const titleEn = String(data?.title?.en ?? data?.title?.bn ?? "").trim();
+      const slug = slugify(String(entry.slug ?? "") || titleEn);
+      const level = isLibraryLevel(entry.level) ? entry.level : "beginner";
+      const category = String(entry.category ?? "daily").slice(0, 30);
+      const minutes = Math.max(1, Math.min(60, Number(entry.minutes ?? 2) || 2));
+      const row = await db.libraryListening.upsert({
+        where: { slug },
+        create: { slug, level, category, minutes, data: dataJson, unit, sortOrder },
+        update: { level, category, minutes, data: dataJson, unit, sortOrder },
+      });
+      return jsonOk({ id: row.id });
+    }
+
+    // reading (Task 11)
     const titleEn = String(data?.title?.en ?? data?.title?.bn ?? "").trim();
     const slug = slugify(String(entry.slug ?? "") || titleEn);
     const level = isLibraryLevel(entry.level) ? entry.level : "beginner";
     const category = String(entry.category ?? "daily").slice(0, 30);
-    const minutes = Math.max(1, Math.min(60, Number(entry.minutes ?? 2) || 2));
-    const row = await db.libraryListening.upsert({
+    const minutes = Math.max(1, Math.min(60, Number(entry.minutes ?? 3) || 3));
+    const row = await db.libraryReading.upsert({
       where: { slug },
       create: { slug, level, category, minutes, data: dataJson, unit, sortOrder },
       update: { level, category, minutes, data: dataJson, unit, sortOrder },
@@ -264,8 +316,11 @@ export async function DELETE(req: NextRequest) {
     } else if (kind === "grammar") {
       const row = await db.libraryGrammar.delete({ where: { id } }).catch(() => null);
       if (!row) return jsonErr(apiMsg(locale, "libraryNotFound"), 404);
-    } else {
+    } else if (kind === "listening") {
       const row = await db.libraryListening.delete({ where: { id } }).catch(() => null);
+      if (!row) return jsonErr(apiMsg(locale, "libraryNotFound"), 404);
+    } else {
+      const row = await db.libraryReading.delete({ where: { id } }).catch(() => null);
       if (!row) return jsonErr(apiMsg(locale, "libraryNotFound"), 404);
     }
     return jsonOk({ deleted: id });

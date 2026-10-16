@@ -36,6 +36,11 @@ import { SEED_GRAMMAR_V4_V2B2 } from "../../scripts/seed-data/grammar-v4-v2b2";
 import { SEED_LISTENING_V2_BEGINNER } from "../../scripts/seed-data/listening-v2-beginner";
 import { SEED_LISTENING_V2_INTERMEDIATE } from "../../scripts/seed-data/listening-v2-intermediate";
 import { SEED_LISTENING_V2_ADVANCED } from "../../scripts/seed-data/listening-v2-advanced";
+// v1 reading seeds (Task 11): 18 trilingual passages — 6 per level, one per
+// category, genre-mixed (story/dialog/letter/diary/article/news).
+import { SEED_READING_V1_BEGINNER } from "../../scripts/seed-data/reading-v1-beginner";
+import { SEED_READING_V1_INTERMEDIATE } from "../../scripts/seed-data/reading-v1-intermediate";
+import { SEED_READING_V1_ADVANCED } from "../../scripts/seed-data/reading-v1-advanced";
 import type { LibraryLevel } from "./library-types";
 
 /* ─── Database self-bootstrap (zero-config production) ──────────────────────
@@ -62,13 +67,14 @@ import type { LibraryLevel } from "./library-types";
  * own error handling; the next request simply retries the bootstrap.
  * ──────────────────────────────────────────────────────────────────────── */
 
-export type LibraryKind = "vocab" | "grammar" | "listening";
+export type LibraryKind = "vocab" | "grammar" | "listening" | "reading";
 
 const MARKER_FEATURE = "library_bootstrap";
 const MARKERS: Record<LibraryKind, string> = {
   vocab: "vocab_v2",
   grammar: "grammar_v4", // v4 = point-form ROADMAP upgrade (Task 10)
   listening: "listening_v2",
+  reading: "reading_v1", // Task 11: trilingual reading passages
 };
 
 /** Single-flight per kind so parallel requests share one bootstrap. */
@@ -128,6 +134,20 @@ const DDL: string[] = [
   )`,
   `CREATE UNIQUE INDEX IF NOT EXISTS "LibraryListening_slug_key" ON "LibraryListening"("slug" ASC)`,
   `CREATE INDEX IF NOT EXISTS "LibraryListening_level_idx" ON "LibraryListening"("level" ASC)`,
+  `CREATE TABLE IF NOT EXISTS "LibraryReading" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "slug" TEXT NOT NULL,
+    "level" TEXT NOT NULL DEFAULT 'beginner',
+    "category" TEXT NOT NULL DEFAULT 'daily',
+    "minutes" INTEGER NOT NULL DEFAULT 3,
+    "data" TEXT NOT NULL,
+    "unit" INTEGER NOT NULL DEFAULT 0,
+    "sortOrder" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "LibraryReading_slug_key" ON "LibraryReading"("slug" ASC)`,
+  `CREATE INDEX IF NOT EXISTS "LibraryReading_level_idx" ON "LibraryReading"("level" ASC)`,
   /* Zero-cost storage pool + TURN pool tables — production Turso predates
    * these models too (they shipped after the last db:push), which made
    * /api/storage 500 on production. */
@@ -354,6 +374,21 @@ const V2_LISTENING: ListeningSeedEntry[] = [
   ...SEED_LISTENING_V2_ADVANCED,
 ];
 
+interface ReadingSeedEntry {
+  slug: string;
+  level: LibraryLevel;
+  category: string;
+  minutes: number;
+  unit: number;
+  data: unknown;
+}
+
+const V1_READING: ReadingSeedEntry[] = [
+  ...SEED_READING_V1_BEGINNER,
+  ...SEED_READING_V1_INTERMEDIATE,
+  ...SEED_READING_V1_ADVANCED,
+];
+
 async function seedVocab(): Promise<number> {
   let fails = 0;
 
@@ -483,6 +518,36 @@ async function seedListening(): Promise<number> {
   return fails;
 }
 
+async function seedReading(): Promise<number> {
+  let fails = 0;
+  // sortOrder: per-level slot (unit episodes first via the `unit` column, so a
+  // simple per-level counter keeps series order stable inside each level).
+  for (const level of ["beginner", "intermediate", "advanced"] as const) {
+    const list = V1_READING.filter((e) => e.level === level);
+    for (let i = 0; i < list.length; i++) {
+      const e = list[i];
+      try {
+        await db.libraryReading.upsert({
+          where: { slug: e.slug },
+          create: {
+            slug: e.slug,
+            level: e.level,
+            category: e.category,
+            minutes: e.minutes,
+            data: JSON.stringify(e.data),
+            unit: e.unit,
+            sortOrder: i,
+          },
+          update: { unit: e.unit, sortOrder: i, minutes: e.minutes },
+        });
+      } catch {
+        fails++;
+      }
+    }
+  }
+  return fails;
+}
+
 async function runBootstrap(kind: LibraryKind): Promise<void> {
   try {
     if (await markerExists(MARKERS[kind])) return; // already done (owner may have edited since)
@@ -491,6 +556,7 @@ async function runBootstrap(kind: LibraryKind): Promise<void> {
     let fails: number;
     if (kind === "vocab") fails = await seedVocab();
     else if (kind === "grammar") fails = await seedGrammar();
+    else if (kind === "reading") fails = await seedReading();
     else fails = await seedListening();
 
     // Marker only on a clean run so a broken batch retries on the next hit.

@@ -150,7 +150,18 @@
       "setupFailed": "एडमिन टोकन सेव नहीं हो सका।",
       "vUnit": "पाथ यूनिट (1-5, 0 = अतिरिक्त)",
       "gUnit": "पाथ यूनिट (1-5, 0 = अतिरिक्त)",
-      "lUnit": "एपिसोड नंबर (1-5, 0 = स्टैंडअलोन)"
+      "lUnit": "एपिसोड नंबर (1-5, 0 = स्टैंडअलोन)",
+      "tabReading": "रीडिंग",
+      "listReading": "सहेजे गए पाठ",
+      "rSlug": "Slug",
+      "rSlugHint": "अंग्रेज़ी शीर्षक से बनेगा — चाहें तो यहाँ ख़ुद दें",
+      "rLevel": "स्तर",
+      "rCategory": "श्रेणी",
+      "rMinutes": "मिनट",
+      "rUnit": "एपिसोड नंबर (0 = स्वतंत्र)",
+      "rJson": "पाठ का डेटा (JSON)",
+      "rJsonHint": "ऊपर वाले फ़ॉर्मैट में JSON पेस्ट करें: title/summary/genre/paragraphs(en+bn+hi)/vocabulary/quiz",
+      "errReadingJson": "मान्य JSON दें — title और कम से कम एक paragraph ज़रूरी है"
     },
     "errors": {
       "saveFailed": "सेव नहीं हो सका",

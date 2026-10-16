@@ -150,7 +150,18 @@
       "setupFailed": "অ্যাডমিন টোকেন সেভ করা গেল না।",
       "vUnit": "পাথ ইউনিট (১-৫, ০ = অতিরিক্ত)",
       "gUnit": "পাথ ইউনিট (১-৫, ০ = অতিরিক্ত)",
-      "lUnit": "পর্ব নম্বর (১-৫, ০ = স্বতন্ত্র)"
+      "lUnit": "পর্ব নম্বর (১-৫, ০ = স্বতন্ত্র)",
+      "tabReading": "রিডিং",
+      "listReading": "জমা আছে এমন পাঠ",
+      "rSlug": "Slug",
+      "rSlugHint": "ইংরেজি শিরোনাম থেকে slug তৈরি হবে — চাইলে এখানে নিজে দিন",
+      "rLevel": "লেভেল",
+      "rCategory": "ক্যাটাগরি",
+      "rMinutes": "মিনিট",
+      "rUnit": "পর্ব নম্বর (0 = আলাদা)",
+      "rJson": "পাঠের ডেটা (JSON)",
+      "rJsonHint": "title/summary/genre/paragraphs(en+bn+hi)/vocabulary/quiz — উপরের ফরম্যাটে JSON পেস্ট করুন",
+      "errReadingJson": "সঠিক JSON দিন — title ও অন্তত একটি paragraph থাকতে হবে"
     },
     "errors": {
       "saveFailed": "সেভ করা যায়নি",

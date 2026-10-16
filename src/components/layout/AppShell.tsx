@@ -14,6 +14,7 @@ import {
   KeyRound,
   Route,
   Sparkles,
+  BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -29,6 +30,7 @@ import PathSection from "@/components/path/PathSection";
 import SpeakingSection from "@/components/sections/SpeakingSection";
 import GrammarSection from "@/components/sections/GrammarSection";
 import ListeningSection from "@/components/sections/ListeningSection";
+import ReadingSection from "@/components/reading/ReadingSection";
 import VocabSection from "@/components/sections/VocabSection";
 import ProgressSection from "@/components/sections/ProgressSection";
 import SettingsSection from "@/components/sections/SettingsSection";
@@ -39,6 +41,7 @@ export type TabId =
   | "speaking"
   | "grammar"
   | "listening"
+  | "reading"
   | "vocab"
   | "progress"
   | "settings";
@@ -56,13 +59,14 @@ export const TABS: {
   { id: "speaking", labelKey: "speaking", icon: MessagesSquare, descKey: "speakingDesc" },
   { id: "grammar", labelKey: "grammar", icon: BookOpenText, descKey: "grammarDesc" },
   { id: "listening", labelKey: "listening", icon: Headphones, descKey: "listeningDesc" },
+  { id: "reading", labelKey: "reading", icon: BookOpen, descKey: "readingDesc" },
   { id: "vocab", labelKey: "vocab", icon: LibraryBig, descKey: "vocabDesc" },
   { id: "progress", labelKey: "progress", icon: LineChart, descKey: "progressDesc" },
   { id: "settings", labelKey: "settings", icon: Settings, descKey: "settingsDesc" },
 ];
 
-const BOTTOM_TABS: TabId[] = ["home", "speaking", "grammar", "vocab"];
-const MORE_TABS: TabId[] = ["path", "listening", "progress", "settings"];
+const BOTTOM_TABS: TabId[] = ["home", "speaking", "grammar", "reading"];
+const MORE_TABS: TabId[] = ["path", "listening", "vocab", "progress", "settings"];
 
 export default function AppShell() {
   const t = useTranslations();
@@ -106,6 +110,8 @@ export default function AppShell() {
         return <GrammarSection />;
       case "listening":
         return <ListeningSection />;
+      case "reading":
+        return <ReadingSection />;
       case "vocab":
         return <VocabSection />;
       case "progress":

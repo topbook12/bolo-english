@@ -1814,3 +1814,83 @@ Stage Summary:
 - Sections: Register 8 (5 formula / 5 table), Precision 8 (5 formula / 4 table) → 16 total.
 - Points: 124 total (Register 61, Precision 63); leads 16; formula boxes 10; tables 9.
 - Examples kept: 80/80 unchanged (40 per lesson); roadmap items: 16 (8 per lesson); tips 20; quiz 20 (10 per lesson, kept).
+
+---
+Task ID: 10
+Agent: main (Z.ai Code)
+Task: Grammar v4 — point-form ROADMAP lessons (owner feedback: "প্যারাগ্রাফে অনেক কিছু লেখা — পয়েন্ট আকারে ডিজাইন করুন, রোডম্যাপের মতো ভাগ করুন, সুন্দর গ্রাফিক্স/কালার/ইমোজি/কার্ড ভিউ")
+
+Work Log:
+- Audited v3 state: 50 DB lessons used `body` paragraphs inside sections; LessonView rendered them as long paragraphs — owner wants point-form + roadmap + visuals
+- Contracts: LibraryGrammarSection +lead/points/formula/table (body optional), LibraryGrammarData +roadmap, GrammarSectionItem/GrammarLessonContent mirrored in lib/types.ts, SeedGrammarV4Entry (explicit sortOrder) in scripts/seed-data/grammar-v4-types.ts; Content Studio body null-safety
+- Spec: .agent-specs/v4-spec.md (full transformation rules + worked example) shared by 27 dispatched content agents (waves + redos; some Task-tool timeouts but all files landed — each re-verified)
+- 50/50 lessons transformed across 24 v4 seed files: body → 4-8 bullets (facts never dropped), **bold** key terms, emoji per section/roadmap item, leads, formula boxes, comparison tables (signal words, 12-tense, backshift, quantifiers, register pairs); examples/tips/quiz byte-identical; Tense lessons split per tense/aspect
+- Verification script (/tmp/check-all.ts): 50 lessons, roadmap==sections 1:1, tri-language points, no body, unique sortOrders per level — 0 problems; project tsc clean
+- db-bootstrap v4: marker grammar_v4, single upsert pass with EXPLICIT sortOrder — fixes v3 bug (intermediate anchors had drifted to slots 24-27; now 0-3), v1/v2 grammar seeding removed (v4 covers all 50)
+- LessonView rewrite: clickable roadmap card (numbered tinted chips → smooth-scroll to #gsec-i), tinted step cards (5-palette rotation: emerald/amber/rose/teal/orange) with emoji chip + ধাপ N + lead + check-bullet points, formula box (Code2), mini tables (tinted header, zebra), examples label + wrong→right cards, Rich **bold** renderer, legacy paragraph fallback
+- i18n: grammar.lesson.roadmapTitle/roadmapAria/stepLabel/formulaLabel/examplesLabel (bn/en/hi); outdated noKey banner → "লেসন ও বেশিরভাগ কুইজ সম্পূর্ণ ফ্রি"; howTo point1/point2 → roadmap/points + 10-question quiz
+- Verified: tsc clean, eslint clean (removed agent temp .tmp-c19), local reseed 50 rows (Tense basics: 13 sections/13 roadmap/emoji headings/no body), agent-browser desktop 1440 + mobile 390 (bn+en): hero badges (ধাপ ১৩), roadmap grid, roadmap chip scroll (top=173px), tinted section cards, signal-word table, formula box, examples, quiz opens (প্রশ্ন ১/১০, DB quiz), advanced 16-step lesson, v2 4-step lesson, console clean
+- Committed d833226 (36 files, +26,067) and pushed to main (Vercel auto-deploy)
+
+Stage Summary:
+- Grammar is now genuinely "পয়েন্ট আকারে + রোডম্যাপ স্টাইল": every one of the 50 lessons (12 beginner + 24 intermediate + 14 advanced, bn/en/hi) renders as color-tinted step cards with emoji, scannable bullets, formula boxes and tables under a clickable lesson roadmap
+- Data lives in the site's own DB (zero keys); owner Content Studio still works; production reseeds automatically on first /api/library hit after deploy
+- Commit d833226 pushed; Vercel will rebuild and serve v4 content
+
+---
+Task ID: 11-a1
+Agent: reading-content-agent-beginner
+Task: Reading library seed — beginner level (6 trilingual passages)
+
+Work Log:
+- Read worklog.md context + src/lib/library-types.ts contracts (LibraryReadingData/Paragraph/Vocab/Quiz, TriText, genre/category unions); skimmed listening-v2-beginner.ts for house style.
+- Created scripts/seed-data/reading-v1-beginner.ts in ONE Write call: SeedReadingEntry interface (as specced) + SEED_READING_V1_BEGINNER (6 entries) + default export; imports type-only from ../../src/lib/library-types.
+- Wrote 5 trilingual paragraphs per passage (English learning content: simple present/past, sentences ≤ 12 words; bn/hi faithful line-by-line translations) + TriText title/summary + 6 vocab (word verified present in paragraphs, English example) + 5 quiz (4 TriText options, 0-3 answer index, explain cites the paragraph).
+- Entries: read-b1-puppy (story·daily·unit1), read-b1-bus (dialog·travel·unit2, Nina↔clerk Cox's Bazar ticket dialog), read-b1-letter (letter·work·unit3, Tisha→uncle tailoring-shop letter), read-b1-boishakh (diary·culture·unit4, panta-ilish + fair + puppet show), read-b1-rain (article·science·unit5, sun→vapour→cloud→rain), read-b1-mango (story·inspire·unit0, patience-pays standalone).
+- Validation: bunx tsc --noEmit → exit 0 (twice, before/after temp cleanup). Structural audit via temp tsx script (/home/z/my-project/check-reading-b1.tmp.ts): 6 entries, expected slug/genre/category/unit order, level=beginner, minutes∈{2,3}, 5 paragraphs each with non-empty bn/en/hi (bn≠en, hi≠en), 180-230 English words per passage, ≤12 words/sentence (after fixing checker's quote-handling false positives — content was already compliant), exactly 6 vocab with word-in-paragraph token match, exactly 5 quiz × 4 options × answer 0-3, JSON-safe data. ALL CHECKS PASSED; temp file deleted.
+
+Stage Summary:
+- File: scripts/seed-data/reading-v1-beginner.ts (~950 lines, export SEED_READING_V1_BEGINNER + default).
+- read-b1-puppy: 216 en words, minutes 3 · read-b1-bus: 194 en words, minutes 2 · read-b1-letter: 184 en words, minutes 3 · read-b1-boishakh: 186 en words, minutes 3 · read-b1-rain: 185 en words, minutes 2 · read-b1-mango: 188 en words, minutes 3.
+- Per entry: 5 paragraphs × {en,bn,hi}, 6 vocab, 5 quiz — all trilingual, bn natural/primary.
+- Validation: tsc --noEmit exit 0; structural audit ALL CHECKS PASSED; temp checker deleted.
+
+---
+Task ID: 11-a2
+Agent: reading-content-agent-intermediate
+Task: Reading library seed — intermediate level (6 trilingual passages)
+
+Work Log:
+- Read worklog.md (context) + src/lib/library-types.ts contracts (LibraryReadingData, LibraryReadingParagraph, LibraryReadingVocab, LibraryReadingQuiz, TriText, LibraryReadingCategory/Genre, LibraryLevel); checked sibling listening-v2-intermediate.ts for house style. Did NOT touch any other file.
+- Created scripts/seed-data/reading-v1-intermediate.ts in ONE Write call: SeedReadingEntry interface + SEED_READING_V1_INTERMEDIATE (6 entries) + default export; genre lives in data.genre per contract.
+- Authored 6 B1–B2 passages (present perfect, past continuous, first conditional, simple passive), 6 paragraphs each, 300–380 English words: night-bus suspense story, HR-interview dialog, Eid-abroad letter, 2-day Sundarbans boat diary, river-erosion/pollution article, news report with quotes.
+- Every paragraph object carries faithful natural bn + hi translations (no summaries, never equal to English); title/summary/quiz question+options+explain all TriText with bn primary; quiz explains reference the paragraph where the answer is found.
+- Vocabulary: exactly 6 per passage, every word verified to appear in that passage's English paragraphs; example = standalone English sentence. Quiz: exactly 5 per passage, 4 TriText options, answer index 0–3 pointing at the correct option.
+- Validation: bunx tsc --noEmit → exit 0 (twice, before & after cleanup). Structural audit via bunx tsx temp script: 6 entries, fixed slugs, level=intermediate, genre/category within LibraryReadingGenre/Category enums, minutes 3/4, 6 paragraphs each, every paragraph TriText non-empty & ≠ English, per-passage word counts 300–380, 6/6 vocab words found in English text (case-insensitive), 5×5 quiz items with 4 options + answer 0–3, JSON.stringify safe → ALL PASSED. Temp check script deleted afterwards.
+
+Stage Summary:
+- File: scripts/seed-data/reading-v1-intermediate.ts (export SEED_READING_V1_INTERMEDIATE + default; SeedReadingEntry shape: slug/level/category/minutes/unit/data).
+- Entries (slug | genre/category | unit | minutes | EN words): read-i1-nightbus | story/daily | 1 | 4 | 372 · read-i1-interview | dialog/work | 2 | 3 | 335 · read-i1-kualalumpur | letter/culture | 3 | 3 | 333 · read-i1-sundarbans | diary/travel | 4 | 4 | 357 · read-i1-rivers | article/science | 5 | 4 | 329 · read-i1-scholarship | news/inspire | 0 | 3 | 311.
+- Totals: 36 paragraphs (×3 languages), 36 vocab items, 30 quiz questions; all trilingual fields populated (bn primary).
+- Validation: project tsc --noEmit exit 0; structural checks all green; temp script removed; no other files modified, no git commands run.
+
+---
+Task ID: 11-a3b
+Agent: reading-content-agent-advanced-b
+Task: Advanced reading entries 3-4 (landlord letter + himalaya diary)
+
+Work Log:
+- Read worklog.md last section for context; read src/lib/library-types.ts contracts (LibraryReadingData, LibraryReadingParagraph, LibraryReadingVocab, LibraryReadingQuiz, TriText, LibraryReadingCategory/Genre).
+- Read scripts/seed-data/reading-v1-advanced.ts (existing read-a1-lastboat story + read-a1-salary dialog) to match exact style: SeedReadingEntry shape (slug/level/category/minutes/unit/data), TriText title/summary bn-primary, paragraphs {en,bn,hi}, 6 vocab, 5 quiz.
+- Appended read-a1-landlord (genre letter, category daily, unit 3, minutes 5) via ONE Edit anchored at the closing `];`: formal complaint letter from tenant Karim to Mr. Chowdhury — broken water pump, two weeks of delay, reported speech ("you assured me..."), passive voice ("the pump be repaired", "I was told"), idioms ("in good faith", "without heat", "at your disposal"), polite insistence, deadlines (repair/replace within seven days + written reply). 6 paragraphs, salutation merged into P1, sign-off into P6.
+- Appended read-a1-himalaya (genre diary, category travel, unit 4, minutes 5): reflective trek diary Day 1 → Day 4 above 4,000 m at Namche Bazaar — thin air, silence, self-doubt (Day 3), resolve (Day 3 evening), high-pass epiphany and final reflection. 6 paragraphs with metaphor-heavy C1 prose ("pride is expensive luggage", "a letter that had been writing itself for a million years").
+- Both: every bn/hi paragraph is a faithful natural translation of its exact en paragraph; 6 vocab each, all words verified present in that entry's English paragraphs (landlord: inconvenience, deteriorated, assured, in good faith, punctually, withhold; himalaya: acclimatised, sparingly, elusive, switchbacks, moraine, resolve), meaning=TriText, example=English sentence; 5 quiz each with 4 TriText options, answer 0-3 (landlord: 0,1,2,1,2; himalaya: 0,2,1,3,2) and explains citing the paragraph where the answer lives — C1 questions on tone, idiom meaning and inference.
+- Validation: bunx tsc --noEmit → exit 0 (twice, before and after temp cleanup). Structural audit via bunx tsx temp script (check-11a3b.tmp.ts): 4 total entries, expected slug/level/genre/category/unit/minutes order, 6 paragraphs (new entries) with non-empty bn/hi ≠ English, 440-520 en words for new entries, 6/6 vocab words found in entry's English text, 5×5 quiz with 4 options + answer 0-3 + full TriText everywhere, JSON-safe → ALL CHECKS PASSED. Temp checker deleted; no other files touched, no git commands.
+
+Stage Summary:
+- File: scripts/seed-data/reading-v1-advanced.ts grew 429 → 830 lines; SEED_READING_V1_ADVANCED now 4 entries + default export.
+- read-a1-landlord | letter/daily | unit 3 | minutes 5 | 6 paragraphs | 470 en words | vocab: inconvenience, deteriorated, assured, in good faith, punctually, withhold.
+- read-a1-himalaya | diary/travel | unit 4 | minutes 5 | 6 paragraphs | 468 en words | vocab: acclimatised, sparingly, elusive, switchbacks, moraine, resolve.
+- (Existing for reference: read-a1-lastboat 7 paras/467 words, read-a1-salary 6 paras/475 words.)
+- Totals for this task: 12 paragraphs ×3 languages, 12 vocab, 10 quiz questions — all trilingual, bn primary.
+- Validation: tsc --noEmit exit 0; structural audit ALL CHECKS PASSED; temp script deleted; only reading-v1-advanced.ts + worklog.md modified.
