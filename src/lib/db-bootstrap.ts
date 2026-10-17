@@ -214,11 +214,15 @@ async function ensureColumns(): Promise<void> {
   if (ok) columnsReady = true;
 }
 
-/** Cheap probe — a missing sentinel table means the DDL batch must run. */
+/** Cheap probe — a missing sentinel table means the DDL batch must run.
+ *  LibraryReading is probed too: it shipped long after the other Library
+ *  tables, and a production DB that already has TurnKey+LibraryVocab must
+ *  still run the (idempotent) DDL batch once to create it. */
 async function tablesExist(): Promise<boolean> {
   try {
     await db.$queryRawUnsafe(`SELECT 1 FROM "TurnKey" LIMIT 1`);
     await db.$queryRawUnsafe(`SELECT 1 FROM "LibraryVocab" LIMIT 1`);
+    await db.$queryRawUnsafe(`SELECT 1 FROM "LibraryReading" LIMIT 1`);
     return true;
   } catch {
     return false;
