@@ -7,12 +7,12 @@ import {
   Wand2,
   Sparkles,
   Mic,
-  Timer,
   PhoneMissed,
   CameraOff,
   RefreshCw,
   WifiOff,
   Lightbulb,
+  TriangleAlert,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -58,6 +58,38 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
   const { deviceId, hasKey, displayName } = useDevice();
   // Localized name shown to peers/AI when the user hasn't set one
   const myName = displayName || tc("student");
+  /* ── speaker identity ──
+   * Unnamed users all broadcast the same localized fallback ("Student"),
+   * which used to break transcript attribution when two of them shared a
+   * call. Every participant therefore gets a short distinct suffix derived
+   * from their peerId (e.g. "Student #a3"). Lines also carry the raw peerId,
+   * so the AI analysis attributes them exactly; lines without a peerId keep
+   * working via speaker-name fallback. */
+  const genericName = tc("student");
+  const [myPeerId, setMyPeerId] = useState("");
+  const myPeerIdRef = useRef("");
+  const shortId = useCallback((id: string) => {
+    const clean = id.replace(/[^a-zA-Z0-9]/g, "");
+    return (clean.slice(-2) || "x").toLowerCase();
+  }, []);
+  const mySpeakerName =
+    myName === genericName && myPeerId ? `${myName} #${shortId(myPeerId)}` : myName;
+  const speakerNameRef = useRef(mySpeakerName);
+  speakerNameRef.current = mySpeakerName;
+  const genericNameRef = useRef(genericName);
+  genericNameRef.current = genericName;
+  // Peer display names: suffix the generic fallback (or a name identical to
+  // mine) with that peer's id so tiles, toasts, captions and the transcript
+  // stay unique per participant.
+  const peerDisplayName = useCallback(
+    (pid: string, name: string) => {
+      if (name === genericNameRef.current || name === speakerNameRef.current) {
+        return `${name} #${shortId(pid)}`;
+      }
+      return name;
+    },
+    [shortId]
+  );
   const [mode, setMode] = useState<Mode>("matching");
   const [joining, setJoining] = useState(false);
   const [roomCode, setRoomCode] = useState<string | null>(null);
@@ -91,6 +123,9 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
   const transcriptRef = useRef<TranscriptLine[]>([]);
   const [transcriptCount, setTranscriptCount] = useState(0);
   const myLinesRef = useRef<string[]>([]);
+  // Lines already sent for live correction — each tick only analyzes the NEW
+  // lines, so the same sentence is never corrected twice in a row.
+  const lastCorrectedCountRef = useRef(0);
 
   // live AI correction
   const [liveCorrection, setLiveCorrection] = useState(true);
@@ -142,6 +177,7 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
     setUnreadChat(0);
     transcriptRef.current = [];
     myLinesRef.current = [];
+    lastCorrectedCountRef.current = 0;
     setTranscriptCount(0);
     setAnalysis(null);
     setMode("call");
@@ -151,14 +187,21 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
   /* ── speech recognition → transcript + caption broadcast ── */
   const onFinalLine = useCallback(
     (line: FinalLine) => {
-      const speaker = nameRef.current || tc("you");
-      transcriptRef.current = [...transcriptRef.current, { speaker, text: line.text, at: line.at }];
+      const speaker = speakerNameRef.current || tc("you");
+      transcriptRef.current = [
+        ...transcriptRef.current,
+        { speaker, text: line.text, at: line.at, peerId: myPeerIdRef.current || undefined },
+      ];
       myLinesRef.current = [...myLinesRef.current, line.text];
       setTranscriptCount(transcriptRef.current.length);
       setCaptions((prev) =>
         [...prev, { speaker, text: line.text, mine: true, final: true, at: line.at }].slice(-60)
       );
-      clientRef.current?.send("caption", { text: line.text, speaker });
+      clientRef.current?.send("caption", {
+        text: line.text,
+        speaker,
+        peerId: myPeerIdRef.current || undefined,
+      });
     },
     [tc]
   );
@@ -204,11 +247,20 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
       }
       clientRef.current = client;
       setRoomCode(result.code);
-      peerNamesRef.current = new Map(result.peers.map((p) => [p.peerId, p.name]));
+      // remember my signaling identity — captions/transcript lines carry it
+      myPeerIdRef.current = result.peerId;
+      setMyPeerId(result.peerId);
+      peerNamesRef.current = new Map(
+        result.peers.map((p) => [p.peerId, peerDisplayName(p.peerId, p.name)])
+      );
 
       client.onPeers((peers) => {
-        peerNamesRef.current = new Map(peers.map((p) => [p.peerId, p.name]));
-        webrtc.handleRoomState(peers.map((p) => ({ id: p.peerId, name: p.name })));
+        peerNamesRef.current = new Map(
+          peers.map((p) => [p.peerId, peerDisplayName(p.peerId, p.name)])
+        );
+        webrtc.handleRoomState(
+          peers.map((p) => ({ id: p.peerId, name: peerDisplayName(p.peerId, p.name) }))
+        );
         // one-to-one quick match: the call starts the moment a 2nd peer appears
         if (intent === "one" && modeRef.current === "matching" && peers.length >= 2) {
           enterCall();
@@ -223,23 +275,39 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
           return;
         }
         if (m.type === "caption") {
-          const p = m.payload as { text?: unknown; speaker?: unknown };
+          const p = m.payload as { text?: unknown; speaker?: unknown; peerId?: unknown };
           const text = typeof p?.text === "string" ? p.text : "";
           if (text) {
-            const speaker = typeof p.speaker === "string" && p.speaker ? p.speaker : tc("partner");
+            const rawSpeaker =
+              typeof p?.speaker === "string" && p.speaker ? p.speaker : tc("partner");
+            const pid = typeof p?.peerId === "string" && p.peerId ? p.peerId : m.from;
+            // disambiguate a colliding generic fallback name
+            const speaker =
+              rawSpeaker === genericNameRef.current
+                ? `${rawSpeaker} #${shortId(pid)}`
+                : rawSpeaker;
             setCaptions((prev) =>
               [...prev, { speaker, text, mine: false, final: true, at: Date.now() }].slice(-60)
             );
-            transcriptRef.current = [...transcriptRef.current, { speaker, text, at: Date.now() }];
+            transcriptRef.current = [
+              ...transcriptRef.current,
+              { speaker, text, at: Date.now(), peerId: pid || undefined },
+            ];
             setTranscriptCount(transcriptRef.current.length);
           }
           return;
         }
         if (m.type === "chat") {
-          const p = m.payload as { text?: unknown; speaker?: unknown };
+          const p = m.payload as { text?: unknown; speaker?: unknown; peerId?: unknown };
           const text = typeof p?.text === "string" ? p.text : "";
           if (text) {
-            const speaker = typeof p.speaker === "string" && p.speaker ? p.speaker : tc("partner");
+            const rawSpeaker =
+              typeof p?.speaker === "string" && p.speaker ? p.speaker : tc("partner");
+            const pid = typeof p?.peerId === "string" && p.peerId ? p.peerId : m.from;
+            const speaker =
+              rawSpeaker === genericNameRef.current
+                ? `${rawSpeaker} #${shortId(pid)}`
+                : rawSpeaker;
             setChatMessages((prev) => [...prev, { speaker, text, mine: false }]);
             if (!chatOpenRef.current) setUnreadChat((u) => u + 1);
           }
@@ -260,7 +328,9 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
       client.onConnectionIssue((issue) => setConnectionIssue(issue));
 
       // seed the roster with what the server already knows
-      webrtc.handleRoomState(result.peers.map((p) => ({ id: p.peerId, name: p.name })));
+      webrtc.handleRoomState(
+        result.peers.map((p) => ({ id: p.peerId, name: peerDisplayName(p.peerId, p.name) }))
+      );
 
       if (intent === "one") {
         // wait on the matching screen until a partner shows up
@@ -283,7 +353,7 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
       joiningRef.current = false;
       setJoining(false);
     }
-  }, [intent, code, webrtc, enterCall, toast, t, tc, onExit]);
+  }, [intent, code, webrtc, enterCall, toast, t, tc, onExit, peerDisplayName, shortId]);
 
   /* ── kick off join once the device id is available ── */
   const startedRef = useRef(false);
@@ -369,22 +439,29 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
     return () => clearTimeout(timer);
   }, [mode, webrtc.remotePeers.length]);
 
-  /* ── live AI correction loop (first check @12s, then every 30s) ── */
+  /* ── live AI correction loop (first check @12s, then every 30s) ──
+   * Checkpoint-based: each tick analyzes only the lines spoken SINCE the last
+   * successful check. Re-sending a sliding window used to duplicate the same
+   * corrections every 30 seconds. */
   useEffect(() => {
     if (!liveCorrection || mode !== "call" || !hasKey) return;
     const run = async () => {
-      const lines = myLinesRef.current.slice(-14);
-      if (lines.length < 2 || !deviceIdRef.current) return;
+      if (!deviceIdRef.current) return;
+      const all = myLinesRef.current;
+      const fresh = all.slice(lastCorrectedCountRef.current);
+      if (fresh.length < 2) return; // nothing new → skip the API call entirely
+      const lines = fresh.slice(-14);
       setChecking(true);
       try {
         const res = await callAi<RealtimeCorrections>(deviceIdRef.current, "realtime-correction", {
           lines,
         });
+        lastCorrectedCountRef.current = all.length; // advance checkpoint on success
         if (res.corrections?.length) {
           setCorrections((prev) => [{ ...res, at: Date.now() }, ...prev].slice(0, 5));
         }
       } catch {
-        /* silent — live correction is best-effort */
+        /* silent — best-effort; checkpoint stays so the tick retries */
       } finally {
         setChecking(false);
       }
@@ -406,6 +483,12 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
     setChecking(true);
     try {
       const res = await callAi<RealtimeCorrections>(deviceId, "realtime-correction", { lines });
+      // the manual check covered the recent window — advance the auto
+      // checkpoint so the loop doesn't re-analyze the same lines right after
+      lastCorrectedCountRef.current = Math.max(
+        lastCorrectedCountRef.current,
+        myLinesRef.current.length
+      );
       setCorrections((prev) => [{ ...res, at: Date.now() }, ...prev].slice(0, 5));
       if (!res.corrections?.length) {
         toast({ title: res.encouragement || t("allGood") });
@@ -426,7 +509,8 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
         transcript: transcriptRef.current,
         durationSec: endedInfo?.durationSec ?? duration,
         partnerCount: endedInfo?.partnerCount ?? 1,
-        myName,
+        myName: speakerNameRef.current,
+        myPeerId: myPeerIdRef.current || undefined,
       });
       setAnalysis(result);
       await fetch("/api/sessions", {
@@ -450,8 +534,12 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
   };
 
   const sendChat = (text: string) => {
-    setChatMessages((prev) => [...prev, { speaker: myName, text, mine: true }]);
-    clientRef.current?.send("chat", { text, speaker: myName });
+    setChatMessages((prev) => [...prev, { speaker: speakerNameRef.current, text, mine: true }]);
+    clientRef.current?.send("chat", {
+      text,
+      speaker: speakerNameRef.current,
+      peerId: myPeerIdRef.current || undefined,
+    });
   };
 
   const toggleChat = () => {
@@ -527,7 +615,7 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
         <CallRoom
           localStream={webrtc.localStream}
           remotePeers={webrtc.remotePeers}
-          displayName={myName}
+          displayName={mySpeakerName}
           micOn={micOn}
           camOn={camOn}
           chatOpen={chatOpen}
@@ -542,6 +630,7 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
           showShareHint={intent !== "one"}
           captions={captions.filter((c) => c.final)}
           captionsOpen={captionsOpen}
+          interimText={rec.listening ? rec.interim : ""}
           onToggleMic={() => {
             const next = !micOn;
             setMicOn(next);
@@ -552,6 +641,7 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
             setCamOn(next);
             webrtc.toggleCam(next);
           }}
+          onToggleCaptions={() => setCaptionsOpen((v) => !v)}
           onToggleChat={toggleChat}
           onLeave={leaveCall}
           onSendChat={sendChat}
@@ -567,13 +657,28 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
           </div>
         </CallRoom>
 
-        {/* interim own caption */}
-        {rec.listening && rec.interim && (
-          <p className="caption-text mx-auto max-w-lg rounded-lg bg-black/70 px-3 py-1.5 text-center text-sm text-white">
-            {rec.interim}
-          </p>
+        {/* speech problems — visible amber warnings, never a whisper of text */}
+        {!rec.supported ? (
+          <Card className="border-amber-200 bg-amber-50/80 dark:border-amber-900 dark:bg-amber-950/30">
+            <CardContent className="flex items-start gap-3 p-4">
+              <TriangleAlert className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+                  {t("speechUnsupportedTitle")}
+                </p>
+                <p className="mt-1 text-xs leading-relaxed text-amber-800 dark:text-amber-300">
+                  {t("speechUnsupportedBody")}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          rec.error && (
+            <p className="rounded-xl border border-amber-200 bg-amber-50/70 px-3 py-2 text-center text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300">
+              {rec.error}
+            </p>
+          )
         )}
-        {rec.error && <p className="text-center text-xs text-destructive">{rec.error}</p>}
 
         {/* AI corrections feed */}
         <div className="space-y-2">

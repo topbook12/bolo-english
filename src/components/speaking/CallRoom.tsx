@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   Mic,
@@ -17,11 +17,112 @@ import {
   SendHorizontal,
   Loader2,
   Share2,
+  Captions,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { RemotePeer } from "@/hooks/use-webrtc";
+
+/* ── talking indicator (Web Audio, best-effort) ──
+ * Per remote stream: AudioContext → AnalyserNode, RMS sampled every ~200ms.
+ * Cleanup runs on unmount / roster change; browsers without AudioContext or
+ * audio-only-less streams simply never light up. Decorative only. */
+function useTalkingPeers(peers: RemotePeer[]): Set<string> {
+  const [talking, setTalking] = useState<Set<string>>(() => new Set<string>());
+
+  useEffect(() => {
+    const w = window as unknown as {
+      AudioContext?: typeof AudioContext;
+      webkitAudioContext?: typeof AudioContext;
+    };
+    const AC = w.AudioContext ?? w.webkitAudioContext;
+    let ctx: AudioContext | null = null;
+    try {
+      if (AC && peers.length > 0) ctx = new AC();
+    } catch {
+      ctx = null; // no Web Audio — everyone just never glows
+    }
+    if (ctx) void ctx.resume().catch(() => undefined); // may start suspended; harmless if so
+
+    const nodes: { src: MediaStreamAudioSourceNode; analyser: AnalyserNode }[] = [];
+    const analysers: { id: string; analyser: AnalyserNode; data: Uint8Array<ArrayBuffer> }[] = [];
+    if (ctx) {
+      for (const p of peers) {
+        if (!p.stream || p.stream.getAudioTracks().length === 0) continue;
+        try {
+          const src = ctx.createMediaStreamSource(p.stream);
+          const analyser = ctx.createAnalyser();
+          analyser.fftSize = 512;
+          analyser.smoothingTimeConstant = 0.55;
+          src.connect(analyser);
+          nodes.push({ src, analyser });
+          analysers.push({ id: p.id, analyser, data: new Uint8Array(analyser.frequencyBinCount) });
+        } catch {
+          /* stream in an unusable state — that peer just never glows */
+        }
+      }
+    }
+
+    let stopped = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const tick = () => {
+      if (stopped) return;
+      if (analysers.length === 0) {
+        // nothing to monitor (no peers / no Web Audio / audio-less streams) —
+        // clear once asynchronously and stop the loop
+        setTalking((prev) => (prev.size === 0 ? prev : new Set<string>()));
+        return;
+      }
+      const next = new Set<string>();
+      for (const a of analysers) {
+        a.analyser.getByteTimeDomainData(a.data);
+        let sum = 0;
+        for (let i = 0; i < a.data.length; i++) {
+          const v = (a.data[i] - 128) / 128;
+          sum += v * v;
+        }
+        if (Math.sqrt(sum / a.data.length) > 0.045) next.add(a.id);
+      }
+      setTalking((prev) => {
+        if (prev.size === next.size) {
+          let same = true;
+          for (const id of prev) {
+            if (!next.has(id)) {
+              same = false;
+              break;
+            }
+          }
+          if (same) return prev; // no churn → no re-render
+        }
+        return next;
+      });
+      timer = setTimeout(tick, 200);
+    };
+    // First sample async — keeps setState out of the effect body.
+    timer = setTimeout(tick, 0);
+
+    return () => {
+      stopped = true;
+      if (timer) clearTimeout(timer);
+      for (const n of nodes) {
+        try {
+          n.src.disconnect();
+        } catch {
+          /* noop */
+        }
+        try {
+          n.analyser.disconnect();
+        } catch {
+          /* noop */
+        }
+      }
+      if (ctx) void ctx.close().catch(() => undefined);
+    };
+  }, [peers]);
+
+  return talking;
+}
 
 function VideoTile({
   stream,
@@ -32,6 +133,9 @@ function VideoTile({
   selfSuffix,
   connectingLabel,
   isConnecting,
+  speaking,
+  speakingLabel,
+  contain,
 }: {
   stream: MediaStream | null;
   name: string;
@@ -41,6 +145,9 @@ function VideoTile({
   selfSuffix: string;
   connectingLabel: string;
   isConnecting?: boolean;
+  speaking?: boolean;
+  speakingLabel?: string;
+  contain?: boolean;
 }) {
   const ref = useRef<HTMLVideoElement>(null);
 
@@ -121,7 +228,17 @@ function VideoTile({
   }, [stream, muted, isConnecting]); // isConnecting: re-arm when the peer connects
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-black/85 shadow-lg ring-1 ring-black/5">
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-2xl border shadow-lg ring-1 ring-black/5 transition-shadow duration-300",
+        // Remote feeds use a soft dark radial backdrop so portrait phone video
+        // (object-contain) never shows hard letterbox edges.
+        contain
+          ? "border-border/60 bg-[radial-gradient(ellipse_at_top,rgba(13,148,136,0.16),rgba(2,8,14,0.96))]"
+          : "border-border/60 bg-black/85",
+        speaking && "border-emerald-400/70 shadow-[0_0_22px_rgba(16,185,129,0.35)] ring-2 ring-emerald-400/90"
+      )}
+    >
       <video
         ref={ref}
         autoPlay
@@ -130,15 +247,30 @@ function VideoTile({
         // remote tile's muted state is driven imperatively in the effect.
         muted={muted === true ? true : undefined}
         aria-label={isSelf ? `${name} · ${selfSuffix}` : name}
-        className={`aspect-video h-full w-full object-cover ${mirrored ? "scale-x-[-1]" : ""}`}
+        className={cn(
+          "aspect-video h-full w-full",
+          contain ? "object-contain" : "object-cover",
+          mirrored && "scale-x-[-1]"
+        )}
       />
-      {/* gradient name chip — emerald glass */}
-      <span className="absolute bottom-2.5 left-2.5 flex max-w-[85%] items-center gap-1.5 rounded-full bg-gradient-to-r from-emerald-600/90 to-teal-600/90 px-2.5 py-1 text-[11px] font-semibold text-white shadow-md backdrop-blur-sm">
-        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-300 live-dot" />
+      {/* gradient name chip — emerald glass; glows while that peer speaks */}
+      <span
+        className={cn(
+          "absolute bottom-2.5 left-2.5 flex max-w-[85%] items-center gap-1.5 rounded-full bg-gradient-to-r from-emerald-600/90 to-teal-600/90 px-2.5 py-1 text-[11px] font-semibold text-white shadow-md backdrop-blur-sm transition-shadow duration-300",
+          speaking && "shadow-[0_0_12px_rgba(16,185,129,0.7)] ring-1 ring-emerald-300/80"
+        )}
+      >
+        <span
+          className={cn(
+            "h-1.5 w-1.5 shrink-0 rounded-full",
+            speaking ? "bg-white live-dot" : "bg-emerald-300 live-dot"
+          )}
+        />
         <span className="truncate">
           {name}
           {isSelf ? ` · ${selfSuffix}` : ""}
         </span>
+        {speaking && speakingLabel && <span className="sr-only">{speakingLabel}</span>}
       </span>
       {/* connecting overlay */}
       {isConnecting && (
@@ -175,8 +307,12 @@ interface CallRoomProps {
   showShareHint?: boolean;
   captions: { speaker: string; text: string; mine: boolean; final: boolean }[];
   captionsOpen: boolean;
+  /** My own in-progress sentence — shown inside the caption overlay so it
+   *  never shifts the call layout (replaces the old in-flow paragraph). */
+  interimText?: string;
   onToggleMic: () => void;
   onToggleCam: () => void;
+  onToggleCaptions: () => void;
   onToggleChat: () => void;
   onLeave: () => void;
   onSendChat: (text: string) => void;
@@ -201,8 +337,10 @@ export default function CallRoom({
   showShareHint,
   captions,
   captionsOpen,
+  interimText = "",
   onToggleMic,
   onToggleCam,
+  onToggleCaptions,
   onToggleChat,
   onLeave,
   onSendChat,
@@ -211,6 +349,7 @@ export default function CallRoom({
   const t = useTranslations("call");
   const chatInputRef = useRef<HTMLInputElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const talking = useTalkingPeers(remotePeers);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -224,16 +363,35 @@ export default function CallRoom({
   };
 
   const lastCaption = captions.length > 0 ? captions[captions.length - 1] : null;
-  const peerCount = remotePeers.length + 1;
+  const interim = interimText.trim();
+  const totalTiles = remotePeers.length + 1;
+  const peerCount = totalTiles;
+
+  /* Balanced grid by TOTAL tiles (local + remotes):
+   * 1 → single full-width · 2 → side-by-side · 3 → 3-across on laptop
+   * 4 → 2×2 on laptop (never the unbalanced 3+1 row). */
   const gridCols =
-    remotePeers.length <= 1
-      ? "grid-cols-1 sm:grid-cols-2"
-      : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+    totalTiles <= 1
+      ? "grid-cols-1"
+      : totalTiles === 2
+        ? "grid-cols-1 sm:grid-cols-2"
+        : totalTiles === 3
+          ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+          : totalTiles === 4
+            ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-2"
+            : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+
+  const captionsButtonLabel = captionsOpen ? t("captionsHide") : t("captionsShow");
 
   return (
-    <div className="space-y-3">
+    <div
+      className={cn(
+        "space-y-3",
+        chatOpen && "lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start lg:gap-3 lg:space-y-0"
+      )}
+    >
       {/* status strip */}
-      <div className="flex flex-wrap items-center gap-1.5">
+      <div className={cn("flex flex-wrap items-center gap-1.5", chatOpen && "lg:col-span-2")}>
         <Badge className="gap-1.5 border-transparent bg-rose-500/10 text-rose-600 dark:text-rose-400">
           <span className="live-dot h-2 w-2 rounded-full bg-rose-500" /> {t("live")}
         </Badge>
@@ -272,7 +430,12 @@ export default function CallRoom({
 
       {/* share hint for group hosts */}
       {showShareHint && roomCode && (
-        <div className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50/80 px-3 py-2 text-xs text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300">
+        <div
+          className={cn(
+            "flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50/80 px-3 py-2 text-xs text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300",
+            chatOpen && "lg:col-span-2"
+          )}
+        >
           <Share2 className="h-4 w-4 shrink-0" />
           <span className="min-w-0 flex-1">{t("shareBanner")}</span>
           <span className="rounded-md bg-amber-100 px-2 py-0.5 font-mono font-bold tracking-widest dark:bg-amber-900/60">
@@ -288,97 +451,140 @@ export default function CallRoom({
         </div>
       )}
 
-      {/* video grid */}
-      <div className="relative">
-        <div className={cn("grid gap-3", gridCols)}>
-          <div className={remotePeers.length === 0 ? "sm:col-span-2" : ""}>
-            <VideoTile
-              stream={localStream}
-              name={displayName}
-              muted
-              mirrored
-              isSelf
-              selfSuffix={t("selfSuffix")}
-              connectingLabel={t("connecting")}
-            />
-          </div>
-          {remotePeers.map((p) => (
-            <VideoTile
-              key={p.id}
-              stream={p.stream}
-              name={p.name}
-              selfSuffix={t("selfSuffix")}
-              connectingLabel={
-                p.connectionState === "new" || p.connectionState === "connecting"
-                  ? t("connecting")
-                  : t("reconnecting")
-              }
-              isConnecting={p.connectionState !== "connected"}
-            />
-          ))}
-        </div>
-        {/* live caption overlay (text-shadow via .caption-text) */}
-        {captionsOpen && lastCaption && (
-          <div className="pointer-events-none absolute inset-x-4 bottom-4 z-10">
-            <p className="caption-text mx-auto max-w-lg rounded-xl bg-black/65 px-4 py-2 text-center text-sm font-medium text-white backdrop-blur-sm lg:max-w-2xl">
-              <span className="font-semibold text-emerald-300">{lastCaption.speaker}: </span>
-              {lastCaption.text}
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* controls bar — 48px circular targets */}
-      <div className="flex flex-wrap items-center justify-center gap-2.5 rounded-2xl border border-border/60 bg-card p-3 shadow-sm">
-        <Button
-          size="icon"
-          variant={micOn ? "secondary" : "destructive"}
-          className="h-12 w-12 rounded-full"
-          onClick={onToggleMic}
-          aria-label={micOn ? t("micMute") : t("micUnmute")}
-        >
-          {micOn ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
-        </Button>
-        <Button
-          size="icon"
-          variant={camOn ? "secondary" : "destructive"}
-          className="h-12 w-12 rounded-full"
-          onClick={onToggleCam}
-          aria-label={camOn ? t("camOff") : t("camOn")}
-        >
-          {camOn ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
-        </Button>
-        {children}
+      {/* video + controls — left column when the chat is open on lg */}
+      <div className="min-w-0 space-y-3">
+        {/* video grid — remote peers FIRST so the important video is on top on
+            phones; on sm+ 1:1 the two equal tiles sit side-by-side anyway */}
         <div className="relative">
-          <Button
-            size="icon"
-            variant={chatOpen ? "default" : "secondary"}
-            className="h-12 w-12 rounded-full"
-            onClick={onToggleChat}
-            aria-label={t("chat")}
-          >
-            <MessageSquareText className="h-5 w-5" />
-          </Button>
-          {!chatOpen && unreadChat > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-amber-500 px-1 text-[10px] font-bold text-white shadow">
-              {unreadChat > 9 ? "9+" : unreadChat}
-            </span>
+          <div className={cn("grid min-h-0 gap-3", gridCols)}>
+            {remotePeers.map((p) => (
+              <div key={p.id} className="min-h-0">
+                <VideoTile
+                  stream={p.stream}
+                  name={p.name}
+                  selfSuffix={t("selfSuffix")}
+                  connectingLabel={
+                    p.connectionState === "new" || p.connectionState === "connecting"
+                      ? t("connecting")
+                      : t("reconnecting")
+                  }
+                  isConnecting={p.connectionState !== "connected"}
+                  speaking={talking.has(p.id)}
+                  speakingLabel={t("speakingNow")}
+                  contain
+                />
+              </div>
+            ))}
+            <div className="min-h-0">
+              <VideoTile
+                stream={localStream}
+                name={displayName}
+                muted
+                mirrored
+                isSelf
+                selfSuffix={t("selfSuffix")}
+                connectingLabel={t("connecting")}
+              />
+            </div>
+          </div>
+          {/* live caption overlay (text-shadow via .caption-text) — final line
+              plus my in-progress sentence, responsive and clamped so it can
+              never cover the call on small screens */}
+          {captionsOpen && (interim || lastCaption) && (
+            <div className="pointer-events-none absolute inset-x-2 bottom-3 z-10 sm:inset-x-4 sm:bottom-4">
+              {interim ? (
+                <p className="caption-text line-clamp-3 mx-auto max-h-24 max-w-lg overflow-hidden rounded-xl bg-black/65 px-4 py-2 text-center text-xs font-medium italic text-white/80 backdrop-blur-sm sm:text-sm lg:max-w-2xl lg:text-base">
+                  {interim}
+                  <span aria-hidden className="not-italic text-white/60">
+                    {" "}
+                    …
+                  </span>
+                </p>
+              ) : (
+                <p className="caption-text line-clamp-3 mx-auto max-h-24 max-w-lg overflow-hidden rounded-xl bg-black/65 px-4 py-2 text-center text-xs font-medium text-white backdrop-blur-sm sm:text-sm lg:max-w-2xl lg:text-base">
+                  <span className="font-semibold text-emerald-300">{lastCaption?.speaker}: </span>
+                  {lastCaption?.text}
+                </p>
+              )}
+            </div>
+          )}
+          {/* small hint when subtitles are switched off */}
+          {!captionsOpen && (
+            <div className="pointer-events-none absolute bottom-3 right-3 z-10 sm:bottom-4 sm:right-4">
+              <span className="rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white/70 backdrop-blur-sm">
+                CC · {t("captionsOffBadge")}
+              </span>
+            </div>
           )}
         </div>
-        <Button
-          size="icon"
-          className="h-12 w-12 rounded-full bg-rose-600 hover:bg-rose-700"
-          onClick={onLeave}
-          aria-label={t("endCall")}
-        >
-          <PhoneOff className="h-5 w-5" />
-        </Button>
+
+        {/* controls bar — 48px circular targets */}
+        <div className="flex flex-wrap items-center justify-center gap-2.5 rounded-2xl border border-border/60 bg-card p-3 shadow-sm">
+          <Button
+            size="icon"
+            variant={micOn ? "secondary" : "destructive"}
+            className="h-12 w-12 rounded-full"
+            onClick={onToggleMic}
+            aria-label={micOn ? t("micMute") : t("micUnmute")}
+          >
+            {micOn ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
+          </Button>
+          <Button
+            size="icon"
+            variant={camOn ? "secondary" : "destructive"}
+            className="h-12 w-12 rounded-full"
+            onClick={onToggleCam}
+            aria-label={camOn ? t("camOff") : t("camOn")}
+          >
+            {camOn ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
+          </Button>
+          <Button
+            size="icon"
+            variant={captionsOpen ? "default" : "secondary"}
+            className={cn(
+              "h-12 w-12 rounded-full",
+              captionsOpen &&
+                "bg-gradient-to-br from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700"
+            )}
+            onClick={onToggleCaptions}
+            aria-pressed={captionsOpen}
+            aria-label={captionsButtonLabel}
+            title={captionsButtonLabel}
+          >
+            <Captions className="h-5 w-5" />
+          </Button>
+          {children}
+          <div className="relative">
+            <Button
+              size="icon"
+              variant={chatOpen ? "default" : "secondary"}
+              className="h-12 w-12 rounded-full"
+              onClick={onToggleChat}
+              aria-label={t("chat")}
+            >
+              <MessageSquareText className="h-5 w-5" />
+            </Button>
+            {!chatOpen && unreadChat > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-amber-500 px-1 text-[10px] font-bold text-white shadow">
+                {unreadChat > 9 ? "9+" : unreadChat}
+              </span>
+            )}
+          </div>
+          <Button
+            size="icon"
+            className="h-12 w-12 rounded-full bg-rose-600 hover:bg-rose-700"
+            onClick={onLeave}
+            aria-label={t("endCall")}
+          >
+            <PhoneOff className="h-5 w-5" />
+          </Button>
+        </div>
       </div>
 
-      {/* chat drawer */}
+      {/* chat — bottom drawer below lg, right-side column beside the video on lg */}
       {chatOpen && (
-        <div className="flex h-72 flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm">
-          <div className="nice-scroll flex-1 space-y-2.5 overflow-y-auto p-3">
+        <aside className="flex h-72 min-h-0 flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm lg:sticky lg:top-4 lg:h-auto lg:max-h-[70vh]">
+          <div className="nice-scroll min-h-0 flex-1 space-y-2.5 overflow-y-auto p-3">
             {chatMessages.length === 0 ? (
               <p className="pt-10 text-center text-xs text-muted-foreground">
                 {t("chatEmpty")}
@@ -406,7 +612,7 @@ export default function CallRoom({
             )}
             <div ref={chatEndRef} />
           </div>
-          <div className="flex items-center gap-2 border-t bg-background/60 p-2">
+          <div className="flex items-center gap-2 border-t bg-background/60 p-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)]">
             <input
               ref={chatInputRef}
               className="h-11 min-w-0 flex-1 rounded-xl border bg-transparent px-3 text-sm outline-none focus:ring-1 focus:ring-ring"
@@ -423,7 +629,7 @@ export default function CallRoom({
               <SendHorizontal className="h-4 w-4" />
             </Button>
           </div>
-        </div>
+        </aside>
       )}
     </div>
   );

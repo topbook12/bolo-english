@@ -161,7 +161,10 @@ export default function AppShell() {
       <InstallPrompt />
 
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-md">
+      <header
+        className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-md"
+        style={{ paddingTop: "env(safe-area-inset-top)" }}
+      >
         <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-2 px-4 md:h-16 lg:px-8">
           <button
             className="flex items-center gap-2"

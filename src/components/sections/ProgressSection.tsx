@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import {
   LineChart,
@@ -20,6 +20,8 @@ import {
   ChevronDown,
   KeyRound,
   Check,
+  BrainCircuit,
+  Award,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -55,6 +57,18 @@ import StatCard from "@/components/shared/StatCard";
 import EmptyState from "@/components/shared/EmptyState";
 import type { CallAnalysis, TranscriptLine } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import {
+  getLearnedWordsServerSnapshot,
+  getLearnedWordsSnapshot,
+  subscribeLearnedWords,
+} from "@/components/vocab/learned-store";
+import {
+  countDue,
+  countMastered,
+  getReviewMapServerSnapshot,
+  getReviewMapSnapshot,
+  subscribeReviewMap,
+} from "@/components/vocab/review-store";
 
 interface SessionRow {
   id: string;
@@ -96,12 +110,22 @@ const KIND_TINT: Record<string, string> = {
     "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
   "listening-quiz":
     "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
+  "reading-quiz":
+    "bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300",
+  "vocab-review":
+    "bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300",
 };
 
 const BEST_STREAK_KEY = "bolo_best_streak";
 const YOU_SPEAKERS = new Set(["You", "আপনি", "आप", "you"]);
 const KNOWN_TYPES = new Set(["one-to-one", "group", "ai-partner"]);
-const KNOWN_KINDS = new Set(["grammar-quiz", "vocab-quiz", "listening-quiz"]);
+const KNOWN_KINDS = new Set([
+  "grammar-quiz",
+  "vocab-quiz",
+  "listening-quiz",
+  "reading-quiz",
+  "vocab-review",
+]);
 
 function scoreTint(score: number): string {
   if (score >= 80) return "text-emerald-600 dark:text-emerald-400";
@@ -126,6 +150,29 @@ export default function ProgressSection() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [bestStreak, setBestStreak] = useState(0);
   const [loading, setLoading] = useState(true);
+
+  /* ── review visibility (was invisible in Progress — connectivity fix) ──
+   * Same external-store + hydration-safe pattern the Learning Path uses:
+   * time-dependent counts are computed after mount via queueMicrotask. */
+  const learned = useSyncExternalStore(
+    subscribeLearnedWords,
+    getLearnedWordsSnapshot,
+    getLearnedWordsServerSnapshot
+  );
+  const reviewMap = useSyncExternalStore(
+    subscribeReviewMap,
+    getReviewMapSnapshot,
+    getReviewMapServerSnapshot
+  );
+  const [dueCount, setDueCount] = useState(0);
+  const [masteredCount, setMasteredCount] = useState(0);
+  const refreshReviewCounts = useCallback(() => {
+    setDueCount(countDue(learned));
+    setMasteredCount(countMastered(learned));
+  }, [learned]);
+  useEffect(() => {
+    queueMicrotask(refreshReviewCounts);
+  }, [refreshReviewCounts, reviewMap]);
 
   useEffect(() => {
     if (!deviceId) return;
@@ -245,6 +292,26 @@ export default function ProgressSection() {
           <StatCard icon={Library} value={data?.wordCount ?? 0} label={t("stats.words")} tint="emerald" />
         </div>
 
+        {/* ── review stats — spaced-repetition visibility (Leitner boxes) ── */}
+        {learned.length > 0 && (
+          <div className="grid grid-cols-2 gap-3">
+            <StatCard
+              icon={BrainCircuit}
+              value={dueCount}
+              label={t("stats.reviewDue")}
+              tint="orange"
+              className="animate-fade-in-up"
+            />
+            <StatCard
+              icon={Award}
+              value={masteredCount}
+              label={t("stats.reviewMastered")}
+              tint="emerald"
+              className="animate-fade-in-up-1"
+            />
+          </div>
+        )}
+
         {/* ── insights: score trend + practice stats — 2 columns on desktop ── */}
         <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
         {trendData.length > 0 && (
@@ -339,19 +406,17 @@ export default function ProgressSection() {
         )}
         </div>
 
-        {/* ── speaking history ── */}
+        {/* ── speaking history — visible to everyone (sessions live server-side);
+              only the AI-detail extras stay behind the key (kept minimal) ── */}
         <section className="space-y-3">
           <h2 className="text-base font-semibold">{t("history.title")}</h2>
-          {!hasKey ? (
-            <Card className="rounded-2xl border-amber-200/80 bg-amber-50/60 dark:border-amber-900 dark:bg-amber-950/30">
-              <CardContent className="flex items-start gap-3 p-4">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
-                  <KeyRound className="h-4.5 w-4.5" aria-hidden />
-                </span>
-                <p className="text-sm text-muted-foreground">{t("history.needKey")}</p>
-              </CardContent>
-            </Card>
-          ) : sessions.length === 0 ? (
+          {!hasKey && (
+            <p className="flex items-start gap-1.5 text-xs leading-relaxed text-muted-foreground">
+              <KeyRound className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" aria-hidden />
+              {t("history.needKey")}
+            </p>
+          )}
+          {sessions.length === 0 ? (
             <EmptyState
               illustration="/illustrations/ill-progress.webp"
               title={t("history.emptyTitle")}
@@ -485,15 +550,19 @@ export default function ProgressSection() {
                             </div>
                           )}
 
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setSelected(s)}
-                            className="min-h-11 gap-1.5 rounded-xl text-xs font-semibold"
-                          >
-                            <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden />
-                            {t("history.fullAnalysis")}
-                          </Button>
+                          {/* AI detail is the only key-gated extra — the session
+                              list itself (transcript, mistakes, score) stays free */}
+                          {hasKey && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setSelected(s)}
+                              className="min-h-11 gap-1.5 rounded-xl text-xs font-semibold"
+                            >
+                              <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden />
+                              {t("history.fullAnalysis")}
+                            </Button>
+                          )}
                         </div>
                       </CollapsibleContent>
                     </div>

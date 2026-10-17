@@ -56,7 +56,7 @@
       "desc": "मोबाइल/डेस्कटॉप पर ऐप जैसा अनुभव लें — इंटरनेट के बिना भी पुराने लेसन पढ़ सकते हैं।",
       "install": "अभी इंस्टॉल करें",
       "manualPre": "ब्राउज़र मेनू से",
-      "manualBold": "Install app / Add to Home screen",
+      "manualBold": "ऐप इंस्टॉल करें / होम स्क्रीन पर जोड़ें",
       "manualPost": "चुनें। Chrome (Android/Desktop) और Safari (iOS) सपोर्ट करते हैं।"
     },
     "studio": {
@@ -89,8 +89,8 @@
       "vCategory": "कैटेगरी",
       "vPron": "उच्चारण (बंगाली में)",
       "vPronPh": "রিলাক্স (রি-লাক্স)",
-      "vPos": "Part of speech",
-      "vPosPh": "noun / verb / adjective…",
+      "vPos": "शब्द-भेद",
+      "vPosPh": "जैसे: noun / verb / adjective…",
       "vMeaningBn": "अर्थ (बंगाली) *",
       "vMeaningEn": "अर्थ (English)",
       "vMeaningHi": "अर्थ (हिन्दी)",

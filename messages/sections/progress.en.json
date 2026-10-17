@@ -7,7 +7,9 @@
       "minutes": "Total time",
       "minutesValue": "{n} min",
       "avgScore": "Avg. score",
-      "words": "Words"
+      "words": "Words",
+      "reviewDue": "Due for review",
+      "reviewMastered": "Mastered words"
     },
     "streak": {
       "active": "-day streak! 🔥",
@@ -30,7 +32,9 @@
       "correctOf": "{correct}/{total} correct · {count} attempts",
       "grammar-quiz": "Grammar quiz",
       "vocab-quiz": "Vocabulary quiz",
-      "listening-quiz": "Listening quiz"
+      "listening-quiz": "Listening quiz",
+      "reading-quiz": "📖 Reading quiz",
+      "vocab-review": "🧠 Word review"
     },
     "history": {
       "title": "Speaking history",

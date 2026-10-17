@@ -69,6 +69,20 @@ function unitKey(level: LibraryLevel, unit: number): string {
   return `${level[0]}${unit}`;
 }
 
+/** JSON payload for POST /api/vocab — the exact shape the wordbook API expects. */
+function wordbookPayload(entry: LibraryVocabEntry) {
+  const d = entry.data;
+  return {
+    word: entry.word,
+    pronunciation: d.pronunciation ?? "",
+    partOfSpeech: d.partOfSpeech ?? "",
+    banglaMeaning: d.meaning?.bn ?? d.meaning?.en ?? "",
+    englishMeaning: d.englishMeaning ?? "",
+    examples: (d.examples ?? []).map((x) => x.en),
+    usageTip: d.tip?.bn ?? "",
+  };
+}
+
 export default function VocabLibraryTab() {
   const t = useTranslations("vocab");
   const tp = useTranslations("path");
@@ -208,22 +222,10 @@ export default function VocabLibraryTab() {
         toast({ title: tc("error"), description: tc("loading") });
         return;
       }
-      const d = entry.data;
       void fetch("/api/vocab", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          deviceId,
-          word: {
-            word: entry.word,
-            pronunciation: d.pronunciation ?? "",
-            partOfSpeech: d.partOfSpeech ?? "",
-            banglaMeaning: d.meaning?.bn ?? d.meaning?.en ?? "",
-            englishMeaning: d.englishMeaning ?? "",
-            examples: (d.examples ?? []).map((x) => x.en),
-            usageTip: d.tip?.bn ?? "",
-          },
-        }),
+        body: JSON.stringify({ deviceId, word: wordbookPayload(entry) }),
       })
         .then((r) => {
           if (!r.ok) throw new Error("save failed");
@@ -234,6 +236,28 @@ export default function VocabLibraryTab() {
         });
     },
     [deviceId, t, tc, toast]
+  );
+
+  /**
+   * Mark-learned now ALSO saves the word to the server wordbook (fire-and-
+   * forget, silent) so the Progress word count AND the review flow (which
+   * builds from the wordbook/learned lists) actually include it — previously
+   * words marked learned could never be reviewed. Un-marking skips the POST
+   * (the wordbook copy is kept — deletion is an explicit wordbook action).
+   */
+  const handleToggleLearned = useCallback(
+    (entry: LibraryVocabEntry) => {
+      const wasLearned = learned.includes(entry.word);
+      toggleLearnedWord(entry.word);
+      if (!wasLearned && deviceId) {
+        void fetch("/api/vocab", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ deviceId, word: wordbookPayload(entry) }),
+        }).catch(() => undefined); // silent: local learned state already applied
+      }
+    },
+    [deviceId, learned]
   );
 
   return (
@@ -457,7 +481,7 @@ export default function VocabLibraryTab() {
               entry={selected}
               locale={locale}
               learned={learned.includes(selected.word)}
-              onToggleLearned={() => toggleLearnedWord(selected.word)}
+              onToggleLearned={() => handleToggleLearned(selected)}
               onSave={() => saveToWordbook(selected)}
               unitLabel={
                 (selected.unit ?? 0) > 0

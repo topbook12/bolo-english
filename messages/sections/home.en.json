@@ -38,6 +38,8 @@
       "vocabDesc": "3 real words every day",
       "listening": "Listening",
       "listeningDesc": "Listen to stories, build understanding",
+      "reading": "Reading",
+      "readingDesc": "Read stories, letters & news — with translations",
       "progress": "Progress",
       "progressDesc": "Scores, streak & AI analysis",
       "open": "Open {name}"
@@ -73,7 +75,8 @@
         "🎥 Talk with other learners in English on a video call (1:1 or a group of 4)",
         "📝 Your speech appears as live subtitles — AI catches mistakes and shows corrections",
         "🔍 After the call, AI analyses the whole dialogue — score, gaps and improvement tips",
-        "📚 3 real words daily, grammar lessons & listening practice — all free"
+        "📚 3 real words daily, grammar lessons & listening practice — all free",
+        "📖 Read stories, letters and news from easy to advanced — check every paragraph's translation"
       ]
     }
   }

@@ -7,7 +7,9 @@
       "minutes": "মোট সময়",
       "minutesValue": "{n} মিনিট",
       "avgScore": "গড় স্কোর",
-      "words": "শব্দ"
+      "words": "শব্দ",
+      "reviewDue": "আজ রিভিউ বাকি",
+      "reviewMastered": "পাকা শব্দ"
     },
     "streak": {
       "active": "দিনের স্ট্রিক! 🔥",
@@ -30,7 +32,9 @@
       "correctOf": "{correct}/{total} সঠিক · {count} বার",
       "grammar-quiz": "গ্রামার কুইজ",
       "vocab-quiz": "শব্দ কুইজ",
-      "listening-quiz": "লিসেনিং কুইজ"
+      "listening-quiz": "লিসেনিং কুইজ",
+      "reading-quiz": "📖 রিডিং কুইজ",
+      "vocab-review": "🧠 শব্দ রিভিউ"
     },
     "history": {
       "title": "কথা বলার ইতিহাস",

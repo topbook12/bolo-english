@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import {
   MessagesSquare,
   BookOpenText,
+  BookOpen,
   Headphones,
   LibraryBig,
   LineChart,
@@ -85,6 +86,14 @@ const MODULES: {
     icon: Headphones,
     illustration: "/illustrations/ill-listening.webp",
     chip: "from-teal-500/90 to-cyan-600/90 text-white",
+  },
+  {
+    id: "reading",
+    titleKey: "quick.reading",
+    descKey: "quick.readingDesc",
+    icon: BookOpen,
+    illustration: "/illustrations/ill-reading.webp",
+    chip: "from-emerald-500/90 to-teal-600/90 text-white",
   },
   {
     id: "progress",
@@ -286,7 +295,7 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
         </Card>
       )}
 
-      {/* Quick actions — 5 module cards, speaking featured */}
+      {/* Quick actions — 6 module cards, speaking featured */}
       <section aria-label={t("quick.title")} className="space-y-3">
         <SectionTitle icon={Sparkles} title={t("quick.title")} />
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:gap-5 xl:grid-cols-4">

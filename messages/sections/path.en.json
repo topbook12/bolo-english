@@ -22,7 +22,14 @@
       "start": "Start",
       "continue": "Continue",
       "listen": "Listen",
+      "read": "Reading passage",
+      "readCta": "Read",
+      "readDone": "Read ✓",
       "review": "Review"
+    },
+    "readCard": {
+      "bonus": "Bonus reading",
+      "bonusDesc": "An extra passage beyond the path — read it at your own pace"
     },
     "serial": {
       "sadia-dhaka": "Serial story: Sadia Moves to Dhaka — one episode per unit",

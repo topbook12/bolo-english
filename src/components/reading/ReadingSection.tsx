@@ -3,9 +3,11 @@
 // ReadingSection — the free Reading Library (Task 11, owner requirement #5):
 // "রিডিং এর জন্য আরেকটা লাইব্রেরী ... বেসিক থেকে শুরু করে ... সুন্দর গ্রাফিক্স ও
 // ভিজুয়ালাইজেশন". Level filters, category chips, search, progress, genre-emoji
-// card grid and the comfortable ReaderView — all 100% keyless.
+// cards (level-tinted strip + category emoji + ⏱/📚 chips) and the comfortable
+// ReaderView — all 100% keyless. Accepts nav intents from the Learning Path's
+// READ phase: { tab: "reading", unit } filters the grid to that unit.
 
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import {
@@ -16,6 +18,7 @@ import {
   Play,
   Search,
   Sprout,
+  X,
   Zap,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,8 +27,10 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { apiGet } from "@/lib/client-api";
+import { takeNavIntent } from "@/lib/nav-intent";
 import { pickTri, type LibraryLevel, type LibraryReadingEntry } from "@/lib/library-types";
 import SectionHeader from "@/components/shared/SectionHeader";
+import EmptyState from "@/components/shared/EmptyState";
 import ReaderView from "@/components/reading/ReaderView";
 import {
   getDoneIdsServerSnapshot,
@@ -71,6 +76,23 @@ const CATEGORY_GRADIENTS: Record<string, string> = {
   culture: "from-rose-500 to-pink-500",
   science: "from-orange-500 to-amber-600",
   inspire: "from-rose-500 to-orange-500",
+};
+
+/** Category emoji map — a friendly visual anchor next to every genre badge. */
+const CATEGORY_EMOJI: Record<string, string> = {
+  daily: "☀️",
+  travel: "✈️",
+  work: "💼",
+  culture: "🎉",
+  science: "🔬",
+  inspire: "🌟",
+};
+
+/** Level-tinted top strip on every card (emerald → amber → rose, no blue). */
+const LEVEL_STRIP: Record<LibraryLevel, string> = {
+  beginner: "from-emerald-400 to-teal-500",
+  intermediate: "from-amber-400 to-orange-500",
+  advanced: "from-rose-400 to-pink-500",
 };
 
 const LEVELS: LibraryLevel[] = ["beginner", "intermediate", "advanced"];
@@ -136,6 +158,10 @@ export default function ReadingSection() {
   const [category, setCategory] = useState<string>("all");
   const [query, setQuery] = useState("");
   const [dbStories, setDbStories] = useState<ReadingStory[] | null>(null);
+  // Deep link from the Learning Path's READ phase: filter the grid to a unit
+  // (0 = bonus passages). Consumed once via takeNavIntent (effects only).
+  const [unitIntent, setUnitIntent] = useState<number | null>(null);
+  const gridRef = useRef<HTMLDivElement | null>(null);
 
   const doneIds = useSyncExternalStore(
     subscribeDoneIds,
@@ -147,6 +173,23 @@ export default function ReadingSection() {
   useEffect(() => {
     queueMicrotask(() => setLevel(deviceLevel));
   }, [deviceLevel]);
+
+  // Consume a pending Learning-Path READ intent and bring the grid into view.
+  useEffect(() => {
+    queueMicrotask(() => {
+      const intent = takeNavIntent();
+      if (intent && intent.tab === "reading") setUnitIntent(intent.unit);
+    });
+  }, []);
+
+  // Smooth-scroll to the grid once the unit filter is applied.
+  useEffect(() => {
+    if (unitIntent === null) return;
+    const id = window.setTimeout(() => {
+      gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 80);
+    return () => window.clearTimeout(id);
+  }, [unitIntent]);
 
   useEffect(() => {
     let alive = true;
@@ -171,6 +214,7 @@ export default function ReadingSection() {
     return all
       .filter((s) => {
         if (s.level !== effectiveLevel) return false;
+        if (unitIntent !== null && !q && (s.unit ?? 0) !== unitIntent) return false;
         if (category !== "all" && s.category !== category) return false;
         if (!q) return true;
         return (
@@ -187,7 +231,7 @@ export default function ReadingSection() {
         if (bu > 0) return 1;
         return 0;
       });
-  }, [all, effectiveLevel, category, query, locale]);
+  }, [all, effectiveLevel, category, query, locale, unitIntent]);
 
   const doneCount = useMemo(
     () => all.filter((s) => doneIds.includes(s.id)).length,
@@ -293,8 +337,8 @@ export default function ReadingSection() {
         </Badge>
       </div>
 
-      {/* category chips */}
-      <div className="flex flex-wrap gap-1.5" role="group" aria-label={t("library.catAria")}>
+      {/* category chips + Learning-Path unit filter chip */}
+      <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label={t("library.catAria")}>
         {categories.map((c) => (
           <Button
             key={c}
@@ -307,90 +351,125 @@ export default function ReadingSection() {
             {c === "all" ? t("library.all") : t(`categories.${c}`)}
           </Button>
         ))}
+        {unitIntent !== null && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setUnitIntent(null)}
+            aria-label={t("library.unitFilterAria")}
+            className="min-h-9 gap-1.5 rounded-full border-emerald-500/50 bg-emerald-500/10 px-3.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-500/20 dark:text-emerald-300"
+          >
+            📖 {unitIntent > 0 ? t("library.unitFilter", { n: unitIntent }) : t("library.bonusChip")}
+            <X className="h-3 w-3" aria-hidden />
+          </Button>
+        )}
       </div>
 
       {/* grid */}
-      {dbStories === null ? (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {[0, 1, 2, 3, 4, 5].map((i) => (
-            <Skeleton key={i} className="h-40 rounded-2xl" />
-          ))}
-        </div>
-      ) : filtered.length === 0 ? (
-        <Card className="border-dashed">
-          <CardContent className="p-8 text-center text-sm text-muted-foreground">
-            {t("library.empty")}
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((s) => {
-            const done = doneIds.includes(s.id);
-            return (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => setSelected(s)}
-                className="group text-left"
-                aria-label={pickTri(s.title, locale)}
-              >
-                <Card className="h-full rounded-2xl border-border/70 bg-card shadow-sm transition-all group-hover:-translate-y-1 group-hover:border-primary/40 group-hover:shadow-md group-active:translate-y-0">
-                  <CardContent className="flex h-full flex-col gap-2.5 p-4">
-                    <div className="flex items-start justify-between gap-2">
-                      <span
-                        className={cn(
-                          "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-xl shadow-md transition-transform group-hover:scale-105",
-                          CATEGORY_GRADIENTS[s.category] ?? CATEGORY_GRADIENTS.daily
-                        )}
-                        aria-hidden
-                      >
-                        {s.emoji}
-                      </span>
-                      <div className="flex flex-wrap justify-end gap-1">
-                        {(s.unit ?? 0) > 0 && (
-                          <Badge
-                            variant="outline"
-                            className="border-teal-500/40 text-[10px] text-teal-700 dark:text-teal-300"
-                          >
-                            {t("library.episode", { n: s.unit ?? 0 })}
+      <div ref={gridRef} className="scroll-mt-20">
+        {dbStories === null ? (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {[0, 1, 2, 3, 4, 5].map((i) => (
+              <Skeleton key={i} className="h-44 rounded-2xl" />
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
+          <EmptyState
+            illustration="/illustrations/ill-reading.webp"
+            title={t("library.emptyTitle")}
+            description={t("library.empty")}
+          />
+        ) : (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((s) => {
+              const done = doneIds.includes(s.id);
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setSelected(s)}
+                  className="group text-left"
+                  aria-label={pickTri(s.title, locale)}
+                >
+                  <Card className="h-full overflow-hidden rounded-2xl border-border/70 bg-card shadow-sm transition-all group-hover:-translate-y-1 group-hover:border-primary/40 group-hover:shadow-md group-active:translate-y-0">
+                    {/* level-tinted strip — the level is visible at a glance */}
+                    <div
+                      className={cn(
+                        "h-1.5 w-full bg-gradient-to-r",
+                        LEVEL_STRIP[s.level]
+                      )}
+                      aria-hidden
+                    />
+                    <CardContent className="flex h-full flex-col gap-2.5 p-4">
+                      <div className="flex items-start justify-between gap-2">
+                        <span
+                          className={cn(
+                            "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-xl shadow-md transition-transform group-hover:scale-105",
+                            CATEGORY_GRADIENTS[s.category] ?? CATEGORY_GRADIENTS.daily
+                          )}
+                          aria-hidden
+                        >
+                          {s.emoji}
+                        </span>
+                        <div className="flex flex-wrap justify-end gap-1">
+                          {(s.unit ?? 0) > 0 && (
+                            <Badge
+                              variant="outline"
+                              className="border-teal-500/40 text-[10px] text-teal-700 dark:text-teal-300"
+                            >
+                              {t("library.episode", { n: s.unit ?? 0 })}
+                            </Badge>
+                          )}
+                          {done && (
+                            <Badge
+                              variant="outline"
+                              className="gap-1 border-emerald-500/40 text-[10px] text-emerald-700 dark:text-emerald-400"
+                            >
+                              <CheckCircle2 className="h-3 w-3" aria-hidden />
+                              {t("library.done")}
+                            </Badge>
+                          )}
+                          <Badge variant="secondary" className="gap-0.5 text-[10px]">
+                            <span aria-hidden>⏱</span>
+                            {t("library.minutes", { n: s.minutes })}
                           </Badge>
-                        )}
-                        {done && (
-                          <Badge
-                            variant="outline"
-                            className="gap-1 border-emerald-500/40 text-[10px] text-emerald-700 dark:text-emerald-400"
-                          >
-                            <CheckCircle2 className="h-3 w-3" aria-hidden />
-                            {t("library.done")}
-                          </Badge>
-                        )}
-                        <Badge variant="secondary" className="text-[10px]">
-                          {t("library.minutes", { n: s.minutes })}
-                        </Badge>
+                        </div>
                       </div>
-                    </div>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-bold">{pickTri(s.title, locale)}</p>
-                      <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-                        {pickTri(s.summary, locale)}
-                      </p>
-                    </div>
-                    <div className="mt-auto flex items-center justify-between">
-                      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-primary">
-                        <Play className="h-3 w-3 fill-current" aria-hidden />
-                        {t("library.readCta")}
-                      </span>
-                      <Badge variant="outline" className="px-1.5 text-[10px] font-normal text-muted-foreground">
-                        {t(`genres.${s.genre}`)}
-                      </Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              </button>
-            );
-          })}
-        </div>
-      )}
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-bold">{pickTri(s.title, locale)}</p>
+                        <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                          {pickTri(s.summary, locale)}
+                        </p>
+                      </div>
+                      <div className="mt-auto flex items-center justify-between gap-1.5">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-primary">
+                          <Play className="h-3 w-3 fill-current" aria-hidden />
+                          {t("library.readCta")}
+                        </span>
+                        <span className="flex shrink-0 items-center gap-1">
+                          <Badge variant="outline" className="px-1.5 text-[10px] font-normal text-muted-foreground">
+                            <span aria-hidden className="mr-0.5">{CATEGORY_EMOJI[s.category] ?? "📖"}</span>
+                            {t(`genres.${s.genre}`)}
+                          </Badge>
+                          {s.vocabulary.length > 0 && (
+                            <Badge
+                              variant="outline"
+                              className="border-emerald-500/30 px-1.5 text-[10px] font-normal text-emerald-700 dark:text-emerald-300"
+                              aria-hidden
+                            >
+                              📚 {t("library.vocabCount", { n: s.vocabulary.length })}
+                            </Badge>
+                          )}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {/* free note */}
       <p className="flex items-center justify-center gap-1.5 pb-2 text-center text-[11px] text-muted-foreground">

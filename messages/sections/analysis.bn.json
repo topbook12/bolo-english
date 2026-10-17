@@ -1,0 +1,37 @@
+{
+  "analysis": {
+    "scoreOverall": "সামগ্রিক স্কোর",
+    "fluency": "সাবলীলতা",
+    "grammar": "গ্রামার",
+    "vocabulary": "শব্দভাণ্ডার",
+    "strengthsTitle": "যা দারুণ করেছেন 💪",
+    "mistakesTitle": "ভুল ও শোধরানো",
+    "severityMajor": "গুরুতর ভুল",
+    "severityMinor": "ছোটখাটো ভুল",
+    "cats": {
+      "tense": "কাল (Tense)",
+      "article": "আর্টিকেল (a/an/the)",
+      "preposition": "প্রিপজিশন",
+      "word-choice": "শব্দ বাছাই",
+      "agreement": "Subject-Verb মিল",
+      "vocabulary": "শব্দভাণ্ডার",
+      "sentence-structure": "বাক্য গঠন",
+      "other": "অন্যান্য"
+    },
+    "betterTitle": "আরও নেটিভের মতো বলা যেত",
+    "speak": "উন্নত বাক্যটি শুনুন 🔊",
+    "speakOriginal": "মূল বাক্যটি শুনুন",
+    "grammarGapsTitle": "গ্রামারে যা শিখতে হবে",
+    "vocabGapsTitle": "শেখার মতো শব্দ",
+    "focusTitle": "আপনার পরবর্তী ধাপ 🎯",
+    "focusWhy": "কেন",
+    "focusDrill": "৫ মিনিটের ড্রিল",
+    "recurringTitle": "বারবার ফিরে আসছে 🔁",
+    "statsSentences": "বাক্য বলেছেন",
+    "statsAvgWords": "গড়ে শব্দ/বাক্য",
+    "statsUnique": "ইউনিক শব্দ",
+    "suggestionsTitle": "পরবর্তী পরামর্শ",
+    "transcriptTitle": "সম্পূর্ণ ডায়ালগ",
+    "coverage": "আপনার বলা {n} / {m} লাইন বিশ্লেষণে ধরা পড়েছে"
+  }
+}

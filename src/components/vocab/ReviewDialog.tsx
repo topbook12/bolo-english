@@ -19,12 +19,13 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { apiGet } from "@/lib/client-api";
+import { apiGet, apiPost } from "@/lib/client-api";
 import { cn } from "@/lib/utils";
 import { pickTri } from "@/lib/library-types";
 import type { LibraryVocabData } from "@/lib/library-types";
 import { speakEnglish, cancelSpeech } from "@/components/vocab/speech";
 import { dueWords, gradeWord } from "@/components/vocab/review-store";
+import { useDeviceValue } from "@/hooks/use-device";
 
 /** Max NEW cards per session — a small, winnable chunk (self-efficacy). */
 const SESSION_MAX = 10;
@@ -74,6 +75,7 @@ export default function ReviewDialog({
 }) {
   const t = useTranslations("review");
   const locale = useLocale();
+  const deviceId = useDeviceValue((s) => s.deviceId, "");
 
   const [session, setSession] = useState<SessionState>(FRESH_SESSION);
   const [cards, setCards] = useState<Map<string, VocabRow>>(new Map());
@@ -146,6 +148,23 @@ export default function ReviewDialog({
       next = requeue.shift() ?? null;
     }
     const done = next === null;
+
+    // Session complete → log the review once (fire-and-forget, same pattern as
+    // the quiz players). Score/total as raw counts so the Progress "practice"
+    // bars aggregate correctly (percent = ok/graded). Never fires for the
+    // nothing-due opening state (graded === 0).
+    const graded = session.graded + (remembered !== null ? 1 : 0);
+    const ok = session.ok + (remembered === true ? 1 : 0);
+    if (done && deviceId && graded > 0) {
+      apiPost("/api/practice", {
+        deviceId,
+        kind: "vocab-review",
+        refId: "leitner-session",
+        score: ok,
+        total: graded,
+      }).catch(() => undefined);
+    }
+
     setSession({
       phase: done ? "done" : "card",
       queue,
@@ -153,8 +172,8 @@ export default function ReviewDialog({
       forgotSeen,
       current: next,
       revealed: false,
-      ok: session.ok + (remembered === true ? 1 : 0),
-      graded: session.graded + (remembered !== null ? 1 : 0),
+      ok,
+      graded,
       initialTotal: session.initialTotal,
     });
   };

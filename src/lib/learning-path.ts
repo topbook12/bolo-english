@@ -10,6 +10,9 @@
 //       3. LISTEN — one graded story episode (Krashen's comprehensible
 //          input i+1) that recycles the same vocabulary
 //       4. RECALL — the story quiz (testing effect / active recall)
+//       + READ    — one reading-library passage per unit (extensive reading,
+//          Krashen i+1; additive/optional — never gates unit completion)
+//          plus a bonus passage (unit 0) after the last unit
 //   • Serial stories ("Sadia Moves to Dhaka", "The Internship", "The Green
 //     Startup") give narrative pull — curiosity to reach the next episode
 //     is a powerful, free motivator.
@@ -45,6 +48,10 @@ export const PATH_LEVELS: LibraryLevel[] = ["beginner", "intermediate", "advance
 
 /** Mastery threshold: a vocab unit counts as done at ≥10/12 words learned. */
 export const VOCAB_UNIT_MASTERY = 10;
+
+/** Unit number reserved for bonus/standalone reading passages — shown as a
+ *  light "bonus" card after the 5 path units (READ phase, Task 12-d). */
+export const READ_BONUS_UNIT = 0;
 
 export const PATH_UNITS: Record<LibraryLevel, PathUnitDef[]> = {
   /* BEGINNER — first steps: be/have, everyday people, places and actions. */

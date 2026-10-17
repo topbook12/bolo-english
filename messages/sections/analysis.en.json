@@ -1,0 +1,37 @@
+{
+  "analysis": {
+    "scoreOverall": "Overall score",
+    "fluency": "Fluency",
+    "grammar": "Grammar",
+    "vocabulary": "Vocabulary",
+    "strengthsTitle": "What you did well 💪",
+    "mistakesTitle": "Mistakes to fix",
+    "severityMajor": "Major mistake",
+    "severityMinor": "Minor mistake",
+    "cats": {
+      "tense": "Tense",
+      "article": "Articles (a/an/the)",
+      "preposition": "Prepositions",
+      "word-choice": "Word choice",
+      "agreement": "Subject–verb agreement",
+      "vocabulary": "Vocabulary",
+      "sentence-structure": "Sentence structure",
+      "other": "Other"
+    },
+    "betterTitle": "You could sound more natural",
+    "speak": "Listen to the improved sentence 🔊",
+    "speakOriginal": "Listen to your original sentence",
+    "grammarGapsTitle": "Grammar to work on",
+    "vocabGapsTitle": "Words worth learning",
+    "focusTitle": "Your next steps 🎯",
+    "focusWhy": "Why",
+    "focusDrill": "5-minute drill",
+    "recurringTitle": "Recurring patterns 🔁",
+    "statsSentences": "Sentences spoken",
+    "statsAvgWords": "Avg words/sentence",
+    "statsUnique": "Unique words",
+    "suggestionsTitle": "Next suggestions",
+    "transcriptTitle": "Full dialogue",
+    "coverage": "Analyzed {n} of {m} lines you spoke"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "analysis": {
+    "scoreOverall": "समग्र स्कोर",
+    "fluency": "प्रवाह",
+    "grammar": "ग्रामर",
+    "vocabulary": "शब्दावली",
+    "strengthsTitle": "जो आपने बढ़िया किया 💪",
+    "mistakesTitle": "सुधारने योग्य गलतियाँ",
+    "severityMajor": "बड़ी गलती",
+    "severityMinor": "छोटी गलती",
+    "cats": {
+      "tense": "काल (Tense)",
+      "article": "आर्टिकल (a/an/the)",
+      "preposition": "प्रिपॉज़िशन",
+      "word-choice": "शब्द चयन",
+      "agreement": "कर्ता-क्रिया मेल",
+      "vocabulary": "शब्दावली",
+      "sentence-structure": "वाक्य संरचना",
+      "other": "अन्य"
+    },
+    "betterTitle": "और नेटिव जैसा बोला जा सकता था",
+    "speak": "सुधरा हुआ वाक्य सुनें 🔊",
+    "speakOriginal": "अपना मूल वाक्य सुनें",
+    "grammarGapsTitle": "ग्रामर में क्या सीखना है",
+    "vocabGapsTitle": "सीखने लायक शब्द",
+    "focusTitle": "आपके अगले कदम 🎯",
+    "focusWhy": "क्यों",
+    "focusDrill": "5 मिनट की ड्रिल",
+    "recurringTitle": "बार-बार लौट रही गलतियाँ 🔁",
+    "statsSentences": "बोले गए वाक्य",
+    "statsAvgWords": "औसत शब्द/वाक्य",
+    "statsUnique": "यूनिक शब्द",
+    "suggestionsTitle": "आगे के सुझाव",
+    "transcriptTitle": "पूरा संवाद",
+    "coverage": "आपके बोले {n} / {m} लाइन विश्लेषण में आए"
+  }
+}

@@ -5,16 +5,17 @@ import { reqLocale, apiMsg, type ApiLocale } from "@/lib/api-i18n";
 import { GeminiError, geminiJson, getAiLevel, getUserName, getUserApiKey } from "@/lib/gemini";
 import { pruneAiCache } from "@/lib/ai-cache-prune";
 import type {
+  AnalysisMistake,
   CallAnalysis,
   ChatPartnerReply,
   ContentAnswer,
   DailyWord,
   GrammarLessonContent,
   ListeningStoryContent,
+  MistakeCategory,
   QuizQuestion,
   RealtimeCorrections,
   SentenceCheckResult,
-  TranscriptLine,
 } from "@/lib/types";
 
 export const maxDuration = 60;
@@ -108,6 +109,242 @@ async function cachedJson<T>(
 
 const todayDhaka = () =>
   new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Dhaka" }).format(new Date());
+
+/* ── CALL-ANALYSIS helpers (feature: call-analysis ONLY) ──────────────────
+ * Deep-analysis support: defensive transcript parsing, learner-line
+ * attribution (peerId-first with speaker-name fallback), objective learner
+ * stats, cross-session trend awareness and a strict output sanitizer.
+ * Nothing here is used by the other features. */
+
+const ANALYSIS_CATEGORIES: readonly MistakeCategory[] = [
+  "tense",
+  "article",
+  "preposition",
+  "word-choice",
+  "agreement",
+  "vocabulary",
+  "sentence-structure",
+  "other",
+];
+
+/** Wire shape of one transcript line. `peerId` is optional — newer clients
+ * (12-b) attach it, older ones only send speaker/text. */
+interface AnalysisLine {
+  speaker: string;
+  text: string;
+  peerId?: string;
+}
+
+/** Defensive parse of the raw transcript array the client sent. */
+function toAnalysisLines(raw: unknown[]): AnalysisLine[] {
+  const out: AnalysisLine[] = [];
+  for (const item of raw) {
+    if (typeof item !== "object" || item === null) continue;
+    const l = item as Record<string, unknown>;
+    const text = typeof l.text === "string" ? l.text.trim() : "";
+    if (!text) continue;
+    const speaker =
+      typeof l.speaker === "string" && l.speaker.trim() ? l.speaker.trim() : "?";
+    const peerId = typeof l.peerId === "string" && l.peerId ? l.peerId : undefined;
+    out.push(peerId ? { speaker, text, peerId } : { speaker, text });
+  }
+  return out;
+}
+
+const clampScore = (v: unknown): number => {
+  const n = Number(v);
+  return Number.isFinite(n) ? Math.min(100, Math.max(0, Math.round(n))) : 0;
+};
+
+const asStringArray = (v: unknown, cap: number): string[] =>
+  (Array.isArray(v) ? v : [])
+    .filter((x): x is string => typeof x === "string" && x.trim().length > 0)
+    .map((s) => s.trim())
+    .slice(0, cap);
+
+function asCategory(v: unknown): MistakeCategory {
+  const s = typeof v === "string" ? v.toLowerCase().trim() : "";
+  return (ANALYSIS_CATEGORIES as readonly string[]).includes(s)
+    ? (s as MistakeCategory)
+    : "other";
+}
+
+/** Sentence count inside one spoken line (Bangla danda included). */
+function countSentences(text: string): number {
+  const parts = text
+    .split(/[.!?]+|\u0964+/g)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return parts.length || (text.trim() ? 1 : 0);
+}
+
+/** Objective conversation numbers — computed from the learner's own lines,
+ * never from the LLM (LLM numbers get overwritten with these). */
+function computeLearnerStats(lines: AnalysisLine[]): {
+  sentences: number;
+  avgWordsPerSentence: number;
+  uniqueWords: number;
+} {
+  let sentences = 0;
+  let words = 0;
+  const unique = new Set<string>();
+  for (const l of lines) {
+    sentences += countSentences(l.text);
+    for (const w of l.text.split(/\s+/)) {
+      const clean = w.toLowerCase().replace(/[^\p{L}\p{N}'-]/gu, "");
+      if (!clean) continue;
+      words += 1;
+      unique.add(clean);
+    }
+  }
+  return {
+    sentences,
+    avgWordsPerSentence: sentences ? Math.round((words / sentences) * 10) / 10 : 0,
+    uniqueWords: unique.size,
+  };
+}
+
+interface AnalysisTrend {
+  /** English hint injected into the prompt ("" when nothing repeated). */
+  hint: string;
+  /** category → how often it appeared in the previous sessions. */
+  prevCategories: Map<string, number>;
+}
+
+/** Cross-session trend: last 3 stored sessions for this device. DB is
+ * best-effort — any failure just means no trend hint. */
+async function buildAnalysisTrend(deviceId: string): Promise<AnalysisTrend> {
+  const empty: AnalysisTrend = { hint: "", prevCategories: new Map() };
+  try {
+    const rows = await db.speakingSession.findMany({
+      where: { deviceId },
+      orderBy: { createdAt: "desc" },
+      take: 3,
+      select: { analysis: true },
+    });
+    const catCount = new Map<string, number>();
+    const gapCount = new Map<string, number>();
+    for (const row of rows) {
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(row.analysis);
+      } catch {
+        continue;
+      }
+      const a = (typeof parsed === "object" && parsed !== null ? parsed : {}) as Record<string, unknown>;
+      for (const m of Array.isArray(a.mistakes) ? a.mistakes : []) {
+        if (typeof m !== "object" || m === null) continue;
+        // Only recognized deep-analysis categories count; legacy rows store
+        // free-text `type` ("grammar"…) that would map to "other" noise.
+        const raw = (m as Record<string, unknown>).category;
+        const cat = typeof raw === "string" ? raw.toLowerCase().trim() : "";
+        if (cat && cat !== "other" && (ANALYSIS_CATEGORIES as readonly string[]).includes(cat)) {
+          catCount.set(cat, (catCount.get(cat) ?? 0) + 1);
+        }
+      }
+      for (const g of asStringArray(a.grammarGaps, 8)) {
+        const key = g.slice(0, 60);
+        gapCount.set(key, (gapCount.get(key) ?? 0) + 1);
+      }
+    }
+    const topCats = [...catCount.entries()].sort((x, y) => y[1] - x[1]).slice(0, 5);
+    const topGaps = [...gapCount.entries()].sort((x, y) => y[1] - x[1]).slice(0, 5);
+    if (topCats.length === 0 && topGaps.length === 0) return empty;
+    const parts: string[] = [];
+    if (topCats.length > 0) {
+      parts.push(`mistake categories repeated before: ${topCats.map(([c, n]) => `${c} (x${n})`).join(", ")}`);
+    }
+    if (topGaps.length > 0) {
+      parts.push(`grammar topics from earlier sessions: ${topGaps.map(([g, n]) => (n > 1 ? `${g} (x${n})` : g)).join("; ")}`);
+    }
+    return {
+      hint: `TREND — this learner's history (last 3 sessions): ${parts.join(" | ")}. Emphasize whether these problems recur today, praise progress where fixed, and make focusPlan attack the most repeated ones.`,
+      prevCategories: catCount,
+    };
+  } catch {
+    return empty; // DB unavailable — analysis still works, just no trend
+  }
+}
+
+/** Strict sanitizer for the model's reply — a malformed field never reaches
+ * the client; deep fields are capped and normalized. Stats are ALWAYS the
+ * server-computed ones (never trusted from the LLM). */
+function sanitizeCallAnalysis(
+  raw: unknown,
+  stats: { sentences: number; avgWordsPerSentence: number; uniqueWords: number; analyzedLines: number }
+): CallAnalysis {
+  const r = (typeof raw === "object" && raw !== null ? raw : {}) as Record<string, unknown>;
+
+  const seen = new Set<string>();
+  const mistakes: AnalysisMistake[] = (Array.isArray(r.mistakes) ? r.mistakes : [])
+    .slice(0, 14)
+    .flatMap((m): AnalysisMistake[] => {
+      if (typeof m !== "object" || m === null) return [];
+      const o = m as Record<string, unknown>;
+      const original = typeof o.original === "string" ? o.original.trim() : "";
+      const corrected = typeof o.corrected === "string" ? o.corrected.trim() : "";
+      const explanation = typeof o.explanation === "string" ? o.explanation.trim() : "";
+      if (!original || !corrected) return [];
+      const category = asCategory(o.category ?? o.type); // legacy alias accepted
+      // dedupe by underlying grammar point (same bucket + same fix)
+      const key = `${category}::${corrected.toLowerCase().replace(/\s+/g, " ")}`;
+      if (seen.has(key)) return [];
+      seen.add(key);
+      const severity = o.severity === "major" ? "major" : "minor";
+      return [{ original, corrected, type: category, category, severity, explanation }];
+    })
+    .slice(0, 10);
+
+  const betterDialogue = (Array.isArray(r.betterDialogue) ? r.betterDialogue : [])
+    .slice(0, 4)
+    .flatMap((d) => {
+      if (typeof d !== "object" || d === null) return [];
+      const o = d as Record<string, unknown>;
+      const original = typeof o.original === "string" ? o.original.trim() : "";
+      const improved = typeof o.improved === "string" ? o.improved.trim() : "";
+      return original && improved ? [{ original, improved }] : [];
+    })
+    .slice(0, 3);
+
+  const vocabularyGaps = (Array.isArray(r.vocabularyGaps) ? r.vocabularyGaps : [])
+    .slice(0, 8)
+    .flatMap((v) => {
+      if (typeof v !== "object" || v === null) return [];
+      const o = v as Record<string, unknown>;
+      const word = typeof o.word === "string" ? o.word.trim() : "";
+      const meaning = typeof o.meaning === "string" ? o.meaning.trim() : "";
+      return word && meaning ? [{ word, meaning }] : [];
+    })
+    .slice(0, 6);
+
+  const focusPlan = (Array.isArray(r.focusPlan) ? r.focusPlan : [])
+    .slice(0, 3)
+    .flatMap((f) => {
+      if (typeof f !== "object" || f === null) return [];
+      const o = f as Record<string, unknown>;
+      const title = typeof o.title === "string" ? o.title.trim() : "";
+      const why = typeof o.why === "string" ? o.why.trim() : "";
+      const drill = typeof o.drill === "string" ? o.drill.trim() : "";
+      return title ? [{ title, why, drill }] : [];
+    })
+    .slice(0, 3);
+
+  return {
+    overallScore: clampScore(r.overallScore),
+    fluencyScore: clampScore(r.fluencyScore),
+    grammarScore: clampScore(r.grammarScore),
+    vocabularyScore: clampScore(r.vocabularyScore),
+    summary: typeof r.summary === "string" ? r.summary.trim() : "",
+    strengths: asStringArray(r.strengths, 4),
+    mistakes,
+    grammarGaps: asStringArray(r.grammarGaps, 6),
+    vocabularyGaps,
+    suggestions: asStringArray(r.suggestions, 5),
+    betterDialogue,
+    focusPlan,
+    stats,
+  };
+}
 
 export async function POST(req: NextRequest) {
   // UI locale from the locale cookie — every message below answers in the
@@ -298,36 +535,90 @@ If no real mistakes: { "corrections": [], "encouragement": "..." } Return ONLY t
         return jsonOk(data);
       }
 
-      /* ---------------- SPEAKING: CALL ANALYSIS ---------------- */
+      /* ---------------- SPEAKING: CALL ANALYSIS (deep coach) ---------------- */
       case "call-analysis": {
-        const transcript = (Array.isArray(payload.transcript) ? payload.transcript : []) as TranscriptLine[];
+        const rawLines = Array.isArray(payload.transcript) ? payload.transcript : [];
+        const transcript = toAnalysisLines(rawLines);
         const durationSec = Number(payload.durationSec ?? 0);
         const partnerCount = Number(payload.partnerCount ?? 1);
         const myName = String(payload.myName ?? "");
-        const userLines = transcript.filter((l) => myName ? l.speaker === myName : true).slice(-60);
+        // peerId attribution (12-b) — exact match when available, otherwise
+        // speaker-name fallback so old clients keep working.
+        const myPeerId = typeof payload.myPeerId === "string" ? payload.myPeerId : "";
+        const isLearnerLine = (l: AnalysisLine): boolean => {
+          if (myPeerId && l.peerId) return l.peerId === myPeerId;
+          return myName ? l.speaker === myName : true;
+        };
+        const userLines = transcript.filter(isLearnerLine).slice(-60);
         if (userLines.length < 2) {
           return jsonErr(apiMsg(locale, "analysisNeedsSentences"), 400);
         }
-        const data = await geminiJson<CallAnalysis>(
+
+        const stats = computeLearnerStats(userLines);
+        const trend = await buildAnalysisTrend(deviceId);
+
+        // Context-aware dialogue view — the coach sees WHO said what, so
+        // betterDialogue improves the learner's REPLY to the actual partner
+        // line, not the sentence in isolation.
+        const dialogue = transcript.slice(-80).map((l) => ({
+          who: isLearnerLine(l) ? "me" : "partner",
+          name: l.speaker,
+          text: l.text,
+        }));
+
+        const rawAnalysis = await geminiJson<unknown>(
           apiKey,
-          `You are an expert English communication coach analyzing a learner's real conversation (video call, ${Math.round(durationSec / 60)} min, ${partnerCount} participant(s)).
-The user's spoken lines (JSON, newest last): ${JSON.stringify(userLines)}
+          `You are an expert English communication coach doing a DEEP post-call analysis of a learner's real conversation (video call, ${Math.round(durationSec / 60)} min, ${partnerCount} participant(s), learner level: ${userLevel}).
+Learner: ${userName}.
+
+Full dialogue in speaking order — "who":"me" marks the LEARNER's lines, "who":"partner" is the other person. Use it as CONTEXT so every correction and improvement fits what was actually said:
+${JSON.stringify(dialogue)}
+
+The learner's own lines to analyze (newest last):
+${JSON.stringify(userLines.map((l) => l.text))}
+
+${trend.hint}
 ${lang.rule}
-Analyze: fluency, grammar, vocabulary richness. Score 0-100 each. Find top mistakes (max 8), grammar topics to study, useful words to learn, actionable suggestions.
+
+Coach deeply — this is a real development plan, not a surface report:
+1) Scores: overallScore, fluencyScore, grammarScore, vocabularyScore (0-100 each — honest, encouraging but realistic).
+2) mistakes: max 10, DEDUPLICATED by the underlying grammar point (never explain the same rule twice). Each gets "category" EXACTLY one of "tense" | "article" | "preposition" | "word-choice" | "agreement" | "vocabulary" | "sentence-structure" | "other", and "severity": "major" (blocks understanding / repeated basic error) or "minor" (polish). Corrections keep the learner's meaning. If a partner line is needed to understand the mistake, mention it briefly inside "explanation".
+3) betterDialogue: 2-3 of the learner's replies rewritten context-aware and native-like — improve the REPLY to what the partner actually said.
+4) strengths: 2-4 SPECIFIC things the learner did well (good phrases, brave attempts, nice vocabulary) — motivation matters.
+5) focusPlan: 2-3 prioritized roadmap items for how to develop further: "title" (short), "why" (1-2 sentences), "drill" (a concrete 5-minute solo practice drill the learner can do today).
+6) grammarGaps: 3-6 grammar topics to study next. vocabularyGaps: 3-6 useful words worth learning (used wrongly or missing in the talk). suggestions: 4-5 actionable suggestions.
+
 Return STRICT JSON:
 {
   "overallScore": 0, "fluencyScore": 0, "grammarScore": 0, "vocabularyScore": 0,
-  "summary": "3-4 sentence overall assessment ${lang.short}",
-  "mistakes": [ { "original": "...", "corrected": "...", "type": "grammar", "explanation": "${lang.short}" } ],
-  "grammarGaps": ["grammar topics to study next ${lang.short}"],
+  "summary": "3-4 sentence overall assessment ${lang.short} — name one strength and one priority",
+  "strengths": ["specific positive ${lang.short}"],
+  "mistakes": [ { "original": "learner's sentence", "corrected": "corrected sentence", "category": "tense", "severity": "minor", "explanation": "why ${lang.short}" } ],
+  "grammarGaps": ["grammar topic ${lang.short}"],
   "vocabularyGaps": [ { "word": "English word", "meaning": "meaning ${lang.short}" } ],
-  "suggestions": ["4-5 actionable suggestions ${lang.short}"],
-  "betterDialogue": [ { "original": "user sentence", "improved": "native-like improved version" } ]
+  "suggestions": ["actionable suggestion ${lang.short}"],
+  "betterDialogue": [ { "original": "learner's sentence", "improved": "context-aware native-like version" } ],
+  "focusPlan": [ { "title": "short title ${lang.short}", "why": "why it matters ${lang.short}", "drill": "concrete 5-minute drill ${lang.short}" } ]
 }
-Scores must reflect honest assessment — be encouraging but realistic. Return ONLY the JSON.`,
+Return ONLY the JSON.`,
           { temperature: 0.4 }
         );
-        return jsonOk(data);
+
+        const analysis = sanitizeCallAnalysis(rawAnalysis, {
+          ...stats,
+          analyzedLines: userLines.length,
+        });
+
+        // Trend: categories that appeared again today after appearing in the
+        // learner's previous sessions (server-side, never hallucinated).
+        const todayCats = new Set(
+          analysis.mistakes.map((m) => m.category ?? "other")
+        );
+        analysis.repeatedCategories = [...todayCats].filter(
+          (c) => c !== "other" && trend.prevCategories.has(c)
+        );
+
+        return jsonOk(analysis);
       }
 
       /* ---------------- LIBRARY: SENTENCE CHECK ---------------- */

@@ -1,7 +1,8 @@
 // ─── Cross-tab navigation intents ───
 // The Learning Path ("path" tab) sends the student into the exact spot of
-// another section: a specific vocab unit, a specific grammar lesson, or a
-// specific listening episode. Tabs are client-side state in AppShell, so a
+// another section: a specific vocab unit, a specific grammar lesson, a
+// specific listening episode, or the reading library filtered to a unit
+// (unit 0 = the bonus/standalone passages). Tabs are client-side state in AppShell, so a
 // deep link is a one-shot "intent": set it here, switch tab, the target
 // section consumes (and clears) it inside an effect. Effects-only — never
 // read during first render — so hydration stays safe.
@@ -11,7 +12,8 @@ import type { LibraryLevel } from "./library-types";
 export type NavIntent =
   | { tab: "vocab"; level: LibraryLevel; unit: number }
   | { tab: "grammar"; level: LibraryLevel; topic: string; topicName?: string }
-  | { tab: "listening"; slug: string };
+  | { tab: "listening"; slug: string }
+  | { tab: "reading"; unit: number };
 
 const INTENT_KEY = "bolo_nav_intent";
 const INTENT_EVENT = "bolo_nav_intent_changed";
@@ -36,7 +38,10 @@ export function takeNavIntent(): NavIntent | null {
     const parsed = JSON.parse(raw) as NavIntent;
     if (
       parsed &&
-      (parsed.tab === "vocab" || parsed.tab === "grammar" || parsed.tab === "listening")
+      (parsed.tab === "vocab" ||
+        parsed.tab === "grammar" ||
+        parsed.tab === "listening" ||
+        parsed.tab === "reading")
     ) {
       return parsed;
     }
@@ -56,7 +61,10 @@ export function peekNavIntent(): NavIntent | null {
     const parsed = JSON.parse(raw) as NavIntent;
     if (
       parsed &&
-      (parsed.tab === "vocab" || parsed.tab === "grammar" || parsed.tab === "listening")
+      (parsed.tab === "vocab" ||
+        parsed.tab === "grammar" ||
+        parsed.tab === "listening" ||
+        parsed.tab === "reading")
     ) {
       return parsed;
     }

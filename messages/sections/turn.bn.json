@@ -16,7 +16,7 @@
     "add": "কী যোগ করুন",
     "addField": {
       "label": "নাম (যেমন Cloudflare account 1)",
-      "keyId": "TURN Token ID",
+      "keyId": "TURN টোকেন আইডি",
       "apiToken": "API token"
     },
     "token": "অ্যাডমিন টোকেন",

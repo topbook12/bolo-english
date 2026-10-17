@@ -48,6 +48,25 @@ export interface FinalLine {
 
 const subscribeNoop = () => () => undefined;
 
+/* ── auto-restart backoff (iOS / flaky engines loop risk) ──
+ * Chrome stops the recognizer periodically and we restart silently. But when
+ * the engine dies within <2s of starting, something is wrong (iOS Safari
+ * permission glitch, recognizer thrash) — restarting instantly turns into a
+ * hot loop that drains battery and can hard-crash WebKit. So: count
+ * consecutive rapid restarts; from the 3rd one onward wait 5s → 10s → 20s
+ * (capped). A healthy session (>5s of listening) resets the counter. */
+const RAPID_RESTART_MS = 2_000; // session shorter than this counts as "rapid"
+const HEALTHY_SESSION_MS = 5_000; // session longer than this resets the counter
+const BACKOFF_BASE_MS = 5_000;
+const BACKOFF_CAP_MS = 20_000;
+const RAPID_RESTARTS_BEFORE_BACKOFF = 3;
+
+function backoffDelayMs(rapidCount: number): number {
+  if (rapidCount < RAPID_RESTARTS_BEFORE_BACKOFF) return 0;
+  const step = rapidCount - RAPID_RESTARTS_BEFORE_BACKOFF; // 0,1,2…
+  return Math.min(BACKOFF_CAP_MS, BACKOFF_BASE_MS * 2 ** step);
+}
+
 export function useSpeechRecognition(onFinal?: (line: FinalLine) => void) {
   // Hydration-safe capability probe: server snapshot is always `false`, the
   // client value swaps in after mount (a `useState(() => window...)`
@@ -67,6 +86,18 @@ export function useSpeechRecognition(onFinal?: (line: FinalLine) => void) {
   useEffect(() => {
     finalCbRef.current = onFinal;
   }, [onFinal]);
+
+  // backoff bookkeeping
+  const startedAtRef = useRef(0); // when the current session began
+  const rapidRestartsRef = useRef(0);
+  const restartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearRestartTimer = useCallback(() => {
+    if (restartTimerRef.current) {
+      clearTimeout(restartTimerRef.current);
+      restartTimerRef.current = null;
+    }
+  }, []);
 
   const create = useCallback(() => {
     const Ctor = getRecognitionCtor();
@@ -110,19 +141,33 @@ export function useSpeechRecognition(onFinal?: (line: FinalLine) => void) {
 
     rec.onend = () => {
       // auto-restart while user wants to listen (Chrome stops periodically)
-      if (wantRef.current) {
+      if (!wantRef.current) {
+        setListening(false);
+        return;
+      }
+      // classify the session that just ended
+      const uptime = Date.now() - startedAtRef.current;
+      if (uptime >= HEALTHY_SESSION_MS) {
+        rapidRestartsRef.current = 0; // healthy run — backoff resets
+      } else if (uptime < RAPID_RESTART_MS) {
+        rapidRestartsRef.current += 1; // rapid death — escalate backoff
+      }
+      const delay = backoffDelayMs(rapidRestartsRef.current);
+      clearRestartTimer();
+      restartTimerRef.current = setTimeout(() => {
+        restartTimerRef.current = null;
+        if (!wantRef.current) return;
         try {
+          startedAtRef.current = Date.now();
           rec.start();
         } catch {
           /* already started */
         }
-      } else {
-        setListening(false);
-      }
+      }, delay);
     };
 
     return rec;
-  }, []);
+  }, [clearRestartTimer]);
 
   const start = useCallback(() => {
     setError(null);
@@ -130,18 +175,23 @@ export function useSpeechRecognition(onFinal?: (line: FinalLine) => void) {
       setError(clientMsg("speechUnsupported"));
       return;
     }
+    clearRestartTimer();
     wantRef.current = true;
+    rapidRestartsRef.current = 0; // an explicit user start resets the loop guard
     if (!recRef.current) recRef.current = create();
     try {
+      startedAtRef.current = Date.now();
       recRef.current!.start();
       setListening(true);
     } catch {
       setListening(true); // already running
     }
-  }, [create]);
+  }, [create, clearRestartTimer]);
 
   const stop = useCallback(() => {
     wantRef.current = false;
+    clearRestartTimer();
+    rapidRestartsRef.current = 0;
     setListening(false);
     setInterim("");
     try {
@@ -149,11 +199,15 @@ export function useSpeechRecognition(onFinal?: (line: FinalLine) => void) {
     } catch {
       /* noop */
     }
-  }, []);
+  }, [clearRestartTimer]);
 
   useEffect(() => {
     return () => {
       wantRef.current = false;
+      if (restartTimerRef.current) {
+        clearTimeout(restartTimerRef.current);
+        restartTimerRef.current = null;
+      }
       try {
         recRef.current?.abort();
       } catch {

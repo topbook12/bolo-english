@@ -7,7 +7,9 @@
       "minutes": "कुल समय",
       "minutesValue": "{n} मिनट",
       "avgScore": "औसत स्कोर",
-      "words": "शब्द"
+      "words": "शब्द",
+      "reviewDue": "आज रिव्यू बाकी",
+      "reviewMastered": "पक्के शब्द"
     },
     "streak": {
       "active": "-दिन की स्ट्रीक! 🔥",
@@ -30,7 +32,9 @@
       "correctOf": "{correct}/{total} सही · {count} बार",
       "grammar-quiz": "ग्रामर क्विज़",
       "vocab-quiz": "शब्दावली क्विज़",
-      "listening-quiz": "लिसनिंग क्विज़"
+      "listening-quiz": "लिसनिंग क्विज़",
+      "reading-quiz": "📖 रीडिंग क्विज़",
+      "vocab-review": "🧠 शब्द रिव्यू"
     },
     "history": {
       "title": "बोलने का इतिहास",

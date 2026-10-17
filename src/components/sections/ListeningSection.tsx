@@ -37,6 +37,7 @@ import { takeNavIntent } from "@/lib/nav-intent";
 import type { LibraryListeningEntry } from "@/lib/library-types";
 import { useDeviceValue } from "@/hooks/use-device";
 import SectionHeader from "@/components/shared/SectionHeader";
+import EmptyState from "@/components/shared/EmptyState";
 import StoryPlayer, {
   LISTENING_LEVELS,
   type ListeningLevel,
@@ -255,7 +256,7 @@ export default function ListeningSection() {
         // ---------- লাইব্রেরি স্টোরি প্লেয়ার ----------
         <StoryPlayer
           key={libSel.id}
-          deviceId=""
+          deviceId={deviceId}
           topic={libSel.id}
           topicLabel={categoryLabel(libSel.category)}
           level={libSel.level}
@@ -380,11 +381,10 @@ export default function ListeningSection() {
 
               {/* স্টোরি গ্রিড */}
               {filtered.length === 0 ? (
-                <Card className="border-dashed">
-                  <CardContent className="p-8 text-center text-sm text-muted-foreground">
-                    {t("library.empty")}
-                  </CardContent>
-                </Card>
+                <EmptyState
+                  illustration="/illustrations/ill-listening.webp"
+                  title={t("library.empty")}
+                />
               ) : (
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {filtered.map((s) => {

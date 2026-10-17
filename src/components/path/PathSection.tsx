@@ -6,6 +6,9 @@
 //   1. LEARN  12 thematically-clustered words (mark ≥10 learned = done)
 //   2. BUILD  one grammar lesson (bank or owner-authored DB lesson)
 //   3. LISTEN one graded story episode + its quiz (active recall)
+//   + READ    one library passage per unit (light, additive — shown for
+//             exposure but does NOT gate unit completion) + a bonus passage
+//             (unit 0) after the last unit
 //
 // Everything is 100% free — no Gemini key anywhere on the path. The
 // "Continue" button always points at the exact next incomplete step, so the
@@ -13,9 +16,11 @@
 // hardest part of self-study is starting).
 
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import {
   BookOpenText,
+  BookOpen,
   BrainCircuit,
   Check,
   CircleCheck,
@@ -60,15 +65,21 @@ import {
   getDoneTopicsSnapshot,
   subscribeDoneTopics,
 } from "@/components/grammar/shared";
+import {
+  getDoneIdsServerSnapshot as getReadIdsServerSnapshot,
+  getDoneIdsSnapshot as getReadIdsSnapshot,
+  subscribeDoneIds as subscribeReadIds,
+} from "@/components/reading/reading-store";
 import { setNavIntent } from "@/lib/nav-intent";
 import {
   PATH_UNITS,
+  READ_BONUS_UNIT,
   VOCAB_UNIT_MASTERY,
   type PathUnitDef,
 } from "@/lib/learning-path";
 import { pickTri } from "@/lib/library-types";
 import type { LibraryLevel } from "@/lib/library-types";
-import type { LibraryVocabData, LibraryListeningData } from "@/lib/library-types";
+import type { LibraryVocabData, LibraryListeningData, LibraryReadingData } from "@/lib/library-types";
 import type { TabId } from "@/components/layout/AppShell";
 
 interface VocabItem {
@@ -98,6 +109,16 @@ interface ListeningItem {
   data: LibraryListeningData;
 }
 
+interface ReadingItem {
+  id: string;
+  slug: string;
+  level: string;
+  category: string;
+  minutes: number;
+  unit: number;
+  data: LibraryReadingData;
+}
+
 interface UnitState {
   def: PathUnitDef;
   words: VocabItem[];
@@ -108,11 +129,22 @@ interface UnitState {
   story?: ListeningItem;
   storyTitle: string;
   storyDone: boolean;
+  read?: ReadingItem;
+  readDone: boolean;
   complete: boolean;
   phasesDone: number;
 }
 
 const LEVEL_ORDER: LibraryLevel[] = ["beginner", "intermediate", "advanced"];
+
+/** First unread reading entry of a unit (falls back to the first entry). */
+function pickUnread(
+  list: ReadingItem[] | undefined,
+  doneIds: string[]
+): ReadingItem | undefined {
+  if (!list || list.length === 0) return undefined;
+  return list.find((r) => !doneIds.includes(`db:${r.slug}`)) ?? list[0];
+}
 
 export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => void }) {
   const t = useTranslations("path");
@@ -128,6 +160,9 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
   const [vocab, setVocab] = useState<VocabItem[] | null>(null);
   const [grammar, setGrammar] = useState<GrammarMetaItem[] | null>(null);
   const [listening, setListening] = useState<ListeningItem[] | null>(null);
+  // READ phase: reading library is fetched ONCE (all levels) and grouped by
+  // unit client-side, so switching levels never re-downloads it.
+  const [reading, setReading] = useState<ReadingItem[] | null>(null);
   const [error, setError] = useState(false);
 
   // Live progress stores (hydration-safe external stores).
@@ -145,6 +180,12 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
     subscribeDoneIds,
     getDoneIdsSnapshot,
     getDoneIdsServerSnapshot
+  );
+  // Reading completion store (separate list from listening — both are "db:slug" ids)
+  const readDoneIds = useSyncExternalStore(
+    subscribeReadIds,
+    getReadIdsSnapshot,
+    getReadIdsServerSnapshot
   );
   // Spaced-repetition state — drives the "মনে রাখার রিভিউ" card.
   const reviewMap = useSyncExternalStore(
@@ -193,6 +234,41 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
     queueMicrotask(() => void load());
   }, [load]);
 
+  /* ---- READ phase: one fetch, grouped by level+unit client-side ---- */
+  useEffect(() => {
+    let alive = true;
+    apiGet<{ items: ReadingItem[] }>("/api/library?kind=reading")
+      .then((res) => {
+        if (!alive) return;
+        setReading(Array.isArray(res.items) ? res.items : []);
+      })
+      .catch(() => {
+        if (alive) setReading([]); // READ is additive — never block the path
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const readingByUnit = useMemo(() => {
+    const m = new Map<number, ReadingItem[]>();
+    for (const r of reading ?? []) {
+      if (r.level !== level) continue;
+      const u = r.unit ?? 0;
+      const arr = m.get(u) ?? [];
+      arr.push(r);
+      m.set(u, arr);
+    }
+    return m;
+  }, [reading, level]);
+
+  /** First unread entry of a unit (falls back to the first entry). */
+  const pickRead = useCallback(
+    (unit: number): ReadingItem | undefined =>
+      pickUnread(readingByUnit.get(unit), readDoneIds),
+    [readingByUnit, readDoneIds]
+  );
+
   /* ---- per-unit state computation ---- */
   const units = useMemo<UnitState[]>(() => {
     const defs = PATH_UNITS[level];
@@ -231,6 +307,12 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
         ? doneIds.includes(`db:${def.listeningSlug}`) || doneIds.includes(def.listeningSlug)
         : false;
 
+      // READ phase (light): one passage per unit — does NOT gate completion.
+      const read = pickUnread(readingByUnit.get(def.unit), readDoneIds);
+      const readDone = read
+        ? readDoneIds.includes(`db:${read.slug}`)
+        : false;
+
       const phasesDone =
         (wordsDone ? 1 : 0) + (grammarDone ? 1 : 0) + (storyDone ? 1 : 0);
       return {
@@ -243,11 +325,13 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
         story,
         storyTitle,
         storyDone,
+        read,
+        readDone,
         complete: phasesDone === 3,
         phasesDone,
       };
     });
-  }, [level, vocab, grammar, listening, learned, doneTopics, doneIds, locale]);
+  }, [level, vocab, grammar, listening, learned, doneTopics, doneIds, locale, readingByUnit, readDoneIds]);
 
   /* ---- continue target: first incomplete phase of the first incomplete unit ---- */
   const continueTarget = (() => {
@@ -297,6 +381,15 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
     [onNavigate]
   );
 
+  /** READ phase → the reading library pre-filtered to this unit (0 = bonus). */
+  const goReading = useCallback(
+    (unit: number) => {
+      setNavIntent({ tab: "reading", unit });
+      onNavigate("reading");
+    },
+    [onNavigate]
+  );
+
   const doContinue = useCallback(() => {
     if (!continueTarget) return;
     const u = continueTarget.unit;
@@ -306,7 +399,7 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
   }, [continueTarget, goWords, goGrammar, goStory]);
 
   /* ---- loading skeleton ---- */
-  if (!vocab || !grammar || !listening) {
+  if (!vocab || !grammar || !listening || !reading) {
     return (
       <div className="space-y-5" aria-busy="true" aria-label={t("loading")}>
         <SectionHeader icon={Route} title={t("title")} subtitle={t("subtitle")} tint="teal" />
@@ -420,6 +513,14 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
                 {t("hero.continue")}
               </Button>
             )}
+            <Image
+              src="/illustrations/ill-path.webp"
+              alt=""
+              width={110}
+              height={110}
+              aria-hidden
+              className="animate-float hidden h-16 w-auto shrink-0 object-contain drop-shadow-sm lg:block"
+            />
           </div>
         </CardContent>
       </Card>
@@ -565,12 +666,80 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
                     onClick={() => goStory(u)}
                     disabled={!u.story}
                   />
+                  {/* READ — light reading phase (additive, does not gate unit
+                      completion): jumps into the reading library pre-filtered */}
+                  <ReadRow
+                    done={u.readDone}
+                    label={t("phase.read")}
+                    levelLabel={tc(`level.${level}`)}
+                    title={u.read ? pickTri(u.read.data.title, locale) : ""}
+                    minutes={u.read?.minutes ?? 0}
+                    minutesLabel={tc("minutesShort")}
+                    cta={u.readDone ? t("phase.readDone") : t("phase.readCta")}
+                    onClick={() => goReading(u.def.unit)}
+                    disabled={!u.read}
+                  />
                 </div>
               </CardContent>
             </Card>
           );
         })}
       </section>
+
+      {/* Bonus reading (unit 0) — an extra passage beyond the 5 units */}
+      {(() => {
+        const bonus = pickRead(READ_BONUS_UNIT);
+        if (!bonus) return null;
+        const bonusDone = readDoneIds.includes(`db:${bonus.slug}`);
+        return (
+          <Card className="animate-fade-in-up overflow-hidden border-amber-200/60 bg-gradient-to-br from-amber-50/70 via-background to-orange-50/60 shadow-sm dark:border-amber-900/40 dark:from-amber-950/20 dark:via-background dark:to-orange-950/20">
+            <CardContent className="p-0">
+              <button
+                type="button"
+                onClick={() => goReading(READ_BONUS_UNIT)}
+                className="group flex w-full items-center gap-3 p-4 text-left sm:gap-4 sm:p-5"
+                aria-label={`${t("readCard.bonus")} — ${pickTri(bonus.data.title, locale)}`}
+              >
+                <span
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 text-xl shadow-md transition-transform group-hover:scale-105"
+                  aria-hidden
+                >
+                  📖
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex flex-wrap items-center gap-1.5">
+                    <span className="text-sm font-bold">{t("readCard.bonus")}</span>
+                    <span className="rounded-full bg-emerald-500/10 px-1.5 text-[10px] font-semibold text-emerald-700 dark:text-emerald-300">
+                      {tc(`level.${level}`)}
+                    </span>
+                    {bonusDone && (
+                      <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-1.5 text-[10px] font-semibold text-emerald-700 dark:text-emerald-300">
+                        <CircleCheck className="h-3 w-3" aria-hidden /> {t("phase.readDone")}
+                      </span>
+                    )}
+                  </span>
+                  <span className="mt-0.5 block truncate text-sm font-medium">
+                    {pickTri(bonus.data.title, locale)} · ⏱ {fmt(bonus.minutes)} {tc("minutesShort")}
+                  </span>
+                  <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
+                    {t("readCard.bonusDesc")}
+                  </span>
+                </span>
+                <span
+                  className={cn(
+                    "shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-colors",
+                    bonusDone
+                      ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+                      : "bg-amber-500/10 text-amber-700 group-hover:bg-amber-500 group-hover:text-white dark:text-amber-300"
+                  )}
+                >
+                  {bonusDone ? t("phase.readDone") : t("phase.readCta")}
+                </span>
+              </button>
+            </CardContent>
+          </Card>
+        );
+      })()}
 
       {/* Why this order — the psychology, explained simply */}
       <Card className="animate-fade-in-up border-dashed border-border/80 bg-muted/40 shadow-none">
@@ -594,6 +763,76 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
         onReviewed={refreshReviewCounts}
       />
     </div>
+  );
+}
+
+/** READ phase row — same anatomy as PhaseRow, but with the 📖 emoji,
+ *  level badge and amber accent (reading, not listening). */
+function ReadRow({
+  done,
+  label,
+  levelLabel,
+  title,
+  minutes,
+  minutesLabel,
+  cta,
+  onClick,
+  disabled,
+}: {
+  done: boolean;
+  label: string;
+  levelLabel: string;
+  title: string;
+  minutes: number;
+  minutesLabel: string;
+  cta: string;
+  onClick: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        "group flex w-full items-center gap-3 rounded-xl border border-border/60 bg-background/70 p-3 text-left transition-all hover:border-amber-500/50 hover:bg-amber-500/5 disabled:cursor-not-allowed disabled:opacity-50",
+        done && "border-emerald-500/30 bg-emerald-500/5"
+      )}
+      aria-label={`${label} — ${title}`}
+    >
+      <span
+        className={cn(
+          "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-base shadow-sm",
+          done ? "from-emerald-500 to-teal-500" : "from-amber-500 to-orange-500"
+        )}
+        aria-hidden
+      >
+        {done ? <Check className="h-4 w-4" strokeWidth={3} /> : "📖"}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-1.5">
+          <span className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            {label}
+          </span>
+          <span className="rounded-full bg-emerald-500/10 px-1.5 text-[10px] font-semibold text-emerald-700 dark:text-emerald-300">
+            {levelLabel}
+          </span>
+        </span>
+        <span className="block truncate text-sm font-medium">
+          {title ? `${title} · ⏱ ${minutes} ${minutesLabel}` : "—"}
+        </span>
+      </span>
+      <span
+        className={cn(
+          "shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-colors",
+          done
+            ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+            : "bg-amber-500/10 text-amber-700 group-hover:bg-amber-500 group-hover:text-white dark:text-amber-300"
+        )}
+      >
+        {cta}
+      </span>
+    </button>
   );
 }
 

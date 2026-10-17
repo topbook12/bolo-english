@@ -70,23 +70,85 @@ export interface ChatPartnerReply {
   followUp: string; // a follow-up question in English to keep conversation going
 }
 
+/* ── CALL ANALYSIS (deep coach) ───────────────────────────────────────────
+ * v2 "deep analysis" fields are ALL optional so previously stored analyses
+ * (Sessions → analysis JSON) and old clients keep rendering untouched. */
+
+/** One fixed mistake bucket — lets the UI group mistakes and track
+ * recurring weaknesses across sessions. */
+export type MistakeCategory =
+  | "tense"
+  | "article"
+  | "preposition"
+  | "word-choice"
+  | "agreement"
+  | "vocabulary"
+  | "sentence-structure"
+  | "other";
+
+/** major = blocks understanding / repeated basic error; minor = polish. */
+export type MistakeSeverity = "minor" | "major";
+
+export interface AnalysisMistake {
+  original: string;
+  corrected: string;
+  /** Deprecated alias of `category` — still filled by the server so old
+   * UI code (AiPartner / ProgressSection) keeps working. */
+  type: string;
+  explanation: string;
+  /** Deep-analysis additions (absent in old stored rows). */
+  category?: MistakeCategory;
+  severity?: MistakeSeverity;
+}
+
+/** One "how to develop further" roadmap step with a concrete drill. */
+export interface AnalysisFocusStep {
+  title: string;
+  why: string;
+  drill: string;
+}
+
+/** Objective numbers the SERVER computes from the learner's own lines
+ * (never trusted from the LLM). */
+export interface AnalysisStats {
+  sentences: number;
+  avgWordsPerSentence: number;
+  uniqueWords: number;
+  /** How many of the learner's lines the analysis covered — powers the
+   * honest "N of M lines captured" note. */
+  analyzedLines?: number;
+}
+
 export interface CallAnalysis {
   overallScore: number; // 0-100
   summary: string; // Bangla summary of the conversation quality
   fluencyScore: number; // 0-100
   grammarScore: number; // 0-100
   vocabularyScore: number; // 0-100
-  mistakes: CorrectionItem[];
+  mistakes: AnalysisMistake[];
   grammarGaps: string[]; // topics to study (Bangla)
   vocabularyGaps: { word: string; meaning: string }[]; // words user struggled with / should learn
   suggestions: string[]; // Bangla actionable suggestions
   betterDialogue: { original: string; improved: string }[]; // 2-3 improved versions of user's sentences
+  /* ── deep-analysis v2 (optional for backward compatibility) ── */
+  /** 2-4 things the learner did WELL — motivation matters. */
+  strengths?: string[];
+  /** 2-3 item "develop further" roadmap: what to practice, why, 5-min drill. */
+  focusPlan?: AnalysisFocusStep[];
+  /** Server-computed conversation numbers. */
+  stats?: AnalysisStats;
+  /** Mistake categories that recurred from the learner's previous sessions. */
+  repeatedCategories?: string[];
 }
 
 export interface TranscriptLine {
   speaker: string;
   text: string;
   at: number;
+  /** Stable per-participant identity for attribution when display names collide
+   *  (two unnamed peers both broadcast "Student"). Optional so old records and
+   *  AI-partner transcripts without a peerId keep working unchanged. */
+  peerId?: string;
 }
 
 /** Result of the library "check my sentence" feature (feature: sentence-check). */

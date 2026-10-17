@@ -1,9 +1,11 @@
 "use client";
 
 // ReaderView — the comfortable reading experience (Task 11).
-// Every paragraph is a card: numbered tinted chip + English text + free TTS +
-// a tap-to-reveal translation. A global "show all" switch, key-word chips,
-// an inline comprehension quiz and next-passage navigation complete the flow.
+// Every paragraph is a card: numbered tinted chip + English text (prose measure)
+// + free TTS + a tap-to-reveal translation. A global "show all" switch,
+// saveable key-word pills (wordbook + learned store), a progress-dotted inline
+// comprehension quiz and next-passage navigation complete the flow.
+// Finished quizzes log to /api/practice (kind "reading-quiz") fire-and-forget.
 
 import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
@@ -11,6 +13,8 @@ import {
   ArrowLeft,
   ArrowRight,
   BookOpenCheck,
+  BookmarkCheck,
+  BookmarkPlus,
   CheckCircle2,
   ChevronRight,
   Circle,
@@ -19,8 +23,8 @@ import {
   Languages,
   Lightbulb,
   ListChecks,
+  PartyPopper,
   RotateCcw,
-  Trophy,
   Volume2,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,8 +33,11 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { apiPost } from "@/lib/client-api";
 import { speakEnglish, cancelSpeech } from "@/components/vocab/speech";
 import { markReadingDone } from "@/components/reading/reading-store";
+import { markWordLearned } from "@/components/vocab/learned-store";
+import { useDeviceValue } from "@/hooks/use-device";
 import { toast } from "sonner";
 import type { ReadingStory } from "@/components/reading/ReadingSection";
 // Same 6-color tint rotation the grammar lesson cards use (no blue/indigo).
@@ -54,6 +61,7 @@ export default function ReaderView({
 }) {
   const t = useTranslations("reading");
   const locale = useLocale();
+  const deviceId = useDeviceValue((s) => s.deviceId, "");
 
   const [revealed, setRevealed] = useState<Set<number>>(new Set());
   const [showAll, setShowAll] = useState(false);
@@ -63,6 +71,9 @@ export default function ReaderView({
   const [locked, setLocked] = useState(false);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
+  // Vocab pills: words saved to the server wordbook this session (emerald state)
+  const [savedWords, setSavedWords] = useState<Set<string>>(new Set());
+  const [savingWord, setSavingWord] = useState<string | null>(null);
 
   // speak current state: cancel TTS when the passage changes
   useEffect(() => {
@@ -113,11 +124,48 @@ export default function ReaderView({
     if (qIndex + 1 >= story.quiz.length) {
       setFinished(true);
       complete();
+      // Practice log — same fire-and-forget pattern as the listening QuizPlayer
+      // (score/total as raw counts so the Progress "practice" bars aggregate
+      // correctly, like every other quiz kind).
+      if (deviceId) {
+        apiPost("/api/practice", {
+          deviceId,
+          kind: "reading-quiz",
+          refId: story.slug,
+          score,
+          total: story.quiz.length,
+        }).catch(() => undefined);
+      }
       return;
     }
     setQIndex((i) => i + 1);
     setPicked(null);
     setLocked(false);
+  };
+
+  /* ── vocab pill: save to the wordbook (upsert) + mark learned ── */
+  const saveVocab = (word: string, meaning: { bn: string; en: string; hi: string }, example: string) => {
+    if (!deviceId || savedWords.has(word) || savingWord) return;
+    setSavingWord(word);
+    apiPost("/api/vocab", {
+      deviceId,
+      word: {
+        word,
+        pronunciation: "",
+        partOfSpeech: "",
+        banglaMeaning: meaning.bn || meaning.en || meaning.hi || "",
+        englishMeaning: "",
+        examples: example ? [example] : [],
+        usageTip: "",
+      },
+    })
+      .then(() => {
+        markWordLearned(word); // feeds review + path mastery (previously dead code)
+        setSavedWords((prev) => new Set(prev).add(word));
+        toast.success(t("reader.vocabSaveToast", { word }), { icon: "🔖" });
+      })
+      .catch(() => toast.error(t("reader.vocabSaveError")))
+      .finally(() => setSavingWord(null));
   };
 
   const q = quizOpen && !finished && story.quiz[qIndex] ? story.quiz[qIndex] : null;
@@ -192,7 +240,7 @@ export default function ReaderView({
         </label>
       </div>
 
-      {/* vocabulary chips */}
+      {/* vocabulary pills — speak + one-tap save to the wordbook */}
       {story.vocabulary.length > 0 && (
         <Card className="rounded-2xl border-border/70 py-0">
           <CardContent className="p-4">
@@ -202,27 +250,55 @@ export default function ReaderView({
               <span className="text-xs font-normal text-muted-foreground">· {t("reader.vocabHint")}</span>
             </h3>
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
-              {story.vocabulary.map((v) => (
-                <div
-                  key={v.word}
-                  className="flex items-start gap-2 rounded-xl border border-border/60 bg-muted/40 px-3 py-2"
-                >
-                  <button
-                    type="button"
-                    onClick={() => speakEnglish(v.word)}
-                    className="relative mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-emerald-600 transition-colors after:absolute after:-inset-1.5 after:content-[''] hover:bg-emerald-500/10 dark:text-emerald-400"
-                    aria-label={`${t("reader.speakAria")}: ${v.word}`}
+              {story.vocabulary.map((v) => {
+                const saved = savedWords.has(v.word);
+                const saving = savingWord === v.word;
+                return (
+                  <div
+                    key={v.word}
+                    className={cn(
+                      "flex items-center gap-1.5 rounded-full border py-1.5 pl-2 pr-1.5 transition-colors",
+                      saved
+                        ? "border-emerald-500/50 bg-emerald-500/10"
+                        : "border-border/60 bg-muted/40"
+                    )}
                   >
-                    <Volume2 className="h-3.5 w-3.5" aria-hidden />
-                  </button>
-                  <div className="min-w-0">
-                    <p className="text-sm font-bold text-foreground">{v.word}</p>
-                    <p className="text-xs leading-relaxed text-muted-foreground">
-                      {v.meaning[locale === "bn" ? "bn" : locale === "hi" ? "hi" : "en"] || v.meaning.en}
-                    </p>
+                    <button
+                      type="button"
+                      onClick={() => speakEnglish(v.word)}
+                      className="relative inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-emerald-600 transition-colors after:absolute after:-inset-1 after:content-[''] hover:bg-emerald-500/10 dark:text-emerald-400"
+                      aria-label={`${t("reader.speakAria")}: ${v.word}`}
+                    >
+                      <Volume2 className="h-3.5 w-3.5" aria-hidden />
+                    </button>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-bold text-foreground">{v.word}</p>
+                      <p className="truncate text-xs leading-snug text-muted-foreground">
+                        {v.meaning[locale === "bn" ? "bn" : locale === "hi" ? "hi" : "en"] || v.meaning.en}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => saveVocab(v.word, v.meaning, v.example)}
+                      disabled={saving || saved}
+                      className={cn(
+                        "inline-flex h-7 shrink-0 items-center gap-1 rounded-full px-2 text-[10px] font-semibold transition-colors",
+                        saved
+                          ? "cursor-default bg-emerald-500 text-white"
+                          : "bg-emerald-500/15 text-emerald-700 hover:bg-emerald-500 hover:text-white dark:text-emerald-300"
+                      )}
+                      aria-label={saved ? t("reader.vocabSavedAria") : t("reader.vocabSaveAria")}
+                    >
+                      {saved ? (
+                        <BookmarkCheck className="h-3.5 w-3.5" aria-hidden />
+                      ) : (
+                        <BookmarkPlus className={cn("h-3.5 w-3.5", saving && "animate-pulse")} aria-hidden />
+                      )}
+                      {saved ? t("reader.vocabSaved") : t("reader.vocabSave")}
+                    </button>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
@@ -249,7 +325,7 @@ export default function ReaderView({
                   >
                     {i + 1}
                   </span>
-                  <p className="min-w-0 flex-1 text-[15px] leading-[1.85] text-foreground/95">
+                  <p className="min-w-0 max-w-prose flex-1 text-[15px] leading-[1.85] text-foreground/95">
                     {p.en}
                   </p>
                   <div className="flex shrink-0 flex-col gap-1">
@@ -278,7 +354,7 @@ export default function ReaderView({
                   </div>
                 </div>
                 {open && (
-                  <p className="mt-3 rounded-xl bg-muted/60 px-3.5 py-2.5 text-sm leading-relaxed text-muted-foreground">
+                  <p className="mt-3 max-w-prose rounded-xl bg-muted/60 px-3.5 py-2.5 text-sm leading-relaxed text-muted-foreground">
                     {translation(p)}
                   </p>
                 )}
@@ -321,6 +397,27 @@ export default function ReaderView({
                 <span>
                   {qIndex + 1}/{story.quiz.length}
                 </span>
+              </div>
+              {/* progress dots — every answered question becomes a filled dot */}
+              <div
+                className="flex items-center justify-center gap-1.5"
+                role="img"
+                aria-label={t("reader.quizProgressAria", { n: qIndex + 1, total: story.quiz.length })}
+              >
+                {story.quiz.map((_, di) => (
+                  <span
+                    key={di}
+                    className={cn(
+                      "h-2 rounded-full transition-all duration-300",
+                      di === qIndex
+                        ? "w-5 bg-gradient-to-r from-teal-500 to-emerald-500"
+                        : di < qIndex
+                          ? "w-2 bg-emerald-500"
+                          : "w-2 bg-muted-foreground/25"
+                    )}
+                    aria-hidden
+                  />
+                ))}
               </div>
               <Progress value={((qIndex + (locked ? 1 : 0)) / story.quiz.length) * 100} className="h-1.5" />
               <p className="text-[15px] font-semibold leading-relaxed">
@@ -423,15 +520,20 @@ export default function ReaderView({
 
           {quizOpen && finished && (
             <div className="flex flex-col items-center gap-3 py-4 text-center">
+              <span aria-hidden className="text-4xl">🎉</span>
               <span className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-amber-500/90 to-orange-500/90 text-white shadow-md">
-                <Trophy className="h-7 w-7" aria-hidden />
+                <PartyPopper className="h-7 w-7" aria-hidden />
               </span>
+              <p className="text-base font-bold">{t("reader.quizCongrats")}</p>
               <p className="text-lg font-bold">
                 {t("reader.score", { score, total: story.quiz.length })}
               </p>
               <div className="flex flex-wrap justify-center gap-2">
                 <Button variant="outline" onClick={startQuiz} className="min-h-10 gap-1.5 rounded-xl">
-                  <RotateCcw className="h-3.5 w-3.5" aria-hidden /> {t("reader.quizRetry")}
+                  <RotateCcw className="h-3.5 w-3.5" aria-hidden /> {t("reader.quizAgain")}
+                </Button>
+                <Button variant="outline" onClick={onBack} className="min-h-10 gap-1.5 rounded-xl">
+                  <ArrowLeft className="h-3.5 w-3.5" aria-hidden /> {t("reader.backToLibrary")}
                 </Button>
                 {onNext && (
                   <Button
