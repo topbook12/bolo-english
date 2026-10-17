@@ -1971,3 +1971,23 @@ Stage Summary:
 - Reading library/reader visually upgraded (level strips, category emoji, ⏱/📚 chips, prose measure, quiz dots, 🎉 completion) with zero blue/indigo
 - i18n: 15 new reading keys, 4 home keys, 4 progress keys, 5 path keys (×3 locales, bn primary natural) + 7 untranslated values fixed (settings/turn/grammar.hi); all existing keys intact
 - Files touched: nav-intent.ts, learning-path.ts, ListeningSection, ReadingSection, ReaderView, reading-store untouched, ProgressSection, ReviewDialog, VocabLibraryTab, HomeSection, PathSection + 17 message JSONs — all inside the ownership list; no other files modified
+
+---
+Task ID: 12
+Agent: main (Z.ai Code)
+Task: Owner 10-point round — more graphics/best colors, subtitles on all devices, group+1:1 perfection, deep analysis, reading library (from 11-a seeds), vocab development, tri-language correctness, whole-site gap fixing
+
+Work Log:
+- Pushed pending reading-library commit e0d990e (was local-only)
+- Dispatched 2 Explore audits: site-wide gap/connectivity + call-system deep audit
+- P0 hotfixes by main: messages/sections/reading.{en,bn,hi}.json wrapped in "reading" namespace (section was rendering raw keys in all locales); AppShell header safe-area-inset-top; manifest orientation any; unused Timer import
+- 12-b (call-ux-agent): remote-first tiles, balanced group grids, caption overlay overhaul (clamp/responsive/interim in-slot), CC toggle wired, talking-ring AnalyserNode indicator, object-contain portrait feeds, lg chat side column, chat safe-area, speech-unsupported amber banner, restart backoff, peerId attribution, 6 new call.* keys ×3 locales
+- 12-c (analysis-deep-agent): CallAnalysis v2 — mistakes[] category+severity, strengths[], focusPlan[] roadmap drills, stats (server-computed), repeatedCategories from last 3 SpeakingSessions (server-side trend), dialogue-context-aware prompt, sanitizeCallAnalysis, CallAnalysisView premium rewrite with grouped category cards + TTS drills, new analysis.* namespace 28 keys ×3
+- 12-d (integration-reading-agent): B3 library StoryPlayer real deviceId; B4 reading-quiz → /api/practice + KNOWN_KINDS; B5 reading vocab Save → wordbook + markWordLearned; B1 Progress due/mastered cards + ReviewDialog vocab-review POST; B2 mark-learned → wordbook upsert; B8 speaking history un-gated; Home Reading module + how-step; Path READ rows + reading intent (nav-intent reading unit); EmptyState consistency; reading polish (level gradient strips, category emoji, quiz dots, 🎉 completion); 15 reading + 3 home + 4 progress + 5 path keys ×3
+- Main final: grammar.hi tenseBasics name, shortened mastered labels (bn/hi), Path hero illustration (ill-path.webp)
+- Verified: bunx tsc --noEmit 0 errors; bun run lint clean; agent-browser desktop 1440 + mobile 390 × bn/en/hi — home modules, reading library + reader (save→POST /api/vocab 200, Saved state), speak pre-call screens, path READ rows + review card ("১টি শব্দ রিভিউয়ের পালা"), progress new stat cards, grammar v4 no regression, dev.log clean
+- Committed 3a42251 (42 files, +2488/−593) pushed to main (Vercel auto-deploy)
+
+Stage Summary:
+- All 10 owner points addressed: subtitles responsive everywhere + CC toggle; call skin correct mobile/laptop; 1:1 & group hardened; analysis is now a deep categorized coach with trend awareness; reading library live (18 passages) with graphics + full loop into progress/vocab; vocab review loop unified; bn/en/hi parity + wrappers verified programmatically; site-wide gaps (7 broken loops) fixed
+- Known limits: in-call skin verified via pre-call screens + code review (headless has no camera); Web Speech captions need Chrome (banner guides Firefox/iOS users to chat)
