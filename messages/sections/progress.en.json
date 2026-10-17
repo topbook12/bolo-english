@@ -17,7 +17,7 @@
       "start": "Start practicing today",
       "startDesc": "Do one session or quiz today to start your streak.",
       "note": "A little practice every day is what counts — keep the streak alive.",
-      "best": "Best: {n} days",
+      "best": "Best: {n, plural, one {# day} other {# days}}",
       "unit": "days"
     },
     "trend": {
@@ -29,7 +29,7 @@
     "practice": {
       "title": "Practice statistics",
       "desc": "How often your quiz answers were correct",
-      "correctOf": "{correct}/{total} correct · {count} attempts",
+      "correctOf": "{correct}/{total} correct · {count, plural, one {# attempt} other {# attempts}}",
       "grammar-quiz": "Grammar quiz",
       "vocab-quiz": "Vocabulary quiz",
       "listening-quiz": "Listening quiz",
@@ -43,7 +43,7 @@
       "emptyTitle": "No speaking sessions yet",
       "emptyDesc": "Start your first conversation — AI analysis will build up here.",
       "score": "score",
-      "partners": "{n} people",
+      "partners": "{n, plural, one {# person} other {# people}}",
       "minutes": "{n} min",
       "noAnalysis": "No analysis",
       "mistakesTitle": "Mistakes made",

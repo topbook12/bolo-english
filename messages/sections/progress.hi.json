@@ -43,7 +43,7 @@
       "emptyTitle": "अभी कोई स्पीकिंग सेशन नहीं",
       "emptyDesc": "पहली बातचीत शुरू करें — AI विश्लेषण यहीं जमा होगा।",
       "score": "स्कोर",
-      "partners": "{n} लोग",
+      "partners": "{n, plural, one {# व्यक्ति} other {# लोग}}",
       "minutes": "{n} मिनट",
       "noAnalysis": "विश्लेषण नहीं",
       "mistakesTitle": "हुई गलतियाँ",
