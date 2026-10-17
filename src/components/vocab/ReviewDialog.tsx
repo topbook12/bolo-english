@@ -195,9 +195,9 @@ export default function ReviewDialog({
         className="max-w-md gap-0 overflow-hidden rounded-3xl p-0"
         aria-describedby={undefined}
       >
-        <div className="flex items-center justify-between gap-3 border-b border-border/60 bg-gradient-to-r from-teal-50 to-cyan-50 p-4 dark:from-teal-950/40 dark:to-cyan-950/30">
+        <div className="flex items-center justify-between gap-3 border-b border-border/60 bg-gradient-to-r from-teal-50 to-emerald-50 p-4 dark:from-teal-950/40 dark:to-emerald-950/30">
           <div className="flex min-w-0 items-center gap-2.5">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 text-white shadow-sm">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-sm">
               <Brain className="h-4 w-4" aria-hidden />
             </span>
             <DialogTitle className="truncate text-sm font-bold">{t("title")}</DialogTitle>
@@ -273,7 +273,7 @@ export default function ReviewDialog({
                   </p>
                   <Button
                     size="lg"
-                    className="btn-shine mt-4 min-h-11 gap-2 bg-gradient-to-br from-teal-500 to-cyan-600 text-white shadow-md hover:from-teal-600 hover:to-cyan-700"
+                    className="btn-shine mt-4 min-h-11 gap-2 bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/25 hover:from-emerald-600 hover:to-teal-700"
                     onClick={() => setSession((s) => ({ ...s, revealed: true }))}
                   >
                     <Check className="h-4 w-4" aria-hidden />
@@ -315,7 +315,7 @@ export default function ReviewDialog({
                       {t("forgot")}
                     </Button>
                     <Button
-                      className="min-h-11 flex-1 gap-1.5 bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md hover:from-emerald-600 hover:to-teal-700"
+                      className="min-h-11 flex-1 gap-1.5 bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/25 hover:from-emerald-600 hover:to-teal-700"
                       onClick={() => advance(true)}
                     >
                       <Check className="h-4 w-4" aria-hidden />
@@ -350,7 +350,7 @@ export default function ReviewDialog({
             )}
             <Button
               size="lg"
-              className="btn-shine mt-2 min-h-11 bg-gradient-to-br from-teal-500 to-cyan-600 text-white shadow-md hover:from-teal-600 hover:to-cyan-700"
+              className="btn-shine mt-2 min-h-11 bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/25 hover:from-emerald-600 hover:to-teal-700"
               onClick={() => handleClose(false)}
             >
               {t("close")}

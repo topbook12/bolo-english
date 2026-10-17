@@ -68,6 +68,48 @@ export const TABS: {
 const BOTTOM_TABS: TabId[] = ["home", "speaking", "grammar", "reading"];
 const MORE_TABS: TabId[] = ["path", "listening", "vocab", "progress", "settings"];
 
+// ─── Bolo Spectrum module accents ───
+// Color = identity: each module owns one warm gradient that repeats in its
+// header chip, level pills, CTAs and now the navigation itself. NO blue/indigo.
+//   emerald = daily/brand (home·vocab·progress)   teal = story/journey (path·listening)
+//   rose = voice (speaking)   orange = structure (grammar)   amber = books (reading)
+//   violet = AI/utility (settings)
+const TINT_ACTIVE: Record<TabId, string> = {
+  home: "from-emerald-500 to-teal-600",
+  path: "from-teal-500 to-emerald-600",
+  speaking: "from-rose-500 to-pink-600",
+  grammar: "from-orange-500 to-amber-600",
+  listening: "from-teal-500 to-emerald-600",
+  reading: "from-amber-500 to-orange-600",
+  vocab: "from-emerald-500 to-teal-600",
+  progress: "from-emerald-500 to-teal-600",
+  settings: "from-violet-500 to-purple-600",
+};
+
+const TINT_TEXT: Record<TabId, string> = {
+  home: "text-emerald-600 dark:text-emerald-400",
+  path: "text-teal-600 dark:text-teal-400",
+  speaking: "text-rose-600 dark:text-rose-400",
+  grammar: "text-orange-600 dark:text-orange-400",
+  listening: "text-teal-600 dark:text-teal-400",
+  reading: "text-amber-600 dark:text-amber-500",
+  vocab: "text-emerald-600 dark:text-emerald-400",
+  progress: "text-emerald-600 dark:text-emerald-400",
+  settings: "text-violet-600 dark:text-violet-400",
+};
+
+const TINT_SOFT: Record<TabId, string> = {
+  home: "bg-emerald-100/80 dark:bg-emerald-900/40",
+  path: "bg-teal-100/80 dark:bg-teal-900/40",
+  speaking: "bg-rose-100/80 dark:bg-rose-900/40",
+  grammar: "bg-orange-100/80 dark:bg-orange-900/40",
+  listening: "bg-teal-100/80 dark:bg-teal-900/40",
+  reading: "bg-amber-100/80 dark:bg-amber-900/40",
+  vocab: "bg-emerald-100/80 dark:bg-emerald-900/40",
+  progress: "bg-emerald-100/80 dark:bg-emerald-900/40",
+  settings: "bg-violet-100/80 dark:bg-violet-900/40",
+};
+
 export default function AppShell() {
   const t = useTranslations();
   const [tab, setTab] = useState<TabId>("home");
@@ -131,20 +173,28 @@ export default function AppShell() {
           setTab(id);
           setMoreOpen(false);
         }}
-        className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors lg:px-3.5 lg:py-3 ${
+        className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 lg:px-3.5 lg:py-3 ${
           isActive
-            ? "bg-primary text-primary-foreground shadow-sm"
+            ? `bg-gradient-to-br text-white shadow-md shadow-black/10 ${TINT_ACTIVE[id]}`
             : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
         }`}
         aria-current={isActive ? "page" : undefined}
       >
-        <Icon className="h-4.5 w-4.5 shrink-0 lg:h-5 lg:w-5" />
+        <span
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${
+            isActive
+              ? "bg-white/20 ring-1 ring-inset ring-white/30"
+              : ""
+          }`}
+        >
+          <Icon className="h-4.5 w-4.5 shrink-0 lg:h-5 lg:w-5" />
+        </span>
         <span className="min-w-0 text-left leading-tight">
           <span className="block">{t(`nav.${item.labelKey}`)}</span>
           {showDesc && (
             <span
               className={`block truncate text-[11px] font-normal ${
-                isActive ? "text-primary-foreground/75" : "text-muted-foreground/75"
+                isActive ? "text-white/80" : "text-muted-foreground/75"
               }`}
             >
               {t(`nav.${item.descKey}`)}
@@ -291,11 +341,19 @@ export default function AppShell() {
                 key={id}
                 onClick={() => setTab(id)}
                 className={`flex min-h-[56px] flex-col items-center justify-center gap-0.5 px-1 py-2 text-[11px] font-medium transition-colors ${
-                  isActive ? "text-primary" : "text-muted-foreground"
+                  isActive ? TINT_TEXT[id] : "text-muted-foreground"
                 }`}
                 aria-current={isActive ? "page" : undefined}
               >
-                <Icon className={`h-5 w-5 ${isActive ? "scale-110" : ""} transition-transform`} />
+                <span
+                  className={`flex h-7 w-9 items-center justify-center rounded-lg transition-all ${
+                    isActive
+                      ? `${TINT_SOFT[id]} scale-110 shadow-sm`
+                      : ""
+                  }`}
+                >
+                  <Icon className="h-5 w-5 transition-transform" />
+                </span>
                 {t(`nav.${item.labelKey}`)}
               </button>
             );

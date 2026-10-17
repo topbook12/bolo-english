@@ -132,7 +132,7 @@ export default function WordbookTab({
               className="h-11 flex-1 rounded-xl"
             />
             <Button
-              className="btn-shine h-11 gap-1.5 rounded-xl"
+              className="btn-shine h-11 gap-1.5 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/25 hover:from-emerald-600 hover:to-teal-700"
               onClick={runLookup}
               disabled={lookupLoading || !lookupInput.trim()}
             >
@@ -248,7 +248,7 @@ export default function WordbookTab({
             <li key={w.id}>
               <div className="premium-card flex items-center gap-3 rounded-2xl bg-card p-3 transition-shadow hover:shadow-md">
                 <span
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/90 to-teal-500/90 text-base font-bold text-white uppercase shadow-sm"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/90 to-teal-600/90 text-base font-bold text-white uppercase shadow-md ring-1 ring-inset ring-white/25"
                   aria-hidden
                 >
                   {w.word.charAt(0)}

@@ -378,10 +378,10 @@ export default function LessonView({
           {/* Hero */}
           <section
             aria-label={name}
-            className="premium-card animate-fade-in-up rounded-2xl border-border/70 bg-gradient-to-br from-emerald-500/10 via-card to-amber-500/10 p-5 sm:p-6"
+            className="premium-card animate-fade-in-up rounded-2xl border-border/70 bg-gradient-to-br from-orange-500/10 via-card to-amber-500/10 p-5 sm:p-6"
           >
             <div className="flex flex-wrap items-center gap-1.5">
-              <Badge className="border-transparent bg-gradient-to-br from-emerald-500 to-teal-500 text-[11px] text-white">
+              <Badge className="border-transparent bg-gradient-to-br from-orange-500 to-amber-500 text-[11px] text-white">
                 {tc(`level.${level}`)}
               </Badge>
               <Badge variant="outline" className="text-[11px]">
@@ -416,7 +416,7 @@ export default function LessonView({
               className="premium-card animate-fade-in-up-1 rounded-2xl border-border/70 bg-card p-4 shadow-sm sm:p-5"
             >
               <h2 className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-wide text-muted-foreground">
-                <Map className="h-4 w-4 text-emerald-500" aria-hidden />
+                <Map className="h-4 w-4 text-orange-500" aria-hidden />
                 {t("lesson.roadmapTitle")}
               </h2>
               <ol className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -428,7 +428,7 @@ export default function LessonView({
                       <button
                         type="button"
                         onClick={() => scrollToSection(i)}
-                        className="group flex w-full items-center gap-2.5 rounded-xl border border-border/60 bg-muted/20 p-2.5 text-start transition-colors hover:border-emerald-500/40 hover:bg-emerald-500/[0.06] focus-visible:ring-2 focus-visible:ring-emerald-500/40 focus-visible:outline-none"
+                        className="group flex w-full items-center gap-2.5 rounded-xl border border-border/60 bg-muted/20 p-2.5 text-start transition-colors hover:border-orange-500/40 hover:bg-orange-500/[0.06] focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:outline-none"
                         aria-label={`${t("lesson.stepLabel", { n: fmt(i + 1) })}: ${text}`}
                       >
                         <span
@@ -442,7 +442,7 @@ export default function LessonView({
                         </span>
                         <span className="min-w-0 flex-1 text-sm leading-snug">{text}</span>
                         <ArrowRight
-                          className="h-3.5 w-3.5 shrink-0 text-muted-foreground/50 transition group-hover:translate-x-0.5 group-hover:text-emerald-500"
+                          className="h-3.5 w-3.5 shrink-0 text-muted-foreground/50 transition group-hover:translate-x-0.5 group-hover:text-orange-500"
                           aria-hidden
                         />
                       </button>
@@ -531,7 +531,7 @@ export default function LessonView({
                       </ul>
                     ) : (
                       s.explanation && (
-                        <div className="rounded-r-xl border-l-2 border-emerald-500/50 bg-emerald-500/[0.04] py-2.5 pl-3.5 pr-3">
+                        <div className="rounded-r-xl border-l-2 border-orange-500/50 bg-orange-500/[0.04] py-2.5 pl-3.5 pr-3">
                           <p className="min-w-0 break-words text-[15px] leading-7 text-foreground/90">
                             {s.explanation}
                           </p>
@@ -678,7 +678,7 @@ export default function LessonView({
                 <Button
                   variant="outline"
                   onClick={onNextLesson}
-                  className="min-h-11 gap-1.5 rounded-xl border-teal-500/40 px-3 text-teal-700 hover:bg-teal-500/10 dark:text-teal-300"
+                  className="min-h-11 gap-1.5 rounded-xl border-orange-500/40 px-3 text-orange-700 hover:bg-orange-500/10 dark:text-orange-300"
                   aria-label={t("lesson.nextLessonAria")}
                 >
                   <ArrowRight className="h-4 w-4" aria-hidden />
@@ -688,7 +688,7 @@ export default function LessonView({
               <Button
                 variant="outline"
                 onClick={() => saveDoneTopic(topic.topic)}
-                className="min-h-11 gap-1.5 rounded-xl border-emerald-500/40 px-3 text-emerald-700 hover:bg-emerald-500/10 dark:text-emerald-300"
+                className="min-h-11 gap-1.5 rounded-xl border-orange-500/40 px-3 text-orange-700 hover:bg-orange-500/10 dark:text-orange-300"
                 aria-label={t("lesson.markReadAria")}
               >
                 <CircleCheckBig className="h-4 w-4" aria-hidden />
@@ -696,7 +696,7 @@ export default function LessonView({
               </Button>
               <Button
                 onClick={onStartQuiz}
-                className="btn-shine min-h-11 flex-1 gap-2 rounded-xl text-base sm:flex-none sm:px-8"
+                className="btn-shine min-h-11 flex-1 gap-2 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-base text-white shadow-md hover:from-orange-600 hover:to-amber-700 sm:flex-none sm:px-8"
                 aria-label={t("lesson.startQuizAria")}
               >
                 <ListChecks className="h-5 w-5" /> {t("lesson.startQuiz")}

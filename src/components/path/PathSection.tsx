@@ -457,7 +457,7 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
             className={cn(
               "min-h-11 flex-1 rounded-xl px-2 text-sm font-semibold transition-all duration-200",
               level === lv
-                ? "bg-gradient-to-br from-teal-500 to-cyan-600 text-white shadow-md"
+                ? "bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-md ring-1 ring-inset ring-white/25"
                 : "text-muted-foreground hover:bg-background/60 hover:text-foreground"
             )}
           >
@@ -467,7 +467,7 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
       </div>
 
       {/* Hero — overall progress + the single Continue button */}
-      <Card className="animate-fade-in-up overflow-hidden border-teal-200/60 bg-gradient-to-br from-teal-50 via-background to-cyan-50 dark:border-teal-900/50 dark:from-teal-950/40 dark:via-background dark:to-cyan-950/30">
+      <Card className="animate-fade-in-up overflow-hidden border-teal-200/60 bg-gradient-to-br from-teal-50 via-background to-emerald-50 dark:border-teal-900/50 dark:from-teal-950/40 dark:via-background dark:to-emerald-950/30">
         <CardContent className="p-5 sm:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
@@ -483,7 +483,7 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
                 aria-label={t("hero.progress", { done: fmt(donePhases), total: fmt(totalPhases) })}
               >
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 transition-all duration-500"
+                  className="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-500 transition-all duration-500"
                   style={{ width: `${totalPhases ? (donePhases / totalPhases) * 100 : 0}%` }}
                 />
               </div>
@@ -506,7 +506,7 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
             ) : (
               <Button
                 size="lg"
-                className="btn-shine min-h-11 shrink-0 gap-2 bg-gradient-to-br from-teal-500 to-cyan-600 text-white shadow-md hover:from-teal-600 hover:to-cyan-700"
+                className="btn-shine min-h-11 shrink-0 gap-2 bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-md shadow-teal-500/25 hover:from-teal-600 hover:to-emerald-700"
                 onClick={doContinue}
               >
                 <Play className="h-4 w-4" aria-hidden />
@@ -528,7 +528,7 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
       {/* Spaced-repetition review — the 4th phase: memory. Rendered once the
           learner has learned their first word, so it always feels relevant. */}
       {learned.length > 0 && (
-        <Card className="animate-fade-in-up border-amber-200/70 bg-gradient-to-br from-amber-50 via-background to-orange-50 shadow-sm dark:border-amber-900/50 dark:from-amber-950/30 dark:via-background dark:to-orange-950/20">
+        <Card className="animate-fade-in-up border-amber-200/70! bg-gradient-to-br from-amber-50 via-background to-orange-50 shadow-sm dark:border-amber-900/50! dark:from-amber-950/30 dark:via-background dark:to-orange-950/20">
           <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex min-w-0 items-start gap-3">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-sm">
@@ -579,10 +579,10 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
                 <div className="flex items-start gap-3">
                   <span
                     className={cn(
-                      "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-base font-bold shadow-sm",
+                      "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-base font-bold shadow-sm ring-1 ring-inset ring-white/25",
                       u.complete
                         ? "bg-emerald-500 text-white"
-                        : "bg-gradient-to-br from-teal-500 to-cyan-600 text-white"
+                        : "bg-gradient-to-br from-teal-500 to-emerald-600 text-white"
                     )}
                     aria-current={isNext ? "step" : undefined}
                   >
@@ -638,6 +638,8 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
                         ? Math.min(1, u.learnedCount / Math.max(1, u.words.length))
                         : 0
                     }
+                    chip="from-emerald-500 to-teal-600"
+                    bar="from-emerald-500 to-teal-500"
                   />
                   {/* Grammar */}
                   <PhaseRow
@@ -647,6 +649,7 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
                     detail={u.grammarTitle || "—"}
                     cta={u.grammarDone ? t("phase.review") : t("phase.start")}
                     onClick={() => goGrammar(u)}
+                    chip="from-orange-500 to-amber-600"
                   />
                   {/* Listening */}
                   <PhaseRow
@@ -665,6 +668,7 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
                     cta={u.storyDone ? t("phase.review") : t("phase.listen")}
                     onClick={() => goStory(u)}
                     disabled={!u.story}
+                    chip="from-teal-500 to-emerald-600"
                   />
                   {/* READ — light reading phase (additive, does not gate unit
                       completion): jumps into the reading library pre-filtered */}
@@ -692,7 +696,7 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
         if (!bonus) return null;
         const bonusDone = readDoneIds.includes(`db:${bonus.slug}`);
         return (
-          <Card className="animate-fade-in-up overflow-hidden border-amber-200/60 bg-gradient-to-br from-amber-50/70 via-background to-orange-50/60 shadow-sm dark:border-amber-900/40 dark:from-amber-950/20 dark:via-background dark:to-orange-950/20">
+          <Card className="animate-fade-in-up overflow-hidden border-amber-200/60! bg-gradient-to-br from-amber-50/70 via-background to-orange-50/60 shadow-sm dark:border-amber-900/40! dark:from-amber-950/20 dark:via-background dark:to-orange-950/20">
             <CardContent className="p-0">
               <button
                 type="button"
@@ -802,7 +806,7 @@ function ReadRow({
     >
       <span
         className={cn(
-          "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-base shadow-sm",
+          "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-base shadow-sm ring-1 ring-inset ring-white/25",
           done ? "from-emerald-500 to-teal-500" : "from-amber-500 to-orange-500"
         )}
         aria-hidden
@@ -836,7 +840,9 @@ function ReadRow({
   );
 }
 
-/** One phase row inside a unit card. */
+/** One phase row inside a unit card. `chip` carries the phase's module
+ *  accent gradient (words=emerald, grammar=orange, listening=teal) — the
+ *  cross-module color-coding is intentional; the row chrome stays path-teal. */
 function PhaseRow({
   icon: Icon,
   done,
@@ -846,6 +852,8 @@ function PhaseRow({
   onClick,
   progress,
   disabled,
+  chip = "from-teal-500 to-emerald-600",
+  bar = "from-teal-500 to-emerald-500",
 }: {
   icon: React.ComponentType<{ className?: string }>;
   done: boolean;
@@ -855,6 +863,8 @@ function PhaseRow({
   onClick: () => void;
   progress?: number;
   disabled?: boolean;
+  chip?: string;
+  bar?: string;
 }) {
   return (
     <button
@@ -869,8 +879,8 @@ function PhaseRow({
     >
       <span
         className={cn(
-          "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-sm",
-          done ? "from-emerald-500 to-teal-500" : "from-teal-500 to-cyan-600"
+          "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-sm ring-1 ring-inset ring-white/25",
+          done ? "from-emerald-500 to-teal-500" : chip
         )}
       >
         {done ? <Check className="h-4 w-4" strokeWidth={3} /> : <Icon className="h-4 w-4" />}
@@ -881,9 +891,9 @@ function PhaseRow({
         </span>
         <span className="block truncate text-sm font-medium">{detail}</span>
         {typeof progress === "number" && (
-          <span className="mt-1.5 block h-1.5 w-full max-w-40 overflow-hidden rounded-full bg-teal-500/15">
+          <span className="mt-1.5 block h-1.5 w-full max-w-40 overflow-hidden rounded-full bg-emerald-500/15">
             <span
-              className="block h-full rounded-full bg-gradient-to-r from-teal-500 to-cyan-500"
+              className={cn("block h-full rounded-full bg-gradient-to-r", bar)}
               style={{ width: `${Math.round(progress * 100)}%` }}
             />
           </span>

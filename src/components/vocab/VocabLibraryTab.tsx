@@ -60,7 +60,7 @@ const UNIT_TINT = [
   "from-emerald-500 to-teal-500",
   "from-amber-500 to-orange-500",
   "from-rose-500 to-pink-500",
-  "from-teal-500 to-cyan-600",
+  "from-teal-500 to-emerald-600",
   "from-orange-500 to-amber-600",
 ];
 
@@ -281,7 +281,7 @@ export default function VocabLibraryTab() {
             className={cn(
               "min-h-11 flex-1 rounded-xl px-2 text-sm font-semibold transition-all duration-200",
               activeLevel === lv
-                ? "bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-md"
+                ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/25"
                 : "text-muted-foreground hover:bg-background/60 hover:text-foreground"
             )}
           >
@@ -299,7 +299,7 @@ export default function VocabLibraryTab() {
             className={cn(
               "min-h-9 rounded-full border px-3 text-xs font-semibold transition-colors",
               unitFilter === null
-                ? "border-transparent bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-sm"
+                ? "border-transparent bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/25"
                 : "border-border/70 bg-card text-muted-foreground hover:text-foreground"
             )}
           >
@@ -320,7 +320,7 @@ export default function VocabLibraryTab() {
                 className={cn(
                   "min-h-9 rounded-full border px-3 text-xs font-semibold transition-colors",
                   active
-                    ? "border-transparent bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-sm"
+                    ? "border-transparent bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/25"
                     : "border-border/70 bg-card text-muted-foreground hover:text-foreground"
                 )}
               >
@@ -353,7 +353,7 @@ export default function VocabLibraryTab() {
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t("lib.search")}
           aria-label={t("lib.searchAria")}
-          className="h-11 w-full rounded-xl border border-border/70 bg-card pl-9 pr-3 text-sm outline-none transition-shadow focus:ring-2 focus:ring-primary/30"
+          className="h-11 w-full rounded-xl border border-border/70 bg-card pl-9 pr-3 text-sm outline-none transition-shadow focus:ring-2 focus:ring-emerald-500/40"
         />
       </div>
 
@@ -670,7 +670,7 @@ function WordDetail({
           <div className="flex items-start justify-between gap-2">
             <div className="flex flex-wrap gap-1.5">
               {unitLabel && (
-                <Badge className="border-transparent bg-gradient-to-br from-teal-500 to-cyan-600 text-[11px] text-white">
+                <Badge className="border-transparent bg-gradient-to-br from-teal-500 to-emerald-600 text-[11px] text-white">
                   {unitLabel}
                 </Badge>
               )}
@@ -733,7 +733,7 @@ function WordDetail({
                 "min-h-10 gap-1.5",
                 learned
                   ? "bg-emerald-500 text-white hover:bg-emerald-600"
-                  : "bg-gradient-to-br from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600"
+                  : "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/25 hover:from-emerald-600 hover:to-teal-700"
               )}
             >
               {learned ? (

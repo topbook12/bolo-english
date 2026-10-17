@@ -98,20 +98,23 @@ const TYPE_ICON: Record<string, typeof Users> = {
 };
 
 const TYPE_TINT: Record<string, string> = {
-  "one-to-one": "bg-violet-50 text-violet-700 dark:bg-violet-950/60 dark:text-violet-300",
+  "one-to-one": "bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300",
   group: "bg-orange-50 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300",
   "ai-partner": "bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300",
 };
 
 const KIND_TINT: Record<string, string> = {
+  // Practice kinds are tinted by their MODULE identity (grammar=orange,
+  // vocab=emerald, listening=teal, reading=amber); review keeps the warm
+  // amber/orange memory brand. No blue/indigo anywhere.
   "grammar-quiz":
-    "bg-violet-100 text-violet-800 dark:bg-violet-950 dark:text-violet-300",
+    "bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300",
   "vocab-quiz":
     "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
   "listening-quiz":
-    "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
-  "reading-quiz":
     "bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300",
+  "reading-quiz":
+    "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
   "vocab-review":
     "bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300",
 };
@@ -232,7 +235,7 @@ export default function ProgressSection() {
           className={cn(
             "premium-card rounded-2xl border p-0",
             streak > 0
-              ? "border-orange-200/80 bg-gradient-to-r from-orange-50 via-amber-50 to-orange-50 dark:border-orange-900 dark:from-orange-950/50 dark:via-amber-950/30 dark:to-orange-950/40"
+              ? "border-orange-200/80! bg-gradient-to-r from-orange-50 via-amber-50 to-orange-50 dark:border-orange-900! dark:from-orange-950/50 dark:via-amber-950/30 dark:to-orange-950/40"
               : "border-border/70 bg-card"
           )}
         >
@@ -286,7 +289,7 @@ export default function ProgressSection() {
 
         {/* ── stats row ── */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatCard icon={MessagesSquare} value={data?.totalSessions ?? 0} label={t("stats.sessions")} tint="violet" />
+          <StatCard icon={MessagesSquare} value={data?.totalSessions ?? 0} label={t("stats.sessions")} tint="teal" />
           <StatCard icon={Clock3} value={t("stats.minutesValue", { n: data?.totalMinutes ?? 0 })} label={t("stats.minutes")} tint="teal" />
           <StatCard icon={Trophy} value={data?.avgScore ?? 0} label={t("stats.avgScore")} tint="amber" />
           <StatCard icon={Library} value={data?.wordCount ?? 0} label={t("stats.words")} tint="emerald" />
@@ -380,7 +383,7 @@ export default function ProgressSection() {
           <Card className="premium-card rounded-2xl border-border/70 bg-card">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-50 text-violet-700 dark:bg-violet-950/60 dark:text-violet-300">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
                   <PenLine className="h-4 w-4" aria-hidden />
                 </span>
                 {t("practice.title")}

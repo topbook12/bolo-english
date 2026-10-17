@@ -104,7 +104,7 @@ function ScoreRing({ score }: { score: number }) {
           r={r}
           fill="none"
           strokeWidth="10"
-          className="stroke-emerald-100 dark:stroke-emerald-950"
+          className="stroke-rose-100 dark:stroke-rose-950"
         />
         <circle
           cx="60"
@@ -119,8 +119,8 @@ function ScoreRing({ score }: { score: number }) {
         />
         <defs>
           <linearGradient id="score-gradient" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#10b981" />
-            <stop offset="100%" stopColor="#14b8a6" />
+            <stop offset="0%" stopColor="#f43f5e" />
+            <stop offset="100%" stopColor="#db2777" />
           </linearGradient>
         </defs>
       </svg>

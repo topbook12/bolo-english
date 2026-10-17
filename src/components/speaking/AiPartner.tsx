@@ -275,7 +275,7 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
             title={voiceOn ? t("partner.voiceOn") : t("partner.voiceOff")}
           >
             {voiceOn ? (
-              <Volume2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+              <Volume2 className="h-5 w-5 text-rose-600 dark:text-rose-400" aria-hidden="true" />
             ) : (
               <VolumeX className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
             )}
@@ -302,7 +302,7 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
                   aria-pressed={active}
                   className={`min-h-11 shrink-0 rounded-full border px-4 text-sm font-medium transition-colors ${
                     active
-                      ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                      ? "border-rose-500 bg-rose-500 text-white shadow-sm"
                       : "border-border bg-card text-muted-foreground hover:bg-accent hover:text-foreground"
                   }`}
                 >
@@ -338,7 +338,7 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
             if (m.role === "user") {
               return (
                 <div key={i} className="flex justify-end">
-                  <div className="max-w-[85%] rounded-2xl rounded-br-md bg-primary px-3.5 py-2 text-sm text-primary-foreground shadow-sm">
+                  <div className="max-w-[85%] rounded-2xl rounded-br-md bg-gradient-to-br from-rose-500 to-pink-600 px-3.5 py-2 text-sm text-white shadow-sm">
                     <span className="mb-0.5 flex items-center justify-end gap-1 text-[10px] opacity-70">
                       {displayName || tCommon("you")}
                       <UserIcon className="h-3 w-3" aria-hidden="true" />
@@ -352,7 +352,7 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
             return (
               <div key={i} className="space-y-2">
                 <div className="flex items-start gap-2">
-                  <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                  <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300">
                     <Bot className="h-4 w-4" aria-hidden="true" />
                   </span>
                   <div className="max-w-[85%] rounded-2xl rounded-bl-md border bg-card px-3.5 py-2 text-sm shadow-sm">
@@ -412,7 +412,7 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
 
           {busy && (
             <div className="flex items-start gap-2" role="status" aria-label={t("partner.typingAria")}>
-              <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+              <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300">
                 <Bot className="h-4 w-4" aria-hidden="true" />
               </span>
               <div className="flex items-center gap-1 rounded-2xl rounded-bl-md border bg-card px-4 py-3">
@@ -454,7 +454,7 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
             disabled={!micSupported || busy}
             className={`h-11 w-11 shrink-0 rounded-xl ${
               listening
-                ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+                ? "border-rose-500/50 bg-rose-500/10 text-rose-700 dark:text-rose-300"
                 : ""
             }`}
             aria-label={micLabel}
@@ -481,7 +481,7 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
             onClick={() => void send()}
             disabled={busy || !input.trim()}
             size="icon"
-            className="h-11 w-11 shrink-0 rounded-xl"
+            className="h-11 w-11 shrink-0 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-md shadow-rose-500/25 hover:from-rose-600 hover:to-pink-700"
             aria-label={tCommon("send")}
           >
             <Send className="h-4 w-4" aria-hidden="true" />

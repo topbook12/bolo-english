@@ -193,8 +193,8 @@ export const TOPIC_GROUPS: GrammarTopicGroup[] = [
 /** Small accent bar + heading chip color per group (premium, no blue/indigo). */
 export const GROUP_ACCENT: Record<TopicGroupKey, { bar: string; chip: string }> = {
   foundation: {
-    bar: "from-emerald-500 to-teal-500",
-    chip: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+    bar: "from-orange-500 to-amber-500",
+    chip: "bg-orange-500/10 text-orange-700 dark:text-orange-300",
   },
   advanced: {
     bar: "from-amber-500 to-orange-500",

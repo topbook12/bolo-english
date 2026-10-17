@@ -117,18 +117,18 @@ export default function QuizPlayer({
     return (
       <Card className="premium-card animate-fade-in-up rounded-2xl bg-card shadow-sm">
         <CardContent className="flex flex-col items-center gap-4 p-6 text-center sm:p-8">
-          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-amber-500/90 to-orange-500/90 text-white shadow-md">
+          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-teal-500/90 to-emerald-600/90 text-white shadow-md ring-1 ring-inset ring-white/25">
             <Trophy className="h-8 w-8" aria-hidden />
           </span>
           <div>
             <h2 className="text-xl font-bold">{t("finishedTitle")}</h2>
             <p className="mt-1 line-clamp-1 text-sm text-muted-foreground">“{storyTitle}”</p>
           </div>
-          <p className="text-4xl font-extrabold tracking-tight text-primary">
+          <p className="text-4xl font-extrabold tracking-tight text-teal-700 dark:text-teal-300">
             {fmt(score)}
             <span className="text-2xl text-muted-foreground">/{fmt(total)}</span>
           </p>
-          <Badge variant="secondary" className="bg-amber-500/10 text-amber-700 dark:text-amber-300">
+          <Badge variant="secondary" className="bg-teal-500/10 text-teal-700 dark:text-teal-300">
             {t("scorePct", { pct: fmt(pct) })}
           </Badge>
           <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">{t(msgKey)}</p>
@@ -139,7 +139,7 @@ export default function QuizPlayer({
             <Button variant="outline" onClick={onBackToStory} className="min-h-11 gap-1.5 rounded-xl">
               <BookOpen className="h-4 w-4" /> {t("backToStory")}
             </Button>
-            <Button onClick={onNewStory} className="btn-shine min-h-11 gap-1.5 rounded-xl">
+            <Button onClick={onNewStory} className="btn-shine min-h-11 gap-1.5 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-md hover:from-teal-600 hover:to-emerald-700">
               <Sparkles className="h-4 w-4" /> {t("newStory")}
             </Button>
           </div>
@@ -182,8 +182,8 @@ export default function QuizPlayer({
                 className={cn(
                   "flex min-h-11 w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm transition-all sm:text-[15px]",
                   !answered &&
-                    "border-border bg-background hover:border-primary/50 hover:bg-primary/5 active:scale-[0.99]",
-                  answered && isAnswer && "border-primary bg-primary/10 font-medium text-primary",
+                    "border-border bg-background hover:border-teal-500/50 hover:bg-teal-500/5 active:scale-[0.99]",
+                  answered && isAnswer && "border-emerald-500 bg-emerald-500/10 font-medium text-emerald-800 dark:text-emerald-300",
                   answered &&
                     isSelected &&
                     !isAnswer &&
@@ -195,7 +195,7 @@ export default function QuizPlayer({
                   className={cn(
                     "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border text-xs font-bold",
                     !answered && "border-border text-muted-foreground",
-                    answered && isAnswer && "border-primary bg-primary text-primary-foreground",
+                    answered && isAnswer && "border-emerald-500 bg-emerald-500 text-white",
                     answered &&
                       isSelected &&
                       !isAnswer &&
@@ -220,14 +220,16 @@ export default function QuizPlayer({
           <div
             className={cn(
               "rounded-xl border p-4",
-              correct ? "border-primary/40 bg-primary/5" : "border-destructive/40 bg-destructive/5"
+              correct
+                ? "border-emerald-500/40 bg-emerald-500/5 dark:border-emerald-900/40"
+                : "border-destructive/40 bg-destructive/5"
             )}
             aria-live="polite"
           >
             <p
               className={cn(
                 "flex items-center gap-1.5 text-sm font-semibold",
-                correct ? "text-primary" : "text-destructive"
+                correct ? "text-emerald-700 dark:text-emerald-400" : "text-destructive"
               )}
             >
               {correct ? (
@@ -242,7 +244,7 @@ export default function QuizPlayer({
         )}
 
         {answered && (
-          <Button onClick={next} className="btn-shine min-h-11 w-full gap-1.5 rounded-xl sm:w-auto">
+          <Button onClick={next} className="btn-shine min-h-11 w-full gap-1.5 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-md hover:from-teal-600 hover:to-emerald-700 sm:w-auto">
             {idx + 1 < total ? t("nextQuestion") : t("showResult")}
             <ChevronRight className="h-4 w-4" />
           </Button>

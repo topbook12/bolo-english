@@ -70,7 +70,7 @@ export default function SpeakingSection() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-5 lg:space-y-6">
-      <SectionHeader icon={Mic} tint="emerald" title={t("title")} subtitle={t("subtitle")} />
+      <SectionHeader icon={Mic} tint="rose" title={t("title")} subtitle={t("subtitle")} />
 
       {/* Mode cards — 1 per column on desktop */}
       <div className="grid gap-5 lg:grid-cols-3 lg:items-stretch">
@@ -78,7 +78,7 @@ export default function SpeakingSection() {
       <Card className="premium-card animate-fade-in-up-1 rounded-2xl border-border/70 py-0">
         <CardContent className="flex h-full flex-col space-y-3 p-4 sm:p-6">
           <div className="flex items-start gap-3.5">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500/90 to-teal-500/90 text-white shadow-md">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500/90 to-pink-600/90 text-white shadow-md ring-1 ring-inset ring-white/25">
               <Users className="h-6 w-6" aria-hidden="true" />
             </span>
             <div className="min-w-0 flex-1">
@@ -89,7 +89,7 @@ export default function SpeakingSection() {
           <PointList items={onePoints} />
           <Button
             onClick={() => startCall("one")}
-            className="btn-shine mt-auto h-11 w-full gap-2 rounded-xl sm:w-auto lg:w-full"
+            className="btn-shine mt-auto h-11 w-full gap-2 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-md shadow-rose-500/25 hover:from-rose-600 hover:to-pink-700 sm:w-auto lg:w-full"
           >
             <UserPlus className="h-4 w-4" aria-hidden="true" /> {t("one.cta")}
           </Button>
@@ -100,7 +100,7 @@ export default function SpeakingSection() {
       <Card className="premium-card animate-fade-in-up-2 rounded-2xl border-border/70 py-0">
         <CardContent className="flex h-full flex-col space-y-3 p-4 sm:p-6">
           <div className="flex items-start gap-3.5">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500/90 to-cyan-600/90 text-white shadow-md">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500/90 to-pink-600/90 text-white shadow-md ring-1 ring-inset ring-white/25">
               <Video className="h-6 w-6" aria-hidden="true" />
             </span>
             <div className="min-w-0 flex-1">
@@ -112,7 +112,7 @@ export default function SpeakingSection() {
           </div>
           <PointList items={groupPoints} />
           <div className="mt-auto flex flex-col gap-2 sm:flex-row lg:flex-col">
-            <Button onClick={() => startCall("group")} className="h-11 gap-2 rounded-xl lg:w-full">
+            <Button onClick={() => startCall("group")} className="h-11 gap-2 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-md shadow-rose-500/25 hover:from-rose-600 hover:to-pink-700 lg:w-full">
               <Video className="h-4 w-4" aria-hidden="true" /> {t("group.newRoom")}
             </Button>
             <div className="flex gap-2">
@@ -170,7 +170,7 @@ export default function SpeakingSection() {
       >
         <CardContent className="p-4 sm:p-6">
           <h2 className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            <Compass className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+            <Compass className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" aria-hidden="true" />
             {t("how.title")}
           </h2>
           <PointList variant="number" items={howItems} />
@@ -196,7 +196,7 @@ export default function SpeakingSection() {
         />
         <p className="flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">
           <Mic
-            className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400"
+            className="mt-0.5 h-3.5 w-3.5 shrink-0 text-rose-600 dark:text-rose-400"
             aria-hidden="true"
           />
           <span>{t("micTip")}</span>

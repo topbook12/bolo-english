@@ -174,7 +174,11 @@ export default function ReaderView({
     <div className="space-y-4">
       {/* back row */}
       <div className="flex items-center justify-between gap-2">
-        <Button variant="outline" onClick={onBack} className="min-h-11 gap-1.5 rounded-xl">
+        <Button
+          variant="outline"
+          onClick={onBack}
+          className="min-h-11 gap-1.5 rounded-xl border-amber-500/40 text-amber-700 hover:bg-amber-500/10 hover:text-amber-800 dark:border-amber-800/60 dark:text-amber-300 dark:hover:text-amber-200"
+        >
           <ArrowLeft className="h-4 w-4" aria-hidden /> {t("reader.back")}
         </Button>
         <div className="flex flex-wrap justify-end gap-1.5">
@@ -198,7 +202,7 @@ export default function ReaderView({
             aria-hidden
           />
           <div className="flex items-start gap-3.5">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500/90 to-orange-500/90 text-2xl shadow-md">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500/90 to-orange-600/90 text-2xl shadow-md ring-1 ring-inset ring-white/25">
               {story.emoji}
             </span>
             <div className="min-w-0 flex-1">
@@ -332,7 +336,7 @@ export default function ReaderView({
                     <button
                       type="button"
                       onClick={() => speakEnglish(p.en)}
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-full text-emerald-600 transition-colors hover:bg-emerald-500/10 dark:text-emerald-400"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full text-amber-600 transition-colors hover:bg-amber-500/10 dark:text-amber-400"
                       aria-label={t("reader.speakAria")}
                     >
                       <Ear className="h-4 w-4" aria-hidden />
@@ -369,7 +373,7 @@ export default function ReaderView({
         <CardContent className="p-4 sm:p-5">
           {!quizOpen && (
             <div className="flex flex-col items-center gap-3 py-3 text-center">
-              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500/90 to-emerald-600/90 text-white shadow-md">
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500/90 to-orange-600/90 text-white shadow-md ring-1 ring-inset ring-white/25">
                 <ListChecks className="h-5 w-5" aria-hidden />
               </span>
               <div>
@@ -380,7 +384,7 @@ export default function ReaderView({
               </div>
               <Button
                 onClick={startQuiz}
-                className="min-h-11 gap-2 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+                className="min-h-11 gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md shadow-amber-500/25 hover:from-amber-600 hover:to-orange-700"
               >
                 <ListChecks className="h-4 w-4" aria-hidden /> {t("reader.quizStart")}
               </Button>
@@ -391,7 +395,7 @@ export default function ReaderView({
             <div className="space-y-3">
               <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
                 <span className="flex items-center gap-1.5 font-semibold text-foreground">
-                  <ListChecks className="h-3.5 w-3.5 text-teal-600" aria-hidden />
+                  <ListChecks className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" aria-hidden />
                   {t("reader.question", { n: qIndex + 1 })}
                 </span>
                 <span>
@@ -502,14 +506,14 @@ export default function ReaderView({
                   <Button
                     onClick={submitAnswer}
                     disabled={picked === null}
-                    className="min-h-11 flex-1 gap-1.5 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+                    className="min-h-11 flex-1 gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md shadow-amber-500/25 hover:from-amber-600 hover:to-orange-700"
                   >
                     <CheckCircle2 className="h-4 w-4" aria-hidden /> {t("reader.submit")}
                   </Button>
                 ) : (
                   <Button
                     onClick={nextQuestion}
-                    className="min-h-11 flex-1 gap-1.5 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 text-white hover:from-teal-600 hover:to-emerald-700"
+                    className="min-h-11 flex-1 gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md shadow-amber-500/25 hover:from-amber-600 hover:to-orange-700"
                   >
                     {t("reader.next")} <ChevronRight className="h-4 w-4" aria-hidden />
                   </Button>
@@ -529,7 +533,10 @@ export default function ReaderView({
                 {t("reader.score", { score, total: story.quiz.length })}
               </p>
               <div className="flex flex-wrap justify-center gap-2">
-                <Button variant="outline" onClick={startQuiz} className="min-h-10 gap-1.5 rounded-xl">
+                <Button
+                  onClick={startQuiz}
+                  className="min-h-10 gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md shadow-amber-500/25 hover:from-amber-600 hover:to-orange-700"
+                >
                   <RotateCcw className="h-3.5 w-3.5" aria-hidden /> {t("reader.quizAgain")}
                 </Button>
                 <Button variant="outline" onClick={onBack} className="min-h-10 gap-1.5 rounded-xl">
@@ -538,7 +545,7 @@ export default function ReaderView({
                 {onNext && (
                   <Button
                     onClick={onNext}
-                    className="min-h-10 gap-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700"
+                    className="min-h-10 gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md shadow-amber-500/25 hover:from-amber-600 hover:to-orange-700"
                   >
                     {t("reader.nextStory")} <ArrowRight className="h-4 w-4" aria-hidden />
                   </Button>
@@ -558,7 +565,7 @@ export default function ReaderView({
           <Button
             onClick={onNext}
             variant="ghost"
-            className="min-h-11 gap-1.5 rounded-xl text-primary"
+            className="min-h-11 gap-1.5 rounded-xl text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300"
           >
             {t("reader.nextStory")} <ArrowRight className="h-4 w-4" aria-hidden />
           </Button>

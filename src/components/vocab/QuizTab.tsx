@@ -165,7 +165,10 @@ export default function QuizTab({ deviceId, words, onGoWordbook }: QuizTabProps)
         />
         <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">{resultMessage}</p>
         <Separator className="w-full" />
-        <Button className="btn-shine h-11 gap-1.5 rounded-xl px-6" onClick={startQuiz}>
+        <Button
+          className="btn-shine h-11 gap-1.5 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 px-6 text-white shadow-md shadow-emerald-500/25 hover:from-emerald-600 hover:to-teal-700"
+          onClick={startQuiz}
+        >
           <RotateCcw className="h-4 w-4" aria-hidden />
           {t("quiz.retry")}
         </Button>
@@ -180,7 +183,7 @@ export default function QuizTab({ deviceId, words, onGoWordbook }: QuizTabProps)
     return (
       <article className="premium-card animate-fade-in-up space-y-4 rounded-2xl bg-card p-4 sm:p-6">
         <div className="flex items-start gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/90 to-teal-500/90 text-white shadow-md">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/90 to-teal-600/90 text-white shadow-md ring-1 ring-inset ring-white/25">
             <Target className="h-5 w-5" aria-hidden />
           </span>
           <div className="min-w-0">
@@ -200,7 +203,7 @@ export default function QuizTab({ deviceId, words, onGoWordbook }: QuizTabProps)
         </div>
 
         <Button
-          className="btn-shine h-11 w-full gap-1.5 rounded-xl sm:w-auto sm:px-6"
+          className="btn-shine h-11 w-full gap-1.5 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/25 hover:from-emerald-600 hover:to-teal-700 sm:w-auto sm:px-6"
           onClick={startQuiz}
         >
           <Play className="h-4 w-4" aria-hidden />
@@ -351,7 +354,10 @@ export default function QuizTab({ deviceId, words, onGoWordbook }: QuizTabProps)
 
         {/* Next */}
         {revealed && (
-          <Button className="btn-shine h-11 w-full gap-1.5 rounded-xl" onClick={next}>
+          <Button
+            className="btn-shine h-11 w-full gap-1.5 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/25 hover:from-emerald-600 hover:to-teal-700"
+            onClick={next}
+          >
             {isLast ? t("quiz.seeResults") : t("quiz.nextQuestion")}
             {!isLast && <ChevronRight className="h-4 w-4" aria-hidden />}
           </Button>

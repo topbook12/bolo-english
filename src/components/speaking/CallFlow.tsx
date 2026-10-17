@@ -582,7 +582,7 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
               <Button
                 size="sm"
                 onClick={retryMedia}
-                className="mt-2 min-h-11 gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 px-4 text-white hover:from-emerald-600 hover:to-teal-700"
+                className="mt-2 min-h-11 gap-1.5 bg-gradient-to-br from-rose-500 to-pink-600 px-4 text-white shadow-md shadow-rose-500/25 hover:from-rose-600 hover:to-pink-700"
               >
                 <RefreshCw className="h-3.5 w-3.5" /> {tc("retry")}
               </Button>
@@ -748,7 +748,7 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
             <Button
               onClick={runAnalysis}
               disabled={analyzing}
-              className="min-h-11 w-full gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700"
+              className="min-h-11 w-full gap-2 bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-md shadow-rose-500/25 hover:from-rose-600 hover:to-pink-700"
               size="lg"
             >
               <Sparkles className="h-5 w-5" />

@@ -286,7 +286,11 @@ export default function ListeningSection() {
               aria-selected={tab === "library"}
               variant={tab === "library" ? "default" : "ghost"}
               onClick={() => setTab("library")}
-              className="min-h-11 gap-2 rounded-xl"
+              className={cn(
+                "min-h-11 gap-2 rounded-xl",
+                tab === "library" &&
+                  "bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-md hover:from-teal-600 hover:to-emerald-700"
+              )}
             >
               <LibraryBig className="h-4.5 w-4.5" aria-hidden />
               {t("library.tab")}
@@ -302,7 +306,11 @@ export default function ListeningSection() {
               aria-selected={tab === "ai"}
               variant={tab === "ai" ? "default" : "ghost"}
               onClick={() => setTab("ai")}
-              className="min-h-11 gap-2 rounded-xl"
+              className={cn(
+                "min-h-11 gap-2 rounded-xl",
+                tab === "ai" &&
+                  "bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-md hover:from-teal-600 hover:to-emerald-700"
+              )}
             >
               <Sparkles className="h-4.5 w-4.5" aria-hidden />
               {t("library.tabAi")}
@@ -319,7 +327,11 @@ export default function ListeningSection() {
                     key={l.id}
                     variant={level === l.id ? "default" : "outline"}
                     aria-pressed={level === l.id}
-                    className="min-h-11 gap-1.5 rounded-xl px-2 text-sm"
+                    className={cn(
+                      "min-h-11 gap-1.5 rounded-xl px-2 text-sm",
+                      level === l.id &&
+                        "bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-md hover:from-teal-600 hover:to-emerald-700"
+                    )}
                     onClick={() => setLevelOverride(l.id)}
                   >
                     <Icon className="h-4 w-4" aria-hidden />
@@ -345,7 +357,7 @@ export default function ListeningSection() {
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder={t("library.search")}
                     aria-label={t("library.searchAria")}
-                    className="h-11 w-full rounded-xl border border-border/70 bg-card pl-9 pr-3 text-sm outline-none transition-shadow focus:ring-2 focus:ring-primary/30"
+                    className="h-11 w-full rounded-xl border border-border/70 bg-card pl-9 pr-3 text-sm outline-none transition-shadow focus:ring-2 focus:ring-teal-500/30"
                   />
                 </div>
                 <Badge variant="outline" className="justify-center gap-1.5 px-3 py-2 text-xs">
@@ -360,7 +372,11 @@ export default function ListeningSection() {
                   size="sm"
                   variant={category === "all" ? "default" : "outline"}
                   onClick={() => setCategory("all")}
-                  className="min-h-9 rounded-full px-3.5 text-xs"
+                  className={cn(
+                    "min-h-9 rounded-full px-3.5 text-xs",
+                    category === "all" &&
+                      "bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-md hover:from-teal-600 hover:to-emerald-700"
+                  )}
                   aria-pressed={category === "all"}
                 >
                   {t("library.all")}
@@ -371,7 +387,11 @@ export default function ListeningSection() {
                     size="sm"
                     variant={category === c ? "default" : "outline"}
                     onClick={() => setCategory(c)}
-                    className="min-h-9 rounded-full px-3.5 text-xs"
+                    className={cn(
+                      "min-h-9 rounded-full px-3.5 text-xs",
+                      category === c &&
+                        "bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-md hover:from-teal-600 hover:to-emerald-700"
+                    )}
                     aria-pressed={category === c}
                   >
                     {categoryLabel(c)}
@@ -397,7 +417,7 @@ export default function ListeningSection() {
                         className="group text-left"
                         aria-label={pickLang(s.title, locale)}
                       >
-                        <Card className="h-full rounded-2xl border-border/70 bg-card shadow-sm transition-all group-hover:-translate-y-1 group-hover:border-primary/40 group-hover:shadow-md group-active:translate-y-0">
+                        <Card className="h-full rounded-2xl border-border/70 bg-card shadow-sm transition-all group-hover:-translate-y-1 group-hover:border-teal-500/40 group-hover:shadow-md group-active:translate-y-0">
                           <CardContent className="flex h-full flex-col gap-2.5 p-4">
                             <div className="flex items-start justify-between gap-2">
                               <span
@@ -437,7 +457,7 @@ export default function ListeningSection() {
                                 {pickLang(s.summary, locale)}
                               </p>
                             </div>
-                            <span className="mt-auto inline-flex items-center gap-1 text-[11px] font-medium text-primary">
+                            <span className="mt-auto inline-flex items-center gap-1 text-[11px] font-medium text-teal-700 dark:text-teal-300">
                               <Play className="h-3 w-3 fill-current" aria-hidden />
                               {t("topicCta")}
                             </span>
@@ -524,7 +544,7 @@ export default function ListeningSection() {
                       className="group text-left"
                       aria-label={t("topicAriaLabel", { topic: label })}
                     >
-                      <Card className="h-full rounded-2xl border-border/70 bg-card shadow-sm transition-all group-hover:-translate-y-1 group-hover:border-primary/40 group-hover:shadow-md group-active:translate-y-0">
+                      <Card className="h-full rounded-2xl border-border/70 bg-card shadow-sm transition-all group-hover:-translate-y-1 group-hover:border-teal-500/40 group-hover:shadow-md group-active:translate-y-0">
                         <CardContent className="flex h-full flex-col items-center justify-center gap-2.5 p-4 text-center">
                           <span
                             className={cn(

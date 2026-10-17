@@ -117,7 +117,7 @@ export default function WordCard({ w, saved, saving, onSave }: WordCardProps) {
           </Button>
         ) : (
           <Button
-            className="h-11 flex-1 gap-1.5 rounded-xl sm:flex-none sm:px-5"
+            className="h-11 flex-1 gap-1.5 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/25 hover:from-emerald-600 hover:to-teal-700 sm:flex-none sm:px-5"
             onClick={onSave}
             disabled={saving}
             aria-label={t("word.saveAria", { word: w.word })}

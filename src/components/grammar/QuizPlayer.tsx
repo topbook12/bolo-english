@@ -267,7 +267,7 @@ export default function QuizPlayer({
             <div className="mt-2 flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
               <Button
                 onClick={() => void load()}
-                className="btn-shine min-h-11 gap-2 rounded-xl"
+                className="btn-shine min-h-11 gap-2 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-white shadow-md hover:from-orange-600 hover:to-amber-700"
                 aria-label={t("quiz.retryAria")}
               >
                 <RotateCcw className="h-4 w-4" /> {t("quiz.retry")}
@@ -359,7 +359,7 @@ export default function QuizPlayer({
                   className={cn(
                     "flex min-h-11 w-full items-center gap-3 rounded-xl border px-3.5 py-3 text-left text-sm transition-all duration-150",
                     !answered
-                      ? "border-border bg-card hover:-translate-y-px hover:border-emerald-500/50 hover:bg-emerald-500/5 hover:shadow-sm"
+                      ? "border-border bg-card hover:-translate-y-px hover:border-orange-500/50 hover:bg-orange-500/5 hover:shadow-sm"
                       : isAnswer
                         ? "border-emerald-500 bg-emerald-500/10 font-medium text-emerald-800 dark:text-emerald-300"
                         : isPicked
@@ -438,7 +438,7 @@ export default function QuizPlayer({
               <Button
                 onClick={next}
                 className={cn(
-                  "mt-1 min-h-11 w-full gap-1.5 rounded-xl sm:w-auto",
+                  "mt-1 min-h-11 w-full gap-1.5 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-white shadow-md hover:from-orange-600 hover:to-amber-700 sm:w-auto",
                   isLast && "btn-shine"
                 )}
               >

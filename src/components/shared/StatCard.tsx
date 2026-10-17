@@ -3,15 +3,16 @@
 import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
 
-// Compact stat card: icon chip + big value + label, tinted background.
+// Compact stat card: gradient icon chip + big value + label.
+// Gradient chips match SectionHeader so stats feel part of the same system.
 
 const TINTS: Record<string, string> = {
-  emerald: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300",
-  amber: "bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300",
-  rose: "bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300",
-  teal: "bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300",
-  orange: "bg-orange-50 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300",
-  violet: "bg-violet-50 text-violet-700 dark:bg-violet-950/60 dark:text-violet-300",
+  emerald: "from-emerald-500/90 to-teal-600/90 text-white",
+  amber: "from-amber-500/90 to-orange-600/90 text-white",
+  rose: "from-rose-500/90 to-pink-600/90 text-white",
+  teal: "from-teal-500/90 to-emerald-600/90 text-white",
+  orange: "from-orange-500/90 to-amber-600/90 text-white",
+  violet: "from-violet-500/90 to-purple-600/90 text-white",
 };
 
 interface StatCardProps {
@@ -38,11 +39,11 @@ export default function StatCard({
     >
       <span
         className={cn(
-          "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
+          "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br shadow-sm ring-1 ring-inset ring-white/25",
           TINTS[tint] ?? TINTS.emerald
         )}
       >
-        <Icon className="h-5 w-5" />
+        <Icon className="h-5 w-5 drop-shadow-sm" />
       </span>
       <div className="min-w-0">
         <p className="truncate text-lg font-bold leading-tight">{value}</p>

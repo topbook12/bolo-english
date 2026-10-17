@@ -2027,3 +2027,111 @@ Stage Summary:
 - Whole platform verified green end-to-end: local code quality, local DB seeds, i18n tri-locale parity, 12+ API endpoints, all 8 tabs × 3 locales × 2 viewports, production deployment, interactive save/quiz/progress loops
 - Notable non-bugs explained: lazy vocab seeding, hydration stat flash, serverless cold-start skeletons, mobile footer→bottom-nav swap
 - Platform status: 100% of implemented features work properly; nothing left broken
+
+---
+Task ID: 14-b
+Agent: grammar-listening-agent
+Task: Grammar module → orange identity + Listening module → teal consistency (Bolo Spectrum v2 CSS-class sweep)
+
+Work Log:
+- Read worklog tail + all 6 target files; confirmed --primary = oklch hue 163 (emerald-green) so every default-variant Button/tab/chip was rendering emerald; adopted the repo's established gradient-CTA convention from PathSection (bg-gradient-to-br from-X-500 to-Y-600 text-white shadow-md hover:from-X-600 hover:to-Y-700).
+- GrammarSection.tsx: SectionHeader tint emerald→orange; level radiogroup active → from-orange-500 to-amber-500 + shadow-orange-500/25 (exact task string); library-topic card icon chip emerald→orange; stale "emerald/teal accent" comment corrected. KEPT emerald: done-✓ corner badge, topicsDone StatCard; amber noKey banner untouched.
+- grammar/shared.ts (only GrammarSection consumes it — grep-verified): GROUP_ACCENT.foundation bar/chip emerald→orange so the Foundation + Library group headings follow module identity; TINT_CYCLE + ADVANCED_TINT_CYCLE topic-chip rotations left fully intact.
+- LessonView.tsx: lesson-level branding only — hero gradient from-emerald→from-orange-500/10, hero level Badge → from-orange-500 to-amber-500, roadmap Map icon + chip hover/focus-ring + arrow hover → orange-500 family, paragraph-fallback accent bar → orange, next-lesson ("পরের পাঠ") outline btn teal→orange, mark-as-read outline btn emerald→orange, start-quiz CTA → orange gradient. KEPT: v4 6-tint SECTION_TINTS rotation untouched, ExampleCard wrong→right destructive/emerald semantics, amber tips card.
+- grammar/QuizPlayer.tsx: next/see-result + retry primary CTAs → orange gradient; pre-answer option hover emerald→orange affordance. KEPT semantic emerald: correct option/chip/feedback + correct icon, trophy (completion), loggedBadge, rose wrong-review card.
+- ListeningSection.tsx: Library/AI tab active states, level filter buttons, "all"+category chips — all emerald-primary(default) active states → teal gradient (from-teal-500 to-emerald-600) via cn() on the EXISTING tab/level/category conditions (no logic change); search focus ring primary→teal-500/30; story+topic card hover border-primary→teal-500/40; card CTA text-primary→text-teal-700 dark:text-teal-300. KEPT: header tint="teal", done-✓ badge + progress CheckCircle2 emerald, episode badge teal (already), TOPICS/CATEGORY_GRADIENTS rotations, amber API-key notice.
+- listening/StoryPlayer.tsx: play/pause/resume + go-to-quiz CTAs → teal gradient; now-playing paragraph highlight border/bg primary→teal-500 + number text→teal; waveform bars bg-primary→bg-teal-500; vocab heading + summary-trigger primary→teal. KEPT: quizDone badge emerald-600 (completed), amber tip Lightbulb, teal summary box (already).
+- listening/QuizPlayer.tsx: submit/next + new-story CTAs → teal gradient; pre-answer hover primary→teal; score number + pct badge amber→teal; trophy amber/orange→teal gradient chip (ring-white/25 per Spectrum chip pattern). KEPT correct=emerald explicitly: option border/bg/text → emerald-500 (+dark variants), letter chip bg-emerald-500, feedback box/text emerald — now token-independent of --primary; wrong stays destructive.
+- Zero logic/i18n/aria-role/JSX-structure changes; dark: variants follow existing patterns; no new deps; did NOT touch shared/, AppShell, globals.css, speaking/reading/vocab (git diff confirms my 7-file footprint among the wider in-flight Spectrum diff).
+- Validation: bunx tsc --noEmit → exit 0; bunx eslint on all 7 touched files → exit 0; dev server (untouched, port 3000) serving 200s, dev.log clean; final grep audit: zero blue/indigo, all remaining emerald in grammar = semantic (correct/done) or intentional rotation, all remaining emerald in listening = completed-✓ marks.
+
+Stage Summary:
+- Grammar now reads ORANGE end-to-end: header, level control, group headings, topic/library chips, lesson hero+badges+roadmap chrome, all CTAs (start-quiz/next/retry/mark-as-read/next-lesson) — emerald survives ONLY as correct/completed semantics and the intentional palette rotations.
+- Listening now reads TEAL end-to-end: tabs, level filter, category chips, search ring, card hovers/CTAs, player play/pause/resume/go-to-quiz, quiz submit/new-story/trophy — emerald survives ONLY as done-✓/quiz-correct semantics.
+- Files: GrammarSection.tsx, ListeningSection.tsx, LessonView.tsx, grammar/QuizPlayer.tsx, grammar/shared.ts (GROUP_ACCENT only), listening/StoryPlayer.tsx, listening/QuizPlayer.tsx — class swaps only, tsc + eslint clean.
+
+---
+Task ID: 14-c
+Agent: reading-vocab-agent
+Task: Bolo Spectrum v2 sweep — Reading module → amber identity, Vocab module → emerald consistency polish
+
+Work Log:
+- Read worklog tail + shared patterns (SectionHeader/StatCard gradient-chip spec, ui/button cva: cn=tailwind-merge so conditional classes override variant) before editing.
+- ReadingSection.tsx: level selector buttons → all variant="outline" + conditional active `border-transparent bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-md shadow-amber-500/25 hover:from-amber-600 hover:to-orange-700` (aria-pressed/onClick/icon/label untouched); category chips active → same amber gradient pattern (aria-pressed preserved); search focus ring focus:ring-primary/30 → focus:ring-amber-500/40; Learning-Path unit filter chip emerald → amber tint (border-amber-500/50 bg-amber-500/10 text-amber-700 dark:text-amber-300); card hover border-primary/40 → border-amber-500/40; card "পড়ুন" CTA text-primary → text-amber-600 dark:text-amber-400; CATEGORY_GRADIENTS.work cyan → from-teal-500 to-emerald-600 (palette compliance).
+- ReaderView.tsx: back button → amber outline tint (border-amber-500/40 text-amber-700 hover:bg-amber-500/10 dark:…); hero emoji chip → to-orange-600/90 + ring-1 ring-inset ring-white/25 (gradient-chip spec); paragraph Ear TTS buttons emerald → amber (reading chrome); quiz start icon chip → amber gradient chip + ring-white/25; quiz start/submit/next/Practice-again/পরের-পাঠ CTAs → from-amber-500 to-orange-600 + shadow-md shadow-amber-500/25 (hover 600/700); question-header ListChecks icon teal → amber; bottom ghost পরের-পাঠ text-primary → amber; back-to-library stays neutral outline.
+- QUIZ DOTS DECISION: kept emerald (filled=bg-emerald-500, current=from-teal-500 to-emerald-500) — answered/progress = success semantics, matches the emerald quiz-correct feedback rendered in the very same card; amber reserved for reader CTAs.
+- KEPT EMERALD (semantic): "0/18 read" progress check badge, card "done" badge, vocab-count badge (vocab identity), vocab pills (speak + সেভ হয়েছে + BookOpenCheck header), quiz-correct feedback + answer rings, markDone check icon, quiz dots, paragraph TINTS rotation (emerald/amber/rose…), 🎉 PartyPopper amber celebration chip, translation-reveal amber button, amber help strip.
+- VocabSection.tsx: verified already on the emerald tab pattern (data-[state=active]:text-emerald-700 dark:text-emerald-300) — zero changes needed.
+- DailyWordsTab.tsx: CalendarDays chip → gradient-chip spec (from-emerald-500/90 to-teal-600/90 + shadow-md + ring-white/25); "কুইজ দাও" CTA → emerald gradient + shadow-emerald-500/25.
+- WordbookTab.tsx: AI lookup CTA → emerald gradient (module consistency over violet — it's a primary vocab CTA, decision documented); word letter-avatar chip → to-teal-600/90 + ring-white/25.
+- VocabLibraryTab.tsx: level radio + unit chips (3 spots) active → from-emerald-500 to-teal-600 + shadow-md shadow-emerald-500/25; search focus ring → focus:ring-emerald-500/40; WordDetail mark-learned CTA → emerald-600 anchor + shadow; unitLabel badge + UNIT_TINT[3] cyan → emerald/teal (palette compliance).
+- QuizTab.tsx: Target chip → to-teal-600/90 + ring-white/25; start/retry/next CTAs → emerald gradient + shadow-emerald-500/25; Trophy amber chip + emerald/rose feedback untouched.
+- ReviewDialog.tsx: reveal/remembered/close CTAs → emerald gradient + shadow-emerald-500/25; header strip + Brain chip cyan → emerald (palette compliance); gold/amber PartyPopper "golden review" moment, teal revealed-card border, rose forgot button, teal spinner all kept.
+- WordCard.tsx: save CTA → emerald gradient + shadow-emerald-500/25; saved "সেভ হয়েছে" outline stays emerald (semantic).
+- Validation: bunx tsc --noEmit → exit 0; bunx eslint on the 9 files → clean; agent-browser smoke (dev:3000): reading level selector aria-pressed=true + amber gradient computed, category chips gradient, reader back/hero/quiz-CTA amber + 6 emerald vocab pills + emerald dots, vocab daily gradient chip + "Take the quiz" + 4 emerald-gradient CTAs; zero console/page errors; dev.log clean. No restart, no commit.
+
+Stage Summary:
+- Reading is now fully amber-identified (amber→orange gradient selector/chips/CTAs, amber focus ring/hover/chrome) with emerald strictly reserved for progress/correct/saved semantics; quiz dots stay emerald by design (documented above).
+- Vocab primary CTAs + active chips + icon chips unified on the single emerald pattern (`from-emerald-500 to-teal-600` + shadow-md shadow-emerald-500/25, gradient icon chips + ring-white/25, focus rings emerald-500/40); ReviewDialog keeps its golden-review identity with emerald buttons only.
+- Cyan eliminated from all 9 owned files (blue-family palette leak); zero blue/indigo/violet in reading+vocab chrome.
+- 8 files changed (VocabSection verified, no edit needed); CSS-class-only swaps — no logic/state/i18n/a11y changes; tsc + eslint + browser smoke all green.
+
+---
+Task ID: 14-a
+Agent: speak-rose-agent
+Task: Speaking module swept to "Bolo Spectrum v2" rose identity (CSS-only class swaps, zero logic/i18n changes)
+
+Work Log:
+- Read worklog tail (tasks 11-a3b → 13) for context; confirmed shared SectionHeader/StatCard already support tint="rose" (not touched).
+- SpeakingSection.tsx (7 swaps): main SectionHeader tint emerald→rose (AI-mode header keeps amber per brief); 1:1 + group icon chips → pattern `bg-gradient-to-br from-rose-500/90 to-pink-600/90 text-white shadow-md ring-1 ring-inset ring-white/25` (group chip previously teal→cyan — cyan is off-palette, gone); primary CTAs "Find a partner"/"New room" got the exact rule-2 rose gradient string (kept btn-shine/h-11/rounded layout classes); decorative Compass (how-it-works) + Mic (mic-tip) icons emerald→rose-600/rose-400. Amber keyNote + amber AI card untouched.
+- CallFlow.tsx (2 swaps): camera-retry button + post-call "analyze" CTA — both were `bg-gradient-to-r from-emerald-500 to-teal-600` → rule-2 rose gradient (`bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-md shadow-rose-500/25 hover:from-rose-600 hover:to-pink-700`), size/padding/disabled patterns preserved.
+- CallRoom.tsx (9 swaps): talking-peer tile ring/glow emerald→rose (active state, matches existing rose LIVE badge); video name chips emerald-glass → rose-glass (`from-rose-600/90 to-pink-600/90`) + speaking glow rgba(16,185,129)→rgba(244,63,94) + ring-rose-300/80 + idle dot bg-rose-300 (white text/contrast over video unchanged); connecting spinner emerald-300→rose-300 (same lightness over dark overlay); my chat bubble → rose gradient; partner name label → rose-700/rose-400; chat send button → rule-2 rose gradient. One stale JSX comment "emerald glass"→"rose glass".
+- AiPartner.tsx (6 swaps): voice-on Volume2 icon + mic-listening active state (border/bg/text emerald-*)→rose; Raha bot avatar chips ×2 (decorative bg-emerald-100)→bg-rose-100 + dark:rose-950/rose-300; user chat bubble bg-primary→rose gradient + text-white (matches CallRoom "my messages are rose"); active topic chip bg-primary→border-rose-500 bg-rose-500 text-white; send button → rule-2 rose gradient.
+- CallAnalysisView.tsx (2 swaps): ScoreRing hero only — track stroke-emerald-100/950→rose-100/950, SVG gradient stops #10b981/#14b8a6→#f43f5e(rose-500)/#db2777(pink-600). Everything semantic kept: category chips/accents (amber/teal/orange/emerald/rose/slate), severity dots, strengths card, corrected-text emerald, vocabulary-gap emerald (matches its category color), speaker palette comment/rotation untouched.
+- Validation: bunx tsc --noEmit → 0 errors; bunx eslint on all 5 files → clean; git diff = 28 changed lines, className-only +1 JSX comment; no aria/role/sr-only/handler/state edits; dev server not restarted; no git commit.
+
+Stage Summary:
+- Speaking module now rose-branded end-to-end: menu cards/header/CTAs, call skin (tiles, chips, chat, retry/analyze CTAs), AI partner accents, analysis hero ring.
+- Intentionally kept emerald (semantic per brief): "connected/corrected" text everywhere, code-copied Check, Raha online dot, strengths card, CC toggle gradient + caption-overlay emerald-300 speaker names (functional contrast over video), score/vocab StatCard tints, mistake-category color coding, per-speaker palette rotation.
+- Kept amber (warnings/AI-partner card), kept rose-600 hangup + destructive variants, kept teal letterbox backdrop (in-palette, functional over video).
+- Files: src/components/sections/SpeakingSection.tsx (+14/-14 style lines), CallFlow.tsx (+2/-2), CallRoom.tsx (+9/-9), AiPartner.tsx (+7/-7), CallAnalysisView.tsx (+3/-3). Zero blue/indigo/cyan remains in the module.
+
+---
+Task ID: 14-d
+Agent: home-path-progress-agent
+Task: Bolo Spectrum v2 polish for Home, Path, Progress + EmptyState review (hero graphics, module-identity tint alignment)
+
+Work Log:
+- Read worklog tail (Task 13 sweep) + all 4 owned files; read shared StatCard/SectionHeader (read-only) and AppShell NAV_TINTS to copy the canonical module gradients (path/listening=teal-500→emerald-600, grammar=orange-500→amber-600, reading=amber-500→orange-600, vocab/home/progress=emerald-500→teal-600, speaking=rose-500→pink-600). Inspected globals.css cascade: .premium-card/.animate-float are UNLAYERED plain CSS, so they beat layered Tailwind utilities — used trailing `!` important on the few utilities that must win (hover border tints, animation-delay, intended amber/orange card borders). Verified in compiled dev CSS that the `!` rules are generated and applied.
+- HomeSection: hero illustration wrapped in `relative hidden shrink-0 sm:block` span (Image keeps animate-float + sizes, wrapper owns shrink-0/visibility); added 4 aria-hidden pointer-events-none decorative emoji chips anchored to the illustration box — 📖 (-top-5 -right-3, sm+, delay 1.1s), 🎙️ (top-3 -left-4, md+), 🎧 (-bottom-4 -left-4, sm+, delay 2.2s), ✨ (-right-4 bottom-2, md+, delay 3.3s) — each rounded-2xl bg-white/80 dark:bg-card/80 backdrop-blur shadow-md border-border/60, staggered via `[animation-delay:Xs]!` (bang needed: unlayered animate-float shorthand resets delay). Browser-verified diamond placement around the image at 768/1440 with ZERO intersection with h1/p/buttons (eval hit-test), 2 chips at sm, all hidden at 390 (wrapper hidden, img rect 0×0).
+- HomeSection MODULES registry aligned to module identities + `ring-1 ring-inset ring-white/25` + new `hover` field (group-hover:border-{accent}-500/40!): path teal→emerald-600 (was emerald-500), grammar orange→amber-600 (was amber/orange swapped), vocab emerald→teal-600 (was rose), listening teal→emerald-600 (was teal/cyan — cyan purged), reading amber→orange-600 (was emerald/teal), progress emerald→teal-600 (was orange); flagship speaking card chip emerald→rose/pink + rose hover border. Map cards render `${m.hover}`; SectionTitle default end-stop teal-500→teal-600, daily-vocab title chip rose→emerald (vocab identity), how-it-works chip cyan-600→emerald-600. StatCards/key banner untouched (shared/amber semantics kept).
+- PathSection: purged every cyan (off-palette blue family) → emerald: level-selector active pill (+ring-white/25), hero card to-emerald-50/emerald-950/30 wash, hero progress-bar fill, unit number circles (+ring), PhaseRow icon chip + words progress bar; Continue CTA = from-teal-500 to-emerald-600 + shadow-md shadow-teal-500/25 (verified computed oklab teal /0.25 in box-shadow) + hover to-emerald-700. Phase icon chips now carry intentional cross-module accents via a new presentational `chip` prop (words=emerald→teal-600 + emerald progress bar via `bar` prop, grammar=orange→amber-600, listening=teal→emerald-600; row chrome/CTAs stay path-teal; ReadRow amber untouched). Review + bonus golden cards: border-amber-200/70! & /60! (+dark) now actually render amber (premium-card border previously silently won the cascade); emerald completed-✓ states kept; ReviewDialog/logic untouched.
+- ProgressSection: sessions StatCard violet→teal (violet reserved for AI/settings); TYPE_TINT one-to-one violet→rose (speaking identity); KIND_TINT realigned to module identity — grammar-quiz violet→orange, listening-quiz amber→teal, reading-quiz teal→amber, vocab-quiz emerald kept, vocab-review orange kept (warm memory brand, matches Due StatCard + golden review card); practice-stats title chip violet→emerald (matches sibling trend chip, progress identity); streak hero orange border given `!` so it renders; history rows/other tints kept.
+- EmptyState: reviewed (illustration/emoji/action anatomy, animate-float, fade-in) — nothing clearly needed, left byte-identical.
+- Zero logic/hook/state/i18n changes; PhaseRow prop additions are className-only pass-throughs with teal defaults. Validation: bunx tsc --noEmit → 0 errors; bunx eslint on the 4 files → clean; dev.log tail clean; agent-browser walk at 1440/768/640/390 → no page errors, Path/Progress chips + gradients + shadows verified via computed styles; no commit, dev server untouched.
+
+Stage Summary:
+- Files: src/components/sections/HomeSection.tsx, src/components/path/PathSection.tsx, src/components/sections/ProgressSection.tsx (EmptyState reviewed, unchanged).
+- Home: 4 floating hero emoji chips (📖🎙️🎧✨) anchored to the illustration box — overlap-proof at every viewport, hydration-safe static JSX, sm/md progressive disclosure + staggered float; all 7 quick-start icon chips + hover borders now on the module palette (cyan/rose-for-vocab/progress-orange stragglers aligned).
+- Path: full teal→emerald identity (selector, hero wash, bars, circles, Continue CTA + shadow-teal-500/25); intentional phase accents words=emerald / grammar=orange / listening=teal / reading=amber; golden review + bonus cards now visibly amber-bordered; completed states stay emerald; zero cyan left.
+- Progress: emerald section identity clean — violet fully removed (sessions→teal, one-to-one→rose, grammar-quiz→orange, practice chip→emerald), listening/reading quiz tints match their modules, no blue/indigo/violet anywhere.
+- Cascade gotcha documented for future agents: globals.css custom classes are unlayered and beat Tailwind utilities — use trailing `!` on utilities that must override .premium-card borders or .animate-float's delay.
+
+---
+Task ID: 14
+Agent: main (Z.ai Code)
+Task: Owner request — "work for design and color combination very deeply" → Bolo Spectrum v2 design system
+
+Work Log:
+- Audit: 5/9 sections shared emerald, no module identity; SectionHeader/StatCard/EmptyState shared components mapped; AppShell nav uniform primary
+- Defined "Bolo Spectrum" module accent map (color = identity = memory anchor): home/vocab/progress=emerald, path+listening=teal, speaking=ROSE (new), grammar=ORANGE (new), reading=amber, settings+AI-widgets=violet; semantics fixed (emerald=success, amber=warning, red=error, violet=AI); NO blue/indigo anywhere
+- Core (main agent): SectionHeader chip ring-white/30 + taller glow; StatCard gradient chips; AppShell per-module gradient nav (desktop sidebar active = module gradient + white icon chip ring; mobile bottom nav = module tint text + soft tint pill behind icon); TABS tint maps TINT_ACTIVE/TINT_TEXT/TINT_SOFT
+- 14-a speak-rose-agent: SpeakingSection/CallFlow/CallRoom/AiPartner/CallAnalysisView → rose identity (28 swaps; ScoreRing SVG stops rose; talking-ring rose; caption contrast emerald-300 kept)
+- 14-b grammar-listening-agent: GrammarSection/LessonView/QuizPlayer → orange (level radiogroup, CTAs, hero wash, badges); ListeningSection/StoryPlayer/listening QuizPlayer → teal consistency pass; v4 rotating tint palettes untouched
+- 14-c reading-vocab-agent: ReadingSection/ReaderView → amber identity (level buttons aria-pressed preserved, quiz dots stay emerald=success); Vocab module emerald unification (8 files)
+- 14-d home-path-progress-agent: Home hero floating emoji chips (📖🎙️🎧✨, aria-hidden, pointer-events-none, hit-test verified at 4 viewports); quick-start chips aligned to module map + hover border tints; Path cyan purge → teal/emerald; Progress sessions violet→teal, one-to-one violet→rose, KIND_TINT realigned
+- Verified: bunx tsc --noEmit 0 errors; bun run lint clean; dev.log 200s only; agent-browser desktop 1440 all 9 tabs (home hero chips + gradient stats, speak rose, grammar orange + lesson v4 roadmap, listening teal, reading amber, path teal + phase color-coding, vocab emerald, progress emerald, settings violet) + mobile 390 (bottom nav per-module colors: emerald/rose/orange/amber) + bn locale + vocab save POST 200; zero console/page errors
+
+Stage Summary:
+- Every module now owns a distinct warm gradient identity that repeats in nav → header chip → ambient glow → level pills → CTAs; more graphics (floating hero chips, ring-inset gradient chips everywhere); semantic colors locked; dark variants consistent; no blue/indigo; zero logic/i18n changes
+- 27 files changed (+434/−191): 2 shared components, AppShell, 24 module files; committed and pushed for Vercel auto-deploy

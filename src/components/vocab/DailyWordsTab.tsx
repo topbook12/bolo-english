@@ -94,7 +94,7 @@ export default function DailyWordsTab({
       {/* Date strip + quiz shortcut */}
       <div className="premium-card flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-card p-4">
         <div className="flex min-w-0 items-center gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/90 to-teal-600/90 text-emerald-50 shadow-md ring-1 ring-inset ring-white/25">
             <CalendarDays className="h-5 w-5" aria-hidden />
           </span>
           <div className="min-w-0">
@@ -106,7 +106,7 @@ export default function DailyWordsTab({
         </div>
         <Button
           size="sm"
-          className="btn-shine h-11 gap-1.5 rounded-xl px-4"
+          className="btn-shine h-11 gap-1.5 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 px-4 text-white shadow-md shadow-emerald-500/25 hover:from-emerald-600 hover:to-teal-700"
           onClick={onGoQuiz}
           aria-label={t("daily.goQuizAria")}
         >

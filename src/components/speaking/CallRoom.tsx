@@ -236,7 +236,7 @@ function VideoTile({
         contain
           ? "border-border/60 bg-[radial-gradient(ellipse_at_top,rgba(13,148,136,0.16),rgba(2,8,14,0.96))]"
           : "border-border/60 bg-black/85",
-        speaking && "border-emerald-400/70 shadow-[0_0_22px_rgba(16,185,129,0.35)] ring-2 ring-emerald-400/90"
+        speaking && "border-rose-400/70 shadow-[0_0_22px_rgba(244,63,94,0.35)] ring-2 ring-rose-400/90"
       )}
     >
       <video
@@ -253,17 +253,17 @@ function VideoTile({
           mirrored && "scale-x-[-1]"
         )}
       />
-      {/* gradient name chip — emerald glass; glows while that peer speaks */}
+      {/* gradient name chip — rose glass; glows while that peer speaks */}
       <span
         className={cn(
-          "absolute bottom-2.5 left-2.5 flex max-w-[85%] items-center gap-1.5 rounded-full bg-gradient-to-r from-emerald-600/90 to-teal-600/90 px-2.5 py-1 text-[11px] font-semibold text-white shadow-md backdrop-blur-sm transition-shadow duration-300",
-          speaking && "shadow-[0_0_12px_rgba(16,185,129,0.7)] ring-1 ring-emerald-300/80"
+          "absolute bottom-2.5 left-2.5 flex max-w-[85%] items-center gap-1.5 rounded-full bg-gradient-to-r from-rose-600/90 to-pink-600/90 px-2.5 py-1 text-[11px] font-semibold text-white shadow-md backdrop-blur-sm transition-shadow duration-300",
+          speaking && "shadow-[0_0_12px_rgba(244,63,94,0.7)] ring-1 ring-rose-300/80"
         )}
       >
         <span
           className={cn(
             "h-1.5 w-1.5 shrink-0 rounded-full",
-            speaking ? "bg-white live-dot" : "bg-emerald-300 live-dot"
+            speaking ? "bg-white live-dot" : "bg-rose-300 live-dot"
           )}
         />
         <span className="truncate">
@@ -275,7 +275,7 @@ function VideoTile({
       {/* connecting overlay */}
       {isConnecting && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/65 backdrop-blur-[2px]">
-          <Loader2 className="h-7 w-7 animate-spin text-emerald-300" />
+          <Loader2 className="h-7 w-7 animate-spin text-rose-300" />
           <span className="text-sm font-medium text-white">{connectingLabel}</span>
         </div>
       )}
@@ -596,12 +596,12 @@ export default function CallRoom({
                     className={cn(
                       "max-w-[80%] px-3 py-2 text-sm shadow-sm",
                       m.mine
-                        ? "rounded-2xl rounded-br-md bg-gradient-to-br from-emerald-500 to-teal-600 text-white"
+                        ? "rounded-2xl rounded-br-md bg-gradient-to-br from-rose-500 to-pink-600 text-white"
                         : "rounded-2xl rounded-bl-md bg-muted text-foreground"
                     )}
                   >
                     {!m.mine && (
-                      <span className="mb-0.5 block text-[10px] font-semibold text-emerald-700 dark:text-emerald-400">
+                      <span className="mb-0.5 block text-[10px] font-semibold text-rose-700 dark:text-rose-400">
                         {m.speaker}
                       </span>
                     )}
@@ -622,7 +622,7 @@ export default function CallRoom({
             />
             <Button
               size="icon"
-              className="h-11 w-11 shrink-0 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
+              className="h-11 w-11 shrink-0 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-md shadow-rose-500/25 hover:from-rose-600 hover:to-pink-700"
               onClick={submitChat}
               aria-label={t("chat")}
             >

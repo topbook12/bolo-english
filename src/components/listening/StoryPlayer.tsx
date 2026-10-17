@@ -373,18 +373,18 @@ export default function StoryPlayer({
                   <Button
                     onClick={handlePlay}
                     disabled={paragraphs.length === 0}
-                    className="btn-shine min-h-11 gap-1.5 rounded-xl"
+                    className="btn-shine min-h-11 gap-1.5 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-md hover:from-teal-600 hover:to-emerald-700"
                   >
                     <Play className="h-4.5 w-4.5 fill-current" aria-hidden /> {t("listen")}
                   </Button>
                 )}
                 {speechState === "playing" && (
-                  <Button onClick={handlePause} className="min-h-11 gap-1.5 rounded-xl">
+                  <Button onClick={handlePause} className="min-h-11 gap-1.5 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-md hover:from-teal-600 hover:to-emerald-700">
                     <Pause className="h-4.5 w-4.5 fill-current" aria-hidden /> {t("pause")}
                   </Button>
                 )}
                 {speechState === "paused" && (
-                  <Button onClick={handleResume} className="min-h-11 gap-1.5 rounded-xl">
+                  <Button onClick={handleResume} className="min-h-11 gap-1.5 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-md hover:from-teal-600 hover:to-emerald-700">
                     <Play className="h-4.5 w-4.5 fill-current" aria-hidden /> {t("resume")}
                   </Button>
                 )}
@@ -424,9 +424,9 @@ export default function StoryPlayer({
             <p className="flex items-center gap-2 text-xs text-muted-foreground" aria-live="polite">
               {playing && (
                 <span className="flex items-end gap-0.5" aria-hidden>
-                  <span className="h-2.5 w-0.5 animate-pulse rounded-full bg-primary" />
-                  <span className="h-3.5 w-0.5 animate-pulse rounded-full bg-primary [animation-delay:200ms]" />
-                  <span className="h-2 w-0.5 animate-pulse rounded-full bg-primary [animation-delay:400ms]" />
+                  <span className="h-2.5 w-0.5 animate-pulse rounded-full bg-teal-500" />
+                  <span className="h-3.5 w-0.5 animate-pulse rounded-full bg-teal-500 [animation-delay:200ms]" />
+                  <span className="h-2 w-0.5 animate-pulse rounded-full bg-teal-500 [animation-delay:400ms]" />
                 </span>
               )}
               {paragraphs.length === 0
@@ -459,13 +459,13 @@ export default function StoryPlayer({
                 }}
                 className={cn(
                   "rounded-xl border p-4 transition-colors",
-                  curIdx === i ? "border-primary bg-primary/5 shadow-sm" : "border-border/60"
+                  curIdx === i ? "border-teal-500 bg-teal-500/5 shadow-sm" : "border-border/60"
                 )}
               >
                 <span
                   className={cn(
                     "mb-1.5 block text-[11px] font-medium",
-                    curIdx === i ? "text-primary" : "text-muted-foreground"
+                    curIdx === i ? "text-teal-700 dark:text-teal-300" : "text-muted-foreground"
                   )}
                 >
                   {t("paragraphN", { n: fmt(i + 1) })}
@@ -480,7 +480,7 @@ export default function StoryPlayer({
         {libraryStory && libraryStory.vocabulary.length > 0 && (
           <div className="rounded-2xl border border-border/60 bg-card p-4">
             <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-foreground">
-              <BookOpen className="h-3.5 w-3.5 text-primary" aria-hidden /> {t("vocabTitle")}
+              <BookOpen className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" aria-hidden /> {t("vocabTitle")}
             </p>
             <div className="nice-scroll max-h-64 space-y-2 overflow-y-auto pr-1">
               {libraryStory.vocabulary.map((v) => (
@@ -500,7 +500,7 @@ export default function StoryPlayer({
             <Button
               onClick={goToQuiz}
               disabled={paragraphs.length === 0}
-              className="btn-shine min-h-11 w-full gap-2 rounded-xl sm:w-auto"
+              className="btn-shine min-h-11 w-full gap-2 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-md hover:from-teal-600 hover:to-emerald-700 sm:w-auto"
             >
               <ListChecks className="h-4.5 w-4.5" aria-hidden /> {t("goToQuiz")}
             </Button>
@@ -517,7 +517,7 @@ export default function StoryPlayer({
               <Button
                 variant="ghost"
                 size="sm"
-                className="min-h-11 gap-1.5 px-3 text-primary"
+                className="min-h-11 gap-1.5 px-3 text-teal-700 dark:text-teal-300"
                 aria-expanded={summaryOpen}
               >
                 <Languages className="h-4 w-4" aria-hidden />

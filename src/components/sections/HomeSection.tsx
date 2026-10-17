@@ -54,6 +54,7 @@ const MODULES: {
   icon: LucideIcon;
   illustration: string;
   chip: string;
+  hover: string;
 }[] = [
   {
     id: "path",
@@ -61,7 +62,8 @@ const MODULES: {
     descKey: "quick.pathDesc",
     icon: Route,
     illustration: "/illustrations/ill-path.webp",
-    chip: "from-teal-500/90 to-emerald-500/90 text-white",
+    chip: "from-teal-500/90 to-emerald-600/90 text-white ring-1 ring-inset ring-white/25",
+    hover: "group-hover:border-teal-500/40!",
   },
   {
     id: "grammar",
@@ -69,7 +71,8 @@ const MODULES: {
     descKey: "quick.grammarDesc",
     icon: BookOpenText,
     illustration: "/illustrations/ill-grammar.webp",
-    chip: "from-amber-500/90 to-orange-500/90 text-white",
+    chip: "from-orange-500/90 to-amber-600/90 text-white ring-1 ring-inset ring-white/25",
+    hover: "group-hover:border-orange-500/40!",
   },
   {
     id: "vocab",
@@ -77,7 +80,8 @@ const MODULES: {
     descKey: "quick.vocabDesc",
     icon: LibraryBig,
     illustration: "/illustrations/ill-vocab.webp",
-    chip: "from-rose-500/90 to-pink-500/90 text-white",
+    chip: "from-emerald-500/90 to-teal-600/90 text-white ring-1 ring-inset ring-white/25",
+    hover: "group-hover:border-emerald-500/40!",
   },
   {
     id: "listening",
@@ -85,7 +89,8 @@ const MODULES: {
     descKey: "quick.listeningDesc",
     icon: Headphones,
     illustration: "/illustrations/ill-listening.webp",
-    chip: "from-teal-500/90 to-cyan-600/90 text-white",
+    chip: "from-teal-500/90 to-emerald-600/90 text-white ring-1 ring-inset ring-white/25",
+    hover: "group-hover:border-teal-500/40!",
   },
   {
     id: "reading",
@@ -93,7 +98,8 @@ const MODULES: {
     descKey: "quick.readingDesc",
     icon: BookOpen,
     illustration: "/illustrations/ill-reading.webp",
-    chip: "from-emerald-500/90 to-teal-600/90 text-white",
+    chip: "from-amber-500/90 to-orange-600/90 text-white ring-1 ring-inset ring-white/25",
+    hover: "group-hover:border-amber-500/40!",
   },
   {
     id: "progress",
@@ -101,7 +107,8 @@ const MODULES: {
     descKey: "quick.progressDesc",
     icon: LineChart,
     illustration: "/illustrations/ill-progress.webp",
-    chip: "from-orange-500/90 to-amber-500/90 text-white",
+    chip: "from-emerald-500/90 to-teal-600/90 text-white ring-1 ring-inset ring-white/25",
+    hover: "group-hover:border-emerald-500/40!",
   },
 ];
 
@@ -109,7 +116,7 @@ const MODULES: {
 function SectionTitle({
   icon: Icon,
   title,
-  chip = "from-emerald-500/90 to-teal-500/90",
+  chip = "from-emerald-500/90 to-teal-600/90",
 }: {
   icon: LucideIcon;
   title: string;
@@ -225,15 +232,43 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
               </Button>
             </div>
           </div>
-          <Image
-            src="/illustrations/hero-speaking.webp"
-            alt={t("hero.alt")}
-            width={960}
-            height={549}
-            priority
-            sizes="(max-width: 640px) 0px, 288px"
-            className="animate-float hidden w-44 shrink-0 object-contain drop-shadow-md sm:block md:w-52 lg:w-64 xl:w-72"
-          />
+          <span className="relative hidden shrink-0 sm:block">
+            <Image
+              src="/illustrations/hero-speaking.webp"
+              alt={t("hero.alt")}
+              width={960}
+              height={549}
+              priority
+              sizes="(max-width: 640px) 0px, 288px"
+              className="animate-float w-44 object-contain drop-shadow-md md:w-52 lg:w-64 xl:w-72"
+            />
+            {/* Floating decorative chips — pure presentational, anchored to
+                the illustration box so they can never overlap copy/CTAs. */}
+            <span
+              aria-hidden="true"
+              className="animate-float pointer-events-none absolute -top-5 -right-3 hidden h-9 w-9 select-none items-center justify-center rounded-2xl border border-border/60 bg-white/80 text-base shadow-md backdrop-blur [animation-delay:1.1s]! sm:flex dark:bg-card/80"
+            >
+              📖
+            </span>
+            <span
+              aria-hidden="true"
+              className="animate-float pointer-events-none absolute top-3 -left-4 hidden h-9 w-9 select-none items-center justify-center rounded-2xl border border-border/60 bg-white/80 text-base shadow-md backdrop-blur md:flex dark:bg-card/80"
+            >
+              🎙️
+            </span>
+            <span
+              aria-hidden="true"
+              className="animate-float pointer-events-none absolute -bottom-4 -left-4 hidden h-9 w-9 select-none items-center justify-center rounded-2xl border border-border/60 bg-white/80 text-base shadow-md backdrop-blur [animation-delay:2.2s]! sm:flex dark:bg-card/80"
+            >
+              🎧
+            </span>
+            <span
+              aria-hidden="true"
+              className="animate-float pointer-events-none absolute -right-4 bottom-2 hidden h-9 w-9 select-none items-center justify-center rounded-2xl border border-border/60 bg-white/80 text-base shadow-md backdrop-blur [animation-delay:3.3s]! md:flex dark:bg-card/80"
+            >
+              ✨
+            </span>
+          </span>
         </div>
       </section>
 
@@ -305,11 +340,11 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
             className="group col-span-2 text-left xl:row-span-2"
             aria-label={t("quick.open", { name: t("quick.speakingTitle") })}
           >
-            <Card className="premium-card relative h-full overflow-hidden rounded-2xl bg-card">
+            <Card className="premium-card group-hover:border-rose-500/40! relative h-full overflow-hidden rounded-2xl bg-card">
               <CardContent className="flex h-full items-center gap-4 p-5 sm:p-6 xl:p-7">
                 <div className="flex min-w-0 flex-1 flex-col">
                   <span className="inline-flex items-center gap-2">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/90 to-teal-500/90 text-white shadow-sm">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500/90 to-pink-600/90 text-white shadow-sm ring-1 ring-inset ring-white/25">
                       <MessagesSquare className="h-5 w-5" />
                     </span>
                     <span className="text-lg font-bold tracking-tight sm:text-xl">
@@ -343,7 +378,7 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
               className="group text-left"
               aria-label={t("quick.open", { name: t(m.titleKey) })}
             >
-              <Card className="premium-card h-full rounded-2xl bg-card">
+              <Card className={`premium-card h-full rounded-2xl bg-card ${m.hover}`}>
                 <CardContent className="flex h-full flex-col gap-2.5 p-4 lg:p-5">
                   <span className="flex items-start justify-between gap-2">
                     <span
@@ -420,7 +455,7 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
       {/* Daily vocabulary preview */}
       <section aria-label={t("daily.title")} className="space-y-3">
         <div className="flex items-center justify-between gap-2">
-          <SectionTitle icon={LibraryBig} title={t("daily.title")} chip="from-rose-500/90 to-pink-500/90" />
+          <SectionTitle icon={LibraryBig} title={t("daily.title")} chip="from-emerald-500/90 to-teal-600/90" />
           <Button
             variant="ghost"
             size="sm"
@@ -473,7 +508,7 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
 
       {/* How it works */}
       <section aria-label={t("how.title")} className="space-y-3">
-        <SectionTitle icon={Volume2} title={t("how.title")} chip="from-teal-500/90 to-cyan-600/90" />
+        <SectionTitle icon={Volume2} title={t("how.title")} chip="from-teal-500/90 to-emerald-600/90" />
         <Card className="premium-card rounded-2xl bg-card">
           <CardContent className="p-5 sm:p-6 lg:p-7">
             <p className="mb-3 text-sm text-muted-foreground">{t("how.subtitle")}</p>

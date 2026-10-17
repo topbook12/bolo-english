@@ -72,7 +72,7 @@ const GENRE_META: Record<string, { emoji: string; gradient: string }> = {
 const CATEGORY_GRADIENTS: Record<string, string> = {
   daily: "from-emerald-500 to-teal-500",
   travel: "from-amber-500 to-orange-500",
-  work: "from-teal-500 to-cyan-600",
+  work: "from-teal-500 to-emerald-600",
   culture: "from-rose-500 to-pink-500",
   science: "from-orange-500 to-amber-600",
   inspire: "from-rose-500 to-orange-500",
@@ -300,12 +300,17 @@ export default function ReadingSection() {
         <div className="grid max-w-xl grid-cols-3 gap-2" role="group" aria-label={t("library.levelAria")}>
           {LEVELS.map((l) => {
             const Icon = LEVEL_ICONS[l];
+            const active = effectiveLevel === l;
             return (
               <Button
                 key={l}
-                variant={effectiveLevel === l ? "default" : "outline"}
-                aria-pressed={effectiveLevel === l}
-                className="min-h-11 gap-1.5 rounded-xl px-2 text-sm"
+                variant="outline"
+                aria-pressed={active}
+                className={cn(
+                  "min-h-11 gap-1.5 rounded-xl px-2 text-sm",
+                  active &&
+                    "border-transparent bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-md shadow-amber-500/25 hover:from-amber-600 hover:to-orange-700"
+                )}
                 onClick={() => setLevel(l)}
               >
                 <Icon className="h-4 w-4" aria-hidden />
@@ -328,7 +333,7 @@ export default function ReadingSection() {
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t("library.search")}
             aria-label={t("library.searchAria")}
-            className="h-11 w-full rounded-xl border border-border/70 bg-card pl-9 pr-3 text-sm outline-none transition-shadow focus:ring-2 focus:ring-primary/30"
+            className="h-11 w-full rounded-xl border border-border/70 bg-card pl-9 pr-3 text-sm outline-none transition-shadow focus:ring-2 focus:ring-amber-500/40"
           />
         </div>
         <Badge variant="outline" className="justify-center gap-1.5 px-3 py-2 text-xs">
@@ -343,9 +348,13 @@ export default function ReadingSection() {
           <Button
             key={c}
             size="sm"
-            variant={category === c ? "default" : "outline"}
+            variant="outline"
             onClick={() => setCategory(c)}
-            className="min-h-9 rounded-full px-3.5 text-xs"
+            className={cn(
+              "min-h-9 rounded-full px-3.5 text-xs",
+              category === c &&
+                "border-transparent bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-md shadow-amber-500/25 hover:from-amber-600 hover:to-orange-700"
+            )}
             aria-pressed={category === c}
           >
             {c === "all" ? t("library.all") : t(`categories.${c}`)}
@@ -357,7 +366,7 @@ export default function ReadingSection() {
             variant="outline"
             onClick={() => setUnitIntent(null)}
             aria-label={t("library.unitFilterAria")}
-            className="min-h-9 gap-1.5 rounded-full border-emerald-500/50 bg-emerald-500/10 px-3.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-500/20 dark:text-emerald-300"
+            className="min-h-9 gap-1.5 rounded-full border-amber-500/50 bg-amber-500/10 px-3.5 text-xs font-semibold text-amber-700 hover:bg-amber-500/20 dark:text-amber-300"
           >
             📖 {unitIntent > 0 ? t("library.unitFilter", { n: unitIntent }) : t("library.bonusChip")}
             <X className="h-3 w-3" aria-hidden />
@@ -391,7 +400,7 @@ export default function ReadingSection() {
                   className="group text-left"
                   aria-label={pickTri(s.title, locale)}
                 >
-                  <Card className="h-full overflow-hidden rounded-2xl border-border/70 bg-card shadow-sm transition-all group-hover:-translate-y-1 group-hover:border-primary/40 group-hover:shadow-md group-active:translate-y-0">
+                  <Card className="h-full overflow-hidden rounded-2xl border-border/70 bg-card shadow-sm transition-all group-hover:-translate-y-1 group-hover:border-amber-500/40 group-hover:shadow-md group-active:translate-y-0">
                     {/* level-tinted strip — the level is visible at a glance */}
                     <div
                       className={cn(
@@ -442,7 +451,7 @@ export default function ReadingSection() {
                         </p>
                       </div>
                       <div className="mt-auto flex items-center justify-between gap-1.5">
-                        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-primary">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-600 dark:text-amber-400">
                           <Play className="h-3 w-3 fill-current" aria-hidden />
                           {t("library.readCta")}
                         </span>

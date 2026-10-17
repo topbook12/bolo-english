@@ -242,7 +242,7 @@ export default function GrammarSection() {
         icon={BookOpenText}
         title={t("title")}
         subtitle={t("subtitle")}
-        tint="emerald"
+        tint="orange"
       />
 
       {/* Key notice — soft banner above the grid (topics remain browsable) */}
@@ -280,7 +280,7 @@ export default function GrammarSection() {
             className={cn(
               "min-h-11 flex-1 rounded-xl px-2 text-sm font-semibold transition-all duration-200",
               level === lv
-                ? "bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-md"
+                ? "bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/25"
                 : "text-muted-foreground hover:bg-background/60 hover:text-foreground"
             )}
           >
@@ -365,7 +365,7 @@ export default function GrammarSection() {
         })}
 
         {/* Owner-authored topics outside the static curriculum — same card
-            markup, emerald/teal accent (GROUP_ACCENT.foundation), DB title. */}
+            markup, orange/amber accent (GROUP_ACCENT.foundation), DB title. */}
         {libraryTopics.length > 0 && (
           <div className="animate-fade-in-up-1">
             <div className="mb-2.5 flex items-center gap-2.5">
@@ -398,7 +398,7 @@ export default function GrammarSection() {
                   aria-label={t("openTopic", { topic: meta.title })}
                 >
                   <div className="premium-card h-full rounded-2xl bg-card p-4">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-sm">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-sm">
                       <BookOpenText className="h-5 w-5" aria-hidden />
                     </span>
                     <span className="mt-2.5 block text-sm font-semibold leading-snug">
