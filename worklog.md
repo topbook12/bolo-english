@@ -1991,3 +1991,18 @@ Work Log:
 Stage Summary:
 - All 10 owner points addressed: subtitles responsive everywhere + CC toggle; call skin correct mobile/laptop; 1:1 & group hardened; analysis is now a deep categorized coach with trend awareness; reading library live (18 passages) with graphics + full loop into progress/vocab; vocab review loop unified; bn/en/hi parity + wrappers verified programmatically; site-wide gaps (7 broken loops) fixed
 - Known limits: in-call skin verified via pre-call screens + code review (headless has no camera); Web Speech captions need Chrome (banner guides Firefox/iOS users to chat)
+
+---
+Task ID: 12-fix
+Agent: main (Z.ai Code)
+Task: Production reading API 503 — LibraryReading table missing on Turso
+
+Work Log:
+- Probed production: page 200, grammar/vocab/progress/storage OK, kind=reading → 503 dbConnectFailed
+- Root cause: ensureTables() short-circuits when its probe (TurnKey + LibraryVocab) finds tables — production DB predating Task 11 never ran the DDL batch, so LibraryReading did not exist and findMany threw
+- Fix: tablesExist() now also probes LibraryReading (idempotent CREATE IF NOT EXISTS batch then runs once)
+- Verified locally by dropping db/custom.db LibraryReading + clearing the reading_v1 marker → first API hit recreated table, seeded 18, returned 18
+- Committed 65028c3, pushed; production /api/library?kind=reading → ok:true items:18; vocab 180, grammar 50, listening 23 all OK
+
+Stage Summary:
+- Production fully live: all 4 library kinds seeded and served, 271 content rows total; reading loop (18 passages → quiz → progress → wordbook → review) works end-to-end
