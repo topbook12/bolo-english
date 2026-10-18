@@ -29,6 +29,7 @@ import { useDevice } from "@/hooks/use-device";
 import { useToast } from "@/hooks/use-toast";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import { callAi } from "@/lib/client-api";
+import { VoiceEq } from "@/components/speaking/CallAvatar";
 import type { ChatPartnerReply, CallAnalysis, TranscriptLine, CorrectionItem } from "@/lib/types";
 
 interface Msg {
@@ -59,13 +60,18 @@ function cancelSpeech() {
 }
 
 // English TTS for Raha's replies — en-US voice preferred, slightly slow for learners.
-function speakEnglish(text: string) {
+// onStart/onEnd let the header swap the status dot for the native-call
+// voice equalizer while she is actually talking.
+function speakEnglish(text: string, opts?: { onStart?: () => void; onEnd?: () => void }) {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
   const synth = window.speechSynthesis;
   synth.cancel();
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = "en-US";
   utter.rate = 0.95;
+  utter.onstart = () => opts?.onStart?.();
+  utter.onend = () => opts?.onEnd?.();
+  utter.onerror = () => opts?.onEnd?.();
   const list = synth.getVoices();
   const enUs = list.find((v) => v.lang?.toLowerCase().replace("_", "-") === "en-us");
   const en = list.find((v) => v.lang?.toLowerCase().startsWith("en"));
@@ -87,6 +93,7 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
   const [analyzing, setAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<CallAnalysis | null>(null);
   const [voiceOn, setVoiceOn] = useState(true);
+  const [ttsSpeaking, setTtsSpeaking] = useState(false);
   const { toast } = useToast();
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -148,7 +155,10 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
         },
       ]);
       if (voiceOn) {
-        speakEnglish(reply.followUp ? `${reply.reply} ${reply.followUp}` : reply.reply);
+        speakEnglish(reply.followUp ? `${reply.reply} ${reply.followUp}` : reply.reply, {
+          onStart: () => setTtsSpeaking(true),
+          onEnd: () => setTtsSpeaking(false),
+        });
       }
     } catch (e) {
       toast({ title: t("partner.aiError"), description: (e as Error).message, variant: "destructive" });
@@ -165,7 +175,10 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
     } catch {
       /* private mode */
     }
-    if (!next) cancelSpeech();
+    if (!next) {
+      cancelSpeech();
+      setTtsSpeaking(false);
+    }
   };
 
   const finishAndAnalyze = async () => {
@@ -260,7 +273,21 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
             <div className="min-w-0">
               <p className="flex items-center gap-1.5 truncate text-sm font-semibold">
                 {t("partner.name")}
-                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden="true" />
+                {/* native-call presence: pulsing while thinking, voice bars
+                    while she speaks TTS, calm green when idle */}
+                {busy ? (
+                  <span
+                    className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-amber-400"
+                    aria-hidden="true"
+                  />
+                ) : ttsSpeaking ? (
+                  <VoiceEq className="text-amber-500" />
+                ) : (
+                  <span
+                    className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500"
+                    aria-hidden="true"
+                  />
+                )}
               </p>
               <p className="truncate text-[11px] text-muted-foreground">{t("partner.role")}</p>
             </div>
