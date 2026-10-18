@@ -21,6 +21,7 @@ import {
   SignalHigh,
   SignalMedium,
   SignalLow,
+  Gauge,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -378,6 +379,9 @@ interface CallRoomProps {
   durationLabel: string;
   transcriptCount: number;
   reconnecting?: boolean;
+  /** My OWN link is metered-slow (NetworkInformation API) — amber chip so the
+   *  user knows stutters come from THEIR side, not the partner's. */
+  netSlow?: boolean;
   /** Camera could not be opened (mic fine) — the call continues audio-only;
    *  shows the amber note chip and forces the avatar fallback on our tile. */
   audioOnly?: boolean;
@@ -411,6 +415,7 @@ export default function CallRoom({
   durationLabel,
   transcriptCount,
   reconnecting,
+  netSlow,
   audioOnly,
   showShareHint,
   captions,
@@ -538,6 +543,14 @@ export default function CallRoom({
             {reconnecting && (
               <span className="call-glass inline-flex animate-pulse items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold text-amber-200">
                 <WifiOff className="h-3 w-3" /> {t("reconnecting")}
+              </span>
+            )}
+            {netSlow && (
+              <span
+                className="call-glass inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold text-amber-200"
+                title={t("selfNetSlow")}
+              >
+                <Gauge className="h-3 w-3 shrink-0" aria-hidden /> {t("selfNetSlow")}
               </span>
             )}
             {audioOnly && (

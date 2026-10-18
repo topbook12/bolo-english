@@ -19,6 +19,11 @@ export interface RemotePeer {
 
 export type OutgoingSignalType = "offer" | "answer" | "ice";
 
+/** My OWN link health, from the NetworkInformation API (+ offline/online).
+ *  "good" = fine/unknown — "slow"/"offline" shows an amber chip on the
+ *  call stage while it lasts. */
+export type SelfNetState = "good" | "slow" | "offline";
+
 export interface UseWebRTCOpts {
   /** Transport bridge — wire payload is the raw data; CallFlow wraps it into
    *  the {offer|answer|ice} envelope via CallClient.send(type, …). */
@@ -102,6 +107,8 @@ export function useWebRTC({ onSendSignal, getMyId, getIceContext }: UseWebRTCOpt
   /** Camera could not be opened but the mic works — the call continues
    *  audio-only (audit P2-9) instead of blocking the conversation. */
   const [audioOnly, setAudioOnly] = useState(false);
+  /** My own link health — drives the amber "your network is slow" chip. */
+  const [selfNet, setSelfNet] = useState<SelfNetState>("good");
 
   const localStreamRef = useRef<MediaStream | null>(null);
   // In-flight getUserMedia promise — initLocal is safe to call concurrently
@@ -134,6 +141,41 @@ export function useWebRTC({ onSendSignal, getMyId, getIceContext }: UseWebRTCOpt
     getMyIdRef.current = getMyId;
     getIceContextRef.current = getIceContext;
   });
+
+  /* ── my own link health (NetworkInformation API, best-effort) ──
+   * The quality badge watches the REMOTE side of each link; this watches MY
+   * side (the user asked to see connection trouble from both ends). 2G class
+   * links, tiny downlink, huge RTT, or a dropped connection all surface as
+   * "slow"/"offline" instantly — no 4s sampler wait needed. */
+  const readNet = useCallback((): SelfNetState => {
+    if (typeof navigator === "undefined") return "good";
+    if (navigator.onLine === false) return "offline";
+    const conn = (navigator as Navigator & {
+      connection?: { effectiveType?: string; downlink?: number; rtt?: number };
+    }).connection;
+    if (conn) {
+      if (conn.effectiveType === "slow-2g" || conn.effectiveType === "2g") return "slow";
+      if (typeof conn.downlink === "number" && conn.downlink > 0 && conn.downlink < 0.5) return "slow";
+      if (typeof conn.rtt === "number" && conn.rtt > 900) return "slow";
+    }
+    return "good";
+  }, []);
+
+  useEffect(() => {
+    const apply = () => setSelfNet(readNet());
+    apply();
+    window.addEventListener("online", apply);
+    window.addEventListener("offline", apply);
+    const conn = (navigator as Navigator & {
+      connection?: EventTarget;
+    }).connection;
+    conn?.addEventListener?.("change", apply);
+    return () => {
+      window.removeEventListener("online", apply);
+      window.removeEventListener("offline", apply);
+      conn?.removeEventListener?.("change", apply);
+    };
+  }, [readNet]);
 
   /* ── local media ── */
   const initLocal = useCallback(async () => {
@@ -285,6 +327,23 @@ export function useWebRTC({ onSendSignal, getMyId, getIceContext }: UseWebRTCOpt
     },
     []
   );
+
+  /* ── network came back → recover every ailing link NOW ──
+   * The watchdog nudges stuck peers every 4s, but when the user's own wifi
+   * drops and returns, every PC sits "failed"/"disconnected" — waiting for
+   * the next tick wastes seconds. The online event fires the recovery ladder
+   * immediately (it stays throttled per peer, so double-firing is safe). */
+  useEffect(() => {
+    const onOnline = () => {
+      for (const [peerId, pc] of Array.from(pcsRef.current.entries())) {
+        if (pc.connectionState === "failed" || pc.connectionState === "disconnected") {
+          recoverPeer(peerId, pc);
+        }
+      }
+    };
+    window.addEventListener("online", onOnline);
+    return () => window.removeEventListener("online", onOnline);
+  }, [recoverPeer]);
 
   const ensurePC = useCallback(
     async (peerId: string): Promise<RTCPeerConnection> => {
@@ -660,6 +719,7 @@ export function useWebRTC({ onSendSignal, getMyId, getIceContext }: UseWebRTCOpt
     remotePeers,
     mediaError,
     audioOnly,
+    selfNet,
     initLocal,
     handleRoomState,
     handleSignal,

@@ -2384,3 +2384,30 @@ Work Log (18-b — server hygiene + tokens):
 Stage Summary:
 - Every actionable P2 from the Task-16 audit is now closed (P2-6 long-poll stays optional-by-design; P2-14 was an ops note; security P2-12 auth nits remain owner-policy decisions). Loose connections are now VISIBLE (signal badge) and self-heal (sustained-poor → ICE restart); a dead camera no longer blocks a call (audio-only); stalled media re-arms itself; oversized SDP fails loudly; join is rate-limited.
 - 18-c (parallel design agent) + 18-a/18-b committed together.
+---
+Task ID: 19
+Agent: main (Z.ai Code)
+Task: User request (Bengali): "সাথে যখন অনেকে কথা বলবে ওয়ান টু ওয়ান কনভারসেসনে তখনই যাতে কোন ধরনের সমস্যা না হয়… একজনের সাথে আরেকজনের কানেকশন এর বিষয়গুলো এগুলোর একটু ভালোভাবে লক্ষ্য করুন" — make peer-to-peer connection reliability & visibility bulletproof for BOTH 1:1 and group conversations.
+
+Work Log:
+- Full re-audit of the call stack (use-webrtc.ts, call-client.ts, CallFlow/CallRoom/CallAvatar, api/call/{join,poll,send,leave,ice}, lib/signaling.ts) — infra already had ICE-restart ladder, stuck watchdog, getStats quality sampler, TURN pool. Found 4 UX gaps + 1 REAL pre-existing bug.
+- use-webrtc.ts: NEW selfNet state (SelfNetState "good"|"slow"|"offline") from NetworkInformation API (effectiveType 2g/slow-2g, downlink<0.5, rtt>900) + offline/online listeners → exported; NEW online-event recovery effect: when the user's own wifi returns, every failed/disconnected PC immediately enters the ICE-restart ladder (no 4s watchdog wait); placed AFTER recoverPeer definition to avoid TDZ.
+- CallRoom.tsx: new netSlow prop → amber glass chip (Gauge icon) "Your network is slow — video may stutter" so stutters from the USER's own side are distinguishable from the partner's.
+- CallFlow.tsx: peer-connection experience effect — (a) FIRST remote peer to reach connected raises the "Partner connected — start talking! 🎙️" toast once per call; (b) peer quality transitions poor→ONE toast per episode + recovery toast when back to fair/good (Map-tracked, badge stays as the permanent indicator). REAL BUG FIXED: "{name} left the call" toast was silently skipped whenever the bye arrived in the same poll as the roster change — onPeers rebuilds peerNamesRef from the CURRENT roster, erasing the leaver's name before the bye handler looked it up (verified via DB: bye row existed, toast never fired). Fix: peerNamesEverRef never-pruned name cache consulted as fallback.
+- i18n: 4 new call.* keys × bn/en/hi (peerNetPoor, peerNetOk, peerConnected, selfNetSlow) — parity 79/79/79, {name}/{count} placeholders consistent.
+- VERIFICATION — REAL two-browser P2P (agent-browser --session call-a / call-b, isolated profiles, canvas-captureStream media patches):
+  • 1:1 quick match: A dialer → B joins → both auto-enter; BOTH videos readyState 4 640×480 playing (real P2P mesh via host candidates), mirrored self tile, "2 in call", peer-suffix names (Student #0c/#38).
+  • getStats quality badge appeared on remote tile: "Connection quality: good" (emerald).
+  • netSlow chip: simulated navigator.connection={effectiveType:'2g'} + online event → amber "Your network is slow" chip VISIBLE; restored 4g → chip cleared.
+  • 1:1 leave: B ends → A tile removed + auto-end → ended screen ("Call again").
+  • MutationObserver toast capture (conclusive): "Room created/Code…", "Student #6d Connecting…", "Partner connected — start talking! 🎙️".
+  • Group: A new room 4FLG2K/amber share banner; B joins by code → 2 tiles, roster "2 in call"; DB shows full signaling dance (offer→ICE→answer→ICE) + chat row.
+  • Group chat B→A: message delivered, unread badge "1" on A, panel shows it.
+  • BYE-TOAST BUG: reproduced (toast missing with bye row present in DB) → fixed with peerNamesEverRef → re-verified live: "Student #8f left the call" now captured.
+  • Mobile 390×844 dialer screenshot: ripple rings + glass tips + red cancel — native-dialer aesthetic intact.
+  • Site sweep: all 9 tabs render, Grammar topic→quiz opens, 0 alerts; closed both sessions; DB QA rooms/signals deleted (0 remaining).
+- tsc 0 errors; eslint clean; dev.log clean.
+
+Stage Summary:
+- The connection between two people is now fully VISIBLE and self-healing on both ends: partner's side (quality badge + poor/recovered toasts + first-connect confirmation) and user's own side (NetworkInformation slow-net chip + instant ICE recovery on wifi return). Fixed a real pre-existing bug where the "partner left" toast was silently dropped due to a roster/name-map race.
+- Files: src/hooks/use-webrtc.ts, src/components/speaking/CallFlow.tsx, src/components/speaking/CallRoom.tsx, messages/sections/call.{en,bn,hi}.json.

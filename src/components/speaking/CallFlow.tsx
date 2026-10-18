@@ -148,6 +148,12 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
   const [unreadChat, setUnreadChat] = useState(0);
   const [chatMessages, setChatMessages] = useState<{ speaker: string; text: string; mine: boolean }[]>([]);
   const peerNamesRef = useRef<Map<string, string>>(new Map());
+  // Names of EVERY peer ever seen in this room. The roster map above is
+  // rebuilt on every roster change — a "bye" processed in the same poll as
+  // the departure used to find no name and silently skip the
+  // "{name} left the call" toast. This cache never prunes, so the goodbye
+  // always knows who left.
+  const peerNamesEverRef = useRef<Map<string, string>>(new Map());
   const enteredRef = useRef(false);
 
   // ended / analysis
@@ -298,14 +304,16 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
       // remember my signaling identity — captions/transcript lines carry it
       myPeerIdRef.current = result.peerId;
       setMyPeerId(result.peerId);
-      peerNamesRef.current = new Map(
-        result.peers.map((p) => [p.peerId, peerDisplayName(p.peerId, p.name)])
-      );
+      // build the current-roster name map AND remember every name forever
+      const buildNames = (peers: { peerId: string; name: string }[]) => {
+        const m = new Map(peers.map((p) => [p.peerId, peerDisplayName(p.peerId, p.name)]));
+        for (const [k, v] of m) peerNamesEverRef.current.set(k, v);
+        return m;
+      };
+      peerNamesRef.current = buildNames(result.peers);
 
       client.onPeers((peers) => {
-        peerNamesRef.current = new Map(
-          peers.map((p) => [p.peerId, peerDisplayName(p.peerId, p.name)])
-        );
+        peerNamesRef.current = buildNames(peers);
         webrtc.handleRoomState(
           peers.map((p) => ({ id: p.peerId, name: peerDisplayName(p.peerId, p.name) }))
         );
@@ -317,7 +325,8 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
 
       client.onMessage((m) => {
         if (m.type === "bye") {
-          const nm = peerNamesRef.current.get(m.from);
+          const nm =
+            peerNamesRef.current.get(m.from) ?? peerNamesEverRef.current.get(m.from);
           if (nm) toast({ title: t("peerLeft", { name: nm }) });
           webrtc.handleBye(m.from);
           return;
@@ -469,6 +478,41 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
       cleanupRef.current();
     };
   }, []);
+
+  /* ── peer connection experience (user request: "একজনের সাথে আরেকজনের
+   * কানেকশন এর বিষয়গুলো ভালোভাবে লক্ষ্য করুন") ──
+   * 1. The FIRST remote peer to reach "connected" gets a spoken-feel
+   *    confirmation toast — the dialer's "call connected" moment.
+   * 2. A peer whose sampled quality degrades to "poor" raises ONE toast per
+   *    poor-episode ("Rahim-এর নেটওয়ার্ক দুর্বল…"), and a recovery toast
+   *    when their link returns to fair/good. The tiny signal badge on the
+   *    tile stays as the permanent indicator; toasts only mark transitions. */
+  const peerPoorRef = useRef<Map<string, boolean>>(new Map());
+  const connectedToastRef = useRef(false);
+  useEffect(() => {
+    for (const p of webrtc.remotePeers) {
+      // first successful peer link of this call → "connected" moment
+      if (
+        p.connectionState === "connected" &&
+        !connectedToastRef.current &&
+        modeRef.current === "call"
+      ) {
+        connectedToastRef.current = true;
+        toast({ title: t("peerConnected") });
+      }
+      // quality transitions → one toast per episode, never spam
+      if (p.quality === "poor" && !peerPoorRef.current.get(p.id)) {
+        peerPoorRef.current.set(p.id, true);
+        toast({ title: t("peerNetPoor", { name: p.name }) });
+      } else if (
+        (p.quality === "good" || p.quality === "fair") &&
+        peerPoorRef.current.get(p.id)
+      ) {
+        peerPoorRef.current.set(p.id, false);
+        toast({ title: t("peerNetOk", { name: p.name }) });
+      }
+    }
+  }, [webrtc.remotePeers, toast, t]);
 
   /* ── timers ── */
   useEffect(() => {
@@ -736,6 +780,7 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
           durationLabel={mmss}
           transcriptCount={transcriptCount}
           reconnecting={connectionIssue}
+          netSlow={webrtc.selfNet === "slow"}
           audioOnly={webrtc.audioOnly}
           showShareHint={intent !== "one"}
           captions={captions.filter((c) => c.final)}
