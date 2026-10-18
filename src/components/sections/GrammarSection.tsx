@@ -388,7 +388,7 @@ export default function GrammarSection() {
                 {fmt(libraryTopics.length)}
               </span>
             </div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            <div className="stagger-grid grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {libraryTopics.map((meta) => (
                 <button
                   key={meta.id}
@@ -398,7 +398,7 @@ export default function GrammarSection() {
                   aria-label={t("openTopic", { topic: meta.title })}
                 >
                   <div className="premium-card h-full rounded-2xl bg-card p-4">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-sm">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-sm shadow-orange-500/30 transition-transform duration-200 group-hover:scale-105 dark:shadow-orange-500/20">
                       <BookOpenText className="h-5 w-5" aria-hidden />
                     </span>
                     <span className="mt-2.5 block text-sm font-semibold leading-snug">
@@ -432,7 +432,7 @@ function TopicGrid({
 }) {
   const t = useTranslations("grammar");
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+    <div className="stagger-grid grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
       {topics.map((topic) => {
         const name = t(`topics.${topic.key}.name`);
         const done = doneTopics.includes(topic.topic);
@@ -447,7 +447,7 @@ function TopicGrid({
             <div className="premium-card h-full rounded-2xl bg-card p-4">
               <span
                 className={cn(
-                  "flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-sm",
+                  "flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-sm transition-transform duration-200 group-hover:scale-105",
                   topic.tint
                 )}
               >

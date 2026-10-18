@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { appendSignalMessage, parseParticipants } from "@/lib/signaling";
+import { appendSignalMessage, parseParticipants, MAX_MESSAGE_BYTES } from "@/lib/signaling";
 import { reqLocale, apiMsg } from "@/lib/api-i18n";
 
 // POST /api/call/send  { roomId, peerId, to?, type, payload }
@@ -30,6 +30,13 @@ export async function POST(req: NextRequest) {
   const participants = parseParticipants(room.participants);
   if (!participants.some((p) => p.peerId === peerId)) {
     return NextResponse.json({ ok: false, error: apiMsg(locale, "notInRoom") }, { status: 403 });
+  }
+
+  // Audit P2-8: an oversized SDP used to be silently dropped with ok:true —
+  // the sender believed the offer was delivered and only the 12s watchdog
+  // could save the call. Fail loudly so the client's backoff reacts.
+  if (JSON.stringify(payload ?? {}).length > MAX_MESSAGE_BYTES) {
+    return NextResponse.json({ ok: false, error: apiMsg(locale, "paramsRequired") }, { status: 413 });
   }
 
   await appendSignalMessage(roomId, peerId, typeof to === "string" ? to : null, type, payload);

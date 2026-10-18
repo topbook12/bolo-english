@@ -288,7 +288,7 @@ export default function ProgressSection() {
         </Card>
 
         {/* ── stats row ── */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="stagger-grid grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatCard icon={MessagesSquare} value={data?.totalSessions ?? 0} label={t("stats.sessions")} tint="teal" />
           <StatCard icon={Clock3} value={t("stats.minutesValue", { n: data?.totalMinutes ?? 0 })} label={t("stats.minutes")} tint="teal" />
           <StatCard icon={Trophy} value={data?.avgScore ?? 0} label={t("stats.avgScore")} tint="amber" />
@@ -297,7 +297,7 @@ export default function ProgressSection() {
 
         {/* ── review stats — spaced-repetition visibility (Leitner boxes) ── */}
         {learned.length > 0 && (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="stagger-grid grid grid-cols-2 gap-3">
             <StatCard
               icon={BrainCircuit}
               value={dueCount}
@@ -321,7 +321,7 @@ export default function ProgressSection() {
           <Card className="premium-card rounded-2xl border-border/70 bg-card">
             <CardHeader className="pb-0">
               <CardTitle className="flex items-center gap-2 text-base">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500/90 to-teal-600/90 text-white shadow-md shadow-emerald-500/30 ring-1 ring-inset ring-white/25 dark:shadow-emerald-500/20">
                   <LineChart className="h-4 w-4" aria-hidden />
                 </span>
                 {t("trend.title")}
@@ -383,7 +383,7 @@ export default function ProgressSection() {
           <Card className="premium-card rounded-2xl border-border/70 bg-card">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500/90 to-teal-600/90 text-white shadow-md shadow-emerald-500/30 ring-1 ring-inset ring-white/25 dark:shadow-emerald-500/20">
                   <PenLine className="h-4 w-4" aria-hidden />
                 </span>
                 {t("practice.title")}

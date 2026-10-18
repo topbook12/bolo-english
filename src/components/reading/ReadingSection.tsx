@@ -265,6 +265,7 @@ export default function ReadingSection() {
 
       {/* hero band */}
       <div className="premium-card relative overflow-hidden rounded-2xl bg-card p-4 sm:p-5">
+        <span className="hero-aurora" aria-hidden />
         <div
           className="pointer-events-none absolute -right-8 -top-12 h-36 w-36 rounded-full bg-amber-500/10 blur-2xl"
           aria-hidden
@@ -389,7 +390,7 @@ export default function ReadingSection() {
             description={t("library.empty")}
           />
         ) : (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="stagger-grid grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((s) => {
               const done = doneIds.includes(s.id);
               return (

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import type { CallRoom } from "@prisma/client";
 import { db } from "@/lib/db";
 import { reqLocale, apiMsg } from "@/lib/api-i18n";
+import { checkIpLimit } from "@/lib/rate-limit";
 import {
   makeRoomCode,
   makePeerId,
@@ -27,6 +28,12 @@ export async function POST(req: NextRequest) {
   // Answer in the user's UI language (locale cookie) — resolved first so even
   // validation errors come back localized.
   const locale = reqLocale(req);
+  // Audit P2-13: quick-match room creation / code brute force had no throttle.
+  // 20 joins/min per IP is far above any real usage (a call starts once),
+  // but it stops join spam and code brute-forcing from a single host.
+  if (!checkIpLimit(req, "call-join", 20)) {
+    return NextResponse.json({ ok: false, error: apiMsg(locale, "rateLimited") }, { status: 429 });
+  }
   const body = await req.json().catch(() => null);
   const deviceId = typeof body?.deviceId === "string" ? body.deviceId.slice(0, 80) : "";
   // Fallback display name in the joiner's UI language (shown to peers).

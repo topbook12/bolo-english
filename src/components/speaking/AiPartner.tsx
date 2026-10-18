@@ -136,7 +136,9 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
     setMsgs((m) => [...m, { role: "user", text }]);
     setBusy(true);
     try {
-      const history = msgs.map((m) => ({
+      // Token fix #12: the server trims to the last 12 turns anyway — don't
+      // ship an ever-growing POST body on a long chat.
+      const history = msgs.slice(-12).map((m) => ({
         role: m.role === "user" ? "user" : "assistant",
         content: m.followUp ? `${m.text}\n\n${m.followUp}` : m.text,
       }));

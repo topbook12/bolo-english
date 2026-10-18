@@ -164,12 +164,14 @@ export default function SettingsSection() {
       <SectionHeader icon={Settings2} title={t("title")} subtitle={t("subtitle")} tint="violet" />
 
       {/* 2-column masonry on desktop — cards flow down column 1 then column 2 */}
-      <div className="space-y-5 [&>*]:break-inside-avoid xl:columns-2 xl:gap-5">
+      <div className="stagger-grid space-y-5 [&>*]:break-inside-avoid xl:columns-2 xl:gap-5">
         {/* ── Account ── */}
         <Card className="premium-card border-border/70 rounded-2xl bg-card">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" />
+            <CardTitle className="flex items-center gap-2.5">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/90 to-teal-600/90 text-white shadow-md shadow-emerald-500/30 ring-1 ring-inset ring-white/25 dark:shadow-emerald-500/20">
+                <Sparkles className="h-4.5 w-4.5" aria-hidden />
+              </span>
               {t("account.title")}
             </CardTitle>
             <CardDescription>{t("account.desc")}</CardDescription>
@@ -246,8 +248,10 @@ export default function SettingsSection() {
         {/* ── Language ── */}
         <Card className="premium-card border-border/70 rounded-2xl bg-card">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Languages className="h-5 w-5 text-primary" />
+            <CardTitle className="flex items-center gap-2.5">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500/90 to-emerald-600/90 text-white shadow-md shadow-teal-500/30 ring-1 ring-inset ring-white/25 dark:shadow-teal-500/20">
+                <Languages className="h-4.5 w-4.5" aria-hidden />
+              </span>
               {t("language.title")}
             </CardTitle>
             <CardDescription>{t("language.desc")}</CardDescription>
@@ -267,8 +271,10 @@ export default function SettingsSection() {
         {/* ── API Key ── */}
         <Card className="premium-card border-border/70 rounded-2xl bg-card">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <KeyRound className="h-5 w-5 text-primary" />
+            <CardTitle className="flex items-center gap-2.5">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500/90 to-orange-600/90 text-white shadow-md shadow-amber-500/30 ring-1 ring-inset ring-white/25 dark:shadow-amber-500/20">
+                <KeyRound className="h-4.5 w-4.5" aria-hidden />
+              </span>
               {t("apiKey.title")}
               {hasKey ? (
                 <Badge className="ml-auto bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
@@ -387,8 +393,10 @@ export default function SettingsSection() {
         {/* ── Profile ── */}
         <Card className="premium-card border-border/70 rounded-2xl bg-card">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <UserIcon className="h-5 w-5 text-primary" />
+            <CardTitle className="flex items-center gap-2.5">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500/90 to-pink-600/90 text-white shadow-md shadow-rose-500/30 ring-1 ring-inset ring-white/25 dark:shadow-rose-500/20">
+                <UserIcon className="h-4.5 w-4.5" aria-hidden />
+              </span>
               {t("profile.title")}
             </CardTitle>
             <CardDescription>{t("profile.desc")}</CardDescription>
@@ -438,7 +446,12 @@ export default function SettingsSection() {
         {/* ── PWA install ── */}
         <Card className="premium-card border-border/70 rounded-2xl bg-card">
           <CardHeader>
-            <CardTitle>{t("pwa.title")}</CardTitle>
+            <CardTitle className="flex items-center gap-2.5">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/90 to-teal-600/90 text-white shadow-md shadow-emerald-500/30 ring-1 ring-inset ring-white/25 dark:shadow-emerald-500/20">
+                <Download className="h-4.5 w-4.5" aria-hidden />
+              </span>
+              {t("pwa.title")}
+            </CardTitle>
             <CardDescription>{t("pwa.desc")}</CardDescription>
           </CardHeader>
           <CardContent>

@@ -12,6 +12,9 @@ export interface RemotePeer {
   name: string;
   stream: MediaStream | null;
   connectionState: string;
+  /** getStats-derived link quality for the tile's signal badge.
+   *  undefined = not sampled yet (badge hidden). */
+  quality?: "good" | "fair" | "poor";
 }
 
 export type OutgoingSignalType = "offer" | "answer" | "ice";
@@ -70,11 +73,35 @@ const DISCONNECT_RECOVER_MS = 10_000;
 // Minimum gap between recovery attempts on the same peer (ms)
 const RECOVERY_THROTTLE_MS = 8_000;
 
+/* ── network quality sampling (audit P2-2 — the "loose connection" radar) ──
+ * connectionState alone cannot see heavy packet loss / rising RTT that keeps
+ * the PC "connected". Every 4s we sample the nominated candidate pair (RTT)
+ * and the video inbound stream (packet-loss DELTA since the previous sample):
+ *   good  — RTT ≤ 350ms and loss < 4%
+ *   fair  — RTT ≤ 700ms and loss < 10%
+ *   poor  — anything worse
+ * Sustained poor (3 samples ≈ 12s) escalates into the ICE-restart recovery
+ * ladder (throttled by RECOVERY_THROTTLE_MS). */
+type QualityLevel = "good" | "fair" | "poor";
+const QUALITY_SAMPLE_MS = 4_000;
+const POOR_ESCALATE_STREAK = 3;
+
+interface QualitySample {
+  level: QualityLevel;
+  poorStreak: number;
+  lastLost: number;
+  lastRecv: number;
+  hasData: boolean;
+}
+
 export function useWebRTC({ onSendSignal, getMyId, getIceContext }: UseWebRTCOpts) {
   const t = useTranslations("call");
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remotePeers, setRemotePeers] = useState<RemotePeer[]>([]);
   const [mediaError, setMediaError] = useState<string | null>(null);
+  /** Camera could not be opened but the mic works — the call continues
+   *  audio-only (audit P2-9) instead of blocking the conversation. */
+  const [audioOnly, setAudioOnly] = useState(false);
 
   const localStreamRef = useRef<MediaStream | null>(null);
   // In-flight getUserMedia promise — initLocal is safe to call concurrently
@@ -92,6 +119,8 @@ export function useWebRTC({ onSendSignal, getMyId, getIceContext }: UseWebRTCOpt
   const streamlessRef = useRef<Map<string, MediaStream>>(new Map());
   const namesRef = useRef<Map<string, string>>(new Map());
   const myIdRef = useRef<string>("");
+  // quality sampler bookkeeping (audit P2-2)
+  const qualityRef = useRef<Map<string, QualitySample>>(new Map());
   // watchdog bookkeeping
   const pcCreatedRef = useRef<Map<string, number>>(new Map());
   const disconnectedAtRef = useRef<Map<string, number>>(new Map());
@@ -122,12 +151,34 @@ export function useWebRTC({ onSendSignal, getMyId, getIceContext }: UseWebRTCOpt
         setLocalStream(stream);
         setMediaError(null);
         return stream;
-      })().catch((e) => {
+      })().catch(async (e) => {
+        // Camera busy/absent/broken (audit P2-9): degrade to an audio-only
+        // call rather than blocking the whole conversation. A permission
+        // denial (NotAllowedError) never falls back — the mic would fail too.
+        const name = (e as Error).name;
+        if (
+          name === "NotReadableError" ||
+          name === "OverconstrainedError" ||
+          name === "NotFoundError" ||
+          name === "TrackStartError"
+        ) {
+          try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+              audio: { echoCancellation: true, noiseSuppression: true },
+              video: false,
+            });
+            localStreamRef.current = stream;
+            setLocalStream(stream);
+            setAudioOnly(true);
+            setMediaError(null);
+            return stream;
+          } catch {
+            /* mic unusable too — surface the original error below */
+          }
+        }
         mediaInitRef.current = null; // allow a retry after the error
         const msg =
-          (e as Error).name === "NotAllowedError"
-            ? t("mediaDenied")
-            : t("mediaMissing");
+          name === "NotAllowedError" ? t("mediaDenied") : t("mediaMissing");
         setMediaError(msg);
         throw e;
       });
@@ -152,8 +203,19 @@ export function useWebRTC({ onSendSignal, getMyId, getIceContext }: UseWebRTCOpt
             },
           ];
         }
+        // no-churn guard: a patch that changes nothing must not re-render
+        // (the quality sampler runs every 4s for every connected peer)
+        const cur = prev[idx];
+        let changed = false;
+        for (const k of Object.keys(patch) as (keyof RemotePeer)[]) {
+          if (cur[k] !== patch[k]) {
+            changed = true;
+            break;
+          }
+        }
+        if (!changed) return prev;
         const next = [...prev];
-        next[idx] = { ...next[idx], ...patch };
+        next[idx] = { ...cur, ...patch };
         return next;
       });
     },
@@ -250,6 +312,28 @@ export function useWebRTC({ onSendSignal, getMyId, getIceContext }: UseWebRTCOpt
         const stream = await initLocal();
         for (const track of stream.getTracks()) pc.addTrack(track, stream);
 
+        // Sender tuning (audit P2-11) — cheap wins on weak mobile links:
+        // content hints tell the encoder what matters (speech vs motion) and
+        // explicit bitrate caps stop one peer from starving the mesh.
+        for (const sender of pc.getSenders()) {
+          const kind = sender.track?.kind;
+          if (kind) {
+            try {
+              sender.track.contentHint = kind === "video" ? "motion" : "speech";
+            } catch {
+              /* engine without contentHint — harmless */
+            }
+          }
+          try {
+            const p = sender.getParameters();
+            if (!p.encodings || p.encodings.length === 0) p.encodings = [{}];
+            p.encodings[0].maxBitrate = kind === "video" ? 800_000 : 40_000;
+            void sender.setParameters(p).catch(() => undefined);
+          } catch {
+            /* engine without encodings — auto bitrate stays */
+          }
+        }
+
         pc.onicecandidate = (e) => {
           if (e.candidate) sendRef.current("ice", e.candidate.toJSON(), peerId);
         };
@@ -323,6 +407,89 @@ export function useWebRTC({ onSendSignal, getMyId, getIceContext }: UseWebRTCOpt
     return () => clearInterval(iv);
   }, [recoverPeer]);
 
+  /* ── quality sampler (audit P2-2) — RTT + packet-loss delta per peer ── */
+  const samplePeerQuality = useCallback(
+    async (peerId: string, pc: RTCPeerConnection) => {
+      if (pc.connectionState !== "connected") {
+        // link is down — reset the streak; the recovery ladder owns reconnection
+        const prev = qualityRef.current.get(peerId);
+        if (prev && (prev.poorStreak > 0 || prev.hasData)) {
+          qualityRef.current.set(peerId, {
+            ...prev,
+            poorStreak: 0,
+            lastLost: -1,
+            lastRecv: -1,
+            hasData: false,
+          });
+          updatePeer(peerId, { quality: undefined });
+        }
+        return;
+      }
+      try {
+        const stats = await pc.getStats();
+        let rtt: number | undefined;
+        let lost = 0;
+        let recv = 0;
+        stats.forEach((r) => {
+          if (
+            r.type === "candidate-pair" &&
+            r.state === "succeeded" &&
+            (r.nominated || r.selected)
+          ) {
+            const v = (r as { currentRoundTripTime?: number }).currentRoundTripTime;
+            if (typeof v === "number") rtt = v;
+          }
+          if (r.type === "inbound-rtp" && (r as { kind?: string }).kind === "video") {
+            const l = (r as { packetsLost?: number }).packetsLost;
+            const p = (r as { packetsReceived?: number }).packetsReceived;
+            lost += typeof l === "number" && l > 0 ? l : 0;
+            recv += typeof p === "number" ? p : 0;
+          }
+        });
+        const prev =
+          qualityRef.current.get(peerId) ??
+          { level: "good" as QualityLevel, poorStreak: 0, lastLost: -1, lastRecv: -1, hasData: false };
+        // loss ratio within this sample window (deltas, not lifetime averages)
+        let lossPct = 0;
+        if (prev.hasData && recv >= prev.lastRecv && lost >= prev.lastLost) {
+          const dLost = lost - prev.lastLost;
+          const dRecv = recv - prev.lastRecv;
+          if (dLost + dRecv > 20) lossPct = dLost / (dLost + dRecv);
+        }
+        let level: QualityLevel = "good";
+        if ((rtt !== undefined && rtt > 0.7) || lossPct >= 0.1) level = "poor";
+        else if ((rtt !== undefined && rtt > 0.35) || lossPct >= 0.04) level = "fair";
+        const hasData = prev.hasData || recv > 0;
+        const next: QualitySample = {
+          level,
+          poorStreak: level === "poor" ? prev.poorStreak + 1 : 0,
+          lastLost: lost,
+          lastRecv: recv,
+          hasData,
+        };
+        qualityRef.current.set(peerId, next);
+        // sustained degradation → real recovery (throttled internally)
+        if (level === "poor" && next.poorStreak >= POOR_ESCALATE_STREAK) {
+          recoverPeer(peerId, pc);
+        }
+        // only surface the badge once there is inbound data to judge
+        updatePeer(peerId, { quality: hasData ? level : undefined });
+      } catch {
+        /* getStats unavailable — badge just stays hidden */
+      }
+    },
+    [recoverPeer, updatePeer]
+  );
+
+  useEffect(() => {
+    const iv = setInterval(() => {
+      for (const [peerId, pc] of Array.from(pcsRef.current.entries())) {
+        void samplePeerQuality(peerId, pc);
+      }
+    }, QUALITY_SAMPLE_MS);
+    return () => clearInterval(iv);
+  }, [samplePeerQuality]);
+
   const closePC = useCallback(
     (peerId: string) => {
       const pc = pcsRef.current.get(peerId);
@@ -342,6 +509,7 @@ export function useWebRTC({ onSendSignal, getMyId, getIceContext }: UseWebRTCOpt
       pcCreatedRef.current.delete(peerId);
       disconnectedAtRef.current.delete(peerId);
       lastRecoveryRef.current.delete(peerId);
+      qualityRef.current.delete(peerId);
       setRemotePeers((prev) => prev.filter((p) => p.id !== peerId));
     },
     []
@@ -479,8 +647,10 @@ export function useWebRTC({ onSendSignal, getMyId, getIceContext }: UseWebRTCOpt
     localStreamRef.current?.getTracks().forEach((t) => t.stop());
     localStreamRef.current = null;
     mediaInitRef.current = null;
+    qualityRef.current.clear();
     setLocalStream(null);
     setRemotePeers([]);
+    setAudioOnly(false);
   }, [closePC]);
 
   useEffect(() => cleanup, [cleanup]);
@@ -489,6 +659,7 @@ export function useWebRTC({ onSendSignal, getMyId, getIceContext }: UseWebRTCOpt
     localStream,
     remotePeers,
     mediaError,
+    audioOnly,
     initLocal,
     handleRoomState,
     handleSignal,

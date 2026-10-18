@@ -273,34 +273,33 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
       </section>
 
       {/* Stats row */}
-      <section aria-label={t("stats.title")} className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:gap-4">
+      <section
+        aria-label={t("stats.title")}
+        className="stagger-grid grid grid-cols-2 gap-3 sm:grid-cols-4 lg:gap-4"
+      >
         <StatCard
           icon={Flame}
           tint="amber"
           label={t("stats.streak")}
           value={progress ? `${progress.streak} ${t("stats.days")}` : "—"}
-          className="animate-fade-in-up"
         />
         <StatCard
           icon={Clock3}
           tint="emerald"
           label={t("stats.spoken")}
           value={progress ? `${progress.totalMinutes} ${t("stats.minutes")}` : "—"}
-          className="animate-fade-in-up-1"
         />
         <StatCard
           icon={Trophy}
           tint="rose"
           label={t("stats.avgScore")}
           value={progress ? `${progress.avgScore}` : "—"}
-          className="animate-fade-in-up-2"
         />
         <StatCard
           icon={Library}
           tint="teal"
           label={t("stats.words")}
           value={progress ? `${progress.wordCount}` : "—"}
-          className="animate-fade-in-up-3"
         />
       </section>
 
@@ -333,7 +332,7 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
       {/* Quick actions — 6 module cards, speaking featured */}
       <section aria-label={t("quick.title")} className="space-y-3">
         <SectionTitle icon={Sparkles} title={t("quick.title")} />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:gap-5 xl:grid-cols-4">
+        <div className="stagger-grid grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:gap-5 xl:grid-cols-4">
           {/* Flagship: speaking — 2×2 feature card on desktop */}
           <button
             onClick={() => onNavigate("speaking")}
@@ -478,9 +477,12 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
             <CardContent className="p-4 text-sm text-destructive">{dailyError}</CardContent>
           </Card>
         ) : dailyWords ? (
-          <div className="grid gap-3 sm:grid-cols-3 lg:gap-4">
+          <div className="stagger-grid grid gap-3 sm:grid-cols-3 lg:gap-4">
             {dailyWords.map((w) => (
-              <Card key={w.word} className="premium-card rounded-2xl bg-card">
+              <Card
+                key={w.word}
+                className="premium-card rounded-2xl bg-gradient-to-br from-emerald-50/80 to-teal-50/50 dark:from-emerald-950/25 dark:to-teal-950/15"
+              >
                 <CardContent className="p-4 lg:p-5">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-lg font-bold">{w.word}</span>

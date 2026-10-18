@@ -18,6 +18,9 @@ import {
   Loader2,
   Share2,
   Captions,
+  SignalHigh,
+  SignalMedium,
+  SignalLow,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -138,6 +141,7 @@ function VideoTile({
   contain,
   videoOff,
   micOff,
+  quality,
 }: {
   stream: MediaStream | null;
   name: string;
@@ -156,8 +160,11 @@ function VideoTile({
   videoOff?: boolean;
   /** Self tile only: little mic-off glyph inside the name chip. */
   micOff?: boolean;
+  /** getStats link quality — shows the signal badge for remote peers. */
+  quality?: "good" | "fair" | "poor";
 }) {
   const ref = useRef<HTMLVideoElement>(null);
+  const t = useTranslations("call");
 
   useEffect(() => {
     const el = ref.current;
@@ -202,6 +209,21 @@ function VideoTile({
       el.play().then(() => undefined, () => undefined);
     };
 
+    // Permanent re-arm (audit P2-12): an OS audio interruption (incoming
+    // call, Siri) or a background/foreground cycle can stall the element
+    // AFTER the first `playing` fired — the old retry loop had stopped by
+    // then, leaving a frozen/black tile with audio dead. If the element is
+    // ever paused again, just try to play it; also retry when the page
+    // becomes visible. Idempotent and harmless when playback is healthy.
+    const rearm = () => {
+      if (el.paused) el.play().then(() => undefined, () => undefined);
+    };
+    const onVisible = () => {
+      if (document.visibilityState === "visible") rearm();
+    };
+    el.addEventListener("pause", rearm);
+    document.addEventListener("visibilitychange", onVisible);
+
     const detach = () => {
       if (retryTimer) {
         clearTimeout(retryTimer);
@@ -231,6 +253,8 @@ function VideoTile({
 
     return () => {
       el.removeEventListener("playing", onPlaying);
+      el.removeEventListener("pause", rearm);
+      document.removeEventListener("visibilitychange", onVisible);
       detach();
     };
   }, [stream, muted, isConnecting]); // isConnecting: re-arm when the peer connects
@@ -269,6 +293,39 @@ function VideoTile({
             <CallAvatar name={name} size={84} />
           </div>
         </div>
+      )}
+      {/* link-quality badge (audit P2-2) — the loose-connection radar */}
+      {quality && !isSelf && (
+        <span
+          title={
+            quality === "good"
+              ? t("netGood")
+              : quality === "fair"
+                ? t("netFair")
+                : t("netPoor")
+          }
+          className={cn(
+            "absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-black/55 px-2 py-1 text-[10px] font-semibold ring-1 ring-white/15 backdrop-blur-md",
+            quality === "good" && "text-emerald-300",
+            quality === "fair" && "text-amber-300",
+            quality === "poor" && "animate-pulse text-rose-300"
+          )}
+        >
+          {quality === "good" ? (
+            <SignalHigh className="h-3.5 w-3.5" aria-hidden />
+          ) : quality === "fair" ? (
+            <SignalMedium className="h-3.5 w-3.5" aria-hidden />
+          ) : (
+            <SignalLow className="h-3.5 w-3.5" aria-hidden />
+          )}
+          <span className="sr-only">
+            {quality === "good"
+              ? t("netGood")
+              : quality === "fair"
+                ? t("netFair")
+                : t("netPoor")}
+          </span>
+        </span>
       )}
       {/* glass name chip — dark frosted; glows + voice bars while that peer speaks */}
       <span
@@ -321,6 +378,9 @@ interface CallRoomProps {
   durationLabel: string;
   transcriptCount: number;
   reconnecting?: boolean;
+  /** Camera could not be opened (mic fine) — the call continues audio-only;
+   *  shows the amber note chip and forces the avatar fallback on our tile. */
+  audioOnly?: boolean;
   showShareHint?: boolean;
   captions: { speaker: string; text: string; mine: boolean; final: boolean }[];
   captionsOpen: boolean;
@@ -351,6 +411,7 @@ export default function CallRoom({
   durationLabel,
   transcriptCount,
   reconnecting,
+  audioOnly,
   showShareHint,
   captions,
   captionsOpen,
@@ -479,6 +540,14 @@ export default function CallRoom({
                 <WifiOff className="h-3 w-3" /> {t("reconnecting")}
               </span>
             )}
+            {audioOnly && (
+              <span
+                className="call-glass inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold text-amber-200"
+                title={t("audioOnlyNote")}
+              >
+                <VideoOff className="h-3 w-3" /> {t("audioOnlyNote")}
+              </span>
+            )}
           </div>
 
           {/* video grid + caption overlays */}
@@ -499,7 +568,8 @@ export default function CallRoom({
                     speaking={talking.has(p.id)}
                     speakingLabel={t("speakingNow")}
                     contain
-                    videoOff={!p.stream}
+                    videoOff={!p.stream || p.stream.getVideoTracks().length === 0}
+                    quality={p.quality}
                   />
                 </div>
               ))}
@@ -512,7 +582,7 @@ export default function CallRoom({
                   isSelf
                   selfSuffix={t("selfSuffix")}
                   connectingLabel={t("connecting")}
-                  videoOff={!camOn}
+                  videoOff={!camOn || audioOnly}
                   micOff={!micOn}
                 />
               </div>

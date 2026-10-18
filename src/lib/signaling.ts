@@ -71,10 +71,11 @@ export async function pruneStaleRooms(): Promise<void> {
 }
 
 export async function pruneOldMessages(roomId: string): Promise<void> {
-  // keep the most recent 400 messages per room
+  // keep the most recent 800 messages per room (audit P2-7: 400 could leave
+  // a client returning from a long outage with gaps below its since cursor)
   await db
     .$executeRawUnsafe(
-      `DELETE FROM SignalMessage WHERE roomId = ? AND id <= (SELECT MAX(id) - 400 FROM SignalMessage WHERE roomId = ?)`,
+      `DELETE FROM SignalMessage WHERE roomId = ? AND id <= (SELECT MAX(id) - 800 FROM SignalMessage WHERE roomId = ?)`,
       roomId,
       roomId
     )

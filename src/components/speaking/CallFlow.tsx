@@ -736,6 +736,7 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
           durationLabel={mmss}
           transcriptCount={transcriptCount}
           reconnecting={connectionIssue}
+          audioOnly={webrtc.audioOnly}
           showShareHint={intent !== "one"}
           captions={captions.filter((c) => c.final)}
           captionsOpen={captionsOpen}

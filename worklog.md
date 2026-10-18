@@ -2343,3 +2343,44 @@ Stage Summary:
 - The call experience now looks and feels like the native mobile dialer end-to-end: dark immersive stage, ripple avatar while waiting, glass chips/controls during the call, voice equalizers on speakers, avatar fallbacks instead of black frames, dark chat panel.
 - All site tools verified working across 3 locales; 1 real bug found & fixed during QA (chat panel visibility).
 - Committed 7d44f9b (8 files, +608/−230) + pushed → Vercel auto-deploy.
+---
+Task ID: 18-c
+Agent: frontend-styling-expert
+Task: Whole-site design deepening pass — unified icon-tile/glow language, staggered entrances, gradient stat numbers, tinted stat cards, dotted empty states, hero auroras across the 9 non-call tabs (className/presentational only).
+
+Work Log:
+- Read worklog tail (Tasks 16/17 + 14-series color passes) and audited all 9 tabs + shared components + globals.css utilities (premium-card/text-gradient/bg-dots/animate-fade-in-up) before touching anything.
+- globals.css: APPENDED a clearly-marked "SITE-WIDE POLISH (Task 18-c)" section at the very end (no existing rule touched, phone-call system untouched): .stagger-grid (children cascade in via the existing fade-in-up keyframes with fill-mode `backwards` so premium-card hover lifts keep working; nth-child delays 2-10 + shared 0.5s delay for children 11+; reduced-motion guard), per-accent gradient-number utilities .text-gradient-teal/amber/orange/rose/violet (light + .dark values), and a reusable .hero-aurora glow wash (light + dark).
+- Shared upgrades (propagate to every tab automatically): SectionHeader icon tile now carries a per-tint colored glow shadow (shadow-lg shadow-{tint}-500/30 + dark variants); StatCard rebuilt as tint spec objects — per-metric soft wash (emerald/teal/amber/orange/rose/violet, light+dark), colored icon-tile glow, and big extrabold gradient number (text-gradient per tint); EmptyState gained a bg-dots backdrop layer + relative content wrapper + overflow-hidden.
+- Per-tab: Home — stagger-grid on stats/quick-actions/daily-words grids (removed now-redundant per-card animate classes), daily word cards got an emerald→teal wash; Speaking — rose/amber tile glows on the 3 mode cards, bg-dots on the mic-tip card; Grammar — stagger-grid on topic + library grids, icon scale-on-hover + orange tile glow; Listening — stagger-grid on story + topic grids, hero-aurora on the AI-story hero band; Reading — stagger-grid on passage grid, hero-aurora on hero band; Progress — stagger-grid on both stat rows, trend/practice card chips upgraded to gradient tiles; Settings — all five card titles (Account/Language/API Key/Profile/PWA) upgraded from plain icons to gradient icon tiles with colored glows (+ stagger-grid on the masonry wrapper).
+- Constraints honored: zero i18n key changes, zero logic/props/state changes, speaking/**, hooks, lib, api untouched; palette stays emerald/teal/amber/orange/rose (violet only where it already existed as the Settings tint); no new packages; diff audit = zero blue/indigo.
+- Verification: bunx tsc --noEmit → 0 errors; bun run lint → clean; agent-browser — all 9 tabs walked at 1440×900 AND 390×844 with screenshots (18 shots in /tmp/18c), zero horizontal overflow at both sizes, agent-browser errors empty, console only pre-existing Radix aria-describedby warnings; dark mode validated on Home + Progress by forcing the .dark class (app has no toggle yet — media-dark emulation alone does nothing) via computed styles (stat washes apply, gradient numbers render with background-clip:text) + VLM screenshot review (light Home/Grammar + dark Home: readable, colorful, no defects).
+
+Stage Summary:
+- The nine non-call tabs now share one deepened visual language with the call screens: gradient icon tiles with colored glows everywhere (section headers, stat cards, settings cards, progress chips), gradient per-accent stat numbers on tinted metric cards, staggered card-grid entrances site-wide (reduced-motion safe, hover-lift preserved), dotted empty states, and aurora washes on the Listening/Reading hero bands. Dark-mode parity verified; mobile 390px shows no overflow; tsc + eslint clean; nothing committed (working tree only).
+- Files: src/app/globals.css (+123 lines appended), shared/{SectionHeader,StatCard,EmptyState}.tsx, sections/{HomeSection,SpeakingSection,GrammarSection,ListeningSection,ProgressSection,SettingsSection}.tsx, reading/ReadingSection.tsx.
+- Deliberately skipped: VocabSection internals + vocab/* tab components and settings/* admin cards (outside the allowed file list), PathSection (already has per-card staggered entrances + gradient hero), LearningPath/ReaderView interiors, and any theme-toggle feature (would be a logic change; dark CSS values are ready for when one lands).
+
+---
+Task ID: 18-a/18-b
+Agent: main (Z.ai Code)
+Task: "Complete the unfinished business" — remaining Task-16 P2 audit items: call resilience (18-a) + server hygiene/token leftovers (18-b). Design pass ran in parallel as 18-c.
+
+Work Log (18-a — call resilience):
+- use-webrtc.ts: getStats quality sampler (P2-2) — every 4s per peer: nominated candidate-pair RTT + video inbound packet-loss DELTA → good(≤350ms,<4%) / fair(≤700ms,<10%) / poor; sustained poor ×3 escalates into the ICE-restart recovery ladder (throttle 8s); RemotePeer.quality + updatePeer no-churn guard (sampler must not re-render unchanged state); quality bookkeeping cleared on closePC/cleanup.
+- initLocal audio-only fallback (P2-9): NotReadableError/OverconstrainedError/NotFoundError/TrackStartError → retry {video:false}; audioOnly state exported; NotAllowedError never falls back.
+- Sender tuning (P2-11): contentHint motion/speech + maxBitrate video 800k / audio 40k via setParameters (all guarded for engines without encodings).
+- CallRoom VideoTile: link-quality badge (SignalHigh/Medium/Low, emerald/amber/rose, poor pulses, tooltip+sr-only); permanent playback re-arm (P2-12) — pause listener + visibilitychange retry covers OS audio interruptions that stall media after the first `playing`; remote tiles now avatar-fallback when the stream has NO video tracks (audio-only partner); new audioOnly prop → amber "camera unavailable" glass chip + forced avatar on the self tile.
+- i18n: 4 new call.* keys (audioOnlyNote/netGood/netFair/netPoor) × bn/en/hi; parity 75/75/75.
+
+Work Log (18-b — server hygiene + tokens):
+- send/route.ts (P2-8): oversized SDP now returns 413 instead of silently dropping with ok:true.
+- join/route.ts (P2-13): checkIpLimit 20/min/IP on join — verified live: burst → 200s then 429.
+- signaling.ts (P2-7): per-room message prune cap 400 → 800 (long-outage cursor gaps).
+- ai/route.ts token fix #7: call-analysis sanitizer outer caps aligned to prompt caps (mistakes 14→10, betterDialogue 4→3, vocabularyGaps 8→6) — no more pay-then-drop.
+- AiPartner token fix #12: chat history slice(-12) client-side (server already trimmed; POST bodies no longer grow unbounded).
+- QA: dialer + live call + cam-off avatar re-verified in browser (bn locale), zero new console errors (only pre-existing Radix aria warnings); DB QA rooms/messages cleaned to 0; tsc 0 errors; eslint clean.
+
+Stage Summary:
+- Every actionable P2 from the Task-16 audit is now closed (P2-6 long-poll stays optional-by-design; P2-14 was an ops note; security P2-12 auth nits remain owner-policy decisions). Loose connections are now VISIBLE (signal badge) and self-heal (sustained-poor → ICE restart); a dead camera no longer blocks a call (audio-only); stalled media re-arms itself; oversized SDP fails loudly; join is rate-limited.
+- 18-c (parallel design agent) + 18-a/18-b committed together.

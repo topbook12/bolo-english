@@ -78,7 +78,7 @@ export default function SpeakingSection() {
       <Card className="premium-card animate-fade-in-up-1 rounded-2xl border-border/70 py-0">
         <CardContent className="flex h-full flex-col space-y-3 p-4 sm:p-6">
           <div className="flex items-start gap-3.5">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500/90 to-pink-600/90 text-white shadow-md ring-1 ring-inset ring-white/25">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500/90 to-pink-600/90 text-white shadow-md shadow-rose-500/30 ring-1 ring-inset ring-white/25 dark:shadow-rose-500/20">
               <Users className="h-6 w-6" aria-hidden="true" />
             </span>
             <div className="min-w-0 flex-1">
@@ -100,7 +100,7 @@ export default function SpeakingSection() {
       <Card className="premium-card animate-fade-in-up-2 rounded-2xl border-border/70 py-0">
         <CardContent className="flex h-full flex-col space-y-3 p-4 sm:p-6">
           <div className="flex items-start gap-3.5">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500/90 to-pink-600/90 text-white shadow-md ring-1 ring-inset ring-white/25">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500/90 to-pink-600/90 text-white shadow-md shadow-rose-500/30 ring-1 ring-inset ring-white/25 dark:shadow-rose-500/20">
               <Video className="h-6 w-6" aria-hidden="true" />
             </span>
             <div className="min-w-0 flex-1">
@@ -141,7 +141,7 @@ export default function SpeakingSection() {
       <Card className="premium-card animate-fade-in-up-3 rounded-2xl border-border/70 py-0">
         <CardContent className="flex h-full flex-col space-y-3 p-4 sm:p-6">
           <div className="flex items-start gap-3.5">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500/90 to-orange-500/90 text-white shadow-md">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500/90 to-orange-500/90 text-white shadow-md shadow-amber-500/30 dark:shadow-amber-500/20">
               <Bot className="h-6 w-6" aria-hidden="true" />
             </span>
             <div className="min-w-0 flex-1">
@@ -186,15 +186,16 @@ export default function SpeakingSection() {
       )}
 
       {/* illustration + mic tip */}
-      <div className="flex flex-1 items-center gap-4 rounded-2xl border border-dashed border-border/70 bg-card/50 p-4">
+      <div className="relative flex flex-1 items-center gap-4 overflow-hidden rounded-2xl border border-dashed border-border/70 bg-card/50 p-4">
+        <span className="bg-dots pointer-events-none absolute inset-0 opacity-40" aria-hidden="true" />
         <Image
           src="/illustrations/ill-speaking.webp"
           alt=""
           width={96}
           height={96}
-          className="animate-float h-20 w-auto shrink-0 object-contain sm:h-24"
+          className="animate-float relative h-20 w-auto shrink-0 object-contain sm:h-24"
         />
-        <p className="flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">
+        <p className="relative flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">
           <Mic
             className="mt-0.5 h-3.5 w-3.5 shrink-0 text-rose-600 dark:text-rose-400"
             aria-hidden="true"

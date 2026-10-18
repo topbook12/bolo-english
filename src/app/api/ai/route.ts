@@ -286,7 +286,9 @@ function sanitizeCallAnalysis(
 
   const seen = new Set<string>();
   const mistakes: AnalysisMistake[] = (Array.isArray(r.mistakes) ? r.mistakes : [])
-    .slice(0, 14)
+    // audit token fix #7: outer cap aligned to the prompt cap (max 10) so the
+    // model can never make us sanitize — and pay for — items we then drop
+    .slice(0, 10)
     .flatMap((m): AnalysisMistake[] => {
       if (typeof m !== "object" || m === null) return [];
       const o = m as Record<string, unknown>;
@@ -305,7 +307,8 @@ function sanitizeCallAnalysis(
     .slice(0, 10);
 
   const betterDialogue = (Array.isArray(r.betterDialogue) ? r.betterDialogue : [])
-    .slice(0, 4)
+    // prompt cap 2-3 → sanitize at most 3
+    .slice(0, 3)
     .flatMap((d) => {
       if (typeof d !== "object" || d === null) return [];
       const o = d as Record<string, unknown>;
@@ -316,7 +319,8 @@ function sanitizeCallAnalysis(
     .slice(0, 3);
 
   const vocabularyGaps = (Array.isArray(r.vocabularyGaps) ? r.vocabularyGaps : [])
-    .slice(0, 8)
+    // prompt cap 3-6 → sanitize at most 6
+    .slice(0, 6)
     .flatMap((v) => {
       if (typeof v !== "object" || v === null) return [];
       const o = v as Record<string, unknown>;
