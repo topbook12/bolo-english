@@ -115,6 +115,11 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
       clientRef.current?.send(type, payload, to);
     },
     getMyId: () => clientRef.current?.peerId ?? "",
+    // prove room membership so /api/call/ice is allowed to mint TURN creds
+    getIceContext: () => {
+      const c = clientRef.current;
+      return c ? { roomId: c.roomId, peerId: c.peerId } : null;
+    },
   });
 
   // captions + transcript
@@ -165,6 +170,47 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
   const cleanupRef = useRef<() => void>(() => null);
   cleanupRef.current = webrtc.cleanup;
 
+  /* ── screen wake lock (mobile resilience) ──
+   * A locked phone screen suspends JS → the 45s heartbeat starves → the
+   * server prunes us → "Call closed" after ~2.5 min. Holding a screen wake
+   * lock during the call prevents that; it is re-acquired when the tab
+   * becomes visible again and silently ignored where unsupported. */
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+  const acquireWakeLock = useCallback(async () => {
+    try {
+      const nav = navigator as Navigator & {
+        wakeLock?: { request: (type: "screen") => Promise<WakeLockSentinel> };
+      };
+      if (!nav.wakeLock || wakeLockRef.current) return;
+      const sentinel = await nav.wakeLock.request("screen");
+      sentinel.addEventListener("release", () => {
+        wakeLockRef.current = null;
+      });
+      wakeLockRef.current = sentinel;
+    } catch {
+      /* unsupported / denied — the call still works */
+    }
+  }, []);
+  const releaseWakeLock = useCallback(() => {
+    void wakeLockRef.current?.release().catch(() => null);
+    wakeLockRef.current = null;
+  }, []);
+  useEffect(() => {
+    const onVis = () => {
+      if (document.visibilityState === "visible" && modeRef.current === "call") {
+        void acquireWakeLock();
+      }
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      document.removeEventListener("visibilitychange", onVis);
+      releaseWakeLock();
+    };
+  }, [acquireWakeLock, releaseWakeLock]);
+
+  /* ── one-shot auto-rejoin guard (group/code rooms) ── */
+  const rejoinedRef = useRef(false);
+
   /* ── enter the live call UI (idempotent) ── */
   const recStartRef = useRef<() => void>(() => null);
   const enterCall = useCallback(() => {
@@ -182,7 +228,8 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
     setAnalysis(null);
     setMode("call");
     recStartRef.current();
-  }, []);
+    void acquireWakeLock();
+  }, [acquireWakeLock]);
 
   /* ── speech recognition → transcript + caption broadcast ── */
   const onFinalLine = useCallback(
@@ -318,9 +365,24 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
       });
 
       client.onClosed(() => {
-        toast({ title: t("roomClosedTitle"), description: t("roomClosedDesc"), variant: "destructive" });
-        recStopRef.current();
         clientRef.current = null;
+        recStopRef.current();
+        // Mobile resilience: a screen-lock/network death gets the participant
+        // pruned server-side and surfaces as poll {closed:true}. For group/
+        // code rooms ONE silent rejoin attempt keeps a live conversation
+        // alive (PCs are torn down via an empty roster — local media is kept
+        // so the camera light stays honest). Quick-match 1:1 keeps the old
+        // exit — the partner is gone anyway, matching would be empty.
+        if (intent === "group" && !rejoinedRef.current) {
+          rejoinedRef.current = true;
+          webrtc.handleRoomState([]); // close PCs, keep local media
+          toast({ title: t("reconnecting") });
+          void joinRoom().then(() => {
+            if (modeRef.current === "call") recStartRef.current();
+          });
+          return;
+        }
+        toast({ title: t("roomClosedTitle"), description: t("roomClosedDesc"), variant: "destructive" });
         cleanupRef.current();
         onExit();
       });
@@ -388,6 +450,7 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
 
   const leaveCall = () => {
     recStopRef.current();
+    releaseWakeLock();
     const partnerCount = webrtc.remotePeers.length;
     clientRef.current?.leave();
     clientRef.current = null;
@@ -439,17 +502,19 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
     return () => clearTimeout(timer);
   }, [mode, webrtc.remotePeers.length]);
 
-  /* ── live AI correction loop (first check @12s, then every 30s) ──
+  /* ── live AI correction loop (first check @12s, then every 60s) ──
    * Checkpoint-based: each tick analyzes only the lines spoken SINCE the last
    * successful check. Re-sending a sliding window used to duplicate the same
-   * corrections every 30 seconds. */
+   * corrections every 30 seconds. Cadence was raised 30s→60s and the fresh-line
+   * gate 2→3 (audit: live checks on an active call burned 8-12k tokens per
+   * 10 min — halving the frequency halves that without hurting quality). */
   useEffect(() => {
     if (!liveCorrection || mode !== "call" || !hasKey) return;
     const run = async () => {
       if (!deviceIdRef.current) return;
       const all = myLinesRef.current;
       const fresh = all.slice(lastCorrectedCountRef.current);
-      if (fresh.length < 2) return; // nothing new → skip the API call entirely
+      if (fresh.length < 3) return; // nothing new → skip the API call entirely
       const lines = fresh.slice(-14);
       setChecking(true);
       try {
@@ -466,7 +531,7 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
         setChecking(false);
       }
     };
-    const iv = setInterval(run, 30_000);
+    const iv = setInterval(run, 60_000);
     const first = setTimeout(run, 12_000);
     return () => {
       clearInterval(iv);

@@ -42,6 +42,21 @@ export async function GET(req: NextRequest) {
   // Self-heal the schema first — production DBs that predate a model get
   // their tables created here (see src/lib/db-bootstrap.ts).
   await ensureDbTables();
+  // Hardening (audit P1-10): account endpoints/hosts and per-table row
+  // counts were readable by ANYONE. Booleans + limits stay open (the admin
+  // cards need them to know whether to ask for a token); all operational
+  // detail requires a valid admin token.
+  const authorized = isAdminToken(req.headers.get("x-admin-token"));
+  if (!authorized) {
+    return NextResponse.json({
+      adminConfigured: adminAvailable(),
+      limits: {
+        tursoBytes: 5 * 1024 * 1024 * 1024,
+        vercelBandwidthBytes: 100 * 1024 * 1024 * 1024,
+        siteContentBytes: 3 * 1024 * 1024,
+      },
+    });
+  }
   const accounts = await listAccounts();
   const objects = await db.storageObject
     .aggregate({

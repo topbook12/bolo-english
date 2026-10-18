@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { reqLocale, apiMsg } from "@/lib/api-i18n";
+import { cleanDeviceId } from "@/lib/validate";
 
 // GET /api/progress?deviceId=... → stats for the progress section
 export async function GET(req: NextRequest) {
   const locale = reqLocale(req);
-  const deviceId = req.nextUrl.searchParams.get("deviceId");
+  const deviceId = cleanDeviceId(req.nextUrl.searchParams.get("deviceId"));
   if (!deviceId)
     return NextResponse.json({ ok: false, error: apiMsg(locale, "deviceIdRequired") }, { status: 400 });
 

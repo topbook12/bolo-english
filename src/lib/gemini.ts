@@ -25,6 +25,8 @@ export interface GeminiOptions {
   systemPrompt?: string;
   json?: boolean;
   maxOutputTokens?: number;
+  /** Feature name for server-side token accounting (console observability). */
+  label?: string;
 }
 
 interface GeminiPart {
@@ -36,6 +38,11 @@ interface GeminiCandidate {
 }
 interface GeminiResponse {
   candidates?: GeminiCandidate[];
+  usageMetadata?: {
+    promptTokenCount?: number;
+    candidatesTokenCount?: number;
+    totalTokenCount?: number;
+  };
   error?: { message?: string };
 }
 
@@ -247,7 +254,17 @@ export async function geminiJson<T>(
         if (lastErr.status === 401 || lastErr.status === 403 || lastErr.status === 429) {
           throw lastErr;
         }
+        // Safety blocks are content-based — the same prompt on the same or an
+        // OLDER model will not pass either. Retrying used to cost up to 4×
+        // the input tokens for a guaranteed-miss (BYOK = the user's money).
+        if (lastErr.code === "safety") throw lastErr;
       }
+    }
+    // Both attempts on this model failed. badFormat/empty will not improve on
+    // the strictly-weaker fallback model (smaller output cap, weaker JSON) —
+    // only infrastructure errors (network/5xx) justify trying the next model.
+    if (lastErr && (lastErr.code === "badFormat" || lastErr.code === "empty")) {
+      throw lastErr;
     }
   }
   throw lastErr ?? new GeminiError("AI কল ব্যর্থ হয়েছে।", 500, "aiFailed");
@@ -333,6 +350,15 @@ async function callModel(
     ?.map((p) => p.text)
     .filter(Boolean)
     .join("\n");
+
+  // Token accounting — every BYOK request spends the USER's quota, so each
+  // feature's spend is observable in the server logs (no PII, just counts).
+  if (opts.label && json.usageMetadata) {
+    const u = json.usageMetadata;
+    console.log(
+      `[ai] ${opts.label} ${model} in=${u.promptTokenCount ?? "?"} out=${u.candidatesTokenCount ?? "?"} total=${u.totalTokenCount ?? "?"}`
+    );
+  }
 
   if (!text) {
     const reason = candidate?.finishReason ?? "";

@@ -50,9 +50,15 @@ export default function TurnPoolCard() {
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ label: "", keyId: "", apiToken: "" });
 
-  const load = useCallback(async () => {
+  // GET now requires the token for pool details (audit P1-10) — send it when
+  // the owner already saved one, so the dashboard fills in without re-entry.
+  const load = useCallback(async (tokenArg?: string) => {
     try {
-      const res = await fetch("/api/turn", { cache: "no-store" });
+      const t = tokenArg ?? "";
+      const res = await fetch("/api/turn", {
+        cache: "no-store",
+        headers: t ? { "x-admin-token": t } : undefined,
+      });
       if (res.ok) setInfo((await res.json()) as TurnInfo);
     } catch {
       /* dashboard is best-effort */
@@ -60,8 +66,9 @@ export default function TurnPoolCard() {
   }, []);
 
   useEffect(() => {
-    setToken(localStorage.getItem(TOKEN_KEY) ?? "");
-    void load();
+    const stored = localStorage.getItem(TOKEN_KEY) ?? "";
+    setToken(stored);
+    void load(stored);
   }, [load]);
 
   const headers = () => {
@@ -94,7 +101,7 @@ export default function TurnPoolCard() {
       if (!res.ok) toast({ title: data?.error ?? t("probeFail"), variant: "destructive" });
     } finally {
       setBusy(null);
-      void load();
+      void load(token);
     }
   };
 
@@ -114,7 +121,7 @@ export default function TurnPoolCard() {
       });
     } finally {
       setBusy(null);
-      void load();
+      void load(token);
     }
   };
 
@@ -163,7 +170,7 @@ export default function TurnPoolCard() {
       }
     } finally {
       setBusy(null);
-      void load();
+      void load(token);
     }
   };
 
@@ -187,8 +194,15 @@ export default function TurnPoolCard() {
         <div className="rounded-xl border border-border/60 bg-muted/40 p-3.5">
           <p className="text-sm font-semibold">{t("poolSub")}</p>
           <div className="mt-3 space-y-2">
-            {!info || info.keys.length === 0 ? (
-              <p className="text-xs italic text-muted-foreground">{t("empty")}</p>
+            {!info || (info.keys ?? []).length === 0 ? (
+              <div className="space-y-1">
+                <p className="text-xs italic text-muted-foreground">{t("empty")}</p>
+                {/* Pool details need the admin token now (audit P1-10) — point
+                    the owner to the token box below instead of looking broken. */}
+                {info?.adminConfigured && (
+                  <p className="text-xs text-muted-foreground">🔑 {t("tokenHint")}</p>
+                )}
+              </div>
             ) : (
               info.keys.map((k) => (
                 <div

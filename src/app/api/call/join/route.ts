@@ -103,8 +103,22 @@ export async function POST(req: NextRequest) {
         const fresh = await tx.callRoom.findUnique({ where: { id: room.id } });
         if (!fresh || fresh.status !== "open") return null;
         const participants = parseParticipants(fresh.participants);
+        // Same deviceId already in the room? A CRASHED client (reload / killed
+        // tab) leaves a ghost participant that lingers until the 150s prune —
+        // returning 409 locked the user out of quick-match AND code-join for
+        // ~3 minutes (audit fix). A participant whose heartbeat is stale for
+        // >90s is provably not live (heartbeat every 45s) → replace it.
+        const existingIdx = participants.findIndex((p) => p.deviceId === deviceId);
+        if (existingIdx !== -1) {
+          const ghost = participants[existingIdx];
+          const seen =
+            typeof ghost.lastSeenAt === "number" && ghost.lastSeenAt > 0
+              ? ghost.lastSeenAt
+              : ghost.joinedAt;
+          if (Date.now() - seen < 90_000) return "already" as const;
+          participants.splice(existingIdx, 1);
+        }
         if (participants.length >= fresh.maxPeers) return "full" as const;
-        if (participants.some((p) => p.deviceId === deviceId)) return "already" as const;
         participants.push({ peerId, name, deviceId, joinedAt: Date.now(), lastSeenAt: Date.now() });
         await tx.callRoom.update({
           where: { id: fresh.id },

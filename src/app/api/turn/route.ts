@@ -25,9 +25,12 @@ function jsonErr(locale: ApiLocale, key: ApiMsgKey, status: number) {
 }
 
 export async function GET(req: NextRequest) {
-  const locale = reqLocale(req);
   await ensureDbTables(); // self-heal TurnKey table on production DBs that predate it
-  const keys = await listTurnKeys().catch(() => []);
+  // Hardening (audit P1-10): key ids/labels/status were readable by ANYONE.
+  // Booleans stay open (the admin cards need them to know whether to ask for
+  // a token); the pool details require a valid admin token.
+  const ok = authorized(req);
+  const keys = ok ? await listTurnKeys().catch(() => []) : [];
   return NextResponse.json({
     adminConfigured: adminAvailable(),
     keys,

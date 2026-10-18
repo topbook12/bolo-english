@@ -23,35 +23,44 @@ export interface UseWebRTCOpts {
   /** Returns my current peer id (CallClient.peerId). Used to filter self out
    *  of the roster and pick the deterministic offer initiator (lower id offers). */
   getMyId?: () => string;
+  /** Current room context — lets /api/call/ice prove we are inside the room
+   *  before it mints TURN credentials (server-side anti-harvest check). */
+  getIceContext?: () => { roomId: string; peerId: string } | null;
 }
 
 const ICE_SERVERS: RTCIceServer[] = [
   { urls: ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"] },
 ];
 
-// TURN credentials must not be baked into the client bundle: the bundled
-// fallback credential can lapse silently and ships to every visitor. The live
-// list (STUN + TURN, if the owner configured env TURN_URLS/USERNAME/CREDENTIAL)
-// is served by /api/call/ice at call time — fetched lazily once per session.
-// If the endpoint is unreachable we still try STUN-only: most home networks
-// connect via STUN, and a call without a relay beats no call at all.
-let iceServersPromise: Promise<RTCIceServer[]> | null = null;
+// TURN credentials must not be baked into the client bundle: the live list
+// (STUN + TURN) is served by /api/call/ice at call time. The server only
+// mints TURN for callers that prove they are inside the room (roomId+peerId),
+// so we pass the current room context along.
+// Cache policy (audit fix — one failed fetch used to poison the WHOLE browser
+// session with STUN-only): successful responses are kept for 10 minutes;
+// failures are NEVER cached — the very next ensurePC retries the fetch.
+const ICE_CACHE_MS = 10 * 60 * 1000;
+let iceCache: { servers: RTCIceServer[]; expires: number } | null = null;
 
-function getIceServers(): Promise<RTCIceServer[]> {
-  if (!iceServersPromise) {
-    iceServersPromise = (async () => {
-      try {
-        const res = await fetch("/api/call/ice", { cache: "no-store" });
-        const json = await res.json().catch(() => null);
-        const list = json?.data?.iceServers;
-        if (Array.isArray(list) && list.length > 0) return list as RTCIceServer[];
-      } catch {
-        /* offline / endpoint missing — bundled list below still applies */
-      }
-      return ICE_SERVERS;
-    })();
+async function getIceServers(
+  ctx: { roomId: string; peerId: string } | null
+): Promise<RTCIceServer[]> {
+  if (iceCache && iceCache.expires > Date.now()) return iceCache.servers;
+  try {
+    const q = ctx
+      ? `?roomId=${encodeURIComponent(ctx.roomId)}&peerId=${encodeURIComponent(ctx.peerId)}`
+      : "";
+    const res = await fetch(`/api/call/ice${q}`, { cache: "no-store" });
+    const json = await res.json().catch(() => null);
+    const list = json?.data?.iceServers;
+    if (Array.isArray(list) && list.length > 0) {
+      iceCache = { servers: list as RTCIceServer[], expires: Date.now() + ICE_CACHE_MS };
+      return iceCache.servers;
+    }
+  } catch {
+    /* offline / endpoint missing — STUN-only below still applies */
   }
-  return iceServersPromise;
+  return ICE_SERVERS;
 }
 
 // How long a peer may sit in "connecting" before we try to recover (ms)
@@ -61,7 +70,7 @@ const DISCONNECT_RECOVER_MS = 10_000;
 // Minimum gap between recovery attempts on the same peer (ms)
 const RECOVERY_THROTTLE_MS = 8_000;
 
-export function useWebRTC({ onSendSignal, getMyId }: UseWebRTCOpts) {
+export function useWebRTC({ onSendSignal, getMyId, getIceContext }: UseWebRTCOpts) {
   const t = useTranslations("call");
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remotePeers, setRemotePeers] = useState<RemotePeer[]>([]);
@@ -90,9 +99,11 @@ export function useWebRTC({ onSendSignal, getMyId }: UseWebRTCOpts) {
 
   const sendRef = useRef(onSendSignal);
   const getMyIdRef = useRef(getMyId);
+  const getIceContextRef = useRef(getIceContext);
   useEffect(() => {
     sendRef.current = onSendSignal;
     getMyIdRef.current = getMyId;
+    getIceContextRef.current = getIceContext;
   });
 
   /* ── local media ── */
@@ -177,12 +188,24 @@ export function useWebRTC({ onSendSignal, getMyId }: UseWebRTCOpts) {
       void (async () => {
         try {
           if (pc.signalingState === "have-local-offer" && pc.localDescription) {
-            // our original offer probably never arrived — resend it
-            sendRef.current(
-              "offer",
-              { type: pc.localDescription.type, sdp: pc.localDescription.sdp },
-              peerId
-            );
+            // our original offer probably never arrived. Resend it, but ALSO
+            // re-create the offer with iceRestart so a genuinely half-dead
+            // ICE agent gets fresh credentials (a bare resend could loop
+            // forever when the first offer DID arrive and the network died
+            // before the answer).
+            try {
+              const restartOffer = await pc.createOffer({ iceRestart: true });
+              await pc.setLocalDescription(restartOffer);
+              sendRef.current("offer", restartOffer, peerId);
+              return;
+            } catch {
+              /* older engines: fall back to a plain resend */
+              sendRef.current(
+                "offer",
+                { type: pc.localDescription.type, sdp: pc.localDescription.sdp },
+                peerId
+              );
+            }
           } else if (pc.signalingState === "stable") {
             // Offer even without a remote description: if the other side's
             // offer never arrived, both peers used to wait for each other
@@ -212,7 +235,9 @@ export function useWebRTC({ onSendSignal, getMyId }: UseWebRTCOpts) {
       if (pending) return pending;
 
       const creating = (async () => {
-        const iceServers = await getIceServers().catch(() => ICE_SERVERS);
+        const iceServers = await getIceServers(getIceContextRef.current?.() ?? null).catch(
+          () => ICE_SERVERS
+        );
         const pc = new RTCPeerConnection({ iceServers });
         pcsRef.current.set(peerId, pc);
         pcCreatedRef.current.set(peerId, Date.now());

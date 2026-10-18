@@ -12,6 +12,30 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/**": ["./messages/**/*"],
   },
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          // Clickjacking / MIME sniffing / referrer leakage — no downside.
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "X-DNS-Prefetch-Control", value: "on" },
+          // WebRTC app: only this origin may use camera/mic.
+          {
+            key: "Permissions-Policy",
+            value: "camera=(self), microphone=(self), geolocation=(), payment=()",
+          },
+          // HSTS (Vercel terminates TLS; browsers then refuse plain HTTP).
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);

@@ -40,10 +40,13 @@ type PoolAccount = {
 
 type StorageInfo = {
   adminConfigured: boolean;
-  accounts: PoolAccount[];
-  objects: { count: number; bytes: number };
-  aiCache: { rows: number; bytes: number; maxBytes: number };
-  tables: { model: string; rows: number }[];
+  // Operational detail is served ONLY with a valid admin token (audit P1-10)
+  // — without one the GET returns just { adminConfigured, limits }, so every
+  // gated field must be treated as possibly missing by the render.
+  accounts?: PoolAccount[];
+  objects?: { count: number; bytes: number };
+  aiCache?: { rows: number; bytes: number; maxBytes: number };
+  tables?: { model: string; rows: number }[];
 };
 
 const TOKEN_KEY = "bolo.storageAdmin";
@@ -72,9 +75,15 @@ export default function StoragePoolCard() {
     publicBaseUrl: "",
   });
 
-  const load = useCallback(async () => {
+  // GET now requires the token for operational detail (audit P1-10) — send
+  // it when the owner already saved one.
+  const load = useCallback(async (tokenArg?: string) => {
     try {
-      const res = await fetch("/api/storage", { cache: "no-store" });
+      const t = tokenArg ?? "";
+      const res = await fetch("/api/storage", {
+        cache: "no-store",
+        headers: t ? { "x-admin-token": t } : undefined,
+      });
       if (!res.ok) throw new Error("load failed");
       setInfo((await res.json()) as StorageInfo);
       setFailed(false);
@@ -84,8 +93,9 @@ export default function StoragePoolCard() {
   }, []);
 
   useEffect(() => {
-    setToken(localStorage.getItem(TOKEN_KEY) ?? "");
-    void load();
+    const stored = localStorage.getItem(TOKEN_KEY) ?? "";
+    setToken(stored);
+    void load(stored);
   }, [load]);
 
   const headers = useCallback(() => {
@@ -121,7 +131,7 @@ export default function StoragePoolCard() {
       }
     } finally {
       setBusy(null);
-      void load();
+      void load(token);
     }
   };
 
@@ -146,7 +156,7 @@ export default function StoragePoolCard() {
       });
     } finally {
       setBusy(null);
-      void load();
+      void load(token);
     }
   };
 
@@ -216,7 +226,7 @@ export default function StoragePoolCard() {
       }
     } finally {
       setBusy(null);
-      void load();
+      void load(token);
     }
   };
 
@@ -268,7 +278,7 @@ export default function StoragePoolCard() {
                   </strong>{" "}
                   {cache?.rows ?? "—"}
                 </span>
-                {info.tables
+                {(info.tables ?? [])
                   .filter((tb) => tb.model !== "AiCache")
                   .slice(0, 7)
                   .map((tb) => (
@@ -306,12 +316,12 @@ export default function StoragePoolCard() {
               <p className="mt-0.5 text-xs text-muted-foreground">{t("poolSub")}</p>
 
               <div className="mt-3 space-y-2">
-                {info.accounts.length === 0 ? (
+                {(info.accounts ?? []).length === 0 ? (
                   <p className="text-xs italic text-muted-foreground">
                     {t("poolEmpty")}
                   </p>
                 ) : (
-                  info.accounts.map((a) => (
+                  (info.accounts ?? []).map((a) => (
                     <div
                       key={a.id}
                       className="flex flex-wrap items-center gap-2 rounded-lg border border-border/50 bg-background/60 p-2.5"
@@ -390,7 +400,7 @@ export default function StoragePoolCard() {
                 )}
               </div>
 
-              {info.accounts.length > 0 && (
+              {(info.accounts ?? []).length > 0 && (
                 <Button
                   size="sm"
                   variant="outline"

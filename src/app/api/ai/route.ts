@@ -1,6 +1,8 @@
+import { createHash } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit, checkIpLimit } from "@/lib/rate-limit";
+import { cleanStr } from "@/lib/validate";
 import { reqLocale, apiMsg, type ApiLocale } from "@/lib/api-i18n";
 import { GeminiError, geminiJson, getAiLevel, getUserName, getUserApiKey } from "@/lib/gemini";
 import { pruneAiCache } from "@/lib/ai-cache-prune";
@@ -89,15 +91,16 @@ async function cachedJson<T>(
   cacheKey: string,
   apiKey: string,
   prompt: string,
-  temperature = 0.6
+  temperature = 0.6,
+  opts: { maxOutputTokens?: number } = {}
 ): Promise<T> {
   const hit = await db.aiCache.findUnique({
     where: { feature_cacheKey: { feature, cacheKey } },
   });
   if (hit) return JSON.parse(hit.response) as T;
-  // No explicit token cap — geminiJson applies a generous per-model budget so
-  // long answers never truncate mid-JSON.
-  const data = await geminiJson<T>(apiKey, prompt, { temperature });
+  // Per-feature output cap + label for token accounting. Capped budgets keep
+  // long answers from truncating mid-JSON while preventing runaway replies.
+  const data = await geminiJson<T>(apiKey, prompt, { temperature, label: feature, ...opts });
   await db.aiCache
     .create({ data: { feature, cacheKey, response: JSON.stringify(data) } })
     .catch(() => null);
@@ -107,8 +110,14 @@ async function cachedJson<T>(
   return data;
 }
 
-const todayDhaka = () =>
-  new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Dhaka" }).format(new Date());
+// Bounded prompt inputs — every uncapped string here lands in BOTH the model
+// prompt AND the shared AiCache key (audit: a giant topic once meant a giant
+// cacheKey row + token burn on the caller's own key).
+const LEVELS = ["beginner", "intermediate", "advanced"] as const;
+const cleanLevel = (v: unknown, fallback: string): string => {
+  const s = typeof v === "string" ? v.trim() : "";
+  return (LEVELS as readonly string[]).includes(s) ? s : fallback;
+};
 
 /* ── CALL-ANALYSIS helpers (feature: call-analysis ONLY) ──────────────────
  * Deep-analysis support: defensive transcript parsing, learner-line
@@ -362,6 +371,11 @@ export async function POST(req: NextRequest) {
   if (!checkRateLimit(deviceId)) {
     return jsonErr(apiMsg(locale, "rateLimited"), 429);
   }
+  // Second axis: per-IP. The device key above is client-supplied (trivially
+  // rotated) — the IP limit catches loops and key-drain bots (audit P1-5).
+  if (!checkIpLimit(req, "ai", 60)) {
+    return jsonErr(apiMsg(locale, "rateLimited"), 429);
+  }
 
   // Explanation language follows the UI locale (en default, bn/hi optional)
   const lang = LANG_POLICY[locale] ?? DEFAULT_POLICY;
@@ -449,48 +463,120 @@ Return STRICT JSON:
         return jsonOk(data);
       }
 
-      /* ---------------- VOCABULARY ---------------- */
-      case "vocab-daily": {
-        const date = String(payload.date ?? todayDhaka());
-        const exclude = Array.isArray(payload.exclude) ? payload.exclude.join(", ") : "";
-        const data = await cachedJson<DailyWord[]>(
-          "vocab-daily",
-          `${date}::${userLevel}::${locale}`,
+      /* ---------------- GRAMMAR ---------------- */
+      case "grammar-lesson": {
+        const topic = cleanStr(payload.topic, 120);
+        const level = cleanLevel(payload.level, userLevel);
+        const data = await cachedJson<GrammarLessonContent>(
+          "grammar-lesson",
+          `${topic}::${level}::${locale}`,
           apiKey,
-          `Pick 3 practical, real-life English words that learners at ${userLevel} level should learn TODAY (not too obscure, used in daily conversation/work).
-Words already taught (do NOT repeat): ${exclude || "(none)"}. ${lang.rule}
-Return STRICT JSON array of 3:
-[ { "word": "English word", "pronunciation": "${lang.pron}", "partOfSpeech": "noun/verb/adj/adverb", "banglaMeaning": "meaning ${lang.short}", "englishMeaning": "simple English meaning", "examples": ["English sentence 1", "English sentence 2"], "usageTip": "when/how to really use it ${lang.short}" } ]
-Words must be useful in real life (office, market, travel, feelings, internet). Return ONLY the JSON array.`,
-          0.8
+          `You are an expert English grammar teacher. The student reads explanations in ${locale === "bn" ? "Bengali" : locale === "hi" ? "Hindi" : "simple English"}.
+Teach the grammar topic "${topic}" at ${level} level. ${lang.rule}
+Return STRICT JSON with this shape:
+{
+  "title": "English topic title",
+  "level": "${level}",
+  "intro": "2-3 sentence intro ${lang.short} — why this topic matters",
+  "sections": [
+    {
+      "heading": "sub-topic name (may mix English terms)",
+      "explanation": "clear explanation ${lang.short}, use a comparison to the student's everyday language if it helps",
+      "examples": [ { "wrong": "wrong English sentence", "right": "correct English sentence", "note": "why wrong/right ${lang.short}" } ]
+    }
+  ],
+  "tips": ["5-6 practical tips ${lang.short}"]
+}
+"sections" must have 3-4 sections, each with 2-3 examples. Return ONLY the JSON.`,
+          0.4,
+          { maxOutputTokens: 8192 }
         );
         return jsonOk(data);
       }
 
+      case "grammar-quiz": {
+        const topic = cleanStr(payload.topic, 120);
+        const level = cleanLevel(payload.level, userLevel);
+        const count = Math.min(Number(payload.count ?? 5), 10);
+        const data = await cachedJson<QuizQuestion[]>(
+          "grammar-quiz",
+          `${topic}::${level}::${count}::${locale}`,
+          apiKey,
+          `You are an English quiz master.
+Create ${count} multiple-choice questions to practice "${topic}" grammar at ${level} level.
+${lang.rule} Return STRICT JSON array:
+[ { "question": "English question with a blank or choice", "options": ["a","b","c","d"], "answer": 0, "explanation": "why this is correct ${lang.short}" } ]
+"answer" is the 0-based index of the correct option. Options must be plausible. Questions must be in English. Return ONLY the JSON array.`,
+          0.5,
+          { maxOutputTokens: 4096 }
+        );
+        return jsonOk(data);
+      }
+
+      /* ---------------- LISTENING ---------------- */
+      case "listening-story": {
+        const topic = cleanStr(payload.topic ?? "daily life", 120);
+        const level = cleanLevel(payload.level, userLevel);
+        const data = await cachedJson<ListeningStoryContent>(
+          "listening-story",
+          `${topic}::${level}::${locale}`,
+          apiKey,
+          `You write short English listening stories for English learners.
+Write a story about "${topic}" at ${level} English level. ${lang.rule}
+Return STRICT JSON:
+{
+  "title": "English story title",
+  "level": "${level}",
+  "story": ["English paragraph 1 (2-3 short sentences)", "English paragraph 2", "... 4-6 paragraphs total"],
+  "banglaSummary": "2-3 sentence story summary ${lang.short} (shown after listening)",
+  "questions": [ { "question": "English comprehension question", "options": ["a","b","c","d"], "answer": 0, "explanation": "where the answer comes from ${lang.short}" } ]
+}
+5 comprehension questions. Sentences short & natural. Return ONLY the JSON.`,
+          0.8,
+          { maxOutputTokens: 8192 }
+        );
+        return jsonOk(data);
+      }
+
+      /* ---------------- VOCABULARY ---------------- */
       case "vocab-lookup": {
-        const word = String(payload.word ?? "").trim().slice(0, 40);
+        const word = cleanStr(payload.word, 40);
         if (!word) return jsonErr(apiMsg(locale, "wordRequired"), 400);
-        const data = await geminiJson<DailyWord>(
+        // Deterministic lookup (temp 0.3): the same word+level+locale always
+        // yields the same answer — cache it so repeat lookups are FREE
+        // (audit: this was uncached, so every re-check paid full tokens).
+        const data = await cachedJson<DailyWord>(
+          "vocab-lookup",
+          `${word.toLowerCase()}::${userLevel}::${locale}`,
           apiKey,
           `Explain the English word "${word}" for a learner at ${userLevel} level. ${lang.rule}
 Return STRICT JSON: { "word": "${word}", "pronunciation": "${lang.pron}", "partOfSpeech": "...", "banglaMeaning": "meaning ${lang.short}", "englishMeaning": "...", "examples": ["sentence 1","sentence 2"], "usageTip": "real usage ${lang.short}" }
 If "${word}" is not a real English word, still return JSON but put "word": "" and explain in usageTip that it seems invalid. Return ONLY the JSON.`,
-          { temperature: 0.3 }
+          0.3,
+          { maxOutputTokens: 1536 }
         );
         return jsonOk(data);
       }
 
       case "vocab-quiz": {
-        const words = (Array.isArray(payload.words) ? payload.words : []).slice(0, 10);
+        const words = (Array.isArray(payload.words) ? payload.words : [])
+          .map((w) => cleanStr(w, 40))
+          .filter(Boolean)
+          .slice(0, 10);
         if (words.length < 3) return jsonErr(apiMsg(locale, "quizNeedsWords"), 400);
-        const data = await geminiJson<QuizQuestion[]>(
+        // Same saved words → same quiz: cache by the sorted word set (audit).
+        const wordKey = [...words.map((w) => w.toLowerCase())].sort().join("+");
+        const data = await cachedJson<QuizQuestion[]>(
+          "vocab-quiz",
+          `${wordKey}::${locale}`,
           apiKey,
           `Create a 6-question multiple-choice English vocabulary quiz testing these words: ${words.join(", ")}. ${lang.rule}
 Mix question types: fill-in-the-blank, meaning-match, correct-usage.
 Return STRICT JSON array:
 [ { "question": "English question", "options": ["a","b","c","d"], "answer": 0, "explanation": "explanation ${lang.short}" } ]
 "answer" = 0-based index of the correct option. Return ONLY the JSON array.`,
-          { temperature: 0.5 }
+          0.5,
+          { maxOutputTokens: 4096 }
         );
         return jsonOk(data);
       }
@@ -498,7 +584,7 @@ Return STRICT JSON array:
       /* ---------------- SPEAKING: AI PARTNER ---------------- */
       case "chat-partner": {
         const history = Array.isArray(payload.history) ? payload.history.slice(-12) : [];
-        const topic = String(payload.topic ?? "free conversation");
+        const topic = cleanStr(payload.topic ?? "free conversation", 80);
         const levelInstruction: Record<string, string> = {
           beginner: "use very simple English, short sentences",
           intermediate: "use natural everyday English",
@@ -513,14 +599,17 @@ Conversation history (JSON): ${JSON.stringify(history)}
 Return STRICT JSON:
 { "reply": "Your English reply (1-3 sentences)", "banglaHint": "one-line hint ${lang.short} about what to say", "corrections": [ { "original": "user's wrong sentence", "corrected": "corrected sentence", "type": "grammar", "explanation": "why ${lang.short}" } ], "followUp": "Your follow-up question in English" }
 corrections may be empty if user's English is fine. Return ONLY the JSON.`,
-          { temperature: 0.7 }
+          { temperature: 0.7, maxOutputTokens: 2048, label: "chat-partner" }
         );
         return jsonOk(data);
       }
 
       /* ---------------- SPEAKING: LIVE CORRECTION ---------------- */
       case "realtime-correction": {
-        const lines = (Array.isArray(payload.lines) ? payload.lines : []).slice(-14);
+        const lines = (Array.isArray(payload.lines) ? payload.lines : [])
+          .slice(-14)
+          .map((l) => cleanStr(l, 300))
+          .filter(Boolean);
         if (lines.length === 0) return jsonOk({ corrections: [], encouragement: "" });
         const data = await geminiJson<RealtimeCorrections>(
           apiKey,
@@ -530,7 +619,7 @@ Sentences: ${JSON.stringify(lines)}
 Return STRICT JSON:
 { "corrections": [ { "original": "spoken sentence", "corrected": "better sentence", "type": "grammar", "explanation": "one line — why ${lang.short}" } ], "encouragement": "one-line encouragement ${lang.short}" }
 If no real mistakes: { "corrections": [], "encouragement": "..." } Return ONLY the JSON.`,
-          { temperature: 0.3 }
+          { temperature: 0.3, maxOutputTokens: 1536, label: "realtime-correction" }
         );
         return jsonOk(data);
       }
@@ -566,16 +655,18 @@ If no real mistakes: { "corrections": [], "encouragement": "..." } Return ONLY t
           text: l.text,
         }));
 
+        // TOKEN FIX (audit): the learner's lines used to be embedded TWICE —
+        // once inside `dialogue` (marked who:"me") and again as a separate
+        // `userLines` array (~500-1,000 duplicated tokens per analysis,
+        // doubled by retries). The dialogue's who-markers carry the same
+        // information — the separate block is gone.
         const rawAnalysis = await geminiJson<unknown>(
           apiKey,
           `You are an expert English communication coach doing a DEEP post-call analysis of a learner's real conversation (video call, ${Math.round(durationSec / 60)} min, ${partnerCount} participant(s), learner level: ${userLevel}).
 Learner: ${userName}.
 
-Full dialogue in speaking order — "who":"me" marks the LEARNER's lines, "who":"partner" is the other person. Use it as CONTEXT so every correction and improvement fits what was actually said:
+Full dialogue in speaking order — "who":"me" marks the LEARNER's lines (analyze THESE), "who":"partner" is the other person (context). Use it so every correction and improvement fits what was actually said:
 ${JSON.stringify(dialogue)}
-
-The learner's own lines to analyze (newest last):
-${JSON.stringify(userLines.map((l) => l.text))}
 
 ${trend.hint}
 ${lang.rule}
@@ -601,7 +692,7 @@ Return STRICT JSON:
   "focusPlan": [ { "title": "short title ${lang.short}", "why": "why it matters ${lang.short}", "drill": "concrete 5-minute drill ${lang.short}" } ]
 }
 Return ONLY the JSON.`,
-          { temperature: 0.4 }
+          { temperature: 0.4, maxOutputTokens: 8192, label: "call-analysis" }
         );
 
         const analysis = sanitizeCallAnalysis(rawAnalysis, {
@@ -627,10 +718,10 @@ Return ONLY the JSON.`,
       // This is the moment the learner's own Gemini key is consumed —
       // BROWSING the library itself stays 100% free.
       case "sentence-check": {
-        const word = String(payload.word ?? "").trim().slice(0, 60);
-        const sentence = String(payload.sentence ?? "").trim().slice(0, 300);
+        const word = cleanStr(payload.word, 60);
+        const sentence = cleanStr(payload.sentence, 300);
         if (!sentence) return jsonErr(apiMsg(locale, "sentenceRequired"), 400);
-        const meaning = String(payload.meaning ?? "").trim().slice(0, 200);
+        const meaning = cleanStr(payload.meaning, 200);
         const data = await geminiJson<SentenceCheckResult>(
           apiKey,
           `You are a patient English teacher. An English learner wrote a sentence using the word "${word}"${meaning ? ` (word meaning: ${meaning})` : ""}.
@@ -645,7 +736,7 @@ Check the sentence and return STRICT JSON:
   "improved": "a more natural, advanced version of their sentence"
 }
 Rules: ignore missing capitalization of "i" only if everything else is fine — still mark verdict correct but mention it in a suggestion. If the sentence does not actually use the word "${word}", set verdict "incorrect" and say so in the explanation. Be encouraging, never harsh. Return ONLY the JSON.`,
-          { temperature: 0.3 }
+          { temperature: 0.3, maxOutputTokens: 2048, label: "sentence-check" }
         );
         return jsonOk(data);
       }
@@ -656,11 +747,16 @@ Rules: ignore missing capitalization of "i" only if everything else is fine — 
       // understand. The content itself is passed in as context; only this
       // interaction uses the learner's Gemini key.
       case "content-ask": {
-        const question = String(payload.question ?? "").trim().slice(0, 400);
+        const question = cleanStr(payload.question, 400);
         if (!question) return jsonErr(apiMsg(locale, "questionRequired"), 400);
-        const title = String(payload.title ?? "").trim().slice(0, 120);
-        const context = String(payload.context ?? "").trim().slice(0, 4000);
-        const data = await geminiJson<ContentAnswer>(
+        const title = cleanStr(payload.title, 120);
+        const context = cleanStr(payload.context, 4000);
+        // Same content + same question → same answer: cache by a hash of the
+        // (bounded) context so repeated asks on a library page are FREE.
+        const ctxHash = createHash("sha256").update(context).digest("hex").slice(0, 16);
+        const data = await cachedJson<ContentAnswer>(
+          "content-ask",
+          `${title}::${ctxHash}::${question.toLowerCase()}::${locale}`,
           apiKey,
           `You are a friendly English teacher on a learning site. A learner is reading this stored content:
 Title: ${title || "(library content)"}
@@ -670,7 +766,8 @@ ${lang.rule}
 Answer their question clearly and simply (max ~120 words), based on the content above. If the answer is not in the content, still help — you are their teacher. If the learner asks in Bengali or Hindi, follow the language rule anyway. Return STRICT JSON:
 { "answer": "clear answer ${lang.short} (2-6 sentences)", "bullets": ["optional 2-4 very short key points ${lang.short}"] }
 "bullets" may be an empty array. Return ONLY the JSON.`,
-          { temperature: 0.4 }
+          0.4,
+          { maxOutputTokens: 1536 }
         );
         return jsonOk(data);
       }

@@ -1,4 +1,4 @@
-import { createHash } from "crypto";
+import { createHash, timingSafeEqual } from "crypto";
 
 /* ─── Site-owner admin authorization (shared by all admin APIs) ────────────
  * Used by /api/library, /api/storage and /api/turn so the owner configures
@@ -24,12 +24,24 @@ export function sha256Hex(input: string): string {
   return createHash("sha256").update(input, "utf8").digest("hex");
 }
 
+/** Length-safe constant-time comparison — no trivial length oracle. */
+function safeEqual(a: string, b: string): boolean {
+  const ab = Buffer.from(a, "utf8");
+  const bb = Buffer.from(b, "utf8");
+  if (ab.length !== bb.length) {
+    timingSafeEqual(Buffer.alloc(32), Buffer.alloc(32)); // burn comparable time
+    return false;
+  }
+  return timingSafeEqual(ab, bb);
+}
+
 /** True when the presented token is a valid site-owner admin token. */
 export function isAdminToken(token: string | null | undefined): boolean {
   if (!token) return false;
   const envToken = process.env.ADMIN_TOKEN || process.env.STORAGE_ADMIN_TOKEN;
-  if (envToken && token === envToken) return true;
-  return SHIPPED_TOKEN_SHA256.includes(sha256Hex(token));
+  if (envToken && safeEqual(token, envToken)) return true;
+  const digest = sha256Hex(token);
+  return SHIPPED_TOKEN_SHA256.some((h) => safeEqual(digest, h));
 }
 
 /** True when ANY admin path is configured (env var or shipped hash). */

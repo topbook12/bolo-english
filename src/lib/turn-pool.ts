@@ -15,8 +15,13 @@ import { decryptKey } from "@/lib/crypto";
 const MINT_URL = (keyId: string) =>
   `https://rtc.live.cloudflare.com/v1/turn/keys/${keyId}/credentials/generate-ice-servers`;
 
-const CRED_TTL_SEC = 6 * 3600; // 6h — call sessions are far shorter
-const CACHE_TTL_MS = (CRED_TTL_SEC - 30 * 60) * 1000; // keep 30min safety margin
+const CRED_TTL_SEC = 15 * 60; // 15min — short-lived limits the value of a leaked cred
+const CACHE_TTL_MS = (CRED_TTL_SEC - 3 * 60) * 1000; // keep 3min safety margin
+
+// A key that just failed to mint is not retried for this long — protects the
+// mint endpoint (and our status churn) from per-call hammering.
+const FAILED_COOLDOWN_MS = 10 * 60 * 1000;
+const failedAt = new Map<string, number>();
 
 export type IceServer = { urls: string[]; username?: string; credential?: string };
 
@@ -50,13 +55,19 @@ export async function listTurnKeys(): Promise<TurnRow[]> {
     }));
 }
 
-/** Mint short-lived iceServers from one key. Returns null on failure. */
+/** Mint short-lived iceServers from one key.
+ *  - IceServer[]        → fresh (or cached) credentials
+ *  - { dead: true }     → the key itself is invalid (401/403) — mark exhausted
+ *  - null               → transient failure / in cooldown — do NOT mark */
 export async function mintIceServers(
   keyId: string,
   apiToken: string
-): Promise<IceServer[] | null> {
+): Promise<IceServer[] | { dead: true } | null> {
   const hit = cache.get(keyId);
   if (hit && hit.expires > Date.now()) return hit.servers;
+  // recent failure → cooldown (prevents burning quota on a dead key)
+  const failed = failedAt.get(keyId);
+  if (failed && Date.now() - failed < FAILED_COOLDOWN_MS) return null;
   try {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 10000);
@@ -70,18 +81,33 @@ export async function mintIceServers(
       signal: ctrl.signal,
     });
     clearTimeout(t);
-    if (!res.ok) return null;
+    if (!res.ok) {
+      // 401/403 = the key itself is dead → let the caller mark it exhausted.
+      // Transient errors (timeout/5xx/429) must NOT permanently burn the key:
+      // just cool it down briefly and let the next call retry.
+      if (res.status === 401 || res.status === 403) {
+        failedAt.set(keyId, Date.now());
+        return { dead: true as const };
+      }
+      failedAt.set(keyId, Date.now());
+      return null;
+    }
     const data = (await res.json()) as { iceServers?: IceServer[] };
     const servers = Array.isArray(data.iceServers) ? data.iceServers : null;
-    if (!servers) return null;
+    if (!servers) {
+      failedAt.set(keyId, Date.now());
+      return null;
+    }
     // Docs: browsers block port 53 — filter those URLs out to avoid timeouts.
     const cleaned = servers.map((s) => ({
       ...s,
       urls: s.urls.filter((u) => !/:53(\?|$)/.test(u)),
     }));
     cache.set(keyId, { servers: cleaned, expires: Date.now() + CACHE_TTL_MS });
+    failedAt.delete(keyId);
     return cleaned;
   } catch {
+    failedAt.set(keyId, Date.now());
     return null;
   }
 }
@@ -103,10 +129,14 @@ export async function iceFromPool(): Promise<IceServer[] | null> {
       const row = await db.turnKey.findUnique({ where: { id: k.id } });
       if (!row) continue;
       const servers = await mintIceServers(row.keyId, decryptKey(row.apiTokenEnc));
-      if (servers) return servers;
-      await db.turnKey
-        .update({ where: { id: k.id }, data: { status: "exhausted" } })
-        .catch(() => null);
+      if (servers && !("dead" in servers)) return servers;
+      // Only a DEFINITIVE rejection (401/403) marks the key exhausted —
+      // timeouts/5xx just cool down and are retried on a later call.
+      if (servers && "dead" in servers) {
+        await db.turnKey
+          .update({ where: { id: k.id }, data: { status: "exhausted" } })
+          .catch(() => null);
+      }
     } catch {
       continue;
     }
@@ -119,7 +149,8 @@ export async function iceFromEnv(): Promise<IceServer[] | null> {
   const keyId = process.env.CF_TURN_KEY_ID;
   const token = process.env.CF_TURN_API_TOKEN;
   if (!keyId || !token) return null;
-  return mintIceServers(keyId, token);
+  const servers = await mintIceServers(keyId, token);
+  return servers && !("dead" in servers) ? servers : null;
 }
 
 /** One-click probe used by the admin API. */
@@ -131,7 +162,10 @@ export async function testTurnKey(id: string): Promise<{
     const row = await db.turnKey.findUnique({ where: { id } });
     if (!row) return { ok: false, detail: "key not found" };
     const servers = await mintIceServers(row.keyId, decryptKey(row.apiTokenEnc));
-    if (!servers) return { ok: false, detail: "mint failed (bad token or quota)" };
+    if (servers && "dead" in servers)
+      return { ok: false, detail: "key rejected by Cloudflare (401/403) — replace the apiToken" };
+    if (!servers)
+      return { ok: false, detail: "mint failed (transient error or 10-min cooldown after a failure)" };
     const urls = servers.flatMap((s) => s.urls).filter((u) => u.startsWith("turn"));
     return { ok: true, detail: `OK — ${urls.length} TURN URLs minted` };
   } catch (e) {

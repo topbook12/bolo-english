@@ -6,6 +6,8 @@ import { geminiText, GeminiError } from "@/lib/gemini";
 import { getSessionUser } from "@/lib/auth";
 import { resolveConfigRow } from "@/lib/user-config";
 import { reqLocale, apiMsg } from "@/lib/api-i18n";
+import { checkIpLimit } from "@/lib/rate-limit";
+import { cleanDeviceId } from "@/lib/validate";
 import { isNoName } from "@/lib/no-name";
 
 // Display name precedence: account name → custom device name → null (client localizes)
@@ -122,7 +124,7 @@ async function writeConfig(
 // GET /api/config?deviceId=...  → masked profile (key never returned raw)
 export async function GET(req: NextRequest) {
   const locale = reqLocale(req);
-  const deviceId = req.nextUrl.searchParams.get("deviceId");
+  const deviceId = cleanDeviceId(req.nextUrl.searchParams.get("deviceId"));
   if (!deviceId) {
     return NextResponse.json({ ok: false, error: apiMsg(locale, "deviceIdRequired") }, { status: 400 });
   }
@@ -160,11 +162,17 @@ export async function GET(req: NextRequest) {
 // POST /api/config  { deviceId, apiKey?, displayName?, level? }
 export async function POST(req: NextRequest) {
   const locale = reqLocale(req);
+  // IP limiter: key saving triggers a live Gemini verification call —
+  // a flood here would burn verification requests (audit P0-3).
+  if (!checkIpLimit(req, "config-post", 15)) {
+    return NextResponse.json({ ok: false, error: apiMsg(locale, "rateLimited") }, { status: 429 });
+  }
   const body = await req.json().catch(() => null);
-  if (!body?.deviceId) {
+  const deviceId = cleanDeviceId(body?.deviceId);
+  if (!deviceId) {
     return NextResponse.json({ ok: false, error: apiMsg(locale, "deviceIdRequired") }, { status: 400 });
   }
-  const { deviceId, displayName, level } = body;
+  const { displayName, level } = body;
 
   const update: ConfigUpdate = {};
   if (typeof displayName === "string" && displayName.trim()) {
@@ -249,7 +257,7 @@ export async function POST(req: NextRequest) {
 // DELETE /api/config?deviceId=... → remove saved key (account + this device)
 export async function DELETE(req: NextRequest) {
   const locale = reqLocale(req);
-  const deviceId = req.nextUrl.searchParams.get("deviceId");
+  const deviceId = cleanDeviceId(req.nextUrl.searchParams.get("deviceId"));
   if (!deviceId) {
     return NextResponse.json({ ok: false, error: apiMsg(locale, "deviceIdRequired") }, { status: 400 });
   }

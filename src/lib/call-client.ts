@@ -109,6 +109,8 @@ export class CallClient {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(opts),
+        // A hung join used to spin "Joining…" forever — bound it.
+        signal: AbortSignal.timeout(12_000),
       });
     } catch {
       throw new Error(clientMsg("networkServer"));
@@ -254,7 +256,10 @@ export class CallClient {
         await this.sleep(POLL_INTERVAL_MS);
       } else {
         this.failures += 1;
-        this.issueCb?.(true);
+        // A single failed poll is routine on serverless (cold-start 502) —
+        // flashing "Reconnecting…" for it felt like the call was dying.
+        // Only a SUSTAINED outage (≥2 consecutive failures) raises the flag.
+        if (this.failures >= 2) this.issueCb?.(true);
         await this.sleep(this.failures === 1 ? RETRY_1_MS : RETRY_2_MS);
       }
     }
