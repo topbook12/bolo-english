@@ -2321,3 +2321,25 @@ Stage Summary:
 - Calls: connection-loss surfaces (STUN lock-in, crash lockout, screen-lock prune, hang-on-join, false "reconnecting") all fixed; recovery ladder now covers have-local-offer with real ICE restarts.
 - Tokens: worst-case retry spend halved, live-call cadence halved, 3 high-frequency features cached free, outputs capped per feature, per-feature token accounting visible in server logs.
 - Owner actions recommended (outside code): rotate the Metered credential at metered.ca (it lived in git history), set ENCRYPTION_SECRET on Vercel if not yet set, add TURN_URLS/TURN_USERNAME/TURN_CREDENTIAL env as the static fallback.
+
+---
+Task ID: 17
+Agent: main (Z.ai Code)
+Task: User request — (1) ensure whole-site tools all work; (2) native phone-call style graphics: "when we call someone on mobile, the kind of graphics it shows" — apply to the call flow AND during video calls.
+
+Work Log:
+- Read CallFlow/CallRoom/AiPartner/globals.css + all 3 call.*.json locales to map the current call UX.
+- Built a NATIVE PHONE-DIALER design system in globals.css: .call-backdrop (always-dark teal-night stage, theme-independent like real dialers), .call-orb-a/b drifting glow orbs, .call-ripple staggered expanding rings, .call-glass frosted surfaces, .call-btn glass circular buttons (+ -end red gradient, -on emerald glow, -off amber), .call-eq voice equalizer bars, .call-dots waiting dots; prefers-reduced-motion disables all.
+- New src/components/speaking/CallAvatar.tsx: gradient initial/emoji avatar + optional ripples; exports VoiceEq.
+- CallFlow matching screen → native dialer: CallAvatar with 3 ripple rings, joining/waiting status + animated dots, glass camera-error alert with retry, glass tips card, new i18n key call.secureNote ("Private & encrypted — peer-to-peer call" / bn / hi) with ShieldCheck, red round PhoneOff cancel button. Ended screen: red gradient PhoneMissed disc. Removed now-unused Badge/Alert imports.
+- CallRoom → immersive stage: whole call (status chips + video grid + controls) lives on one dark rounded stage with orbs; status chips are glass pills (Live, mono timer, peers, room code + copy, sentences, reconnecting amber); controls are a floating glass bar — mic/cam amber when off, captions emerald glow when on, live-correction switch in a glass pill, red end button; name chips are dark glass with VoiceEq while the peer speaks + MicOff glyph on self when muted; avatar fallback (CallAvatar) when self cam is off or remote stream missing — no more dead black tiles; chat panel carries its OWN dark gradient (QA found: bare call-glass on the light page was invisible) + CHAT header.
+- AiPartner: Raha header = native-call presence (amber pulse while generating, VoiceEq while TTS speaks via utter.onstart/onend, green when idle); toggleVoice also resets ttsSpeaking.
+- Browser verification (agent-browser, headless): mocked camera/mic via canvas.captureStream + oscillator so getUserMedia succeeds → 1:1 quick match → dialer screen (desktop EN screenshot; ripple rings + glass + red cancel all live) → fake 2nd peer via curl POST /api/call/join → live stage renders with glass chips (Live/timer/2 in call/code copy), remote tile Connecting overlay, self canvas video in tile, glass controls; toggled cam off → avatar fallback + amber cam button; opened chat → found + FIXED invisible-panel bug → sent "Hello from QA!" renders in rose bubble; End call → ended screen; mobile 390×844 dialer + live stage screenshots OK (self-tile black = headless detached-canvas track throttling artifact at videoWidth 2 — app pipeline proven fine on desktop, readyState 4 + playing).
+- Whole-site sweep: Home, Speak (menu/AI partner/call flow), Grammar (lesson open + quiz answered "Correct!" + next), Listening, Reading (18 passages + filters), Vocabulary (daily words + wordbook), Progress, Settings (key input, admin token cards) — all render; language switched to বাংলা → dialer shows "খা" initial, bn secureNote, bn tips, red বাতিল করুন (screenshot verified); call.en/bn/hi key parity = 71/71/71.
+- Cleanliness: QA rooms/messages/practice rows — 0 in DB (server stale-prune already removed them); no sessions written (analysis never ran); /tmp scripts disposable.
+- tsc 0 errors, eslint clean, dev.log clean, agent-browser console/errors empty.
+
+Stage Summary:
+- The call experience now looks and feels like the native mobile dialer end-to-end: dark immersive stage, ripple avatar while waiting, glass chips/controls during the call, voice equalizers on speakers, avatar fallbacks instead of black frames, dark chat panel.
+- All site tools verified working across 3 locales; 1 real bug found & fixed during QA (chat panel visibility).
+- Committed 7d44f9b (8 files, +608/−230) + pushed → Vercel auto-deploy.
