@@ -441,7 +441,7 @@ export const SEED_GRAMMAR_V4_A1B: SeedGrammarV4Entry[] = [
             { bn: "জোর দেওয়ার অংশটা It was-এর ঠিক পরে বসে; বাকি বাক্য who/that-এর পরে ছায়ায় থাকে।", en: "The focus sits right after It was; the rest of the sentence stays in the shadow after who/that.", hi: "ज़ोर देने का अंश It was के ठीक बाद बैठता है; बाकी वाक्य who/that के बाद छाया में रहता है।" },
           ],
           examples: [
-            { wrong: "It was Karim which fixed the projector.", right: "It was Karim who fixed the projector.", note: { bn: "it-cleft-এ ফোকাস মানুষ হলে who — which শুধু জিনিসের জন্য; এই ভুল it-cleft-এর সবচেয়ে পরিচিত ফাঁদ।", en: "In an it-cleft a person takes who — which is only for things; this is the most familiar trap of the it-cleft.", hi: "it-cleft में व्यक्ति के लिए who — which केवल वस्तु के लिए; यह it-cleft की सबसे जानी-पहचानी फँसी है।" } },
+            { wrong: "It was Karim which fixed the projector.", right: "It was Karim who fixed the projector.", note: { bn: "it-cleft-এ ফোকাস মানুষ হলে who — which শুধু জিনিসের জন্য; এই ভুল it-cleft-এর সবচেয়ে পরিচিত ফাঁদ।", en: "In an it-cleft a person takes who — which is only for things; this is the most familiar trap of the it-cleft.", hi: "it-cleft में व्यक्ति के लिए who — which केवल वस्तु के लिए; यह it-cleft का सबसे जाना-पहचाना जाल है।" } },
           ],
         },
         {
@@ -687,7 +687,7 @@ export const SEED_GRAMMAR_V4_A1B: SeedGrammarV4Entry[] = [
           lead: {
             bn: "ছয় দল সূক্ষ্ম ভুল বাক্যের দেহ ঠিক রেখে হাড়ে গর্ত করে — লিস্টটা মুখস্থ।",
             en: "Six groups of subtle errors hollow out a healthy sentence — memorise this list.",
-            hi: "छह समूह की सूक्ष्म गलतियाँ सेहतमंद वाक्य में हड्डी में गड्ढा करती हैं — यह सूची याद करें।",
+            hi: "छह समूह की सूक्ष्म गलतियाँ सेहतमंद वाक्य को भीतर से खोखला कर देती हैं — यह सूची याद करें।",
           },
           points: [
             { bn: "**দল ১ — পুনরাবৃত্ত সর্বনাম**: বাংলা 'যা দরকার, সেটা হলো'-র ছায়ায় What I need, that is time লেখা হয়; what-clause শেষ হলে সরাসরি is।", en: "**Group 1 — resumptive pronouns**: under the shadow of Bengali 'যা দরকার, সেটা হলো', learners write What I need, that is time; when the what-clause ends, is follows directly.", hi: "**समूह 1 — पुनरुक्ति-सर्वनाम**: बांग्ला/हिंदी 'जो चाहिए, वह है' की छाया में What I need, that is time लिख दिया जाता है; what-clause ख़त्म, फिर सीधे is।" },

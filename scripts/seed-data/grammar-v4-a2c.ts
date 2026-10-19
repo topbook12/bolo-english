@@ -199,7 +199,7 @@ export const SEED_GRAMMAR_V4_A2C: SeedGrammarV4Entry[] = [
               note: {
                 bn: "present perfect → past perfect (have lost → had lost); 'হারিয়েছে' শুনে has থেকে যাওয়া বাংলাভাষীর চিরচেনা ফাঁদ।",
                 en: "present perfect → past perfect (have lost → had lost); keeping has after 'হারিয়েছে' is a classic Bengali-speaker trap.",
-                hi: "present perfect → past perfect (have lost → had lost); 'खो दिया है' सुनकर has छोड़ देना पुरानी फँसी है।",
+                hi: "present perfect → past perfect (have lost → had lost); 'खो दिया है' सुनकर has छोड़ देना पुरानी चूक है।",
               },
             },
             {
@@ -385,7 +385,7 @@ export const SEED_GRAMMAR_V4_A2C: SeedGrammarV4Entry[] = [
           },
           lead: {
             bn: "said-কে বিদায় দিয়ে সঠিক রিপোর্টিং verb — এটাই C1 লেখার রসদ; আগে ম্যাপটা দেখুন।",
-            en: "Retiring said for the precise reporting verb — that is the food of C1 writing; see the map first.",
+            en: "Retiring said for the precise reporting verb — that is the staple of C1 writing; see the map first.",
             hi: "said को विदा देकर सही रिपोर्टिंग verb — यही C1 लेखन का आहार है; पहले नक्शा देखें।",
           },
           table: {
@@ -403,7 +403,7 @@ export const SEED_GRAMMAR_V4_A2C: SeedGrammarV4Entry[] = [
             ],
           },
           points: [
-            { bn: "C1 লেখার রসদ — said-কে বিদায় দিয়ে অর্থমতো রিপোর্টিং verb বেছে নেওয়া; তবে প্রতিটার নিজের প্যাটার্ন আছে।", en: "The food of C1 writing is retiring said for the precise reporting verb — but each has its own pattern.", hi: "C1 लेखन का आहार — said को विदा देकर अर्थपूर्ण रिपोर्टिंग verb चुनना; पर हर एक का अपना पैटर्न है।" },
+            { bn: "C1 লেখার রসদ — said-কে বিদায় দিয়ে অর্থমতো রিপোর্টিং verb বেছে নেওয়া; তবে প্রতিটার নিজের প্যাটার্ন আছে।", en: "The staple of C1 writing is retiring said for the precise reporting verb — but each has its own pattern.", hi: "C1 लेखन का आहार — said को विदा देकर अर्थपूर्ण रिपोर्टिंग verb चुनना; पर हर एक का अपना पैटर्न है।" },
             { bn: "পরিবার মুখস্থ হলে বাক্য দুই ধাপ পেশাদার হয়: 'He said he did not take it' → 'He denied taking it'।", en: "Once the families are memorised, sentences rise two steps in professionalism: 'He said he did not take it' → 'He denied taking it'.", hi: "परिवार रट जाएँ तो वाक्य दो पायदान पेशेवर: 'He said he did not take it' → 'He denied taking it'।" },
             { bn: "এক ক্রিয়ায় অস্বীকারের পুরো জোর এসে যায় — deny-র সঙ্গে that...not জুড়তে হয় না।", en: "One verb carries the whole force of denial — deny never pairs with that...not.", hi: "एक क्रिया में इनकार की पूरी ताक़त आ जाती है — deny के साथ that...not नहीं जोड़ा जाता।" },
             { bn: "অস্বীকারটা deny-র ভেতরেই বাস করে — নিচের অংশগুলোতে পাঁচ পরিবার একে একে।", en: "The denial already lives inside deny — the next parts walk through the five families one by one.", hi: "इनकार deny के भीतर ही रहता है — अगले भागों में पाँचों परिवार एक-एक करके।" },
@@ -733,7 +733,7 @@ export const SEED_GRAMMAR_V4_A2C: SeedGrammarV4Entry[] = [
           },
           points: [
             { bn: "**দল ১ — ব্যক্তি ছাড়া tell** — 'The teacher told that...' — tell-এর ব্যক্তি ছাড়া অস্তিত্ব নেই।", en: "**Group 1 — tell without a person** — 'The teacher told that...' — tell cannot exist without its person.", hi: "**समूह 1 — बिना व्यक्ति tell** — 'The teacher told that...' — tell बिना व्यक्ति रह नहीं सकता।" },
-            { bn: "'explained us the rules' — explain/describe/suggest দুই object নেয় না; এরাও একই double-object ফাঁদ।", en: "'explained us the rules' — explain/describe/suggest take no two objects; the same double-object trap.", hi: "'explained us the rules' — explain/describe/suggest दो objects नहीं लेते; यही double-object फँसी।" },
+            { bn: "'explained us the rules' — explain/describe/suggest দুই object নেয় না; এরাও একই double-object ফাঁদ।", en: "'explained us the rules' — explain/describe/suggest take no two objects; the same double-object trap.", hi: "'explained us the rules' — explain/describe/suggest दो objects नहीं लेते; यही double-object जाल।" },
             { bn: "**দল ২ — auxiliary-ছায়া** — reported question-এ প্রশ্নের গড়ন ফিরে আসে: 'asked me whether did I know'।", en: "**Group 2 — auxiliary shadows** — the question order sneaks back into a reported question: 'asked me whether did I know'.", hi: "**समूह 2 — auxiliary-छाया** — reported question में प्रश्न-क्रम लौट आता है: 'asked me whether did I know'।" },
             { bn: "**দল ৩ — দীর্ঘ বাক্যে ব্যাকশিফট ঝরে পড়া** — প্রথম clause-এ had/would ঠিক থাকে, শেষ প্রান্তে has/will ফিরে আসে।", en: "**Group 3 — the backshift dripping away in long sentences** — had/would hold in the first clause, but has/will sneak back at the far end.", hi: "**समूह 3 — लंबे वाक्य में backshift टपकना** — पहले clause में had/would सही, दूर छोर पर has/will लौट आते हैं।" },
             { bn: "**দল ৪ — আদেশে said...to** — 'She said me to wait' → She told me to wait।", en: "**Group 4 — said...to for commands** — 'She said me to wait' → She told me to wait.", hi: "**समूह 4 — आदेश में said...to** — 'She said me to wait' → She told me to wait।" },

@@ -61,7 +61,7 @@ export const SEED_READING_V1_INTERMEDIATE: SeedReadingEntry[] = [
         },
         {
           en: "He checked the list slowly while the bus hummed along the dark highway. 'Here it is — seat C14, Gabtoli to Rajshahi, paid in cash. No need to pay twice. But listen, young man: next time, keep your ticket in your bag, not in your pocket.' Sabuj thanked him again and again, feeling the worry melt away like fog in the morning sun.",
-          bn: "অন্ধকার মহাসড়ক ধরে বাস যখন গুনগুন করে ছুটছে, তখন তিনি ধীরে ধীরে তালিকাটা মিলিয়ে দেখলেন। 'পেয়েছি — সিট C14, গাবতলী থেকে রাজশাহী, নগদে টাকা দেওয়া। দুইবার টাকা দিতে হবে না। তবে শোনো তরুণ, পরেরবার টিকিট পকেটে না, ব্যাগে রাখবে।' সবুজ বারবার ধন্যবাদ দিল, আর অনুভব করল ভয়টা সকালের রোদে কুয়াশা গলে যাওয়ার মতো কেটে যাচ্ছে।",
+          bn: "অন্ধকার মহাসড়ক ধরে বাস যখন গুনগুন করে ছুটছে, তখন তিনি ধীরে ধীরে তালিকাটা মিলিয়ে দেখলেন। 'পেয়েছি — সিট C14, গাবতলী থেকে রাজশাহী, নগদে টাকা দেওয়া। দুইবার টাকা দিতে হবে না। তবে শোন তরুণ, পরেরবার টিকিট পকেটে না, ব্যাগে রাখবে।' সবুজ বারবার ধন্যবাদ দিল, আর অনুভব করল ভয়টা সকালের রোদে কুয়াশা গলে যাওয়ার মতো কেটে যাচ্ছে।",
           hi: "अंधेरे राजमार्ग पर बस जब गुनगुनाती चल रही थी, वह धीरे-धीरे सूची मिलाने लगा। 'मिल गया — सीट C14, गाबतली से राजशाही, नकद भुगतान। दो बार पैसे देने की ज़रूरत नहीं। पर सुनो, नौजवान — अगली बार टिकट जेब में नहीं, बैग में रखना।' सबुज बार-बार उसका धन्यवाद किया, और महसूस किया कि चिंता सुबह की धूप में धुंध पिघलने की तरह कट रही है।",
         },
         {
@@ -348,7 +348,7 @@ export const SEED_READING_V1_INTERMEDIATE: SeedReadingEntry[] = [
         },
         {
           en: "Imran: That's a fair question, ma'am. It is true that I have worked formally for only two years, but I have been building mobile apps on my own since my second year at university. Because of that self-practice, I have already used most of the tools mentioned in your job description. If you give me three months, I promise you will not feel any difference in my speed.",
-          bn: "ইমরান: সিদ্ধ প্রশ্ন, ম্যাডাম। সত্যিই আমি মাত্র দুই বছর আনুষ্ঠানিকভাবে কাজ করেছি, কিন্তু বিশ্ববিদ্যালয়ের দ্বিতীয় বর্ষ থেকে নিজে নিজে মোবাইল অ্যাপ বানাচ্ছি। সেই নিজের চর্চার কারণেই আপনাদের চাকরির বিজ্ঞাপনে উল্লেখ করা বেশিরভাগ টুলই আমি ব্যবহার করে ফেলেছি। যদি আমাকে তিন মাস দেন, প্রতিশ্রুতি দিচ্ছি — আমার কাজের গতিতে আপনারা কোনো পার্থক্য টের পাবেন না।",
+          bn: "ইমরান: যথার্থ প্রশ্ন, ম্যাডাম। সত্যিই আমি মাত্র দুই বছর আনুষ্ঠানিকভাবে কাজ করেছি, কিন্তু বিশ্ববিদ্যালয়ের দ্বিতীয় বর্ষ থেকে নিজে নিজে মোবাইল অ্যাপ বানাচ্ছি। সেই নিজের চর্চার কারণেই আপনাদের চাকরির বিজ্ঞাপনে উল্লেখ করা বেশিরভাগ টুলই আমি ব্যবহার করে ফেলেছি। যদি আমাকে তিন মাস দেন, প্রতিশ্রুতি দিচ্ছি — আমার কাজের গতিতে আপনারা কোনো পার্থক্য টের পাবেন না।",
           hi: "इमरान: जायज़ सवाल है, मैडम। सच है कि मैंने सिर्फ़ दो साल औपचारिक रूप से काम किया है, लेकिन यूनिवर्सिटी के दूसरे साल से मैं ख़ुद मोबाइल ऐप्स बना रहा हूँ। उसी ख़ुद की प्रैक्टिस की वजह से आपकी जॉब डिसक्रिप्शन में लिखे ज़्यादातर टूल्स मैं पहले ही इस्तेमाल कर चुका हूँ। अगर आप मुझे तीन महीने दें, वादा करता हूँ — मेरी रफ़्तार में आपको कोई फ़र्क़ महसूस नहीं होगा।",
         },
         {
@@ -630,7 +630,7 @@ export const SEED_READING_V1_INTERMEDIATE: SeedReadingEntry[] = [
         },
         {
           en: "In the morning we will go to the mosque near the Petronas Towers — yes, the famous twin towers, Ma! After the prayer, a Malaysian engineer has invited our group to his house. His wife speaks a little English, and we will try to explain our Eid dishes to each other. I have been practising how to say 'Selamat Hari Raya' — it means happy Eid here.",
-          bn: "সকালে পেট্রোনাস টাওয়ারের কাছের মসজিদে যাব — হ্যাঁ মা, সেই বিখ্যাত জমজমাট দুই টাওয়ার! নামাজের পর এক মালয়েশীয় প্রকৌশলী আমাদের দলকে তার বাড়িতে দাওয়াত দিয়েছেন। তার স্ত্রী একটু ইংরেজি বলতে পারেন, আমরা একে অন্যকে ঈদের খাবারগুলোর ব্যাখ্যা দেওয়ার চেষ্টা করব। 'সেলামাত হারি রায়া' কী করে বলতে হয় তার চর্চা করছি — এখানে এর অর্থ ঈদ মোবারক।",
+          bn: "সকালে পেট্রোনাস টাওয়ারের কাছের মসজিদে যাব — হ্যাঁ মা, সেই বিখ্যাত টুইন টাওয়ার! নামাজের পর এক মালয়েশীয় প্রকৌশলী আমাদের দলকে তার বাড়িতে দাওয়াত দিয়েছেন। তার স্ত্রী একটু ইংরেজি বলতে পারেন, আমরা একে অন্যকে ঈদের খাবারগুলোর ব্যাখ্যা দেওয়ার চেষ্টা করব। 'সেলামাত হারি রায়া' কী করে বলতে হয় তার চর্চা করছি — এখানে এর অর্থ ঈদ মোবারক।",
           hi: "सुबह हम पेट्रोनास टावर्स के पास की मस्जिद जाएँगे — हाँ माँ, वही मशहूर जुड़वाँ टावर! नमाज़ के बाद एक मलेशियाई इंजीनियर ने हमारे समूह को अपने घर बुलाया है। उसकी पत्नी थोड़ी अंग्रेज़ी बोलती हैं, और हम एक-दूसरे को ईद के व्यंजनों के बारे में समझाने की कोशिश करेंगे। मैं 'सेलामात हारी राया' कहने की प्रैक्टिस कर रहा हूँ — यहाँ इसका मतलब ईद मुबारक होता है।",
         },
         {
@@ -921,7 +921,7 @@ export const SEED_READING_V1_INTERMEDIATE: SeedReadingEntry[] = [
           hi: "दूसरा दिन — सुबह 7:00। आज सुबह कीचड़ भरे किनारे पर ताज़ा पंजों के निशान दिखे — गहरे और चौड़े। कुछ ही घंटे पहले बाघ यहाँ से गुज़रा था। उस सुबह अब कोई ऊँची आवाज़ में नहीं बोला। कल जो जंगल मित्रवत लग रहा था, वह अचानक हमसे पुराना और ज़्यादा सतर्क लगने लगा।",
         },
         {
-          en: "Day 2 — 9:30 p.m. A warning came from another boat over the radio: a tiger had been seen swimming across a channel near our route, so the sailors must keep lamps and sounds ready. We were told not to sleep on the deck and to keep the kitchen fire small. The crew checked the boat's fences twice before dinner.",
+          en: "Day 2 — 9:30 p.m. A warning came from another boat over the radio: a tiger had been seen swimming across a channel near our route, so the sailors must keep lamps and noise ready. We were told not to sleep on the deck and to keep the kitchen fire small. The crew checked the boat's fences twice before dinner.",
           bn: "দ্বিতীয় দিন — রাত ৯টা ৩০। রেডিওতে আরেকটা নৌকা থেকে সতর্কবার্তা এল: আমাদের পথের কাছে একটা খাল পার হতে দেখা গেছে বাঘকে, তাই মাঝিদের লণ্ঠন আর শব্দ প্রস্তুত রাখতে হবে। ডেকে ঘুমোতে নিষেধ করা হলো, আর রান্নাঘরের আগুন ছোট রাখতে বলা হলো। রাতের খাওয়ার আগে ক্রু দুবার নৌকার বেড়াগুলো দেখে নিল।",
           hi: "दूसरा दिन — रात 9:30। रेडियो पर दूसरी नाव से चेतावनी आई: हमारे रास्ते के पास एक खाड़ी पार करते हुए बाघ देखा गया है, इसलिए माझियों को लालटेन और आवाज़ें तैयार रखनी होंगी। हमें डेक पर सोने से मना किया गया और रसोई की आग छोटी रखने को कहा गया। रात के खाने से पहले क्रू ने दो बार नाव की बाड़ें जाँचीं।",
         },
@@ -1335,7 +1335,7 @@ export const SEED_READING_V1_INTERMEDIATE: SeedReadingEntry[] = [
             {
               bn: "শীতের কুয়াশা",
               en: "Winter fog",
-              hi: "सर्दियों की कोहरा",
+              hi: "সর্দিয়োं का कोहरा",
             },
           ],
           answer: 0,
@@ -1502,7 +1502,7 @@ export const SEED_READING_V1_INTERMEDIATE: SeedReadingEntry[] = [
         {
           en: "The scholarship will cover her tuition, books and hostel fees for four years. The university authorities confirmed that Sumaiya has already been admitted to the Department of Electrical Engineering, where classes will begin next month. Her village, meanwhile, is preparing a small reception — the biggest celebration Muradnagar has seen in years.",
           bn: "বৃত্তিতে চার বছরের টিউশন, বই আর হোস্টেল ফি — সবই মিটবে। বিশ্ববিদ্যালয় কর্তৃপক্ষ নিশ্চিত করেছে, সুমাইয়া ইতোমধ্যে তড়িৎ প্রকৌশল বিভাগে ভর্তি হয়েছে; ক্লাস শুরু হবে আগামী মাসে। অন্যদিকে তার গ্রাম সাজিয়ে চলেছে এক ছোট্ট সংবর্ধনা — মুরাদনগর বহু বছর পর যে উৎসব দেখতে যাচ্ছে।",
-          hi: "छात्रवृत्ति में चार साल की ट्यूशन, किताबें और हॉस्टल फ़ीस — सब शामिल है। यूनिवर्सिटी प्रशासन ने पुष्टि की है कि सुमैया का भर्ती पहले ही इलेक्ट्रिकल इंजीनियरिंग विभाग में हो चुका है; कक्षाएँ अगले महीने से शुरू होंगी। इधर उसका गाँव एक छोटे स्वागत-समारोह की तैयारी कर रहा है — मुरादनगर वर्षों बाद जो जश्न देखने जा रहा है।",
+          hi: "छात्रवृत्ति में चार साल की ट्यूशन, किताबें और हॉस्टल फ़ीस — सब शामिल है। यूनिवर्सिटी प्रशासन ने पुष्टि की है कि सुमैया की भर्ती पहले ही इलेक्ट्रिकल इंजीनियरिंग विभाग में हो चुकी है; कक्षाएँ अगले महीने से शुरू होंगी। इधर उसका गाँव एक छोटे स्वागत-समारोह की तैयारी कर रहा है — मुरादनगर वर्षों बाद जो जश्न देखने जा रहा है।",
         },
       ],
       vocabulary: [

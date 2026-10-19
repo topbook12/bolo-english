@@ -21,14 +21,14 @@
       "unit": "दिन"
     },
     "trend": {
-      "title": "स्कोर की दिशा",
+      "title": "स्कोर का रुझान",
       "desc": "हाल के सेशन का स्कोर",
       "ariaLabel": "सेशन के अनुसार स्कोर",
       "session": "सेशन {n}: {score}"
     },
     "practice": {
       "title": "अभ्यास के आँकड़े",
-      "desc": "क्विज़ में सही जवाब का अनुपात",
+      "desc": "क्विज़ में सही जवाब देने की दर",
       "correctOf": "{correct}/{total} सही · {count} बार",
       "grammar-quiz": "ग्रामर क्विज़",
       "vocab-quiz": "शब्दावली क्विज़",
@@ -46,7 +46,7 @@
       "partners": "{n, plural, one {# व्यक्ति} other {# लोग}}",
       "minutes": "{n} मिनट",
       "noAnalysis": "विश्लेषण नहीं",
-      "mistakesTitle": "हुई गलतियाँ",
+      "mistakesTitle": "जो गलतियाँ हुईं",
       "transcriptTitle": "पूरा संवाद",
       "showTranscript": "संवाद देखें",
       "hideTranscript": "संवाद छिपाएँ",
@@ -60,14 +60,14 @@
     },
     "detail": {
       "title": "AI विश्लेषण — {type} · स्कोर {score}",
-      "fluency": "प्रवाह",
+      "fluency": "फ्लुएंसी",
       "grammar": "ग्रामर",
       "vocabulary": "शब्दावली",
-      "mistakesTitle": "हुई गलतियाँ",
-      "betterTitle": "नेटिव जैसा कैसे कहें",
+      "mistakesTitle": "जो गलतियाँ हुईं",
+      "betterTitle": "और नेटिव जैसा बोला जा सकता था",
       "gapsTitle": "ग्रामर में क्या सीखना है",
       "vocabGapsTitle": "सीखने लायक शब्द",
-      "suggestionsTitle": "अगले सुझाव",
+      "suggestionsTitle": "आगे के लिए सुझाव",
       "transcriptTitle": "पूरा संवाद"
     }
   }

@@ -10,7 +10,7 @@
     },
     "aria": {
       "section": "ভোকাবুলারি",
-      "optionsGroup": "উত্তর নির্বাচন",
+      "optionsGroup": "উত্তর বেছে নিন",
       "wordsChips": "কুইজের শব্দগুলো"
     },
     "daily": {
@@ -39,13 +39,13 @@
       "addWordAria": "নিজের শব্দ যোগ করার অংশ খুলুন বা বন্ধ করুন",
       "lookupPlaceholder": "ইংরেজি শব্দ লিখুন — যেমন: reliable",
       "lookupAria": "নতুন ইংরেজি শব্দ",
-      "lookupButton": "অর্থ জেনারেট করুন",
+      "lookupButton": "অর্থ তৈরি করুন",
       "lookupLoading": "অর্থ আনা হচ্ছে…",
       "lookupErrorTitle": "শব্দের অর্থ আনা যায়নি",
       "notEnglish": "\"{word}\" কোনো ইংরেজি শব্দ মনে হচ্ছে না — বানান দেখে আবার চেষ্টা করুন।",
       "searchPlaceholder": "শব্দ বা বাংলা অর্থ দিয়ে খুঁজুন…",
       "searchAria": "ওয়ার্ডবুক খুঁজুন",
-      "yourWords": "আপনার শব্দসমগ্র",
+      "yourWords": "আপনার শব্দগুলো",
       "count": "মোট {n}টি",
       "loadErrorTitle": "ওয়ার্ডবুক আনা যায়নি",
       "loadingAria": "ওয়ার্ডবুক লোড হচ্ছে",
@@ -75,12 +75,12 @@
       "seeResults": "ফলাফল দেখুন 🏁",
       "resultTitle": "কুইজ শেষ! আপনার ফলাফল",
       "pctCorrect": "{pct}% সঠিক",
-      "msgGreat": "অসাধারণ! আপনার শব্দভাণ্ডার দুর্দান্ত হচ্ছে 🎉",
+      "msgGreat": "অসাধারণ! আপনার শব্দভান্ডার দুর্দান্ত হচ্ছে 🎉",
       "msgGood": "ভালো করেছেন! আরেকটু প্র্যাকটিসেই পারফেক্ট 👏",
       "msgKeep": "চিন্তা নেই — শব্দগুলো আবার রিভিশন দিন, প্র্যাকটিসেই শেখা হয় 💪",
       "retry": "আবার কুইজ",
       "retryNote": "নতুন কুইজে একই শব্দগুলো থেকে নতুন প্রশ্ন আসবে।",
-      "scoreAria": "আপনার স্কোর {total} এর মধ্যে {score}"
+      "scoreAria": "{total}-এর মধ্যে আপনার স্কোর {score}"
     },
     "toast": {
       "saved": "\"{word}\" ওয়ার্ডবুকে সেভ হয়েছে ⭐",
@@ -112,7 +112,7 @@
       "antonymsLabel": "বিপরীত:",
       "allUnits": "সব ইউনিট",
       "unitsAria": "শেখার পথের ইউনিট অনুযায়ী ফিল্টার",
-      "learnedCount": "{learned}/{total} টি শেখা",
+      "learnedCount": "{learned}/{total}টি শেখা",
       "extraGroup": "অতিরিক্ত শব্দ",
       "unitChip": "ইউনিট {n}",
       "markLearned": "এটা শিখেছি",

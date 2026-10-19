@@ -30,7 +30,7 @@
     "statsSentences": "Sentences spoken",
     "statsAvgWords": "Avg words/sentence",
     "statsUnique": "Unique words",
-    "suggestionsTitle": "Next suggestions",
+    "suggestionsTitle": "Suggestions for next time",
     "transcriptTitle": "Full dialogue",
     "coverage": "Analyzed {n} of {m} lines you spoke"
   }

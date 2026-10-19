@@ -472,7 +472,7 @@ export const SEED_GRAMMAR_V4_A3B: SeedGrammarV4Entry[] = [
           heading: {
             bn: "⚠️ এক বাক্যে দুই রেজিস্টার: বাংলাভাষী লেখকদের চেনা ধরা",
             en: "⚠️ Two registers in one sentence: the familiar trap for Bengali writers",
-            hi: "⚠️ एक वाक्य में दो रजिस्टर: बांग्लाभाषी लेखकों की परिचित फँसवाई",
+            hi: "⚠️ एक वाक्य में दो रजिस्टर: बांग्लाभाषी लेखकों का जाना-पहचाना जाल",
           },
           lead: {
             bn: "বাংলা লেখায় স্তর মিশে যাওয়ার অভ্যাস ইংরেজিতেও পিছু নেয় — অমিল পাঠক সঙ্গে সঙ্গে টের পায়।",
@@ -1090,7 +1090,7 @@ export const SEED_GRAMMAR_V4_A3B: SeedGrammarV4Entry[] = [
               right: "She is a teacher at a primary school.",
               note: {
                 bn: "পেশা প্রথমবার বললে a — শ্রেণিতে অনেক teacher আছে, নির্দিষ্ট একজন নয়।",
-                en: "A profession on first mention takes a — the class holds many teachers, not one particular one.",
+                en: "A profession on first mention takes a — there are many teachers in the category, not one particular one.",
                 hi: "पेशा पहली बार कहने पर a — कक्षा में कई teacher हैं, कोई विशिष्ट एक नहीं।",
               },
             },
@@ -1393,9 +1393,9 @@ export const SEED_GRAMMAR_V4_A3B: SeedGrammarV4Entry[] = [
           points: [
             { bn: "C1 পর্যায়ের বাংলাভাষীদের সবচেয়ে ঘন ঘন পাঁচটা পা — এক এক করে চিনে নিন।", en: "The five most frequent slips of C1-level Bengali speakers — recognise them one by one.", hi: "C1 स्तर के बांग्लाभाषियों की सबसे बार-बार आने वाली पाँच फिसलनें — एक-एक कर पहचानिए।" },
             { bn: "**uncountable বিশেষ্যে plural** — informations, advices, furnitures, equipments, softwares।", en: "**Plurals on uncountables** — informations, advices, furnitures, equipments, softwares.", hi: "**uncountable संज्ञाओं का बहुवचन** — informations, advices, furnitures, equipments, softwares।" },
-            { bn: "**most-এর আগে the ঢোকানো** — the most of people।", en: "**The creeping before most** — the most of people.", hi: "**most से पहले the घुसना** — the most of people।" },
+            { bn: "**most-এর আগে the ঢোকানো** — the most of people।", en: "**A stray the before most** — the most of people.", hi: "**most से पहले the घुसना** — the most of people।" },
             { bn: "**less দিয়ে countable মাপা** — less people, less cars; IELTS Task 1-এ ঘন ঘন।", en: "**Measuring countables with less** — less people, less cars; frequent in IELTS Task 1.", hi: "**countable को less से तोलना** — less people, less cars; IELTS Task 1 में बार-बार।" },
-            { bn: "**প্রতিষ্ঠান-উদ্দেশ্যে the ঢোকানো** — go to the school বলে ছাত্র-অর্থ।", en: "**The in the institution-purpose** — go to the school said with a pupil's meaning.", hi: "**संस्था-उद्देश्य में the घुसना** — go to the school कहकर विद्यार्थी-अर्थ देना।" },
+            { bn: "**প্রতিষ্ঠান-উদ্দেশ্যে the ঢোকানো** — go to the school বলে ছাত্র-অর্থ।", en: "**A stray the in the institution-purpose** — go to the school said with a pupil's meaning.", hi: "**संस्था-उद्देश्य में the घुसना** — go to the school कहकर विद्यार्थी-अर्थ देना।" },
             { bn: "**the both** — both candidates / both the candidates চলে; the both কখনও নয়।", en: "**The both** — both candidates / both the candidates work; the both never.", hi: "**the both** — both candidates / both the candidates चलते हैं; the both कभी नहीं।" },
             { bn: "প্রতিষেধক একটা — uncountable তালিকা মুখস্থ: information, advice, furniture, equipment, software, research, evidence, feedback, progress, knowledge, luggage, homework।", en: "The antidote is one — memorise the uncountable list: information, advice, furniture, equipment, software, research, evidence, feedback, progress, knowledge, luggage, homework.", hi: "इलाज एक ही — uncountable सूची रटें: information, advice, furniture, equipment, software, research, evidence, feedback, progress, knowledge, luggage, homework।" },
             { bn: "পরিমাণ বোঝাতে ধার করুন a piece of / an item of — a piece of advice, a piece of information।", en: "To count them, borrow a piece of / an item of — a piece of advice, a piece of information.", hi: "गिनने के लिए a piece of / an item of उधार लें — a piece of advice, a piece of information।" },
@@ -1572,7 +1572,7 @@ export const SEED_GRAMMAR_V4_A3B: SeedGrammarV4Entry[] = [
         },
         {
           bn: "IELTS-এ less cars, informations, advices, the most of people — এই চারটা বন্ধুত্ব ভাঙে; বানান-শুদ্ধির পাশাপাশি পরিমাণ-শব্দও পরীক্ষা হয়।",
-          en: "In IELTS, less cars, informations, advices, the most of people — these four cost you friendship; along with spelling, quantifiers are examined too.",
+          en: "In IELTS, less cars, informations, advices, the most of people — these four are friendship-breakers; along with spelling, quantifiers are examined too.",
           hi: "IELTS में less cars, informations, advices, the most of people — ये चार दोस्ती तोड़ते हैं; वर्तनी के साथ क्वांटिफ़ायर भी परखे जाते हैं।",
         },
       ],

@@ -60,7 +60,7 @@ export const SEED_VOCAB_V2_ADVANCED: SeedVocabV2Entry[] = [
       partOfSpeech: "verb",
       meaning: {
         bn: "সরাসরি উল্টো কথা বলা — কেউ যা বলল বা দাবি করল, তার ঠিক বিপরীতটা বলা বা প্রমাণ করা",
-        en: "to say the opposite of what someone has said, or of facts to be in conflict",
+        en: "to say the opposite of what someone has said; (of statements or facts) to be in conflict",
         hi: "किसी की बात के विपरीत कहना; बयानों का आपस में टकराना",
       },
       englishMeaning: "to say the opposite of something someone has said",
@@ -75,7 +75,7 @@ export const SEED_VOCAB_V2_ADVANCED: SeedVocabV2Entry[] = [
         },
       ],
       tip: {
-        bn: "noun রূপ contradiction, adjective contradictory — 'The two reports are contradictory।' নিজের কথার ভেতরেই উল্টো থাকলে বলে self-contradictory।",
+        bn: "noun রূপ contradiction, adjective contradictory — 'The two reports are contradictory.' নিজের কথার ভেতরেই উল্টো থাকলে বলে self-contradictory।",
         en: "Noun: contradiction; adjective: contradictory. A sentence that disagrees with itself is self-contradictory.",
         hi: "संज्ञा: contradiction, विशेषण: contradictory।",
       },
@@ -269,7 +269,7 @@ export const SEED_VOCAB_V2_ADVANCED: SeedVocabV2Entry[] = [
         },
         {
           en: "The interview panel asked a hypothetical: what if two clients clash on the same day?",
-          bn: "ইন্টারভিউ বোর্ড কাল্পনিক প্রশ্ন করে: একই দিনে দুই ক্লায়েন্ট সাংঘর্ষিক হলে কী করবেন?",
+          bn: "ইন্টারভিউ বোর্ড কাল্পনিক প্রশ্ন করে: একই দিনে দুই ক্লায়েন্টের সময় পড়ে গেলে কী করবেন?",
         },
       ],
       tip: {
@@ -1399,7 +1399,7 @@ export const SEED_VOCAB_V2_ADVANCED: SeedVocabV2Entry[] = [
       examples: [
         {
           en: "Resilient students treat a failed test as feedback, not defeat.",
-          bn: "স্থিতিস্থাপক শিক্ষার্থীরা ফেল করা পরীক্ষাকে পরাজয় নয়, মতামত মনে করে।",
+          bn: "স্থিতিস্থাপক শিক্ষার্থীরা ফেল করা পরীক্ষাকে পরাজয় নয়, ফিডব্যাক মনে করে।",
         },
         {
           en: "The local shops proved resilient after the flood.",
@@ -1563,7 +1563,7 @@ export const SEED_VOCAB_V2_ADVANCED: SeedVocabV2Entry[] = [
       englishMeaning: "practical and sensible about what can actually be done",
       examples: [
         {
-          en: "We took a pragmatic call: patch the bug today, redesign next quarter.",
+          en: "We made a pragmatic call: patch the bug today, redesign next quarter.",
           bn: "আমরা বাস্তবমুখী সিদ্ধান্ত নিলাম: আজ বাগ ঠিক করা, নতুন ডিজাইন পরের কোয়ার্টারে।",
         },
         {

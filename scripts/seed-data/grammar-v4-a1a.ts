@@ -103,7 +103,7 @@ export const SEED_GRAMMAR_V4_A1A: SeedGrammarV4Entry[] = [
           lead: {
             bn: "চারটা প্রশ্ন করলেই ভবিষ্যতের বাক্যের রূপ ঠিক হয়ে যায় — ধাপে ধাপে শিখুন।",
             en: "Four quick questions settle the form of any future sentence — learn them step by step.",
-            hi: "चार सवाल पूछें, future वाक्य का रूप तय — धाप दर धाप सीखें।",
+            hi: "चार सवाल पूछें, future वाक्य का रूप तय — क़दम दर क़दम सीखें।",
           },
           points: [
             { bn: "ধাপ ১: ঘটনাটা কি নির্ধারিত সময়সূচির অংশ — train, bus, class, exam, show? তাহলে ভবিষ্যতের জন্যও **present simple**: The train leaves at 6।", en: "Step 1: is the event part of a fixed timetable — train, bus, class, exam, show? Then **present simple** even for the future: The train leaves at 6.", hi: "चरण 1: क्या घटना तय समय-सारणी का हिस्सा है — train, bus, class, exam, show? तो future के लिए भी **present simple**: The train leaves at 6।" },

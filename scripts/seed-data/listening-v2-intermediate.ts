@@ -30,7 +30,7 @@ export const SEED_LISTENING_V2_INTERMEDIATE: SeedListeningV2Entry[] = [
       },
       summary: {
         bn: "খুলনার ২৩ বছরের ছাত্র তানভীর ঢাকার একটি মার্কেটিং কোম্পানিতে ইন্টার্ন হিসেবে প্রথম দিনে ঢোকে। হাসিখুশি প্রিয়া, আত্মবিশ্বাসী নাবিল আর স্নেহময়ী ম্যানেজার মিসেস রহমান তার নতুন জগৎ। শুক্রবারের মিটিংয়ে তানভীর প্রথমবারের মতো নিজের মতামত জানাতে পারে — আর বুঝতে পারে, হয়তো সে পারবে!",
-        en: "Tanvir, a 23-year-old student from Khulna, starts his first day as a marketing intern at a Dhaka company. Friendly Priya, confident Nabil and warm Ms. Rahman welcome him. In the Friday meeting, Tanvir describes the company with his own opinion — and feels for the first time that he can really do this.",
+        en: "Tanvir, a 23-year-old student from Khulna, starts his first day as a marketing intern at a Dhaka company. Friendly Priya, confident Nabil and warm Ms. Rahman welcome him. In the Friday meeting, Tanvir describes the company and gives his own opinion — and feels for the first time that he can really do this.",
         hi: "खुलना का 23 साल का छात्र तानवीर ढाका की एक मार्केटिंग कंपनी में इंटर्न के रूप में पहला दिन शुरू करता है। दोस्ताना प्रिया, आत्मविश्वासी नबील और प्यारी मिसेज़ रहमान उसका स्वागत करते हैं। शुक्रवार की मीटिंग में तानवीर पहली बार अपनी राय रखता है — और महसूस करता है कि शायद वह यह कर सकता है।",
       },
       paragraphs: [
@@ -176,7 +176,7 @@ export const SEED_LISTENING_V2_INTERMEDIATE: SeedListeningV2Entry[] = [
       },
       paragraphs: [
         "Two weeks passed, and Tanvir slowly stopped feeling like a stranger in the office. One morning, Priya waved him over with a grin. 'Good news — Ms. Rahman is talking about our internship allowance. Come and listen quickly.' Tanvir hurried to the meeting room, where Ms. Rahman was explaining that every intern would receive a small monthly amount to cover transport and lunch.",
-        "'The allowance isn't big,' Ms. Rahman said honestly, 'but money is only part of your payment. The experience you earn here will be worth far more later.' Nabil nodded quickly, but Tanvir wrote her words in his notebook. That night he called his father in Khulna. 'Baba, I don't need extra money from home now. I can manage,' he said proudly.",
+        "'The allowance isn't big,' Ms. Rahman said honestly, 'but money is only part of your reward. The experience you earn here will be worth far more later.' Nabil nodded quickly, but Tanvir wrote her words in his notebook. That night he called his father in Khulna. 'Baba, I don't need extra money from home now. I can manage,' he said proudly.",
         "A few days later, Ms. Rahman gave the interns their first real task. 'Here is a budget of ten thousand taka for a small social media campaign. Plan it together.' Nabil immediately started listing expensive video ideas, but Tanvir opened a spreadsheet. 'First we should decide the priority,' he said. 'If we spend everything on one video, we can't afford anything else.'",
         "On Thursday, the printing shop called: the poster paper price had gone up, and the campaign needed three hundred taka more than planned. Tanvir felt panic rising, but he didn't hide it or ignore the problem. He checked the spreadsheet again, cut one extra design, and balanced the numbers by Friday afternoon. The campaign was ready, and the budget still worked.",
         "Ms. Rahman reviewed the numbers and raised her eyebrows. 'Who cut the extra design?' she asked. Tanvir admitted it calmly. 'That's planning,' she said. 'A good manager expects surprises and keeps a plan ready for them. Remember this day.' That night, Tanvir updated his spreadsheet and smiled. Budgets, he realized, were like study routines — small daily discipline, not lucky jumps. Next week, the interns would travel to Chattogram.",
@@ -316,10 +316,10 @@ export const SEED_LISTENING_V2_INTERMEDIATE: SeedListeningV2Entry[] = [
         hi: "इंटर्न टीम छह बजे की ट्रेन से चट्टग्राम जाती है। दोपहर में पहुँचते ही बुरी खबर: अगली सुबह की बड़ी मीटिंग रद्द हो गई! लेकिन मिसेज़ रहमान टीम को सीधे क्लाइंट की दुकान पर ले जाती हैं — और तानवीर के ट्रेन-सफ़र के नोट्स असली जादू बन जाते हैं।",
       },
       paragraphs: [
-        "Early on Monday, the three interns and Priya reached Kamlapur railway station in the dark. Their train to Chattogram would depart at six o'clock exactly. Tanvir had packed twice the night before because he was so excited. 'Take your seats,' Priya laughed, 'the train won't wait for your excitement.' They found the window seats, and soon Dhaka's lights were sliding away behind them.",
+        "Early on Monday, the three interns and Priya reached Kamalapur railway station in the dark. Their train to Chattogram would depart at six o'clock exactly. Tanvir had packed twice the night before because he was so excited. 'Take your seats,' Priya laughed, 'the train won't wait for your excitement.' They found the window seats, and soon Dhaka's lights were sliding away behind them.",
         "The journey was long but beautiful. Green fields, small stations, and tea sellers walking between the seats. Ms. Rahman had given them a task on the way: watch the countryside and note what products people were using there. 'A marketer observes,' she had said. Tanvir filled two pages with notes about tea brands, mobile shops, and the stickers on the buses.",
         "They arrived at noon, right on time. After lunch at the hotel, the bad news came: the big partner meeting for the next morning was cancelled. Nabil looked defeated, but Ms. Rahman turned calm. 'A cancelled meeting is not a cancelled day,' she said. 'Tomorrow we will visit our client's shop directly. Sometimes the road less planned teaches you more.'",
-        "The next morning, the small team walked through the busy port city to the client's shop. The owner was surprised and pleased to see them in person. Tanvir showed his train-ride notes and pointed out what local customers might love. The owner listened carefully and asked real questions. By lunchtime, they had a warmer deal than any formal meeting could have produced.",
+        "The next morning, the small team walked through the busy port city to the client's shop. The owner was surprised and pleased to see them in person. Tanvir showed his train-ride notes and pointed out what local customers might love. The owner listened carefully and asked real questions. By lunchtime, they had a better deal than any formal meeting could have produced.",
         "On the evening train home, Priya ordered tea for everyone. 'Not bad for your first business trip,' she smiled. Nabil quietly admitted, 'Your notes actually saved us.' Tanvir looked out at the dark fields and felt the trip had changed something inside him. Two days away from his desk had taught him more than two weeks of reading. Back in Dhaka, a harder test was waiting.",
       ],
       vocabulary: [
@@ -393,8 +393,8 @@ export const SEED_LISTENING_V2_INTERMEDIATE: SeedListeningV2Entry[] = [
           ],
           answer: 1,
           explain: {
-            bn: "গল্পে লেখা আছে — ট্রেনটা 'six o'clock exactly' ছেড়ে যাবে, তাই তারা এখনো অন্ধকার থাকতেই কামলাপুর স্টেশনে পৌঁছায়।",
-            en: "The story says the train would depart at six o'clock exactly, so the team reached Kamlapur station while it was still dark.",
+            bn: "গল্পে লেখা আছে — ট্রেনটা 'six o'clock exactly' ছেড়ে যাবে, তাই তারা এখনো অন্ধকার থাকতেই কমলাপুর স্টেশনে পৌঁছায়।",
+            en: "The story says the train would depart at six o'clock exactly, so the team reached Kamalapur station while it was still dark.",
             hi: "कहानी में लिखा है कि ट्रेन ठीक छह बजे रवाना होगी, इसलिए टीम अँधेरे में ही कमलापुर स्टेशन पहुँच गई।",
           },
         },
@@ -595,7 +595,7 @@ export const SEED_LISTENING_V2_INTERMEDIATE: SeedListeningV2Entry[] = [
       summary: {
         bn: "শেষ উপস্থাপনার দিন। প্রতি রাতের অভ্যাস করা প্র্যাকটিস তানভীরের কাজে লাগে; একটি কঠিন প্রশ্নে মাথা ফাঁকা হয়ে যায়, তবু সে সোজাসুজি উত্তর দিয়ে ফিরে আসে। আর তারপর আসে সেই খবর — পড়াশোনার পাশাপাশি পার্ট-টাইম রোলের অফার, সঙ্গে পরের বড় চ্যালেঞ্জের ইঙ্গিত!",
         en: "The day of the final presentation. Tanvir's nightly practice pays off; one hard question blanks his mind, but he recovers with an honest answer. Then comes the news he dreamed of — a part-time role offer alongside his degree, and a hint of the next big challenge!",
-        hi: "आखिरी प्रेज़ेन्टेशन का दिन। तानवीर की रोज़ रात की प्रैक्टिस काम आती है; एक कठिन सवाल पर उसका दिमाग़ सांझ हो जाता है, लेकिन वह ईमानदार जवाब देकर सँभल जाता है। फिर आती है वह खबर जिसका सपना था — पढ़ाई के साथ पार्ट-टाइम रोल का ऑफ़र, और अगली बड़ी चुनौती का इशारा!",
+        hi: "आखिरी प्रेज़ेन्टेशन का दिन। तानवीर की रोज़ रात की प्रैक्टिस काम आती है; एक कठिन सवाल पर उसका दिमाग़ खाली हो जाता है, लेकिन वह ईमानदार जवाब देकर सँभल जाता है। फिर आती है वह खबर जिसका सपना था — पढ़ाई के साथ पार्ट-टाइम रोल का ऑफ़र, और अगली बड़ी चुनौती का इशारा!",
       },
       paragraphs: [
         "Thursday finally arrived. The boardroom had a long glass table, a big screen, and seven senior managers. Tanvir had rehearsed his slides every night for two weeks — in front of his mirror, his diary, and once, bravely, Priya. His mouth was dry, but his preparation sat calm inside him like a friend. 'Ready?' Ms. Rahman asked. He nodded.",
@@ -688,7 +688,7 @@ export const SEED_LISTENING_V2_INTERMEDIATE: SeedListeningV2Entry[] = [
             hi: "कठिन सवाल आने पर क्या हुआ?",
           },
           options: [
-            { bn: "মাথা ফাঁকা হলো, তবু সে সত্যি উত্তর দিয়ে সামলে নিল", en: "His mind went blank, but he recovered with an honest answer", hi: "उसका दिमाग़ सांझ हो गया, लेकिन वह ईमानदार जवाब देकर सँभल गया" },
+            { bn: "মাথা ফাঁকা হলো, তবু সে সত্যি উত্তর দিয়ে সামলে নিল", en: "His mind went blank, but he recovered with an honest answer", hi: "उसका दिमाग़ खाली हो गया, लेकिन वह ईमानदार जवाब देकर सँभल गया" },
             { bn: "সে ঘর ছেড়ে দৌড়ে গেল", en: "He ran out of the room", hi: "वह कमरे से बाहर भाग गया" },
             { bn: "সে নাবিলকে দোষ দিল", en: "He blamed Nabil", hi: "उसने नबील पर इलज़ाम लगाया" },
             { bn: "মিসেস রহমান তার জায়গায় উত্তর দিলেন", en: "Ms. Rahman answered for him", hi: "मिसेज़ रहमान ने उसकी जगह जवाब दिया" },

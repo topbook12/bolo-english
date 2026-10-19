@@ -402,7 +402,7 @@ export const SEED_VOCAB: LibraryVocabEntry[] = [
         },
       ],
       tip: {
-        bn: "পরীক্ষা বা পড়া সহজ বোঝাতে 'The exam was easy'। কাউকে সান্ত্বনা দিতে 'Take it easy' মানে টেনশন নাও না। 'easy' আর 'simple' প্রায় একই, তবে 'simple' মানে জটিলতাই নেই।",
+        bn: "পরীক্ষা বা পড়া সহজ বোঝাতে 'The exam was easy'। কাউকে সান্ত্বনা দিতে 'Take it easy' মানে টেনশন না নেওয়া। 'easy' আর 'simple' প্রায় একই, তবে 'simple' মানে জটিলতাই নেই।",
         en: "Say 'The exam was easy' about tests. 'Take it easy' means relax. 'Easy' and 'simple' are close, but 'simple' stresses that something is not complicated.",
         hi: "परीक्षा आसान थी = 'The exam was easy'। सांत्वना देने के लिए 'Take it easy'।",
       },
@@ -683,7 +683,7 @@ export const SEED_VOCAB: LibraryVocabEntry[] = [
     level: "intermediate",
     category: "travel",
     data: {
-      pronunciation: "ডিলে",
+      pronunciation: "ডিলেই",
       partOfSpeech: "verb",
       meaning: {
         bn: "বিলম্ব করা; পিছিয়ে দেওয়া",
@@ -851,7 +851,7 @@ export const SEED_VOCAB: LibraryVocabEntry[] = [
     level: "advanced",
     category: "work",
     data: {
-      pronunciation: "ফিজেবল",
+      pronunciation: "ফিজিবল",
       partOfSpeech: "adjective",
       meaning: {
         bn: "বাস্তবসম্মত; করা সম্ভব এমন",
@@ -951,7 +951,7 @@ export const SEED_VOCAB: LibraryVocabEntry[] = [
     level: "advanced",
     category: "general",
     data: {
-      pronunciation: "নিগলেক্ট",
+      pronunciation: "নিগ্লেক্ট",
       partOfSpeech: "verb",
       meaning: {
         bn: "অবহেলা করা; যত্ন না নেওয়া",

@@ -29,7 +29,7 @@ export const SEED_GRAMMAR_V4_I1A: SeedGrammarV4Entry[] = [
       roadmap: [
         { bn: "⏰ কাটা বনাম খোলা সময়ের ফ্রেম — সিদ্ধান্তের মূল চাবি", en: "⏰ Closed vs open time frames — the master key", hi: "⏰ बंद बनाम खुले समय-फ्रेम — निर्णय की मूल चाबी" },
         { bn: "🏗️ have/has + V3 বনাম V2 — প্রশ্ন-নেগেটিভসহ গঠন", en: "🏗️ have/has + V3 vs V2 — with questions and negatives", hi: "🏗️ have/has + V3 बनाम V2 — प्रश्न-नकार सहित" },
-        { bn: "🚦 already, just, yet, ever, never, still — কোন শব্দ কোন কালে", en: "🚦 already, just, yet, ever, never, still — which word calls which tense", hi: "🚦 already, just, yet, ever, never, still — कौन सा शब्द कौन-सा काल" },
+        { bn: "🚦 already, just, yet, ever, never, still — কোন শব্দ কোন কালে", en: "🚦 already, just, yet, ever, never, still — which word goes with which tense", hi: "🚦 already, just, yet, ever, never, still — कौन सा शब्द कौन-सा काल" },
         { bn: "⏳ since + বিন্দু, for + মাপ — perfect-এর সময়-সঙ্গী", en: "⏳ since + a point, for + a span — the perfect's time partners", hi: "⏳ since + बिंदु, for + अवधि — perfect के समय-साथी" },
         { bn: "📰 খবর perfect-এ, বিস্তার ও When-প্রশ্ন past-এ", en: "📰 News in the perfect, details and When-questions in the past", hi: "📰 खबर perfect में, विवरण और When-प्रश्न past में" },
         { bn: "⚠️ বাঙালি শিক্ষার্থীদের তিন ফাঁদ আর তাদের সমাধান", en: "⚠️ The three traps for Bengali speakers and their fixes", hi: "⚠️ बांग्लाभाषी विद्यार्थियों के तीन जाल और उनके समाधान" },
@@ -81,7 +81,7 @@ export const SEED_GRAMMAR_V4_I1A: SeedGrammarV4Entry[] = [
           examples: [
             { wrong: "I have visited Paris last year.", right: "I visited Paris last year.", note: { bn: "'last year' কেটে গেছা ফ্রেম → past simple; perfect-এর সাথে কাটা সময়ের শব্দ কখনো বসে না।", en: "'Last year' is a closed frame → past simple; closed-time words never pair with the perfect.", hi: "'last year' बंद फ्रेम है → past simple; perfect के साथ बंद-समय शब्द नहीं आता।" } },
             { wrong: "I visited Paris three times so far.", right: "I have visited Paris three times so far.", note: { bn: "'so far' = এখন পর্যন্ত, ফ্রেম খোলা → present perfect; মোট অভিজ্ঞতার সংখ্যা perfect-এই বলা হয়।", en: "'So far' means 'up to now', an open frame → present perfect; totals of experience take the perfect.", hi: "'so far' = अब तक, फ्रेम खुला → present perfect; अनुभव की कुल संख्या perfect में।" } },
-            { wrong: "Shakespeare has written 38 plays.", right: "Shakespeare wrote 38 plays.", note: { bn: "শেক্সপিয়ার মারা গেছেন — তাঁর রচনার সময় শেষ; মৃত ব্যক্তির জীবনকর্ম past simple। জীবিত লেখক হলে হতো: She has written five novels।", en: "Shakespeare is dead — his writing era is over; a dead person's life work takes the past simple. For a living writer it would be: She has written five novels.", hi: "शेक्सपियर निधन हो चुके हैं — उनका लेखन-काल खत्म; मृत व्यक्ति की रचनाएँ past simple में। जीवित लेखक होती तो: She has written five novels।" } },
+            { wrong: "Shakespeare has written 38 plays.", right: "Shakespeare wrote 38 plays.", note: { bn: "শেক্সপিয়ার মারা গেছেন — তাঁর রচনার সময় শেষ; মৃত ব্যক্তির জীবনকর্ম past simple। জীবিত লেখক হলে হতো: She has written five novels।", en: "Shakespeare is dead — his writing era is over; a dead person's life's work takes the past simple. For a living writer it would be: She has written five novels.", hi: "शेक्सपियर निधन हो चुके हैं — उनका लेखन-काल खत्म; मृत व्यक्ति की रचनाएँ past simple में। जीवित लेखक होता तो: She has written five novels।" } },
             { wrong: "I have seen that film when it came out.", right: "I saw that film when it came out.", note: { bn: "'when it came out' নির্দিষ্ট অতীত-ক্ষণের ক্লজ — এমন ক্লজ থাকলেই মূল বাক্য past simple।", en: "'When it came out' pins the action to a specific past moment — with such a clause the main clause takes the past simple.", hi: "'when it came out' विशिष्ट अतीत-क्षण का क्लज़ है — ऐसा क्लज़ हो तो मुख्य वाक्य past simple में।" } },
             { wrong: "This is the best film I ever saw.", right: "This is the best film I have ever seen.", note: { bn: "superlative + ever = এখন পর্যন্ত সর্বোচ্চ অভিজ্ঞতা → present perfect।", en: "A superlative with ever = the top experience up to now → present perfect.", hi: "superlative + ever = अब तक का सर्वोच्च अनुभव → present perfect।" } },
           ],
@@ -279,7 +279,7 @@ export const SEED_GRAMMAR_V4_I1A: SeedGrammarV4Entry[] = [
           lead: {
             bn: "তিনটা ফাঁদ চিনলে নম্বর বাঁচে — প্রতিটারই সমাধান আছে।",
             en: "Three traps cost the most marks — each has a simple fix.",
-            hi: "तीन जाल पहचानो, अंक बचाओ — हर एक का इलाज है।",
+            hi: "तीन जाल पहचानिए, अंक बचाइए — हर एक का इलाज है।",
           },
           points: [
             { bn: "ফাঁদ ১: বাংলায় 'গেছি' একটাই রূপ সব সময় মেনে নেয় — তাই কাটা সময়ের শব্দেও perfect ধরা হয়: I have gone there last year।", en: "Trap 1: Bengali 'গেছি' covers every past meaning — so learners reach for the perfect even with closed-time words: I have gone there last year.", hi: "जाल 1: बांग्ला 'गया हूँ' एक ही रूप सब मेने लेता है — इसलिए बंद-समय शब्दों के साथ भी perfect: I have gone there last year।" },
@@ -325,12 +325,12 @@ export const SEED_GRAMMAR_V4_I1A: SeedGrammarV4Entry[] = [
         {
           heading: {
             bn: "📊 এক নজরে — পুরো পাঠ ছোট করে",
-            en: "📊 At a glance — the whole lesson in short",
+            en: "📊 At a glance — the whole lesson in brief",
             hi: "📊 एक नज़र में — पूरा पाठ संक्षेप में",
           },
           lead: {
             bn: "পাঁচটা সূত্র মুখস্থ থাকলে পরীক্ষার হলেও কাজ চলবে।",
-            en: "Five formulas are enough to carry you through the exam hall.",
+            en: "Five formulas are enough to carry you through any exam.",
             hi: "पाँच सूत्र याद हों तो परीक्षा-भवन में भी काम चलेगा।",
           },
           points: [
@@ -343,7 +343,7 @@ export const SEED_GRAMMAR_V4_I1A: SeedGrammarV4Entry[] = [
           examples: [
             { wrong: "I have finished it yesterday.", right: "I finished it yesterday.", note: { bn: "yesterday = কাটা সময় → past simple।", en: "Yesterday = closed time → past simple.", hi: "yesterday = बंद समय → past simple।" } },
             { wrong: "Did you ever try Kolkata biryani?", right: "Have you ever tried Kolkata biryani?", note: { bn: "জীবনে-কখনো অভিজ্ঞতা → Have you ever + V3।", en: "A life-experience question → Have you ever + V3.", hi: "जीवन-अनुभव प्रश्न → Have you ever + V3।" } },
-            { wrong: "How long did you live in Dhaka?", right: "How long have you lived in Dhaka?", note: { bn: "এখনো থাকলে perfect; past simple বললে শোনায় এখন আর থাকেন না।", en: "If you still live there, use the perfect; the past simple suggests you no longer do.", hi: "अब भी रहते हैं तो perfect; past simple कहने पर अब नहीं रहते लगेगा।" } },
+            { wrong: "How long did you live in Dhaka?", right: "How long have you lived in Dhaka?", note: { bn: "এখনো থাকলে perfect; past simple বললে শোনায় এখন আর থাকেন না।", en: "If you still live there, use the perfect; the past simple suggests you no longer do.", hi: "अब भी रहते हैं तो perfect; past simple कहने पर लगेगा कि अब वहाँ नहीं रहते।" } },
             { wrong: "The guests didn't arrive yet.", right: "The guests haven't arrived yet.", note: { bn: "yet = এখন পর্যন্ত → present perfect negative।", en: "yet = up to now → present perfect negative.", hi: "yet = अब तक → present perfect negative।" } },
           ],
         },
@@ -352,11 +352,11 @@ export const SEED_GRAMMAR_V4_I1A: SeedGrammarV4Entry[] = [
         { bn: "কাটা-সময় তালিকা মুখস্ত: yesterday, ago, last week/month/year, in + বছর, when + past-ক্লজ — দেখলেই past simple।", en: "Memorise the closed-time list: yesterday, ago, last week/month/year, in + year, when + past clause — they force the past simple.", hi: "बंद-समय सूची रटें: yesterday, ago, last week/month/year, in + वर्ष, when + past-क्लज़ — past simple तय।" },
         { bn: "খোলা-ফ্রেম তালিকা: ever, never, just, already, yet, so far, recently, this week, today — দেখলেই present perfect।", en: "The open-frame list: ever, never, just, already, yet, so far, recently, this week, today — they take the present perfect.", hi: "खुले-फ्रेम सूची: ever, never, just, already, yet, so far, recently, this week, today — present perfect।" },
         { bn: "perfect-এর গঠন-পরীক্ষা: have/has + V3; প্রশ্ন-নেগেটিভে do/did নয় — Have you...? I haven't...", en: "Structure check for the perfect: have/has + V3; no do/did in questions or negatives — Have you...? I haven't...", hi: "perfect की बनावट: have/has + V3; प्रश्न-नकार में do/did नहीं — Have you...? I haven't..." },
-        { bn: "since + বিন্দু, for + মাপ — দুটোর যেকোনোটা দেখলে কাল perfect বা perfect continuous হবে।", en: "since + point, for + span — seeing either one, the tense will be perfect or perfect continuous.", hi: "since + बिंदु, for + अवधि — कोई भी दिखे तो काल perfect या perfect continuous होगा।" },
+        { bn: "since + বিন্দু, for + মাপ — দুটোর যেকোনোটা দেখলে কাল perfect বা perfect continuous হবে।", en: "since + point, for + span — if you see either one, the tense will be perfect or perfect continuous.", hi: "since + बिंदु, for + अवधि — कोई भी दिखे तो काल perfect या perfect continuous होगा।" },
         { bn: "When-প্রশ্ন ও When-উত্তর সবসময় past simple — 'When have you...' ইংরেজিতে নেই।", en: "When-questions and When-answers are always past simple — 'When have you...' does not exist in English.", hi: "When-प्रश्न और When-उत्तर हमेशा past simple — 'When have you...' अंग्रेज़ी में नहीं।" },
         { bn: "খবর perfect-এ, বিস্তার past-এ: 'The train has arrived. It arrived at 9:15.'", en: "News in the perfect, details in the past: 'The train has arrived. It arrived at 9:15.'", hi: "खबर perfect में, विवरण past में: 'The train has arrived. It arrived at 9:15.'" },
         { bn: "never-এর সাথে আর নেগেটিভ নয় — I have never seen; 'haven't never' দ্বিগুণ নেগেটিভ।", en: "Never add a negative to never — I have never seen; 'haven't never' is a double negative.", hi: "never के साथ और नकार नहीं — I have never seen; 'haven't never' दोहरा नकार।" },
-        { bn: "জীবিত ব্যক্তির মোট-কর্ম perfect (She has written five novels); মৃত ব্যক্তির জীবনকর্ম past (Tagore wrote Gitanjali)।", en: "A living person's total output takes the perfect (She has written five novels); a dead person's life work takes the past (Tagore wrote Gitanjali).", hi: "जीवित व्यक्ति की कुल रचनाएँ perfect में (She has written five novels); मृत व्यक्ति की रचनाएँ past में (Tagore wrote Gitanjali)।" },
+        { bn: "জীবিত ব্যক্তির মোট-কর্ম perfect (She has written five novels); মৃত ব্যক্তির জীবনকর্ম past (Tagore wrote Gitanjali)।", en: "A living person's total output takes the perfect (She has written five novels); a dead person's life's work takes the past (Tagore wrote Gitanjali).", hi: "जीवित व्यक्ति की कुल रचनाएँ perfect में (She has written five novels); मृत व्यक्ति की रचनाएँ past में (Tagore wrote Gitanjali)।" },
         { bn: "ঘটনার গল্প সাজাতে past simple-ই ইঞ্জিন; perfect শুধু পর্দা খোলে।", en: "To build a story of events, the past simple is the engine; the perfect only opens the curtain.", hi: "घटनाओं की कहानी past simple से बनती है; perfect केवल पर्दा खोलता है।" },
       ],
       quiz: [
@@ -389,7 +389,7 @@ export const SEED_GRAMMAR_V4_I1A: SeedGrammarV4Entry[] = [
       },
       intro: {
         bn: "কর্তা একবচন তো ক্রিয়ায় -s, কর্তা বহুবচন তো ক্রিয়ায় -s নেই — নিয়মটা সহজ শোনায়, কিন্তু everyone, one of, there is, the box of chocolates-এর মতো ফাঁদগুলোতেই পরীক্ষার নম্বর কাটে। এই পাঠে ঢোকার আগে present simple-এর s, be/has/do রূপ আর মৌলিক বচন-ধারণা (beginner পাঠগুলো) পরিষ্কার থাকা দরকার; Present Perfect vs Past Simple পাঠের পরে এটা পড়লে কাল আর সংখ্যা — দুটোই একসাথে পাকা হবে। এখানে শিখব: মূল সূত্র ও one-s rule, একবচন-টানা আভাস শব্দ, কর্তা-ক্রিয়ার মাঝের লম্বা ফ্রেজ ও relative clause, there is/there are, সমষ্টিবাচক নাম আর The number of / A number of-এর জুটি।",
-        en: "A singular subject takes verb + s; a plural subject drops it — the rule sounds easy, but the traps (everyone, one of, there is, the box of chocolates) are exactly where marks are lost. Before this lesson, make sure your present-simple s, be/has/do forms and basic number sense are solid (the beginner lessons); reading this after Present Perfect vs Past Simple will set tense and number together. Here you will learn: the core rules and the one-s rule, singular-forcing signal words, long phrases and relative clauses between subject and verb, there is/there are, collective nouns, and The number of / A number of.",
+        en: "A singular subject takes verb + s; a plural subject drops it — the rule sounds easy, but the traps (everyone, one of, there is, the box of chocolates) are exactly where marks are lost. Before this lesson, make sure your present-simple s, be/has/do forms and basic number sense are solid (the beginner lessons); reading this after Present Perfect vs Past Simple will cement tense and number together. Here you will learn: the core rules and the one-s rule, singular-forcing signal words, long phrases and relative clauses between subject and verb, there is/there are, collective nouns, and The number of / A number of.",
         hi: "एकवचन कर्ता के साथ क्रिया में -s, बहुवचन में नहीं — नियम सरल लगता है, पर everyone, one of, there is, the box of chocolates जैसे जाल में ही अंक कटते हैं। इस पाठ से पहले present simple की s, be/has/do रूप और मूल वचन-समझ (beginner पाठ) स्पष्ट हों; Present Perfect vs Past Simple के बाद पढ़ें तो काल और वचन दोनों पक्के होंगे। यहाँ सीखेंगे: मूल नियम और one-s rule, एकवचन-संकेत शब्द, कर्ता-क्रिया के बीच लंबे वाक्यांश और relative clause, there is/there are, सामूहिक संज्ञाएँ और The number of / A number of।",
       },
       roadmap: [
@@ -436,7 +436,7 @@ export const SEED_GRAMMAR_V4_I1A: SeedGrammarV4Entry[] = [
           },
           lead: {
             bn: "একটা সূত্র আর subject খোঁজার একটা কৌশল — অর্ধেক নিয়ম এখানেই শেষ।",
-            en: "One rule and one subject-finding trick — half the topic ends here.",
+            en: "One rule and one subject-finding trick — half the topic is done right here.",
             hi: "एक सूत्र और subject खोजने की एक तरकीब — आधा पाठ यहीं खत्म।",
           },
           points: [
@@ -513,7 +513,7 @@ export const SEED_GRAMMAR_V4_I1A: SeedGrammarV4Entry[] = [
           },
           lead: {
             bn: "কর্তা আর ক্রিয়ার মাঝ যত লম্বা, চোখের ভুল তত সহজ।",
-            en: "The longer the gap between subject and verb, the easier the eye slips.",
+            en: "The longer the gap between subject and verb, the more easily the eye slips.",
             hi: "कर्ता-क्रिया के बीच की दूरी बढ़े, तो नज़र की चूक आसान।",
           },
           points: [
@@ -579,8 +579,8 @@ export const SEED_GRAMMAR_V4_I1A: SeedGrammarV4Entry[] = [
           },
           lead: {
             bn: "বাংলা-মনের দুটো কারণেই এই ভুলগুলো বারবার হয় — কারণ জানলে ভুল থামে।",
-            en: "Two Bengali-mind causes repeat these mistakes — know the cause and they stop.",
-            hi: "बांग्ला-मस्तिष्क के दो कारणों से ये गलतियाँ दोहराई जाती हैं — कारण जानो, गलती रुकेगी।",
+            en: "Two habits of the Bengali mind keep causing these mistakes — know the cause and they stop.",
+            hi: "बांग्ला-मस्तिष्क के दो कारणों से ये गलतियाँ दोहराई जाती हैं — कारण जानिए, गलती रुकेगी।",
           },
           points: [
             { bn: "কারণ ১: বাংলা ক্রিয়ায় s-জাতীয় চিহ্ন নেই ('মা ভাত রাঁধে', 'বাচ্চারা খেলছে') — তাই ইংরেজিতে s বসানোর রিফ্লেক্স দুর্বল।", en: "Cause 1: Bengali verbs carry no s-like mark of the noun's number — so the reflex to add -s in English is weak.", hi: "कारण 1: बांग्ला क्रिया में s जैसा चिह्न नहीं — इसलिए अंग्रेज़ी में -s लगाने की आदत कमज़ोर।" },
@@ -609,7 +609,7 @@ export const SEED_GRAMMAR_V4_I1A: SeedGrammarV4Entry[] = [
             hi: "स्कूल की एक घोषणा में लगभग सारे जाल छिपे हैं।",
           },
           points: [
-            { bn: "বার্ষিক সভার আগের দিন সাধারণ-শিক্ষক ঘরে ঘরে খবর দিচ্ছিলেন: 'The list of participants is ready, but there are two problems.'", en: "The day before the annual function, the general teacher announced room by room: 'The list of participants is ready, but there are two problems.'", hi: "वार्षिक समारोह से एक दिन पहले सामान्य शिक्षक कमरा-दर-कमरा सूचना दे रहे थे: 'The list of participants is ready, but there are two problems.'" },
+            { bn: "বার্ষিক সভার আগের দিন সাধারণ-শিক্ষক ঘরে ঘরে খবর দিচ্ছিলেন: 'The list of participants is ready, but there are two problems.'", en: "The day before the annual function, the class teacher announced room by room: 'The list of participants is ready, but there are two problems.'", hi: "वार्षिक समारोह से एक दिन पहले सामान्य शिक्षक कमरा-दर-कमरा सूचना दे रहे थे: 'The list of participants is ready, but there are two problems.'" },
             { bn: "'The number of chairs is too small, and a number of guests are coming from Sylhet.'", en: "'The number of chairs is too small, and a number of guests are coming from Sylhet.'", hi: "'The number of chairs is too small, and a number of guests are coming from Sylhet.'" },
             { bn: "'Everyone has to sit somewhere! Our team is preparing the hall, and the students who are on duty have arranged the sound system.'", en: "'Everyone has to sit somewhere! Our team is preparing the hall, and the students who are on duty have arranged the sound system.'", hi: "'Everyone has to sit somewhere! Our team is preparing the hall, and the students who are on duty have arranged the sound system.'" },
             { bn: "'Neither of the two microphones is working, and the principal, along with two teachers, is checking everything right now.'", en: "'Neither of the two microphones is working, and the principal, along with two teachers, is checking everything right now.'", hi: "'Neither of the two microphones is working, and the principal, along with two teachers, is checking everything right now.'" },
@@ -626,7 +626,7 @@ export const SEED_GRAMMAR_V4_I1A: SeedGrammarV4Entry[] = [
         {
           heading: {
             bn: "📊 এক নজরে — পুরো পাঠ ছোট করে",
-            en: "📊 At a glance — the whole lesson in short",
+            en: "📊 At a glance — the whole lesson in brief",
             hi: "📊 एक नज़र में — पूरा पाठ संक्षेप में",
           },
           lead: {

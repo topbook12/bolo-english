@@ -44,7 +44,7 @@ export const SEED_GRAMMAR_V4_B1A: SeedGrammarV4Entry[] = [
         {
           heading: {
             bn: "⏰ Present simple কখন — অভ্যাস, সত্য, সময়সূচি",
-            en: "⏰ When the present simple — habits, truths, schedules",
+            en: "⏰ When to use the present simple — habits, truths, schedules",
             hi: "⏰ Present simple कब — आदतें, सत्य, समय-सारणी",
           },
           lead: {
@@ -83,7 +83,7 @@ export const SEED_GRAMMAR_V4_B1A: SeedGrammarV4Entry[] = [
         {
           heading: {
             bn: "⏳ Past simple কখন — শেষ হয়ে যাওয়া কাজ",
-            en: "⏳ When the past simple — finished actions",
+            en: "⏳ When to use the past simple — finished actions",
             hi: "⏳ Past simple कब — ख़त्म हुए काम",
           },
           lead: {
@@ -112,13 +112,13 @@ export const SEED_GRAMMAR_V4_B1A: SeedGrammarV4Entry[] = [
         {
           heading: {
             bn: "🔮 Future কখন — পরিকল্পনা, প্রতিশ্রুতি, ভবিষ্যদ্বাণী",
-            en: "🔮 When the future — plans, promises, predictions",
+            en: "🔮 When to use the future — plans, promises, predictions",
             hi: "🔮 Future कब — योजना, वादे, भविष्यवाणियाँ",
           },
           lead: {
             bn: "এখনো ঘটেনি এমন কাজ — প্ল্যান, প্রতিশ্রুতি, আগাম খবর — সব চলবে will-এর সঙ্গে।",
             en: "Work that has not happened yet — plans, promises, predictions — all travel with will.",
-            hi: "अभी घटित न हुआ काम — योजना, वादे, आगाही — सब will के साथ चलेगा।",
+            hi: "अभी घटित न हुआ काम — योजना, वादे, भविष्यवाणियाँ — सब will के साथ चलेगा।",
           },
           points: [
             { bn: "**এখনো ঘটেনি এমন কাজ** — future-এর জায়গা এখানে।", en: "**Actions that have not happened yet** — this is the future's place.", hi: "**अभी घटित न हुआ काम** — future की जगह यही है।" },
@@ -456,7 +456,7 @@ export const SEED_GRAMMAR_V4_B1A: SeedGrammarV4Entry[] = [
           lead: {
             bn: "past-এ ক্রিয়া নতুন রূপ ধরে — অনিয়মিতদের রূপ মুখস্থ ছাড়া উপায় নেই।",
             en: "In the past the verb takes a new form — irregular verbs leave no way out but memorising.",
-            hi: "past में क्रिया नया रूप धारण करती है — अनियमित क्रियाओं का एकमात्र उपाय रटना।",
+            hi: "past में क्रिया नया रूप धारण करती है — अनियमित क्रियाओं का एकमात्र उपाय रटना है।",
           },
           points: [
             { bn: "বাংলায় past বানাতে ক্রিয়ার শেষটা বদলায় (যাই→গেলাম, খাই→খেলাম) — ইংরেজিতেও ক্রিয়া নিজেই রূপ বদলায়; নতুন রূপের নাম **V2**।", en: "Bengali makes the past by changing the verb's ending (jai→gelam, khai→khelam); English verbs also change themselves — the new form is called **V2**.", hi: "बांग्ला में past बनाने के लिए क्रिया का अंत बदलता है (যাই→গেলাম); अंग्रेज़ी में भी क्रिया स्वयं रूप बदलती है — नए रूप का नाम **V2**।" },
@@ -549,7 +549,7 @@ export const SEED_GRAMMAR_V4_B1A: SeedGrammarV4Entry[] = [
             hi: "When/If + कर्ता + V1 (present), कर्ता + will + V1",
           },
           points: [
-            { bn: "বাংলায় গল্প বললে আমরা স্বাভাবিকভাবেই এক কালে থাকি — ইংরেজিতে স্পিকিং-এর তাড়ায় এক বাক্যেই কাল মিশে যায়।", en: "In Bengali we naturally stay in one tense while narrating — under speaking pressure in English the tenses mix inside one sentence.", hi: "बांग्ला में कहानी सुनाते समय हम सहज ही एक काल में रहते हैं — अंग्रेज़ी बोलते समय एक ही वाक्य में काल मिल जाता है।" },
+            { bn: "বাংলায় গল্প বললে আমরা স্বাভাবিকভাবেই এক কালে থাকি — ইংরেজিতে স্পিকিং-এর তাড়ায় এক বাক্যেই কাল মিশে যায়।", en: "In Bengali we naturally stay in one tense while narrating — when speaking English under pressure, the tenses mix within a single sentence.", hi: "बांग्ला में कहानी सुनाते समय हम सहज ही एक काल में रहते हैं — अंग्रेज़ी बोलते समय एक ही वाक्य में काल मिल जाता है।" },
             { bn: "'Yesterday I go to the market and buy fish' — ভুল; সময় এক (গতকাল), দুই ক্রিয়াই past: went... bought।", en: "'Yesterday I go to the market and buy fish' — wrong; the time is one (yesterday), so both verbs go past: went... bought.", hi: "'Yesterday I go to the market and buy fish' — गलत; समय एक (कल), दोनों क्रियाएँ past में: went... bought।" },
             { bn: "এটাই **one time, one tense** — সময় এক হলে বাক্যের বা গল্পের টুকরোর সব ক্রিয়া একই কালে।", en: "That is **one time, one tense** — when the time is one, every verb in the sentence or story stretch stays in that tense.", hi: "यही है **one time, one tense** — समय एक हो तो वाक्य या कहानी-टुकड़े की हर क्रिया उसी काल में।" },
             { bn: "সময়ের শব্দ বদলালে ক্রিয়াকেও সঙ্গে নিতেই হয় — yesterday থাকলে ক্রিয়া past রূপে, tomorrow থাকলে will-এর সঙ্গে।", en: "A change of time word forces the verb to follow — with yesterday the verb goes past, with tomorrow it goes with will.", hi: "समय का शब्द बदले तो क्रिया भी साथ चलती है — yesterday हो तो क्रिया past रूप में, tomorrow हो तो will के साथ।" },
@@ -613,7 +613,7 @@ export const SEED_GRAMMAR_V4_B1A: SeedGrammarV4Entry[] = [
             { bn: "প্রতিটা ভুলের পেছনে একটা বাংলা বাক্য-প্যাটার্ন কাজ করছে।", en: "Behind every one of them sits a Bengali sentence pattern.", hi: "हर एक के पीछे एक बांग्ला वाक्य-पैटर्न काम करता है।" },
             { bn: "দোষ আপনার নয় — দুই ভাষার প্যাটার্নের ফারাকের।", en: "The fault is not yours; it is the gap between the two languages' patterns.", hi: "दोष आपका नहीं — दोनों भाषाओं के पैटर्न के फ़र्क़ का है।" },
             { bn: "ভুলটা বাংলা বাক্যটা চিনে ধরুন, তারপর ঠিক বাক্যটা জোরে তিনবার বলে নিন।", en: "Catch the Bengali sentence behind each error, then say the correct one aloud three times.", hi: "हर गलती के पीछे का बांग्ला वाक्य पहचानें, फिर सही वाक्य तीन बार ज़ोर से बोलें।" },
-            { bn: "কানে গেঁথে গেলেই বলার সময় আর ভুল বেরোয় না।", en: "Once the right sentence is rooted in the ear, it stops coming out wrong.", hi: "कान में बैठ जाए तो बोलते समय गलती फिर नहीं निकलती।" },
+            { bn: "কানে গেঁথে গেলেই বলার সময় আর ভুল বেরোয় না।", en: "Once the right sentence is fixed in your ear, it stops coming out wrong.", hi: "कान में बैठ जाए तो बोलते समय गलती फिर नहीं निकलती।" },
           ],
           examples: [
             {
@@ -621,7 +621,7 @@ export const SEED_GRAMMAR_V4_B1A: SeedGrammarV4Entry[] = [
               right: "He goes to office every day.",
               note: {
                 bn: "বাংলা 'সে প্রতিদিন অফিসে যায়' — 'যায়' শব্দেই কর্তা বোঝায়; ইংরেজিতে goes-এর s-ই সেই কাজ করে, s বাদ দিলে কর্তার চিহ্নই মিলিয়ে যায়।",
-                en: "Bengali 'se protiwdin office-e jay' — the ending 'jay' already shows the subject; in English only the s of 'goes' does that job, so dropping it erases the subject's mark.",
+                en: "Bengali 'se protidin office-e jay' — the ending 'jay' already shows the subject; in English only the s of 'goes' does that job, so dropping it erases the subject's mark.",
                 hi: "बांग्ला 'সে প্রতিদিন অফিসে যায়' — 'যায়' शब्द में ही कर्ता है; अंग्रेज़ी में goes का s वही काम करता है।",
               },
             },
@@ -690,7 +690,7 @@ export const SEED_GRAMMAR_V4_B1A: SeedGrammarV4Entry[] = [
               note: {
                 bn: "Rima = she → gets; প্রতিদিনের অভ্যাস, তাই present simple-ই।",
                 en: "'Rima' = she, so gets; a daily habit, so the present simple it is.",
-                hi: "'Rima' = she → gets; রোজ़ की আদত, ইসলিএ present simple।",
+                hi: "'Rima' = she → gets; रोज़ की आदत है, इसलिए present simple।",
               },
             },
             {
@@ -699,7 +699,7 @@ export const SEED_GRAMMAR_V4_B1A: SeedGrammarV4Entry[] = [
               note: {
                 bn: "did-এর পরে V1 — তানিয়ার প্রশ্নে take বসে, took নয়।",
                 en: "After 'did' use V1 — Tania's question takes take, not took.",
-                hi: "'did' के बाद V1 — তানিয়ার प्रश्न में take।",
+                hi: "'did' के बाद V1 — तानिया के प्रश्न में take, took नहीं।",
               },
             },
             {
@@ -708,7 +708,7 @@ export const SEED_GRAMMAR_V4_B1A: SeedGrammarV4Entry[] = [
               note: {
                 bn: "will + V1 — will joined-এ দুই কাল চেপে বসে আছে, এমন কিছু ইংরেজিতে হয় না।",
                 en: "will + V1 — 'will joined' squeezes two tenses together, which English never allows.",
-                hi: "will + V1 — 'will joined' মে দো কাল সাথ-সাথ নহীं।",
+                hi: "will + V1 — 'will joined' में दो काल साथ-साथ नहीं।",
               },
             },
             {
@@ -717,7 +717,7 @@ export const SEED_GRAMMAR_V4_B1A: SeedGrammarV4Entry[] = [
               note: {
                 bn: "অতীতের নেগেটিভ didn't — don't শুধু বর্তমানে I/you/we/they-এর; গতকাল রাতের কথা, তাই didn't।",
                 en: "Past negative takes didn't — 'don't' only serves the present with I/you/we/they; last night demands didn't.",
-                hi: "অতীতের निषेध didn't — 'don't' কেবল ঵র্তমানে I/you/we/they-এর; বীত রাতের বাত didn't মাংগে।",
+                hi: "अतीत का निषेध didn't है — 'don't' केवल वर्तमान में I/you/we/they के साथ; बीती रात के लिए didn't चाहिए।",
               },
             },
           ],
@@ -727,52 +727,52 @@ export const SEED_GRAMMAR_V4_B1A: SeedGrammarV4Entry[] = [
         {
           bn: "বাক্য বানানোর আগে সংকেত শব্দ খুঁজুন — yesterday/ago মানে past, every day/always মানে present, tomorrow/next week মানে future। সংকেতই কাল ঠিক করে।",
           en: "Hunt for the signal word before building a sentence — yesterday/ago mean past, every day/always mean present, tomorrow/next week mean future. The signal fixes the tense.",
-          hi: "বাক্য বানানের আগে সংকেত-শব্দ খোঁজেন — yesterday/ago মানে past, every day/always মানে present, tomorrow/next week মানে future।",
+          hi: "वाक्य बनाने से पहले संकेत-शब्द खोजें — yesterday/ago का मतलब past, every day/always का मतलब present, tomorrow/next week का मतलब future। संकेत ही काल तय करता है।",
         },
         {
           bn: "Present-এ কর্তা he/she/it বা একবচন নাম (Rahim, the cat, my father) দেখলেই ক্রিয়ায় s — ছোট চিহ্ন, ভুল হলে বড় দাগ।",
           en: "In the present, whenever the subject is he/she/it or a singular name (Rahim, the cat, my father), the verb takes s — a tiny mark, but a glaring error when missed.",
-          hi: "Present-এ কর্তা he/she/it বা একবচন নাম দেখলেই ক্রিয়ায় s — ছোট চিহ্ন, ভুল হলে বড় দাগ।",
+          hi: "Present में कर्ता he/she/it या एकवचन नाम दिखे तो क्रिया में s लगता है — छोटा चिह्न, छूट जाए तो बड़ा दाग़।",
         },
         {
           bn: "did দেখলেই পরের ক্রিয়া V1: didn't go, Did you eat? — didn't went, Did you ate কখনো নয়।",
           en: "Whenever 'did' appears, the next verb is V1: didn't go, Did you eat? — never 'didn't went' or 'Did you ate'.",
-          hi: "'did' দেখলেই পরের ক্রিয়া V1: didn't go, Did you eat? — 'didn't went' কভি নয়।",
+          hi: "'did' देखते ही अगली क्रिया V1: didn't go, Did you eat? — 'didn't went' कभी नहीं।",
         },
         {
           bn: "নেগেটিভ-প্রশ্নে কালের দায়িত্ব do/does/did/will-এর — মূল ক্রিয়া সবসময় সাধারণ রূপে (V1) থাকে।",
           en: "In negatives and questions the tense is carried by do/does/did/will — the main verb always stays in its plain form (V1).",
-          hi: "নিষেধ-প্রশ্নে কালের দায়িত্ব do/does/did/will-এর — মূল ক্রিয়া সবসময় V1-এ।",
+          hi: "निषेध-प्रश्न में काल की ज़िम्मेदारी do/does/did/will की है — मूल क्रिया हमेशा V1 में।",
         },
         {
           bn: "will-এর পরে সব পুরুষে একই V1 — will goes, will went, will coming কিছুই নয়, শুধু will go।",
           en: "After 'will' every subject takes the same V1 — not will goes, not will went, not will coming; only will go.",
-          hi: "'will'-এর পরে সব পুরুষে একই V1 — 'will go' ছাড়া কিছুই নয়।",
+          hi: "'will' के बाद हर पुरुष में एक ही V1 — 'will go' के अलावा कुछ नहीं।",
         },
         {
           bn: "am/is/are আর মূল ক্রিয়া একসঙ্গে বসে না — হয় I go, নয়তো I am going (continuous পরের স্তরে); বাংলা 'আমি যাই'-তে কোনো be-verb নেই।",
           en: "A be-verb (am/is/are) and a main verb never sit together — either I go, or I am going (continuous comes later); Bengali 'ami jai' has no be-verb inside it.",
-          hi: "am/is/are আর মূল ক্রিয়া একসঙ্গে বসে না — হয় I go, নয়তো I am going; বাংলা 'আমি যাই'-তে কোনো be-verb নেই।",
+          hi: "am/is/are और मूल क्रिया साथ नहीं बैठते — या I go, या I am going; बांग्ला 'আমি যাই' में कोई be-verb नहीं।",
         },
         {
           bn: "১০টা অনিয়মিত ক্রিয়া রোজ জোরে জোড়ায় বলুন: go-went, eat-ate, see-saw, come-came, buy-bought, take-took, give-gave, do-did, have-had, make-made।",
           en: "Say ten irregular verbs aloud in pairs every day: go-went, eat-ate, see-saw, come-came, buy-bought, take-took, give-gave, do-did, have-had, make-made.",
-          hi: "১০টা অনিয়মিত ক্রিয়া রোজ জোরে জোড়ায় বলেন: go-went, eat-ate, see-saw, come-came, buy-bought, take-took, give-gave, do-did, have-had, make-made।",
+          hi: "10 अनियमित क्रियाएँ रोज़ ज़ोर से जोड़े में बोलें: go-went, eat-ate, see-saw, come-came, buy-bought, take-took, give-gave, do-did, have-had, make-made।",
         },
         {
           bn: "গল্প বলা শুরুর আগে কাল একবার ঠিক করুন, তারপর সব ক্রিয়া সেই কালেই রাখুন — মাঝপথে বদলে ফেলবেন না।",
           en: "Decide the tense once before you start telling a story, then keep every verb in it — do not switch mid-way.",
-          hi: "গল্প শুরুর আগে কাল একবার ঠিক করেন, তারপর সব ক্রিয়া সেই কালেই — মাঝপথে বদলাবেন না।",
+          hi: "कहानी शुरू करने से पहले काल एक बार तय करें, फिर हर क्रिया उसी काल में रखें — बीच में न बदलें।",
         },
         {
           bn: "when/if clause-এ future ঢোকে না: When he comes, I will call you / If it rains, we will stay home — প্রথম অংশে present, দ্বিতীয় অংশে will।",
           en: "No future enters a when/if clause: When he comes, I will call you / If it rains, we will stay home — present in the first part, will in the second.",
-          hi: "when/if clause-এ future ঢোকে না: When he comes... / If it rains... — প্রথম ভাগে present, দ্বিতীয় ভাগে will।",
+          hi: "when/if clause में future नहीं आता: When he comes... / If it rains... — पहले भाग में present, दूसरे भाग में will।",
         },
         {
           bn: "রোজ ১০ মিনিটের দিনলিপি: সকালে আজকের প্ল্যান will-এ, রাতে সারাদিনের হিসাব past-এ — দুই কালের হাত এভাবেই পাকা হয়।",
           en: "A ten-minute daily diary: in the morning write today's plan with will, at night write the day's account in the past — this is how the hand gets steady in both tenses.",
-          hi: "রোজ ১০ মিনিটের দিনলিপি: সকালে আজকের প্ল্যান will-এ, রাতে দিনের হিসাব past-এ — দুই কালের হাত এভাবেই পাকা হয়।",
+          hi: "रोज़ 10 मिनट की डायरी: सुबह आज की योजना will में, रात में दिन का हिसाब past में — इसी तरह दोनों काल का अभ्यास पक्का होता है।",
         },
       ],
       quiz: [
@@ -783,7 +783,7 @@ export const SEED_GRAMMAR_V4_B1A: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "every morning = প্রতিদিনের অভ্যাস → present simple; আর sister = she → ক্রিয়ায় s: goes।",
             en: "'Every morning' marks a habit — present simple; and 'sister' = she, so the verb takes s: goes.",
-            hi: "'every morning' = রোজ़ের আদত → present simple; আর sister = she → ক্রিয়ায় s: goes।",
+            hi: "'every morning' = रोज़ की आदत → present simple; और sister = she → क्रिया में s: goes।",
           },
         },
         {
@@ -793,7 +793,7 @@ export const SEED_GRAMMAR_V4_B1A: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "ago = past-এর সংকেত → past simple: did; আর do-এর past রূপও did।",
             en: "'Ago' signals the past — past simple: did; and did happens to be the past of 'do' itself.",
-            hi: "'ago' = past-এর সংকেত → past simple: did।",
+            hi: "'ago' = past का संकेत → past simple: did।",
           },
         },
         {
@@ -803,7 +803,7 @@ export const SEED_GRAMMAR_V4_B1A: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "he → doesn't; don't শুধু I/you/we/they-এর। বর্তমান অভ্যাসের কথা, তাই didn't নয়।",
             en: "'He' takes doesn't; don't is only for I/you/we/they. It is a present habit, so not didn't.",
-            hi: "he → doesn't; 'don't' কেবল I/you/we/they-এর। বর্তমান আদত, ইসলিএ didn't নয়।",
+            hi: "he → doesn't; 'don't' केवल I/you/we/they के लिए। वर्तमान आदत है, इसलिए didn't नहीं।",
           },
         },
         {
@@ -813,7 +813,7 @@ export const SEED_GRAMMAR_V4_B1A: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "Did-এর পরে সবসময় V1 — see; অতীতের চিহ্ন did-এর পকেটে আছে।",
             en: "After 'Did' always use V1 — see; the past marker is already in did's pocket.",
-            hi: "'Did'-এর পরে সবসময় V1 — see।",
+            hi: "'Did' के बाद हमेशा V1 — see।",
           },
         },
         {
@@ -823,7 +823,7 @@ export const SEED_GRAMMAR_V4_B1A: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "next Friday = ভবিষ্যতের সংকেত → will + V1 (will visit)।",
             en: "'Next Friday' signals the future — will + V1 (will visit).",
-            hi: "'next Friday' = ভবিষ্যতের সংকেত → will + V1।",
+            hi: "'next Friday' = भविष्य का संकेत → will + V1।",
           },
         },
         {
@@ -833,7 +833,7 @@ export const SEED_GRAMMAR_V4_B1A: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "ago → past; buy-এর past bought — buyed বলে কিছু নেই।",
             en: "'Ago' puts us in the past; the past of buy is bought — there is no 'buyed'.",
-            hi: "'ago' → past; buy-এর past bought — 'buyed' নেই।",
+            hi: "'ago' → past; buy का past bought — 'buyed' नहीं होता।",
           },
         },
         {
@@ -843,7 +843,7 @@ export const SEED_GRAMMAR_V4_B1A: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "your father = he → প্রশ্নে Does; Is হলে পরে ক্রিয়া চলে না।",
             en: "'Your father' = he, so the question takes Does; with Is no main verb can follow.",
-            hi: "'your father' = he → প্রশ্নে Does।",
+            hi: "'your father' = he → प्रश्न में Does।",
           },
         },
         {
@@ -853,7 +853,7 @@ export const SEED_GRAMMAR_V4_B1A: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "my mother = she → has; প্রতিদিনের রুটিন, তাই বর্তমান কালেই has।",
             en: "'My mother' = she, so has; a daily routine stays in the present — has.",
-            hi: "'my mother' = she → has; রোজ়ের রুটিন, ইসলিএ has।",
+            hi: "'my mother' = she → has; रोज़ की रूटीन है, इसलिए has।",
           },
         },
         {
@@ -863,7 +863,7 @@ export const SEED_GRAMMAR_V4_B1A: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "when clause-এ future আসে না — সময় বোঝাতে present: rains; ফলাফলে will (will play)।",
             en: "No future inside a when-clause — the present (rains) marks the time; 'will play' carries the result.",
-            hi: "when clause-এ future নয় — সময়ের জন্য present: rains; ফলে will (will play)।",
+            hi: "when clause में future नहीं — समय के लिए present: rains; परिणाम में will (will play)।",
           },
         },
         {
@@ -878,7 +878,7 @@ export const SEED_GRAMMAR_V4_B1A: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "didn't-এর পরে V1 (go); 'didn't went'-এ অতীত দুইবার, 'not went'-এ অতীত ঠিক আছে কিন্তু didn't/do-র সাহায্য নেই।",
             en: "After didn't use V1 (go); 'didn't went' doubles the past, and 'not went' has no helping did at all.",
-            hi: "didn't-এর পরে V1 (go); 'didn't went'-এ অতীত দুইবার।",
+            hi: "didn't के बाद V1 (go); 'didn't went' में अतीत दो बार।",
           },
         },
       ],

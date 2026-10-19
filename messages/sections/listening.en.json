@@ -58,7 +58,7 @@
       "hideSummary": "Hide summary",
       "summaryTitle": "Bangla summary",
       "quizDone": "Quiz completed",
-      "loadFailedTitle": "Story failed to load",
+      "loadFailedTitle": "Couldn't load the story",
       "loadFailed": "Couldn't fetch the story",
       "fallbackError": "Couldn't fetch the story",
       "backToTopic": "Back to topic",

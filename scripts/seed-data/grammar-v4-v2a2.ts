@@ -63,7 +63,7 @@ export const SEED_GRAMMAR_V4_V2A2: SeedGrammarV4Entry[] = [
             { bn: "**which / that** — জিনিস বা প্রাণীর জন্য: the film (which/that) we watched।", en: "**which / that** — for things or animals: the film (which/that) we watched.", hi: "**which / that** — चीज़ों या जानवरों के लिए: the film (which/that) we watched।" },
             { bn: "কর্তা-অবস্থানে (subject) relative pronoun কখনো বাদ দেওয়া যায় না — ক্লজ কর্তা ছাড়া ঝুলে থাকে।", en: "A subject relative pronoun can never be dropped — the clause would hang without a subject.", hi: "Subject वाला relative pronoun कभी नहीं हटता — क्लॉज़ बिना subject के अधूरा लटक जाता है।" },
             { bn: "কর্ম-অবস্থানে (object) প্রনাউন বাদ দেওয়া যায় — আর বাদ দিলেই ইংরেজি বেশি স্বাভাবিক শোনায়।", en: "An object relative pronoun can be dropped — and leaving it out sounds more natural.", hi: "Object वाला pronoun हटाया जा सकता है — और हटाने पर अंग्रेज़ी ज़्यादा natural लगती है।" },
-            { bn: "কর্ম থাকা সত্ত্বেও পেছনে him/it বসানো বাঙালি শিক্ষার্থীদের চেনা ভুল — ইংরেজিতে কর্ম একবারই বসে।", en: "Adding him/it after the clause despite the object is the classic Bengali-speaker mistake — the object appears only once.", hi: "कर्म होते हुए भी पीछे him/it जोड़ना बंगाली वक्ताओं की चिरपरिचित ग़लती है — अंग्रेज़ी में object एक ही बार आता है।" },
+            { bn: "কর্ম থাকা সত্ত্বেও পেছনে him/it বসানো বাঙালি শিক্ষার্থীদের চেনা ভুল — ইংরেজিতে কর্ম একবারই বসে।", en: "Adding him/it after the clause, even though the pronoun already plays the object, is the classic Bengali-speaker mistake — the object appears only once.", hi: "कर्म होते हुए भी पीछे him/it जोड़ना बांग्लाभाषियों की चिरपरिचित ग़लती है — अंग्रेज़ी में object एक ही बार आता है।" },
           ],
           table: {
             head: [
@@ -218,7 +218,7 @@ export const SEED_GRAMMAR_V4_V2A2: SeedGrammarV4Entry[] = [
               right: "2015 was the year when my daughter was born.",
               note: {
                 bn: "সময় বোঝাতে when (বা প্রনাউন সম্পূর্ণ বাদ) — which বসালে 'বছরটা জন্ম নিল' মনে হয়। স্থানে where, সময়ে when, মালিকানায় whose — এই সূত্র মনে রাখুন।",
-                en: "For time, use 'when' (or drop the pronoun); 'which' alone would make 'the year' the object of nothing.",
+                en: "For time, use 'when' (or drop the pronoun); with 'which' the clause would read 'the year was born' — nonsense.",
                 hi: "समय के लिए 'when' (या pronoun हटा दें); अकेला 'which' यहाँ ग़लत लगता है।",
               },
             },
@@ -406,7 +406,7 @@ export const SEED_GRAMMAR_V4_V2A2: SeedGrammarV4Entry[] = [
           },
           lead: {
             bn: "দ্বিতীয় পরিবার: পরিকল্পনা আর ইচ্ছার verb — এরা পরে to + verb চায়।",
-            en: "Family two: the plan-makers — they want to + verb after them.",
+            en: "Family two: the plan-makers — they take to + verb after them.",
             hi: "दूसरा परिवार: योजना वाले verbs — इनके बाद to + verb चाहिए।",
           },
           points: [
@@ -589,11 +589,11 @@ export const SEED_GRAMMAR_V4_V2A2: SeedGrammarV4Entry[] = [
         {
           bn: "তালিকা আলাদা করে দেয়ালে টানান: enjoy/avoid/mind/finish/suggest/keep বনাম want/decide/hope/promise/plan/refuse। প্রতিদিন একবার উচ্চারণ করুন।",
           en: "Pin two lists on your wall: enjoy/avoid/mind/finish/suggest vs want/decide/hope/promise/plan/refuse. Say them once a day.",
-          hi: "दो सूची दीवार पर लगाएँ: enjoy/avoid/mind/finish vs want/decide/hope/promise/plan/refuse। रोज़ एक बार बोलें।",
+          hi: "दो सूचियाँ दीवार पर लगाएँ: enjoy/avoid/mind/finish vs want/decide/hope/promise/plan/refuse। रोज़ एक बार बोलें।",
         },
         {
           bn: "'to'-এর পরে কী আসবে তা ঠিক করতে জিজ্ঞেস করুন — to কি এখানে preposition (of/at/for-এর মতো)? হ্যাঁ হলে -ing, না হলে base verb।",
-          en: "Before choosing after 'to,' ask: is this 'to' a preposition (like at/for)? Yes → -ing; no → base verb.",
+          en: "Before choosing what comes after 'to', ask: is this 'to' a preposition (like at/for)? Yes → -ing; no → base verb.",
           hi: "'to' के आगे क्या आएगा, यह तय करने से पहले पूछें: क्या यह 'to' preposition है? हाँ → -ing; नहीं → verb।",
         },
         {
@@ -668,7 +668,7 @@ export const SEED_GRAMMAR_V4_V2A2: SeedGrammarV4Entry[] = [
             { bn: "**might / may** — সম্ভব, পক্ষান্তর খোলা: He might be in the library।", en: "**might / may** — possible, both doors open: He might be in the library.", hi: "**might / may** — संभव, दोनों रास्ते खुले: He might be in the library।" },
             { bn: "না-বোধক অনুমানে mustn't বসানো সবচেয়ে চেনা ভুল — ইংরেজিতে সবসময় can't।", en: "Using mustn't for negative deduction is the most familiar mistake — English always uses can't there.", hi: "नकारात्मक अनुमान में mustn't लगाना सबसे चिरपरिचित ग़लती है — अंग्रेज़ी वहाँ हमेशा can't लेती है।" },
             { bn: "mustn't মানে নিষেধ — অনুমানের 'না' আর নিষেধ এক জিনিস নয়।", en: "Mustn't means forbidden — a negative guess and a prohibition are not the same thing.", hi: "Mustn't का मतलब है मना — अनुमान का 'नहीं' और रोक-टोक एक नहीं हैं।" },
-            { bn: "অনুমানের must-এর পরে to ছাড়াই verb বসে: must be, might be, can't be।", en: "After a deduction must the verb comes without to: must be, might be, can't be.", hi: "अनुमान के must के बाद to के बिना verb: must be, might be, can't be।" },
+            { bn: "অনুমানের must-এর পরে to ছাড়াই verb বসে: must be, might be, can't be।", en: "After a deduction 'must', the verb comes without to: must be, might be, can't be.", hi: "अनुमान के must के बाद to के बिना verb: must be, might be, can't be।" },
           ],
           formula: {
             bn: "কর্তা + must / can't / might + verb (to ছাড়া)",

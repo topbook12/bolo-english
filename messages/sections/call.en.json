@@ -72,11 +72,11 @@
     "fluency": "Fluency",
     "grammar": "Grammar",
     "vocabulary": "Vocabulary",
-    "mistakesTitle": "Mistakes that happened",
+    "mistakesTitle": "Mistakes made",
     "betterTitle": "You could sound more natural",
     "grammarGapsTitle": "Grammar to work on",
     "vocabGapsTitle": "Words worth learning",
-    "suggestionsTitle": "Next suggestions",
+    "suggestionsTitle": "Suggestions for next time",
     "transcriptTitle": "Full dialogue",
     "improved": "Improved"
   }

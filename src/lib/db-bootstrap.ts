@@ -71,10 +71,13 @@ export type LibraryKind = "vocab" | "grammar" | "listening" | "reading";
 
 const MARKER_FEATURE = "library_bootstrap";
 const MARKERS: Record<LibraryKind, string> = {
-  vocab: "vocab_v2",
-  grammar: "grammar_v4", // v4 = point-form ROADMAP upgrade (Task 10)
-  listening: "listening_v2",
-  reading: "reading_v1", // Task 11: trilingual reading passages
+  // v5 = owner-mandated LANGUAGE-IMPROVEMENT sweep (Task 16): polished
+  // bn/en/hi copy across all seed content. New marker values force one
+  // reseed on every existing DB (local + production) after deploy.
+  vocab: "vocab_v5_lang",
+  grammar: "grammar_v5_lang",
+  listening: "listening_v5_lang",
+  reading: "reading_v5_lang",
 };
 
 /** Single-flight per kind so parallel requests share one bootstrap. */
@@ -254,7 +257,10 @@ async function setMarker(cacheKey: string): Promise<void> {
     .catch(() => undefined);
 }
 
-/* ── Seeders ──────────────────────────────────────────────────────────────
+/* ── Seeders ──────────────────────────────────────────────────────────────────────────────────────
+ * v5 language sweep: every seeder's update branch now also refreshes `data`
+ * (owner-mandated language-improvement pass — same precedent as the grammar
+ * v4 upgrade). The bumped MARKERS above guarantee exactly one sweep per DB.
  * v2 merged seed model:
  *   • v1 entries: created when MISSING (fresh DBs get the full starter
  *     library); when a row already exists ONLY unit/sortOrder metadata is
@@ -396,7 +402,7 @@ const V1_READING: ReadingSeedEntry[] = [
 async function seedVocab(): Promise<number> {
   let fails = 0;
 
-  // v1 rows — create-if-missing; refresh path metadata only when present.
+  // v1 rows — v5 language sweep: refresh data + path metadata when present.
   for (let i = 0; i < V1_VOCAB.length; i++) {
     const e = V1_VOCAB[i];
     const levelIdx = V1_VOCAB.filter((x, j) => j < i && x.level === e.level).length;
@@ -411,14 +417,14 @@ async function seedVocab(): Promise<number> {
           unit: e.unit,
           sortOrder: levelIdx,
         },
-        update: { unit: e.unit, sortOrder: levelIdx },
+        update: { data: JSON.stringify(e.data), unit: e.unit, sortOrder: levelIdx },
       });
     } catch {
       fails++;
     }
   }
 
-  // v2 entries — create if missing; refresh path metadata if present.
+  // v2 entries — v5 language sweep: refresh data + path metadata if present.
   for (let i = 0; i < V2_VOCAB.length; i++) {
     const e = V2_VOCAB[i];
     const levelIdx = V2_VOCAB.filter((x, j) => j < i && x.level === e.level).length + 12;
@@ -433,7 +439,7 @@ async function seedVocab(): Promise<number> {
           unit: e.unit,
           sortOrder: levelIdx,
         },
-        update: { unit: e.unit, sortOrder: levelIdx },
+        update: { data: JSON.stringify(e.data), unit: e.unit, sortOrder: levelIdx },
       });
     } catch {
       fails++;
@@ -492,7 +498,7 @@ async function seedListening(): Promise<number> {
           unit: 0,
           sortOrder: i,
         },
-        update: { unit: 0, sortOrder: i },
+        update: { data: JSON.stringify(e.data), unit: 0, sortOrder: i },
       });
     } catch {
       fails++;
@@ -513,7 +519,11 @@ async function seedListening(): Promise<number> {
           unit: e.unit,
           sortOrder: V1_LISTENING.length + i,
         },
-        update: { unit: e.unit, sortOrder: V1_LISTENING.length + i },
+        update: {
+          data: JSON.stringify(e.data),
+          unit: e.unit,
+          sortOrder: V1_LISTENING.length + i,
+        },
       });
     } catch {
       fails++;
@@ -542,7 +552,12 @@ async function seedReading(): Promise<number> {
             unit: e.unit,
             sortOrder: i,
           },
-          update: { unit: e.unit, sortOrder: i, minutes: e.minutes },
+          update: {
+            data: JSON.stringify(e.data),
+            unit: e.unit,
+            sortOrder: i,
+            minutes: e.minutes,
+          },
         });
       } catch {
         fails++;

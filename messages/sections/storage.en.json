@@ -11,7 +11,7 @@
     "rows": "rows",
     "tables": "Tables",
     "bandwidthTitle": "Site bandwidth (Vercel Hobby: 100 GB / month)",
-    "bandwidthSub": "Text-only pages (~0.2 MB per visit) — audio runs in your browser, videos call peer-to-peer",
+    "bandwidthSub": "Text-only pages (~0.2 MB per visit) — audio runs in your browser, video calls run peer-to-peer",
     "poolTitle": "Storage pool (your idea — rotation)",
     "poolSub": "Add several free-tier storage accounts; when one runs out the next takes over automatically, or switch manually",
     "poolEmpty": "No storage accounts yet. Everything already works without them — add an account only if you upload heavy media someday.",

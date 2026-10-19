@@ -76,7 +76,7 @@ export const SEED_VOCAB_V2_INTERMEDIATE: SeedVocabV2Entry[] = [
       ],
       tip: {
         bn: "কাউকে চেনাতে বা কোনো ছবির কথা বলতে 'describe' হাতিয়ার। ইন্টারভিউতে আসা কমন প্রশ্ন: 'How would you describe yourself?' — এর জবাব আগে থেকে বানিয়ে রাখা ভালো।",
-        en: "'Describe' is your tool for introducing people and picture talk. A common interview question is 'How would you describe yourself?' — prepare your answer.",
+        en: "'Describe' is your tool for introducing people and talking about pictures. A common interview question is 'How would you describe yourself?' — prepare your answer.",
         hi: "लोगों का परिचय और तस्वीर बताने के लिए 'describe'। इंटरव्यू में पूछा जाता है 'How would you describe yourself?'",
       },
       synonyms: ["portray", "depict", "explain"],
@@ -208,7 +208,7 @@ export const SEED_VOCAB_V2_INTERMEDIATE: SeedVocabV2Entry[] = [
       ],
       tip: {
         bn: "'Thank you' বললে উত্তরে 'Don't mention it' শুনতে পারেন — মানে এ কী সব বলা, কথাই নেই। আর আগের কথা টানতে 'As I mentioned earlier, ...' — ইমেইলে খুব চলে।",
-        en: "'Don't mention it' is a friendly answer to 'thank you' (= it was nothing). To pull back an earlier point: 'As I mentioned earlier, ...' — very useful in emails.",
+        en: "'Don't mention it' is a friendly answer to 'thank you' (= it was nothing). To refer back to an earlier point: 'As I mentioned earlier, ...' — very useful in emails.",
         hi: "'Thank you' के जवाब में 'Don't mention it' (= कोई बात नहीं)। ईमेल में 'As I mentioned earlier, ...' बहुत आम है।",
       },
       synonyms: ["bring up", "refer to", "state"],
@@ -240,7 +240,7 @@ export const SEED_VOCAB_V2_INTERMEDIATE: SeedVocabV2Entry[] = [
         },
       ],
       tip: {
-        bn: "দোকানে, হোটেলে বা অফিসে অভিযোগের ভদ্র শুরু: 'I'd like to complain about...'। আর মনে রাখো — উল্টো শব্দ 'compliment' মানে প্রশংসা করা; 'complaint' (noun) মানে অভিযোগটাই।",
+        bn: "দোকানে, হোটেলে বা অফিসে অভিযোগের ভদ্র শুরু: 'I'd like to complain about...'। আর মনে রাখবেন — উল্টো শব্দ 'compliment' মানে প্রশংসা করা; 'complaint' (noun) মানে অভিযোগটাই।",
         en: "Polite opener in shops, hotels, offices: 'I'd like to complain about...'. Remember: the opposite 'compliment' means to praise; the noun 'complaint' is the complaint itself.",
         hi: "दुकान/होटल में शिकायत की शुरुआत: 'I'd like to complain about...'। इसका विलोम 'compliment' = प्रशंसा।",
       },
@@ -273,7 +273,7 @@ export const SEED_VOCAB_V2_INTERMEDIATE: SeedVocabV2Entry[] = [
         },
       ],
       tip: {
-        bn: "প্যাটার্নটা ধরে রাখো: apologize TO someone FOR something — 'I apologized to him for the delay'। দৈনন্দিন কথায় 'I'm sorry' যথেষ্ট; ইমেইল, চিঠি বা সরকারিভাবে 'I apologize' জমে।",
+        bn: "প্যাটার্নটা ধরে রাখুন: apologize TO someone FOR something — 'I apologized to him for the delay'। দৈনন্দিন কথায় 'I'm sorry' যথেষ্ট; ইমেইল, চিঠি বা সরকারিভাবে 'I apologize' জমে।",
         en: "Keep the pattern: apologize TO someone FOR something. In daily talk 'I'm sorry' is enough; 'I apologize' suits emails and formal writing.",
         hi: "पैटर्न याद रखें: apologize TO someone FOR something। रोज़ की बात में 'I'm sorry' काफ़ी है।",
       },
@@ -292,7 +292,7 @@ export const SEED_VOCAB_V2_INTERMEDIATE: SeedVocabV2Entry[] = [
       meaning: {
         bn: "প্রতিশ্রুতি দেওয়া — নিশ্চয়তা দেওয়া যে কিছু অবশ্যই করবে",
         en: "to tell someone you will definitely do something",
-        hi: "वादा करना — यह भरोसा देना कि वह काम ज़रूर करोगे",
+        hi: "वादा करना — यह भरोसा देना कि वह काम ज़रूर करेगा",
       },
       englishMeaning: "to tell someone that you will certainly do something",
       examples: [
@@ -441,8 +441,8 @@ export const SEED_VOCAB_V2_INTERMEDIATE: SeedVocabV2Entry[] = [
         },
       ],
       tip: {
-        bn: "'resign from' + পদ: 'He resigned from his post'। মনে গেঁথে নাও — resign মানে নিজে থেকে ছাড়া, fired মানে বস ছাড়িয়ে দেওয়া। ছাড়ার চিঠির নাম resignation letter, ইন্টারভিউতে 'Why did you resign?' আসতে পারে।",
-        en: "'Resign from' + your position. Burn it in: resign = you choose to leave; fired = the boss ends it. The letter is a resignation letter; interviews may ask 'Why did you resign?'",
+        bn: "'resign from' + পদ: 'He resigned from his post'। মনে গেঁথে নিন — resign মানে নিজে থেকে ছাড়া, fired মানে বস ছাড়িয়ে দেওয়া। ছাড়ার চিঠির নাম resignation letter, ইন্টারভিউতে 'Why did you resign?' আসতে পারে।",
+        en: "'Resign from' + your position. Remember: resign = you choose to leave; fired = the boss ends it. The letter is a resignation letter; interviews may ask 'Why did you resign?'",
         hi: "'Resign from' + पद। Resign = ख़ुद छोड़ना; fired = निकाल देना। इस्तीफ़े की चिट्ठी = resignation letter।",
       },
       synonyms: ["quit", "step down", "leave your job"],
@@ -474,7 +474,7 @@ export const SEED_VOCAB_V2_INTERMEDIATE: SeedVocabV2Entry[] = [
         },
       ],
       tip: {
-        bn: "দুই প্যাটার্ন গুলিয়ো না: 'apply for' a job/scholarship/visa, কিন্তু 'apply to' a company/university/embassy। আবেদনের জায়গাটা application, ভর্তি হলে তুমি applicant।",
+        bn: "দুই প্যাটার্ন গুলিয়ে ফেলবেন না: 'apply for' a job/scholarship/visa, কিন্তু 'apply to' a company/university/embassy। আবেদনের জায়গাটা application, ভর্তি হলে আপনি applicant।",
         en: "Two patterns: apply FOR a job/scholarship/visa, apply TO a company/university/embassy. The form you send is an application; you are the applicant.",
         hi: "दो पैटर्न: apply FOR a job/visa, apply TO a company/university। भेजा फ़ॉर्म = application; आवेदक = applicant।",
       },
@@ -507,7 +507,7 @@ export const SEED_VOCAB_V2_INTERMEDIATE: SeedVocabV2Entry[] = [
         },
       ],
       tip: {
-        bn: "স্কিল দুই ভাগে ভাগ হয়: hard skill (কোডিং, রান্না, এক্সেল) আর soft skill (কথা বলা, দলবদ্ধ কাজ, সময় ব্যবস্থাপনা)। ইন্টারভিউতে জবাব তৈরি রাখো: 'My strongest skill is...' আর 'I'm learning to improve my skills'।",
+        bn: "স্কিল দুই ভাগে ভাগ হয়: hard skill (কোডিং, রান্না, এক্সেল) আর soft skill (কথা বলা, দলবদ্ধ কাজ, সময় ব্যবস্থাপনা)। ইন্টারভিউতে জবাব তৈরি রাখুন: 'My strongest skill is...' আর 'I'm learning to improve my skills'।",
         en: "Skills split into hard skills (coding, Excel) and soft skills (speaking, teamwork, time management). Prepare 'My strongest skill is...' for interviews.",
         hi: "Hard skill (कोडिंग, Excel) और soft skill (बातचीत, टीमवर्क)। इंटरव्यू के लिए 'My strongest skill is...' तैयार रखें।",
       },
@@ -540,7 +540,7 @@ export const SEED_VOCAB_V2_INTERMEDIATE: SeedVocabV2Entry[] = [
         },
       ],
       tip: {
-        bn: "সাধারণ অভিজ্ঞতা অগণনীয়: 'I have experience in sales' — কিন্তু একটা নির্দিষ্ট ঘটনা হলে 'a strange experience'। ইন্টারভিউয়ের প্রথম প্রশ্নই প্রায়ই 'Tell me about your experience' — এই বাক্যটা আগেই ভাবে রাখো।",
+        bn: "সাধারণ অভিজ্ঞতা অগণনীয়: 'I have experience in sales' — কিন্তু একটা নির্দিষ্ট ঘটনা হলে 'a strange experience'। ইন্টারভিউয়ের প্রথম প্রশ্নই প্রায়ই 'Tell me about your experience' — এই বাক্যটা আগেই ভেবে রাখুন।",
         en: "General experience is uncountable: 'I have experience in sales'; one specific event is 'a strange experience'. Interviews often open with 'Tell me about your experience'.",
         hi: "सामान्य अनुभव uncountable: 'I have experience in sales'; एक घटना के लिए 'a strange experience'। इंटरव्यू का पहला सवाल अक्सर 'Tell me about your experience'।",
       },
@@ -606,7 +606,7 @@ export const SEED_VOCAB_V2_INTERMEDIATE: SeedVocabV2Entry[] = [
         },
       ],
       tip: {
-        bn: "খরচ কমাতে 'cut down on expenses'। অফিসের কাজে নিজের পকেট থেকে খরচ করলে ফেরত চাইতে বলো 'Can I claim my expenses?' — টাকা ফেরতকে বলে reimbursement।",
+        bn: "খরচ কমাতে 'cut down on expenses'। অফিসের কাজে নিজের পকেট থেকে খরচ করলে ফেরত চাইতে বলুন 'Can I claim my expenses?' — টাকা ফেরতকে বলে reimbursement।",
         en: "To spend less: 'cut down on expenses'. If you pay from your own pocket for work, ask 'Can I claim my expenses?' — the payback is a reimbursement.",
         hi: "खर्च घटाने के लिए 'cut down on expenses'। काम के पैसे वापस पाने के लिए 'Can I claim my expenses?'",
       },
@@ -704,11 +704,11 @@ export const SEED_VOCAB_V2_INTERMEDIATE: SeedVocabV2Entry[] = [
         },
         {
           en: "What time does the bus arrive?",
-          bn: "বাসটা কটায় পৌঁছাবে?",
+          bn: "বাসটা কয়টায় পৌঁছাবে?",
         },
       ],
       tip: {
-        bn: "প্যাটার্ন মুখস্থ করো: arrive IN Dhaka/India (বড় জায়গা), arrive AT the station/airport (নির্দিষ্ট স্থাপনা), কিন্তু 'arrive home' — মাঝে কিছুই না। 'Arrive to' বললে ভুল ধরা হবে।",
+        bn: "প্যাটার্ন মুখস্থ করুন: arrive IN Dhaka/India (বড় জায়গা), arrive AT the station/airport (নির্দিষ্ট স্থাপনা), কিন্তু 'arrive home' — মাঝে কিছুই না। 'Arrive to' বললে ভুল ধরা হবে।",
         en: "Memorize the pattern: arrive IN a city, arrive AT a station, but 'arrive home' with nothing in between. 'Arrive to' is counted as a mistake.",
         hi: "पैटर्न याद करें: arrive IN a city, arrive AT a station, लेकिन 'arrive home' (बीच में कुछ नहीं)। 'Arrive to' ग़लत माना जाता है।",
       },
@@ -774,7 +774,7 @@ export const SEED_VOCAB_V2_INTERMEDIATE: SeedVocabV2Entry[] = [
         },
       ],
       tip: {
-        bn: "'to' ভুলে যাও: 'go abroad', 'study abroad', 'live abroad' — abroad এর আগে আর কিছু বসে না। 'I've never been abroad' = জীবনে প্রথম দেশের বাইরে যাওয়া হয়নি; ভিসা-পাসপোর্ট প্রসঙ্গে এই শব্দটাই চলে।",
+        bn: "'to' ভুলে যাবেন: 'go abroad', 'study abroad', 'live abroad' — abroad এর আগে আর কিছু বসে না। 'I've never been abroad' = জীবনে প্রথম দেশের বাইরে যাওয়া হয়নি; ভিসা-পাসপোর্ট প্রসঙ্গে এই শব্দটাই চলে।",
         en: "Drop the 'to': 'go abroad', 'study abroad', 'live abroad' — nothing sits between them. 'I've never been abroad' = I have never left my country.",
         hi: "'To' हटाओ: 'go abroad', 'study abroad', 'live abroad' — बीच में कुछ नहीं। 'I've never been abroad' = देश छोड़ा नहीं।",
       },
@@ -793,7 +793,7 @@ export const SEED_VOCAB_V2_INTERMEDIATE: SeedVocabV2Entry[] = [
       meaning: {
         bn: "লাগেজ / মালপত্র — সফরের ব্যাগ-সুটকেসসহ যাবতীয় জিনিস",
         en: "the bags and cases you take when travelling",
-        hi: "सामान — सफ़र का बैग-बक्सा सब",
+        hi: "सामान — सफ़र में लिए जाने वाले बैग-बक्से",
       },
       englishMeaning: "the bags and suitcases you take when you travel",
       examples: [
@@ -975,7 +975,7 @@ export const SEED_VOCAB_V2_INTERMEDIATE: SeedVocabV2Entry[] = [
         },
       ],
       tip: {
-        bn: "উদারতার প্রশংসার ফর্মুলা: 'That's so generous of you!' — 'of you' প্যাটার্নটা খেয়াল করো। noun শব্দটা generosity — 'generousity' নয়, বানানে ফাঁদ আছে।",
+        bn: "উদারতার প্রশংসার ফর্মুলা: 'That's so generous of you!' — 'of you' প্যাটার্নটা খেয়াল করুন। noun শব্দটা generosity — 'generousity' নয়, বানানে ফাঁদ আছে।",
         en: "The praise formula: 'That's so generous of you!' — note 'of you'. The noun is generosity, with a trap in the spelling: not 'generousity'.",
         hi: "प्रशंसा का फ़ॉर्मूला: 'That's so generous of you!'। noun है generosity — 'generousity' नहीं लिखें।",
       },
@@ -1041,7 +1041,7 @@ export const SEED_VOCAB_V2_INTERMEDIATE: SeedVocabV2Entry[] = [
         },
       ],
       tip: {
-        bn: "মন খুলে সত্যি বলতে বাক্য শুরু করো 'To be honest, ...' বা 'Honestly, ...' দিয়ে। উচ্চারণে শুরুর h প্রায় নীরব — 'অনেস্ট'। আরেকটা রূপ: honesty (সততা)।",
+        bn: "মন খুলে সত্যি বলতে বাক্য শুরু করুন 'To be honest, ...' বা 'Honestly, ...' দিয়ে। উচ্চারণে শুরুর h প্রায় নীরব — 'অনেস্ট'। আরেকটা রূপ: honesty (সততা)।",
         en: "Open a frank sentence with 'To be honest, ...' or 'Honestly, ...'. The starting h is almost silent — 'ON-est'. The noun form is honesty.",
         hi: "सीधी बात के लिए 'To be honest, ...' से शुरू करें। शुरुआती 'h' लगभग silent — 'ON-est'। noun: honesty।",
       },
@@ -1103,7 +1103,7 @@ export const SEED_VOCAB_V2_INTERMEDIATE: SeedVocabV2Entry[] = [
         },
         {
           en: "He got jealous when she praised another player.",
-          bn: "সে অন্য খেলোয়াড়ের প্রশংসা করলে সে ঈর্ষা করে ফেলল।",
+          bn: "অন্য খেলোয়াড়ের প্রশংসা করলেই সে ঈর্ষা করে ফেলল।",
         },
       ],
       tip: {
@@ -1140,7 +1140,7 @@ export const SEED_VOCAB_V2_INTERMEDIATE: SeedVocabV2Entry[] = [
         },
       ],
       tip: {
-        bn: "রাগের মাপকাঠি মনে রাখো: annoyed (একটু) → angry (মাঝারি) → furious (তপ্ত)। বাক্যে 'annoyed with' + মানুষ, 'annoyed about/at' + বিষয় — 'annoyed with him about the noise'।",
+        bn: "রাগের মাপকাঠি মনে রাখুন: annoyed (একটু) → angry (মাঝারি) → furious (তপ্ত)। বাক্যে 'annoyed with' + মানুষ, 'annoyed about/at' + বিষয় — 'annoyed with him about the noise'।",
         en: "The anger scale: annoyed (a little) → angry (medium) → furious (very). Use 'annoyed with' a person and 'annoyed about' a thing — 'annoyed with him about the noise'.",
         hi: "गुस्से का पैमाना: annoyed → angry → furious। 'Annoyed with' व्यक्ति, 'annoyed about' बात।",
       },
@@ -1202,7 +1202,7 @@ export const SEED_VOCAB_V2_INTERMEDIATE: SeedVocabV2Entry[] = [
         },
         {
           en: "I'm curious to know what happened next.",
-          bn: "পরে কী হলো জানতে ইচ্ছে করছে।",
+          bn: "আমার পরে কী হলো জানতে ইচ্ছে করছে।",
         },
       ],
       tip: {
@@ -1240,7 +1240,7 @@ export const SEED_VOCAB_V2_INTERMEDIATE: SeedVocabV2Entry[] = [
       ],
       tip: {
         bn: "কাউকে শান্ত করতে 'Stay calm' বা 'Calm down' — তবে সাবধান, রাগের মাথায় 'Calm down!' বললে উল্টো আগুন জ্বলে। verb হিসেবে calm down = শান্ত হওয়া; শান্ত জায়গাকে বলে calm place।",
-        en: "To soothe someone: 'Stay calm' or 'Calm down' — but warning: snapping 'Calm down!' at an angry person pours fuel on fire. As a verb, calm down = become peaceful.",
+        en: "To soothe someone: 'Stay calm' or 'Calm down' — but warning: snapping 'Calm down!' at an angry person pours fuel on the fire. As a verb, calm down = become peaceful.",
         hi: "शांत कराने के लिए 'Stay calm' या 'Calm down' — पर गुस्से में 'Calm down!' कहना आग में घी। calm down (verb) = शांत हो जाना।",
       },
       synonyms: ["peaceful", "relaxed", "composed"],
@@ -1308,7 +1308,7 @@ export const SEED_VOCAB_V2_INTERMEDIATE: SeedVocabV2Entry[] = [
         },
       ],
       tip: {
-        bn: "নতুন অভ্যাস build/form হয়, পুরনোটা break হয়: 'build a habit', 'break a bad habit'। স্পিকিং পরীক্ষার প্রিয় প্রশ্ন 'What are your study habits?' — এর জবাবে দৈনিক রুটিন বলো।",
+        bn: "নতুন অভ্যাস build/form হয়, পুরনোটা break হয়: 'build a habit', 'break a bad habit'। স্পিকিং পরীক্ষার প্রিয় প্রশ্ন 'What are your study habits?' — এর জবাবে দৈনিক রুটিন বলুন।",
         en: "You build or form a habit and break a bad one: 'build a habit', 'break a bad habit'. A favourite speaking-test question is 'What are your study habits?'",
         hi: "नई आदत build/form होती है, बुरी आदत break होती है। स्पीकिंग टेस्ट में पूछा जाता है 'What are your study habits?'",
       },
@@ -1341,7 +1341,7 @@ export const SEED_VOCAB_V2_INTERMEDIATE: SeedVocabV2Entry[] = [
         },
       ],
       tip: {
-        bn: "'on' ভুলে যেয়ো না: 'focus on pronunciation'। মনোযোগ নষ্টকারীর নাম distraction — 'My phone is my biggest distraction'। এক শব্দে নিজেকে সাবধানও করা যায়: 'Focus!'",
+        bn: "'on' ভুলে যাবেন না: 'focus on pronunciation'। মনোযোগ নষ্টকারীর নাম distraction — 'My phone is my biggest distraction'। এক শব্দে নিজেকে সাবধানও করা যায়: 'Focus!'",
         en: "Never drop the 'on': 'focus on pronunciation'. The attention-stealer is a distraction — 'My phone is my biggest distraction'. You can even warn yourself with one word: 'Focus!'",
         hi: "'On' न भूलें: 'focus on pronunciation'। ध्यान भटकाने वाली चीज़ = distraction — 'My phone is my biggest distraction'।",
       },
@@ -1572,7 +1572,7 @@ export const SEED_VOCAB_V2_INTERMEDIATE: SeedVocabV2Entry[] = [
         },
       ],
       tip: {
-        bn: "পড়াশোনার সবচেয়ে দরকারি শব্দ self-discipline — নিজেকে নিয়ন্ত্রণ করার ক্ষমতা। বিখ্যাত কথাটা মনে রাখো: 'Discipline beats motivation' — মুড আসে-যায়, নিয়ম থেকে যায়।",
+        bn: "পড়াশোনার সবচেয়ে দরকারি শব্দ self-discipline — নিজেকে নিয়ন্ত্রণ করার ক্ষমতা। বিখ্যাত কথাটা মনে রাখুন: 'Discipline beats motivation' — মুড আসে-যায়, নিয়ম থেকে যায়।",
         en: "The key study word is self-discipline — the ability to control yourself. Remember the famous line: 'Discipline beats motivation' — moods come and go, rules stay.",
         hi: "पढ़ाई का सबसे ज़रूरी शब्द self-discipline — ख़ुद पर नियंत्रण। प्रसिद्ध बात: 'Discipline beats motivation' — मूड आता-जाता है, नियम रहता है।",
       },

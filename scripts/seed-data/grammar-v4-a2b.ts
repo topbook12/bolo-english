@@ -85,7 +85,7 @@ export const SEED_GRAMMAR_V4_A2B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "জমে-থাকা formulaic বাক্যাংশ — God forbid-এর রূপ কখনও বদলায় না; -s জুড়লে জাদুঘরের মূর্তি ভাঙা হয়।",
                 en: "A frozen formulaic phrase — God forbid never changes its form; adding -s breaks the fossil.",
-                hi: "जमा-बसा formulaic वाक्यांश — God forbid का रूप कभी नहीं बदलता; -s जोड़ना जीते-जागते अपवाद तोड़ना है।",
+                hi: "जमा-बसा formulaic वाक्यांश — God forbid का रूप कभी नहीं बदलता; -s जोड़ना संग्रहालय की मूर्ति तोड़ना है।",
               },
             },
             {

@@ -2411,3 +2411,177 @@ Work Log:
 Stage Summary:
 - The connection between two people is now fully VISIBLE and self-healing on both ends: partner's side (quality badge + poor/recovered toasts + first-connect confirmation) and user's own side (NetworkInformation slow-net chip + instant ICE recovery on wifi return). Fixed a real pre-existing bug where the "partner left" toast was silently dropped due to a roster/name-map race.
 - Files: src/hooks/use-webrtc.ts, src/components/speaking/CallFlow.tsx, src/components/speaking/CallRoom.tsx, messages/sections/call.{en,bn,hi}.json.
+---
+Task ID: 16-F
+Agent: grammar-lang-advanced
+Task: Language sweep — grammar v4 advanced seeds (8 files, 14 lessons)
+
+Work Log:
+- Read worklog tail; read all 8 files fully (a1a, a1b, a1c, a2a, a2b, a2c, a3a, a3b — 9,370 lines, 14 lessons, bn/en/hi tri-objects).
+- TEXT-EDIT-ONLY: 20 string-literal fixes total (12 en, 8 hi, 0 bn — bn copy was already clean/warm; no identifier/topic/slug/key touched; emoji, **bold**, backticks, escaping preserved).
+- grammar-v4-a1a.ts (Advanced Tense & Aspect, 1 lesson): 1 hi — "ধাপ দর ধাপ" gloss was non-word "धाप दर धाप" → "क़दम दर क़दम सीखें".
+- grammar-v4-a1b.ts (Participle Clauses + Cleft Sentences): 2 hi — wrong-word "फँसी" (= a trapped thing, not a trap) → "जाल" in the it-cleft trap note; doubled "में…में हड्डी में गड्ढा" → "वाक्य को भीतर से खोखला कर देती हैं" (hollow-out = the en lead's verb).
+- grammar-v4-a1c.ts (Discourse Markers + Collocations): 1 hi — typo "Neverthelesss" (3 s) → "Nevertheless".
+- grammar-v4-a2a.ts (Inversion + Mixed/Inverted Conditionals): 5 en — calque "spot the mixed / exposes the mixed" → "spot a mixed conditional / exposes a mixed conditional" (roadmap + lead); confusing meta-parenthetical "(marked wrong by style checkers? No — but note the formal tone)" → "(not actually wrong — just note the formal tone)"; "plain didn't fail is not the mixed vehicle" → "a plain didn't fail does not carry the mix"; "Balance the had-condition with a would-have-free result" (contradicts the answer) → "with the matching would-have result".
+- grammar-v4-a2b.ts (Subjunctive + Hedging): 1 hi — nonsense "जीते-जागते अपवाद तोड़ना है" → "संग्रहालय की मूर्ति तोड़ना है" (restores the lesson's museum-statue metaphor from bn).
+- grammar-v4-a2c.ts (Advanced Reported Speech, 1 lesson): 2 hi — "पुरानी फँसी" → "पुरानी चूक", "double-object फँसी" → "double-object जाल"; 2 en — calque "the food of C1 writing" → "the staple of C1 writing" (lead + point).
+- grammar-v4-a3a.ts (Nominalisation + Ellipsis): 1 en + 1 hi — Helen Sword mislabelled "Editor/संपादक" → "Writer-critic/लेखक-आलोचक" (bn: লেখক-সমালোচক).
+- grammar-v4-a3b.ts (Register + Articles/Quantifiers): 1 hi — non-word "फँसवाई" → "जाना-पहचाना जाल"; 4 en — "the class holds many teachers" → "there are many teachers in the category…"; broken point-labels "**The creeping before most**" / "**The in the institution-purpose**" → "**A stray the before most** / **A stray the in the institution-purpose**"; calque "these four cost you friendship" → "these four are friendship-breakers".
+- Systematic English patterns fixed: (a) bn-calque noun phrases ("the mixed", "food of writing", "cost you friendship", "mixed vehicle") → idiomatic equivalents; (b) Hindi misloans of "ফাঁদ/ধরা" (फँसी/फँसवाई) → correct "जाल"; (c) broken en point-labels; (d) one self-contradictory metaphor. All wrong:/right: quiz example sentences left untouched (intentional mistakes); "When to use what/it/them" headings judged already grammatical — no churn.
+- Validation: bun import test on all 8 files → all OK with correct named exports and entry counts (1/2/2/2/2/1/2/2 = 14 lessons); no TypeScript or escaping damage.
+
+Stage Summary:
+- Advanced grammar seeds were already high-quality; sweep removed the last calques and wrong-word slips rather than rewriting good copy (deliberately minimal diff).
+- English example sentences (wrong:/right: fields) never altered — they are teaching artefacts.
+- Remaining optional polish (not done, judged churn): recurring "read it like a prose table" (বাংলা "প্রসার-টেবিল" gloss) and "When to use what" headings — both grammatical, kept.
+---
+Task ID: 16-A
+Agent: ui-lang-A
+Task: Language improvement — messages core/home/path/auth/settings (bn/en/hi)
+Work Log:
+- Text-only sweep of 15 JSON files; 33 string values changed, 0 keys/structure/order touched (verified: key trees identical to git HEAD; every {placeholder}, ICU token, emoji, ⚠️/✅, quotes and \n preserved; all 15 files JSON.parse OK).
+- bn (24 strings): core — cancel "বাতিল"→"বাতিল করুন", next "পরেরটা"→"পরবর্তী" (mandated), finish→"সমাপ্ত করুন", level.beginner "শুরুর দিকে"→"বেসিক", encrypted→"এনক্রিপ্ট হয়ে সুরক্ষিত থাকে", progressDesc "অবস্থান"→"পরিসংখ্যান" (was a mistranslation of "stats"); home — spoken→"কথা বলার সময়" (parallel to en/hi), apiKey.desc "কী"→"Key" ×2; path — "{total} টি"→"{total}টি", "ইচ্ছে মতো"→"ইচ্ছামতো", "যুক্ত উপস্থাপন"→"যুক্তি উপস্থাপন", "এক বসায়"→"এক বসেই", point3 smoothed (কুইজে→কুইজ দিলে); auth — loggingIn "ঢুকছেন…"→"লগইন হচ্ছে…"; settings — "অ্যাকাওন্ট"→"অ্যাকাউন্ট" (typo), "কারো"→"কারও", verifying "..."→"…", stray "কী"→"Key" ×3 (storageDown ambiguity removed), profile "বানাবে"→"তৈরি করবে", rUnit "(0 = আলাদা)"→"(০ = স্বতন্ত্র)" (matches lUnit/vUnit/gUnit in-file).
+- hi (7 strings): core — beginner "शुरुआती"→"बेसिक", encrypted→"एन्क्रिप्टेड और सुरक्षित", footer "बांग्लाभाषी"→"बंगाली-भाषी"; home — apiKey.desc "की"→"Key" ×2; path — point3 typo "क्विक"→"क्विज़", point2 "पिछले का उपयोग करता है"→"पिछले पर बनता है"; settings — apiKey.desc "Gemini की/बिना की"→"Key", unexpectedResponse "प्रयास"→"कोशिश" (tone match with rest of file), rUnit "स्वतंत्र"→"स्टैंडअलोन" (matches lUnit).
+- en (3 strings): core encrypted "Encrypted safely"→"Encrypted & secure"; path point1 "finishable"→"easy to finish in one sitting", point2 "reuses the last"→"builds on the last".
+- Zero-change files (already clean, churn avoided): home.en, auth.en, auth.hi, settings.en.
+Stage Summary:
+- Level names now uniform per locale with sibling reading.*.json: bn বেসিক/মাঝারি/উন্নত, hi बेसिक/मध्यम/उन्नत (en keeps Beginner); "Key" (Latin) is now the single term for API key in bn/hi (was mixed with কী/की); "connected" value kept as "সংযোগ হচ্ছে…" per legacy-key rule; numeral styles per file preserved (no mass conversion; only rUnit's stray Arabic "0" aligned to in-file Bengali numerals).
+- One mid-run slip (hi beginner briefly set to Bengali-script বেসিক) caught and corrected to Devanagari बेसिक; final verification green.
+---
+Task ID: 16-G
+Agent: vocab-lang
+Task: Language sweep — vocab seeds (4 files, 180 words: 36 + 48×3)
+Work Log:
+- Baseline imports captured BEFORE edits (36/48/48/48); re-validated identical after edits.
+- vocab-data.ts (4): pronunciation — delay ডিলে→ডিলেই (matches রেইন/গেইন style for final /eɪ/), feasible ফিজেবল→ফিজিবল, neglect নিগলেক্ট→নিগ্লেক্ট (গ্ল conjunct); bn — easy tip "টেনশন নাও না"→"টেনশন না নেওয়া" (register-neutral). bn tips already আপনি-consistent; en/hi clean, untouched.
+- vocab-v2-beginner.ts (3): en — weak example "After the fever"→"After his fever,"; sick tip "a good reason for leave"→"a good reason to stay home"; bn — morning tip "আগ পর্যন্ত"→"আগে পর্যন্ত".
+- vocab-v2-intermediate.ts (25): bn — 16 tip register fixes তুমি→আপনি (complain, apologize, resign, apply ×2, skill, experience, expense, arrive, abroad, generous, honest, annoyed, habit, focus, discipline) + 3 example fixes (arrive কটায়→কয়টায়; jealous duplicate subject সে; curious missing subject আমার); en — 4 (describe "picture talk"→"talking about pictures"; resign "Burn it in:"→"Remember:"; mention "pull back"→"refer back" an earlier point; calm "pours fuel on fire"→"on the fire"); hi — 2 (promise "कि वह काम ज़रूर करोगे"→"करेगा" agreement; luggage "सफ़र का बैग-बक्सा सब"→"सफ़र में लिए जाने वाले बैग-बक्से").
+- vocab-v2-advanced.ts (5): en — contradict meaning was garbled ("…, or of facts to be in conflict")→"; (of statements or facts) to be in conflict"; pragmatic example "took"→"made a pragmatic call"; bn — contradict tip danda moved out of the quoted English sentence ('…contradictory।'→'…contradictory.'); hypothetical example "দুই ক্লায়েন্ট সাংঘর্ষিক হলে"→"দুই ক্লায়েন্টের সময় পড়ে গেলে"; resilient example "মতামত"→"ফিডব্যাক" (feedback).
+- Validation: bun import OK ×4 (SEED_VOCAB 36, BEGINNER 48, INTERMEDIATE 48, ADVANCED 48); git diff over all 4 files = 36 line-pairs, ZERO changes to any word:/level:/id:/slug:/topic:/category:/unit:/partOfSpeech:/synonyms:/antonyms: line — string literal contents only.
+Stage Summary:
+- Systematic patterns: (1) আপনি-form enforced in bn tips — only the intermediate file had তুমি slips (16), beginner/advanced were already consistent; (2) Bengali pronunciation accuracy/consistency (final -এই diphthong, গ্ল conjunct, standard ফিজিবল); (3) en repaired only where non-idiomatic or garbled — otherwise no churn; (4) hi grammar agreement fix + one naturalness polish.
+- Deliberately preserved: beginner files' "concept-contrast" antonym pairs (rice/bread, water/fire, sun/moon etc.) as authorial teaching style; all numeral styles; British/American spelling notes as pedagogical content.
+- Files: scripts/seed-data/vocab-data.ts, vocab-v2-beginner.ts, vocab-v2-intermediate.ts, vocab-v2-advanced.ts.
+---
+Task ID: 16-C
+Agent: ui-lang-C
+Task: Language improvement — messages call/speaking/progress/analysis/turn/storage/library (bn/en/hi)
+
+Work Log:
+- Edited string VALUES only across 19 of the 21 files (turn.en.json, library.en.json already clean); 65 string fixes total: bn 16, en 9, hi 40. All keys/structure/order untouched; all {tokens}, ICU plurals (progress.en streak.best/correctOf/history.partners), emoji, **bold**, “quotes” preserved; all 21 files JSON.parse OK; git diff = 65+/65−, value lines only.
+- bn (16): call — waitingDesc rewritten naturally ("এখনই কেউ খালি না থাকতে পারে" → "এই মুহূর্তে সবাই ব্যস্ত থাকতে পারে… কল স্বয়ংক্রিয়ভাবে সংযোগ হয়ে যাবে"), joining "ঢোকা হচ্ছে"→"যুক্ত হচ্ছে", shareBanner "কলে ঢুকবে"→"কলে যুক্ত হবে", peerCount→"{count} জন কলে আছেন", endedSummary "কথা হয়েছে"→"কথা বলেছেন", joinFailedTitle→"রুমে যুক্ত হওয়া যায়নি"; speaking one.desc "অপেক্ষমাণ…সাথে সাথে"→"কলের অপেক্ষায় থাকা…সঙ্গে সঙ্গেই", needTwo→"আগে অন্তত ২টি বাক্য ইংরেজিতে লিখুন"; progress needKey/emptyDesc smoothed; analysis "ভুল ও শোধরানো"→"ভুল ও সংশোধন", "গড়ে"→"গড়" শব্দ/বাক্য; turn subtitle word-order fixed; storage loading→"যাচাই হচ্ছে"; library placeholder "বুঝাবেন"→"বোঝাতে পারবেন", check.subtitle +তা. Bengali numerals (২, ৩০, ৫, ১ TB) kept as-is.
+- en (9): call mistakesTitle "Mistakes that happened"→"Mistakes made", suggestionsTitle→"Suggestions for next time"; speaking micTip de-duplicated ("Keep your microphone on — the AI keeps…"); progress suggestionsTitle, betterTitle→"You could sound more natural", gapsTitle→"Grammar to work on", vocabGapsTitle→"Words worth learning"; analysis suggestionsTitle; storage bandwidthSub typo "videos call peer-to-peer"→"video calls run peer-to-peer".
+- hi (40): SYSTEMATIC consistency fixes — "एनालिसिस"→"विश्लेषण" ×6 (speaking.hi was the lone outlier vs call/progress/analysis), fluency→"फ्लुएंसी" ×3 (was धाराप्रवाहता/प्रवाह), dialogue→"संवाद" ×3, mistakesTitle→"जो गलतियाँ हुईं" ×2, betterTitle→"और नेटिव जैसा बोला जा सकता था" ×2, suggestionsTitle→"आगे के लिए सुझाव" ×3, grammarGapsTitle→"ग्रामर में क्या सीखना है", scoreOverall→"समग्र स्कोर", "इंग्लिश"→"अंग्रेज़ी" ×2; naturalness — call waitingDesc "कोई फ्री नहीं हो सकता"→"शायद कोई फ्री नहीं है", peerCount "लोग"→"व्यक्ति" (grammatical at count=1), speaking needTwo/micTip/keyNote ("बिना कीज़"→"की के बिना"), role "AI इंग्लिश"→"AI अंग्रेज़ी", vocab "वोकैबुलरी"→"शब्दावली"; progress trend "दिशा"→"रुझान", practice "अनुपात"→"दर"; analysis strengthsTitle/coverage polished; turn subtitle+poolSub ("एक की कोटा"→"एक अकाउंट का कोटा", "माह"→"महीने"); storage loading/tokenSaved; library freeNote missing "की" restored, verdictWrong "लगभग हो गया"→"लगभग सही", errorTitle gender fix "हो सकी", check.subtitle +यह.
+- Note: library en/bn/hi placeholder "I go to school everyday." left intentionally — it is the checker's demo sentence (common mistake on purpose). turn.en "exhausted: Full", storage.en "rows" lowercase-as-unit verified against StoragePoolCard usage; left alone.
+
+Stage Summary:
+- bn is now uniformly warm/আপনি-tone with natural phrasing; stiff machine-translation artifacts (অপেক্ষমাণ, ঢোকা হচ্ছে, শোধরানো, কল যুক্ত হবে) removed; established loanwords (ভিডিও কল, কুইজ, ফ্রি, রিপোর্ট, স্ট্রিক, ম্যাচ) kept.
+- en report headers now identical across call/progress/analysis (Mistakes made / You could sound more natural / Grammar to work on / Words worth learning / Suggestions for next time); one real typo fixed.
+- hi now uses ONE term per concept site-wide (विश्लेषण, फ्लुएंसी, संवाद, समग्र स्कोर, अंग्रेज़ी) with natural आप-form grammar; live-call labels (connecting/reconnecting/muted/net quality) kept short and calm in all 3 locales.
+- Files (19 changed): call.{bn,en,hi}.json, speaking.{bn,en,hi}.json, progress.{bn,en,hi}.json, analysis.{bn,en,hi}.json, turn.{bn,hi}.json, storage.{bn,en,hi}.json, library.{bn,hi}.json — all valid JSON, no other files touched.
+---
+Task ID: 16-H
+Agent: listen-read-lang
+Task: Language sweep — listening + reading seeds (7 files)
+
+Work Log:
+- TEXT-ONLY sweep; slugs/levels/categories/minutes/ids/keys untouched. Baseline lengths (8/5/5/5/6/6/6) re-verified UNCHANGED after edits; all 7 modules re-import via bun OK.
+- listening-data.ts (10 edits): en 2 — "stream market prices"→"check" (story + quiz explain, matches quiz option). bn 2 — summary "অর্ধেক দিন কারখানায়"→"দিনে কারখানায়"; "দেশাতিবোধ হঠাৎই চাপে"→"হঠাৎ চাপে পড়ে". hi 6 — "सोमवार"→"सोमवार को"; "जमा देता"→"जमा कर देता" (distractor grammar); "बरसों की धैर्य और ज़िद्दी सीख"→"बरसों के धैर्य और सीखने की ज़िद"; "काम लिया"→"नौकरी ली"; "रंपुर"→"रंगपुर" ×2.
+- listening-v2-beginner.ts (4): en 3 — "feels her eyes are wet"→"feels tears in her eyes"; "cleans her bag"→"tidies her bag"; quiz explain "the first pot is too soft"→"the rice from the first pot is too soft" (pot≠soft). hi 1 — Madam's quote fixed to "रविवार तुम्हारा कॉलेज का पहला दिन है".
+- listening-v2-intermediate.ts (8): en 5 — summary "describes the company with his own opinion"→"and gives his own opinion"; "part of your payment"→"part of your reward"; "Kamlapur"→"Kamalapur" ×2 (station name; bn already কমলাপুর); "a warmer deal"→"a better deal". bn 1 — "কামলাপুর"→"কমলাপুর". hi 2 — "दिमाग़ सांझ हो"→"खाली हो" (summary + quiz option; matches en "blank").
+- listening-v2-advanced.ts (3): en 3 — "as raw material, not nuisance"→"not as a nuisance" (dialogue + advocate example); ep5 summary "votes nothing"→"casts no vote" (story says she refused to vote).
+- reading-v1-beginner.ts (6): bn 4 — typo "রাখিও"→"রাখি" (1st-person letter); "গেয়ে"→"গেঁথে" (sari; ×2 story+explain); cloud meaning "ভড়"→"ভ্যাড়". hi 2 — "It takes about nine hours" mistranslated "लगता है लगभग नौ घंटे"→"इसमें लगभग नौ घंटे लगते हैं" (dialogue + quoted explain).
+- reading-v1-intermediate.ts (6): bn 3 — register clash "শোনো…রাখবে"→"শোন তরুণ"; wrong word "সিদ্ধ প্রশ্ন"→"যথার্থ প্রশ্ন" (fair question); "জমজমাট দুই টাওয়ার"→"টুইন টাওয়ার". en 1 — "lamps and sounds"→"lamps and noise" (tiger-deterrent noise). hi 2 — gender "सर्दियों की कोहरा"→"का"; "सुमैया का भर्ती…हो चुका"→"की भर्ती…हो चुकी".
+- reading-v1-advanced.ts (9): bn 7 — "নরম, অনমনীয় দামি দীর্ঘশ্বাস"→"নরম, দামি" (en: soft, expensive sighs); cryptic "জীবন যায় না"→"প্রাণ ফেরানো যায় না" ×3 (story + quiz Q + explain, hi/en untouched); "একটা পাক্ষিক লেগে যায়"→"পনেরো দিন লেগে যায়"; "কামান-বন্দুকের মতো"→"শিকঞ্জির মতো" (en clamped / hi शिकंजे); "খরচ চালু করল"→"খরচ মেটাল এক বৃত্তি" (covered, not started). hi 2 — garbled "ऊपर ले जाए थान से"→"ऊपर तक लाए बोझ से"; laptop gender "अपनी…उधार दी, रखी"→"अपना…उधार दिया, रखा".
+- Deliberate distractors with factual errors left as-is; deliberate grammar-practice errors found nowhere (distractors are factually wrong, grammatically clean after the कोहरा fix). No churn: stylistic-but-intentional choices kept (e.g. "Rain comes to Dhaka soon" A2 present-simple, "grinning like the sun", "warmer deal" dropped only after weighing, kept "বাংলা গান" quote mixing in bn explains).
+
+Stage Summary:
+- 46 string-literal fixes across 7 seed files: en 18, bn 20, hi 8 (counting each distinct string touched). English stories/passages now error-free and level-consistent; bn assists de-typoed and warmed; hi gender/agreement/transliteration slips fixed.
+- Consistency wins: Kamalapur station spelling unified across listening v1+v2 (en+bn); "check market prices" story↔quiz aligned; "প্রাণ ফেরানো যায় না" quote aligned story↔quiz.
+- Validation: bun import of all 7 modules OK; array lengths identical to pre-edit baseline (8/5/5/5/6/6/6); only string contents changed.
+---
+Task ID: 16-B
+Agent: ui-lang-B
+Task: Language improvement — messages grammar/vocab/listening/reading/review (bn/en/hi)
+Work Log:
+- Read worklog tail + all 15 target files; cross-grepped core.*/path.*/home.* to align level names, "key" wording, and quiz CTAs before editing. Text-only edits; zero key/structure changes.
+- bn (18 fixes): grammar 3 — roadmapAria "যে ধাপে যেতে চান, সেখানে যান", markReadAria quoted 'পড়া হয়েছে', errors.unknown → "কিছু একটা গোলমাল হয়েছে" (was machine-y "অজানা সমস্যা"). vocab 6 — "শব্দসমগ্র"→"শব্দগুলো", "জেনারেট করুন"→"তৈরি করুন", ভাণ্ডার→ভান্ডার spelling aligned with rest of file, scoreAria natural order "{total}-এর মধ্যে আপনার স্কোর {score}", learnedCount "{n}টি" spacing, optionsGroup → "উত্তর বেছে নিন" (aligned to grammar). listening 3 — nowPlaying "উচ্চারিত"→"পড়া হচ্ছে", totalParagraphs quoted 'শুনুন' button, optionsAria → "উত্তর বেছে নিন". reading 6 — REGISTER FIX: 5 strings were তুই-form (সরাও/দেখাও/লুকাও/দেখাও বা লুকাও/উত্তর জানাও) → আপনি-form (সরান/দেখান/লুকান/উত্তর দিন); readProgress → "{done}/{total} অনুচ্ছেদ পড়া হয়েছে" natural word order.
+- en (7 fixes): grammar — noKey body "play the quizzes"→"take the quizzes" (×2 in string), wrong → "Not quite — correct answer: {answer}". vocab — needMoreDesc "has {n}"→"has {n} words", startDesc → "from the {n} words in your wordbook", retry "Quiz again"→"Retry quiz" (aligned w/ grammar+listening). listening — loadFailedTitle → "Couldn't load the story" (matches "Couldn't load the lesson/wordbook/quiz" family). reading — levels.beginner "Basic"→"Beginner" to match core.en exactly (bn/hi already matched core).
+- hi (35 fixes): grammar 9 — prepositions "हिंदी की तुलना में", modals → "क्षमता, सलाह और बाध्यता" (was योग्यता/ज़रूरत), inversion "वाक्य का क्रम", ellipsis "शब्द छोड़कर बोलने का सहज तरीका", register "एक जैसे नहीं होते", wrong → "जवाब गलत है — सही जवाब: {answer}", explanation "समझाइए:"→"समझाइश:" (label, not imperative), noKey "की ज़रूरत नहीं"→"key की ज़रूरत नहीं" + "आपकी key एन्क्रिप्टेड रहती है" (bare की was ambiguous). vocab 10 — noKeyDesc मिलेगा→मिलेंगे (agreement), noMatch → "मिलता-जुलता", seeResults/resultTitle नतीजा→रिज़ल्ट (aligned w/ grammar+listening), startDesc+wrongFeedback+optionsGroup उत्तर→जवाब (aligned), msgKeep "सीख मिलती है", markLearned/learned → "सीख लिया". listening 4 — "मुफ़्त की लें"→"मुफ़्त key लें" + "की एन्क्रिप्टेड"→"key एन्क्रिप्टेड", retryQuiz → "फिर क्विज़ दें" (aligned), episode "एपि"→"एपिसोड" (matches reading.hi). reading 3 — back/backToLibrary/backToText → "…पर वापस जाएँ". review 9 — SYSTEMATIC: समीक्षा (critique; wrong register) → रिवीज़न in all 7 strings (title "याद रखने का रिवीज़न", start, startAria, loading masc., doneTitle "पूरा", cardAria, progressAria); subtitle "एक बार दोहरा लेने से" (de-yād repetition); noneDueBody "पाठ पर"→"रास्ते पर" (path, matches home/path.hi).
+- Preserved: all {placeholders} and ICU intact (automated audit), bn Bengali numerals per file, curly vs straight quote styles per file, established loanwords (গ্রামার, কুইজ, রিভিউ, ফ্রি, key, लेसन, क्विज़, रिवीज़न).
+- Validation: node JSON.parse → 15/15 OK; key parity bn/en/hi = 113/101/93/79/20 per namespace; placeholder-en-vs-bn/hi audit PASS; grep confirms zero leftovers of replaced terms.
+Stage Summary:
+- bn: killed the last তুই-form strings (reading) + made- up words fixed; hi: fixed wrong-register समीक्षा→रिवीज़न family, bare-की key ambiguities, number agreement; en: idiomatic "take the quiz" + error-title family aligned.
+- Quiz CTAs now identical per locale across namespaces: bn "উত্তর বেছে নিন"/"সঠিক উত্তর:"/"আবার কুইজ"/"ফলাফল দেখুন"; en "Choose an answer"/"Correct answer:"/"Retry quiz"/"See results"; hi "जवाब चुनें"/"सही जवाब:"/"फिर क्विज़ दें"/"रिज़ल्ट देखें".
+- review.bn/review.en needed no edits (already natural) — churn avoided deliberately.
+---
+Task ID: 16-E
+Agent: grammar-lang-intermediate
+Task: Language sweep — grammar v4 intermediate seeds (10 files)
+Work Log:
+- TEXT-EDIT-ONLY sweep of all 10 assigned grammar-v4 intermediate seed files; string literals only — zero changes to topic/level/unit/sortOrder/imports/keys (verified: 0 identifier lines in git diff).
+- grammar-v4-i1a.ts: en 12, hi 4, bn 0 — "which word calls"→"goes with which tense"; "life work"→"life's work" ×2; "the whole lesson in short"→"in brief" ×2; "carry you through the exam hall"→"through any exam"; dangling "seeing either one…"→"if you see either one"; "set tense and number together"→"cement"; "the easier the eye slips"→"more easily"; "general teacher"→"class teacher"; hi जाल-agreement + तुम→आप imperatives (पहचानिए/बचाइए, कारण जानिए), "अब नहीं रहते लगेगा" rewritten.
+- grammar-v4-i1b.ts: en 7, hi 5 — "Know/Recognise…apart"→"Tell the two machines apart" ×2; "odd in speech for life"→"will always sound odd"; roadmap "When the passive"→"When to use the passive" (rubric pattern); "saying it or not"→"whether you say it or not"; "revision come alive"→"comes alive"; "have have no passive"→"refuse the passive"; hi तुम→आप ×5 (पहचान लीजिए, हटाइए, मिटाइए, रुक जाइए, फँसेंगे).
+- grammar-v4-i2a.ts: en 5, hi 3 — "Modals ignore English's usual habits"→"follow their own rules"; "sentences of your own day"→"about your own day"; "get up for leaving the bed"→"for getting out of bed"; duplicated gloss "run out of (run out of)"→"(be used up)"; "Discuss is transitive — a direct object"→"it takes a direct object"; hi "मिलना/मिलना" dedup, "किए था"→"रहा था".
+- grammar-v4-i2b.ts: en 4, hi 3 — "Covers male and female alike"→"Cousin covers…"; "fix both with reply with the details"→"'reply with the details' fixes both"; "The required prerequisites"→"The prerequisites"; "both fixed makes"→"fix both and the sentence is correct"; hi "बाड़"→"फ़ालतू जोड़", "'थे/धरे' जैसी दो-मुखी जाल"→"'से/धरे' जैसा दो-मुखा जाल".
+- grammar-v4-i3.ts: en 8, hi 2 — "find the right room"→"right family"; "four steps in each time"→"for each time"; "look (seem)"→"look (meaning 'seem')"; "seat the whole map/lesson in your eyes"→"take in … in five lines" ×2; "A vowel/consonant first sound takes"→"If the first sound is a vowel/consonant, use"; "instruments take I play the guitar"→"instruments take the — I play the guitar"; hi "एक जाल हैं"→"है", "का अपना पाँच साम्राज्य"→"के अपने … हैं".
+- grammar-v4-i4.ts: en 9 — intro "the wall appears not in sentences like…" rewritten idiomatically; garbled "'interested partners with in'"→"'Interested' pairs with in"; "reach for for come"→"write 'for come'"; garbled "The preposition live needs must survive"→"The preposition that goes with live must survive"; "trap exams"→"trap learners in exams"; "the floor on the third floor"→"floors take on (the third floor)"; "early enough to work"→"to be useful"; "To wish someone else's behaviour would change"→"To wish that…".
+- grammar-v4-v2a1.ts: en 2, hi 2 — "the present passive is is + grown"→"is: is + grown"; "Commands and requests report with"→"are reported with"; hi "पाला मिलाकर"→"तराज़ू मिलाकर", "हट जाता या गायब हो जाता"→"हट जाता है या…".
+- grammar-v4-v2a2.ts: en 5, hi 2 — "despite the object" clause rewritten; "'which' alone would make 'the year' the object of nothing"→"with 'which' the clause would read 'the year was born' — nonsense"; "they want to + verb"→"they take to + verb"; "Before choosing after 'to,'"→"Before choosing what comes after 'to'"; garbled "After a deduction must the verb comes"→"After a deduction 'must', the verb comes"; hi "बंगाली वक्ताओं"→"बांग्लाभाषियों", "दो सूची"→"दो सूचियाँ".
+- grammar-v4-v2b1.ts: bn 1, en 5, hi 3 — duplicate trick-numbering "(২)/(2)" removed from time-sequence bullet (tricks stay 3); "'However,' ." spacing; "dress in (the moment of dressing)"→"put on (the action of dressing)"; hi वक्ता→बांग्लाभाषी, "अपनी असली वाक्य"→"अपने".
+- grammar-v4-v2b2.ts: en 6, hi 2 — "flow the actions"→"run the actions"; "used to's twin"→"the twin of used to"; "much and many: home in questions"→"— at home in questions"; "luggage go right"→"go in the right column"; "rising asks for real"→"asks a real question" ×2; hi "did-वाली spelling-जाल"→"did-वाला" ×2.
+- Systematic patterns: (a) "When the X —" roadmap heading → "When to use the X"; (b) Hindi तुम-form imperatives → आप-form; (c) hi gender/agreement repairs; (d) duplicated or self-referential glosses removed; (e) garbled machine-translated en notes rewritten; wrong:/right: example sentences NEVER touched.
+- Validation: bun import check — ALL 10 files load cleanly with expected exports/lesson counts (I1A/I1B/I2A/I2B/I3/I4 = 2 lessons each; V2A1/V2A2/V2B1/V2B2 = 3 each).
+Stage Summary:
+- 68 human-language strings polished across 10 files (≈62 en, 26 hi, 1 bn); zero structural/identifier changes; only 9 files needed edits — grammar-v4-v2a1 had the smallest count, i4/i1a the most.
+- Guiding principle: English example sentences and wrong:-field mistakes are pedagogical content and were left untouched; fixes targeted explanation/heading/lead copy where wrong English would model errors for learners.
+- Devanagari transliterations of Bengali words (করি→करि etc.) intentionally preserved as cross-language comparison aids; bn copy was already strong (1 numbering fix only).
+
+---
+Task ID: 16-D
+Agent: main (completing timed-out grammar-lang-beginner run)
+Task: Language sweep — grammar v4 beginner seeds (7 files: b1a/b1b/b1c by first run, b2a/b2b/b3a/b3b by resumed run)
+
+Work Log:
+- b1a/b1b/b1c (first run): garbled hi strings fixed (Bengali script accidentally inside Hindi text); "I's partner"→"the partner of 'I'"; bn/hi orthography cleaned; 208 changed lines total
+- b2a/b2b/b3a/b3b (resumed run): "When the present perfect —"→"When to use the present perfect —" (+past simple sibling); "in counts a works as per"→"for rate phrases"; "never never steps"→"'never' never steps"; hi "ছেড়ে দিলে"→"ছোড़ দें তो" style fixes
+- wrong:/right: teaching examples untouched by design
+- Validation: all 7 files bun-import OK (B1A 1, B1B 2, B1C 1, B2A 2, B2B 2, B3A 2, B3B 2 lessons — lengths unchanged); zero identifier/topic/level/key changes
+
+Stage Summary:
+- Beginner grammar seeds (12 lessons) language sweep complete; combined with 16-E (intermediate) and 16-F (advanced), ALL 50 grammar lessons are now swept
+
+---
+Task ID: 16 (main)
+Agent: main (Z.ai Code)
+Task: Site-wide LANGUAGE-IMPROVEMENT pass — all UI translations (bn/en/hi) + all learning-content seeds + propagation mechanism
+
+Work Log:
+- User directive: "now we are working only for language improvement in this hole site"
+- Propagation: db-bootstrap.ts MARKERS bumped to *_v5_lang (vocab/grammar/listening/reading) AND
+  every seeder's update branch now refreshes `data` — guarantees seed text fixes reach the
+  production DB (Turso) on next deploy; local DB sweep verified (all 4 v5 markers set, swept
+  strings present in LibraryGrammar/LibraryVocab rows)
+- 8 parallel language agents (16-A/B/C UI ×3, 16-D/E/F grammar seeds, 16-G vocab, 16-H listening+reading);
+  16-D timed out mid-run, resumed and completed by main
+- UI messages: ~150 string fixes across 51 files — bn আপনি-form enforcement (তুই/তুমি slips removed),
+  bn spelling (অ্যাকাওন্ট, কারও, ভান্ডার), bn mistranslations (progressDesc অবস্থান→পরিসংখ্যান),
+  level names unified (বেসিক/মাঝারি/উন্নত, बेसिक/मध्यम/उन्नत), hi register (समीक्षा→रिवीज़न,
+  एनालिसिस→विश्लेषण ×6, तुम→आप imperatives), en polish (Encrypted & secure, take the quizzes,
+  report headers unified); call-namespace labels kept short/calm for live-call UX
+- Grammar seeds (50 lessons): "When the X —"→"When to use the X" systematic heading fix; garbled
+  MT strings rewritten (en+hi); bn calques fixed; hi फँसी→जाल; wrong:/right: teaching examples untouched
+- Vocab seeds (180 words): 16 bn tips তুমি→আপনি (intermediate file), pronunciation transliteration
+  consistency (-এই, গ্ল conjunct), garbled en definition (contradict) repaired
+- Listening+Reading seeds (46 stories/passages): story↔quiz alignment (market prices), factually
+  impossible quiz explanation fixed, station spelling Kamalapur, bn typos (গেঁথে, ভ্যাড়), hi grammar
+- New tool: scripts/i18n-check.mjs — JSON validity + bn/en/hi key parity + placeholder integrity +
+  ICU brace balance across all 17 namespaces
+- Verification: tsc --noEmit clean; eslint clean; i18n-check ALL-PARITY-OK; browser-verified live:
+  en "Encrypted & secure", bn "পরিসংখ্যান" + swept lesson body (be-verb partner line) rendering from
+  swept DB, hi nav "सीखने का रास्ता"; console/page errors: none; dev.log clean
+
+Stage Summary:
+- Whole-site language pass complete: UI (51 files) + content (38 seed files, ~250 content items) in
+  bn/en/hi; one-deploy production sweep guaranteed via v5 markers; parity tooling added for future
+  i18n maintenance; zero code-logic changes, zero schema changes

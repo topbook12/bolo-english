@@ -40,7 +40,7 @@
       },
       "prepositions": {
         "name": "Prepositions (in/on/at)",
-        "sub": "in, on, at में फ़र्क़ — हिंदी से तुलना"
+        "sub": "in, on, at में फ़र्क़ — हिंदी की तुलना में"
       },
       "agreement": {
         "name": "Subject-Verb Agreement",
@@ -60,7 +60,7 @@
       },
       "modals": {
         "name": "Modals (can/should/must)",
-        "sub": "योग्यता, सलाह और ज़रूरत"
+        "sub": "क्षमता, सलाह और बाध्यता"
       },
       "phrasal": {
         "name": "Phrasal Verbs",
@@ -76,7 +76,7 @@
       },
       "inversion": {
         "name": "इनवर्ज़न और ज़ोर देना",
-        "sub": "Never/Rarely से शुरू करें तो वाक्य क्रम उलट जाता है"
+        "sub": "Never/Rarely से शुरू करें तो वाक्य का क्रम उलट जाता है"
       },
       "mixedConditionals": {
         "name": "मिक्स्ड और इनवर्टेड कंडीशनल",
@@ -112,7 +112,7 @@
       },
       "ellipsis": {
         "name": "एलिप्सिस और सब्सटिट्यूशन",
-        "sub": "I can and I will — शब्द छोड़कर सहज बोलचाल"
+        "sub": "I can and I will — शब्द छोड़कर बोलने का सहज तरीका"
       },
       "collocations": {
         "name": "कोलोकेशन (शब्द-जोड़ी)",
@@ -120,7 +120,7 @@
       },
       "register": {
         "name": "फ़ॉर्मल बनाम इनफ़ॉर्मल अंग्रेज़ी",
-        "sub": "दोस्तों से चैट और बॉस को ईमेल अलग है"
+        "sub": "दोस्तों से चैट और बॉस को ईमेल एक जैसे नहीं होते"
       },
       "tenseAspect": {
         "name": "टेंस और एस्पेक्ट की बारीकियाँ",
@@ -158,8 +158,8 @@
       "progressAria": "क्विज़ प्रगति {pct}%",
       "chooseAnswer": "जवाब चुनें",
       "correct": "सही जवाब!",
-      "wrong": "गलत हुआ — सही जवाब: {answer}",
-      "explanation": "समझाइए:",
+      "wrong": "जवाब गलत है — सही जवाब: {answer}",
+      "explanation": "समझाइश:",
       "nextQuestion": "अगला सवाल",
       "seeResult": "रिज़ल्ट देखें",
       "scoreWord": "सही!",
@@ -183,7 +183,7 @@
     }
   },
   "noKey": {
-    "title": "ज़्यादातर लेसन ऑफ़लाइन चलते हैं — की ज़रूरत नहीं",
-    "body": "Foundation (Beginner) और Advanced टॉपिक हमारी अपनी लेसन लाइब्रेरी से तुरंत खुलते हैं — आपकी भाषा में, बिना किसी API Key के। Intermediate लेसन और नई कंटेंट के लिए AI चाहिए — Settings में अपनी फ्री Gemini API Key (aistudio.google.com/apikey) जोड़ें। की एन्क्रिप्टेड रहती है, पूरी तरह प्राइवेट।"
+    "title": "ज़्यादातर लेसन ऑफ़लाइन चलते हैं — key की ज़रूरत नहीं",
+    "body": "Foundation (Beginner) और Advanced टॉपिक हमारी अपनी लेसन लाइब्रेरी से तुरंत खुलते हैं — आपकी भाषा में, बिना किसी API Key के। Intermediate लेसन और नई कंटेंट के लिए AI चाहिए — Settings में अपनी फ्री Gemini API Key (aistudio.google.com/apikey) जोड़ें। आपकी key एन्क्रिप्टेड रहती है, पूरी तरह प्राइवेट।"
   }
 }

@@ -266,7 +266,7 @@ export const SEED_READING_V1_BEGINNER: SeedReadingEntry[] = [
         {
           en: "Clerk: It takes about nine hours, madam. The coach reaches Cox's Bazar at four in the afternoon. Yes, it stops for one hour at a good hotel. One ticket is nine hundred and fifty taka. So two tickets are one thousand nine hundred taka. The price includes water for the road.",
           bn: "কেরানি: সময় লাগে প্রায় নয় ঘণ্টা, ম্যাডাম। কোচটা বিকেল চারটায় কক্সবাজারে পৌঁছে। হ্যাঁ, পথে ভালো একটা হোটেলে এক ঘণ্টা দাঁড়ায়। এক টিকিটের দাম নয়শো পঞ্চাশ টাকা। তাহলে দুটো টিকিটে লাগবে উনিশশো টাকা। ভাড়ার সঙ্গে পথের পানিও আছে।",
-          hi: "क्लर्क: लगता है लगभग नौ घंटे, मैडम। कोच दोपहर चार बजे कक्सबाज़ार पहुँचती है। हाँ, रास्ते में वह एक अच्छे होटल पर एक घंटा रुकती है। एक टिकट की क़ीमत नौ सौ पचास टका है। तो दो टिकटों में लगेंगे उन्नीस सौ टका। किराए में रास्ते का पानी भी शामिल है।",
+          hi: "क्लर्क: इसमें लगभग नौ घंटे लगते हैं, मैडम। कोच दोपहर चार बजे कक्सबाज़ार पहुँचती है। हाँ, रास्ते में वह एक अच्छे होटल पर एक घंटा रुकती है। एक टिकट की क़ीमत नौ सौ पचास टका है। तो दो टिकटों में लगेंगे उन्नीस सौ टका। किराए में रास्ते का पानी भी शामिल है।",
         },
         {
           en: "Nina: Here is the money. Thank you for your kind help. Please give us seats C two and C three. We come to gate five at half past six. Goodbye! Have a good day!",
@@ -385,7 +385,7 @@ export const SEED_READING_V1_BEGINNER: SeedReadingEntry[] = [
           explain: {
             bn: "কেরানির উত্তর: 'সময় লাগে প্রায় নয় ঘণ্টা' — কোচ বিকেল চারটায় পৌঁছে।",
             en: "The clerk answers: 'It takes about nine hours' — the coach reaches at four in the afternoon.",
-            hi: "क्लर्क का जवाब: 'लगता है लगभग नौ घंटे' — कोच दोपहर चार बजे पहुँचती है।",
+            hi: "क्लर्क का जवाब: 'इसमें लगभग नौ घंटे लगते हैं' — कोच दोपहर चार बजे पहुँचती है।",
           },
         },
         {
@@ -457,7 +457,7 @@ export const SEED_READING_V1_BEGINNER: SeedReadingEntry[] = [
         },
         {
           en: "You know my mother has a tailoring shop. After school, I go there and help her. I give the cut cloth to the tailors. I also keep the small buttons in boxes. In the evening, I carry the finished dresses to the front table.",
-          bn: "আপনি তো জানেন, আমার মায়ের একটা দর্জির দোকান আছে। স্কুল শেষ করে আমি সেখানে গিয়ে মায়ের কাজে হাত লাগাই। কাটা কাপড় দর্জিদের কাছে পৌঁছে দিই আমি। ছোট ছোট বাটনগুলো বাক্সে গুছিয়ে রাখিও। সন্ধ্যায় সেলাই হয়ে যাওয়া জামাগুলো সামনের টেবিলে নিয়ে যাই।",
+          bn: "আপনি তো জানেন, আমার মায়ের একটা দর্জির দোকান আছে। স্কুল শেষ করে আমি সেখানে গিয়ে মায়ের কাজে হাত লাগাই। কাটা কাপড় দর্জিদের কাছে পৌঁছে দিই আমি। ছোট ছোট বাটনগুলো বাক্সে গুছিয়ে রাখি। সন্ধ্যায় সেলাই হয়ে যাওয়া জামাগুলো সামনের টেবিলে নিয়ে যাই।",
           hi: "आप तो जानते हैं, मेरी माँ की एक सिलाई की दुकान है। स्कूल के बाद मैं वहाँ जाकर माँ के काम में हाथ बँटाती हूँ। कटा हुआ कपड़ा दर्जियों तक पहुँचाती हूँ। छोटे-छोटे बटन डिब्बों में सजाकर रखती हूँ। शाम को सिले हुए कपड़े सामने की मेज़ पर ले जाती हूँ।",
         },
         {
@@ -654,7 +654,7 @@ export const SEED_READING_V1_BEGINNER: SeedReadingEntry[] = [
       paragraphs: [
         {
           en: "14 April. Dear Diary, today is a very happy day. It is Pohela Boishakh, the first day of the Bengali year. Mother woke me up before the sun. I wore a new red and white sari.",
-          bn: "১৪ এপ্রিল। প্রিয় ডায়েরি, আজ দিনটা খুবই আনন্দের। আজ পহেলা বৈশাখ — বাংলা বছরের প্রথম দিন। মা সূর্য ওঠার আগেই আমায় তুলে দিলেন। আমি গেয়ে নতুন এক লাল-সাদা শাড়ি।",
+          bn: "১৪ এপ্রিল। প্রিয় ডায়েরি, আজ দিনটা খুবই আনন্দের। আজ পহেলা বৈশাখ — বাংলা বছরের প্রথম দিন। মা সূর্য ওঠার আগেই আমায় তুলে দিলেন। আমি গেঁথে নতুন এক লাল-সাদা শাড়ি।",
           hi: "१४ अप्रैल। प्यारी डायरी, आज का दिन बहुत ख़ुशी का है। आज पोहेला बैशाख है — बंगाली नए साल का पहला दिन। माँ ने सूरज निकलने से पहले ही मुझे जगा दिया। मैंने नई लाल-सफ़ेद साड़ी पहनी।",
         },
         {
@@ -749,7 +749,7 @@ export const SEED_READING_V1_BEGINNER: SeedReadingEntry[] = [
           ],
           answer: 0,
           explain: {
-            bn: "প্রথম অনুচ্ছেদে লেখা — লেখিকা গেয়েছিল নতুন এক লাল-সাদা শাড়ি।",
+            bn: "প্রথম অনুচ্ছেদে লেখা — লেখিকা গেঁথেছিল নতুন এক লাল-সাদা শাড়ি।",
             en: "The first paragraph says she wore a new red and white sari.",
             hi: "पहला अनुच्छेद कहता है कि उसने नई लाल-सफ़ेद साड़ी पहनी थी।",
           },
@@ -893,7 +893,7 @@ export const SEED_READING_V1_BEGINNER: SeedReadingEntry[] = [
         {
           word: "cloud",
           meaning: {
-            bn: "মেঘ — আকাশে ভাসমান পানির ফোঁটার ভড়",
+            bn: "মেঘ — আকাশে ভাসমান পানির ফোঁটার ভ্যাড়",
             en: "a big group of tiny water drops in the sky",
             hi: "बादल — आकाश में तैरती पानी की बूँदों का झुंड",
           },

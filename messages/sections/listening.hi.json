@@ -11,7 +11,7 @@
     },
     "apiKey": {
       "title": "सेटिंग्स में Gemini API Key जोड़ें",
-      "description": "लिसनिंग कहानियाँ AI से बनती हैं। मुफ़्त की लें: aistudio.google.com/apikey — की एन्क्रिप्टेड रहकर सुरक्षित रहती है, और एक बार बनी कहानी सर्वर पर कैश हो जाती है।",
+      "description": "लिसनिंग कहानियाँ AI से बनती हैं। मुफ़्त key लें: aistudio.google.com/apikey — key एन्क्रिप्टेड रहकर सुरक्षित रहती है, और एक बार बनी कहानी सर्वर पर कैश हो जाती है।",
       "aria": "API key कार्ड"
     },
     "steps": {
@@ -71,7 +71,7 @@
       "backToStory": "कहानी पर वापस जाएँ",
       "finishedTitle": "क्विज़ खत्म!",
       "scorePct": "{pct}% सही जवाब",
-      "retryQuiz": "फिर क्विज़",
+      "retryQuiz": "फिर क्विज़ दें",
       "newStory": "नई कहानी",
       "questionN": "प्रश्न {cur}/{total}",
       "progressAria": "क्विज़ प्रगति",
@@ -107,7 +107,7 @@
         "science": "विज्ञान और प्रकृति",
         "inspire": "प्रेरणा"
       },
-      "episode": "एपि {n}"
+      "episode": "एपिसोड {n}"
     }
   }
 }

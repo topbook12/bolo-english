@@ -17,7 +17,7 @@ export const SEED_GRAMMAR_V4_B1C: SeedGrammarV4Entry[] = [
         hi: "प्रेपोज़िशन in/on/at (बिगिनर)",
       },
       intro: {
-        bn: "এই পাঠ লার্নিং পথের চতুর্থ ব্যাকরণ পাঠ — আগের পাঠগুলো, বিশেষ করে 'Question Formation', শেষ করে তবেই শুরু করুন। বাংলায় জায়গা আর সময় বোঝাতে একটাই জাদুকরী সাফল্য '-ে/-তে': ঘরে, টেবিলে, ঢাকায়, সকালে, সোমবারে — সব এক সূত্রে। কিন্তু ইংরেজিতে সেই এক সূত্র তিনটা শব্দে ভাগ হয়ে গেছে: in, on, at — আর সরাসরি অনুবাদ করলেই ভুল হয়। তাই বাঙালি শিক্ষার্থীরা লিখে ফেলেন 'I am in home', 'I will come in Monday', 'at the morning'। এই পাঠে শিখব — in মানে ভেতরে ঘেরা জায়গা ও মাস-বছর, on মানে ওপরের তল ও দিন-তারিখ, at মানে নির্দিষ্ট বিন্দু ও ঘড়ার সময় — আর যেসব জুটি (at home, in Dhaka, on Monday, at night) মুখস্থ করতেই হবে।",
+        bn: "এই পাঠ লার্নিং পথের চতুর্থ ব্যাকরণ পাঠ — আগের পাঠগুলো, বিশেষ করে 'Question Formation', শেষ করে তবেই শুরু করুন। বাংলায় জায়গা আর সময় বোঝাতে একটাই জাদুকরী প্রত্যয় '-ে/-তে': ঘরে, টেবিলে, ঢাকায়, সকালে, সোমবারে — সব এক সূত্রে। কিন্তু ইংরেজিতে সেই এক সূত্র তিনটা শব্দে ভাগ হয়ে গেছে: in, on, at — আর সরাসরি অনুবাদ করলেই ভুল হয়। তাই বাঙালি শিক্ষার্থীরা লিখে ফেলেন 'I am in home', 'I will come in Monday', 'at the morning'। এই পাঠে শিখব — in মানে ভেতরে ঘেরা জায়গা ও মাস-বছর, on মানে ওপরের তল ও দিন-তারিখ, at মানে নির্দিষ্ট বিন্দু ও ঘড়ার সময় — আর যেসব জুটি (at home, in Dhaka, on Monday, at night) মুখস্থ করতেই হবে।",
         en: "This is the fourth grammar lesson on the learning path — finish the earlier lessons, especially 'Question Formation', before you start. In Bengali one magical suffix '-e/-te' does every job of place and time: ghore (in the house), tebile (on the table), Dhakay (in Dhaka), sokale (in the morning), Som bare (on Monday) — all by one rule. In English that single suffix has split into three words: in, on, at — and translating it directly produces mistakes. So Bengali speakers write 'I am in home', 'I will come in Monday', 'at the morning'. In this lesson we learn — in for enclosed spaces and months/years, on for surfaces and days/dates, at for points and clock times — and the fixed pairs (at home, in Dhaka, on Monday, at night) that simply have to be memorised.",
         hi: "यह लर्निंग पथ का चौथा व्याकरण पाठ है — पहले के पाठ, विशेषकर 'Question Formation', पूरे करके ही शुरू करें। बांग्ला में स्थान और समय का हर काम एक ही जादुई प्रत्यय '-এ/-তে' करता है: घरे, टेबिले, ढाकाय, सोकाले, सोमबारे — सब एक ही नियम से। अंग्रेज़ी में वही एक प्रत्यय तीन शब्दों में बँट गया: in, on, at — और सीधा अनुवाद करने पर गलतियाँ बनती हैं। इसलिए बांग्लाभाषी छात्र लिख देते हैं: 'I am in home', 'I will come in Monday', 'at the morning'। इस पाठ में हम सीखेंगे — in घिरे हुए स्थान और महीने-साल के लिए, on सतह और दिन-तारीख के लिए, at बिन्दु और घड़ी के समय के लिए — और वे स्थिर जोड़े (at home, in Dhaka, on Monday, at night) जो रटने ही होते हैं।",
       },
@@ -51,7 +51,7 @@ export const SEED_GRAMMAR_V4_B1C: SeedGrammarV4Entry[] = [
             { bn: "সময়েও একই তিন স্তর — **in** = বড় সময়ের ঘের: in March, in 2024, in the morning।", en: "Time has the same three levels — **in** = a large wrap of time: in March, in 2024, in the morning.", hi: "समय में भी वही तीन स्तर — **in** = समय का बड़ा घेरा: in March, in 2024, in the morning।" },
             { bn: "তারপর **on** = নির্দিষ্ট দিন-তারিখ: on Sunday, on 16 December।", en: "Then **on** = a specific day or date: on Sunday, on 16 December.", hi: "फिर **on** = निश्चित दिन-तारीख: on Sunday, on 16 December।" },
             { bn: "আর **at** = ঘড়ার বিন্দু: at 6 o'clock।", en: "And **at** = a point on the clock: at 6 o'clock.", hi: "और **at** = घड़ी का बिन्दु: at 6 o'clock।" },
-            { bn: "বাংলায় একটাই সাফল্য '-ে/-তে' — ঘরে, টেবিলে, সকালে, সোমবারে, দশটায়; তাই অনুবাদ করতে গেলে সবখানে in চেপে বসে যায়।", en: "Bengali runs one magical suffix '-e/-te' through all of them — ghore, tebile, sokale, Som bare, dosh-tay; so while translating, in presses itself in everywhere.", hi: "बांग्ला में एक ही जादुई प्रत्यय '-ए/-ते' — घरे, टेबिले, सोकाले, सोमबारे, दशटाय; इसलिए अनुवाद में in हर जगह छा जाता है।" },
+            { bn: "বাংলায় একটাই প্রত্যয় '-ে/-তে' — ঘরে, টেবিলে, সকালে, সোমবারে, দশটায়; তাই অনুবাদ করতে গেলে সবখানে in চেপে বসে যায়।", en: "Bengali runs one magical suffix '-e/-te' through all of them — ghore, tebile, sokale, Som bare, dosh-tay; so while translating, 'in' tries to squeeze in everywhere.", hi: "बांग्ला में एक ही जादुई प्रत्यय '-ए/-ते' — घरे, टेबिले, सोकाले, सोमबारे, दशटाय; इसलिए अनुवाद में in हर जगह छा जाता है।" },
             { bn: "তাই বাংলার '-ে' অনুবাদ করবেন না — আগে ভাবুন: ভেতরে? ওপরের তল? নির্দিষ্ট বিন্দু?", en: "So do not translate the Bengali '-e' — first ask: inside? a surface? a fixed point?", hi: "इसलिए बांग्ला '-ए' का अनुवाद न करें — पहले पूछें: भीतर? सतह? बिन्दु?" },
           ],
           examples: [
@@ -495,9 +495,9 @@ export const SEED_GRAMMAR_V4_B1C: SeedGrammarV4Entry[] = [
             hi: "'-ए/-ते' सीधा अनुवाद करें तो in की छाया पड़ती है — पाँच गलती-परिवार पहचानें।",
           },
           points: [
-            { bn: "ভুলের শিকড় একটাই — '-ে/-তে' সাফল্য তিন কাজে চলে বলে অনুবাদে সবখানে in ছায়া ফেলে।", en: "The root of the mistakes is one — the suffix '-e/-te' does three jobs, so in casts its shadow everywhere in translation.", hi: "गलतियों की जड़ एक है — '-ए/-ते' प्रत्यय तीन काम करता है, इसलिए अनुवाद में in हर जगह छाया डालता है।" },
-            { bn: "তলের জায়গায় in — টেবিলে, দেয়ালে, বিছানায় → in the table/wall/bed (ঠিক: on)।", en: "in on a surface — tebile, deyale, bichanay → in the table/wall/bed (right: on).", hi: "सतह पर in — in the table/wall/bed (सही: on)।" },
-            { bn: "বিন্দুর জায়গায় in — বাসস্ট্যান্ডে, দরজায় → in the bus stop/door (ঠিক: at)।", en: "in on a point — bas-stande, dorjay → in the bus stop/door (right: at).", hi: "बिन्दु पर in — in the bus stop/door (सही: at)।" },
+            { bn: "ভুলের শিকড় একটাই — '-ে/-তে' প্রত্যয় তিন কাজে চলে বলে অনুবাদে সবখানে in ছায়া ফেলে।", en: "The root of the mistakes is one — the suffix '-e/-te' does three jobs, so in casts its shadow everywhere in translation.", hi: "गलतियों की जड़ एक है — '-ए/-ते' प्रत्यय तीन काम करता है, इसलिए अनुवाद में in हर जगह छाया डालता है।" },
+            { bn: "তলের জায়গায় in — টেবিলে, দেয়ালে, বিছানায় → in the table/wall/bed (ঠিক: on)।", en: "in where on belongs — tebile, deyale, bichanay → in the table/wall/bed (right: on).", hi: "सतह पर in — in the table/wall/bed (सही: on)।" },
+            { bn: "বিন্দুর জায়গায় in — বাসস্ট্যান্ডে, দরজায় → in the bus stop/door (ঠিক: at)।", en: "in where at belongs — bas-stande, dorjay → in the bus stop/door (right: at).", hi: "बिन्दु पर in — in the bus stop/door (सही: at)।" },
             { bn: "স্থির জুটি ভাঙা — in home (ঠিক: at home), in my friend's house (ঠিক: at)।", en: "Broken fixed pairs — in home (right: at home), in my friend's house (right: at).", hi: "स्थिर जोड़े टूटना — in home (सही: at home), in my friend's house (सही: at)।" },
             { bn: "সময়ের ভাগ ভুল — at the morning (ঠিক: in), in the night (ঠিক: at night), in Monday (ঠিক: on)।", en: "Mixed-up time — at the morning (right: in), in the night (right: at night), in Monday (right: on).", hi: "समय की मिलावट — at the morning (सही: in), in the night (सही: at night), in Monday (सही: on)।" },
             { bn: "যানবাহনে in the bus — ঠিক হবে on the bus।", en: "Vehicles — in the bus is wrong; the right one is on the bus.", hi: "वाहन में in the bus — सही होगा on the bus।" },
@@ -773,7 +773,7 @@ export const SEED_GRAMMAR_V4_B1C: SeedGrammarV4Entry[] = [
           answer: 2,
           explanation: {
             bn: "night-এর ব্যতিক্রম — At night; In night নয়।",
-            en: "Night is the exception — At night, never 'In night'.",
+            en: "Night is the exception — at night, never 'in night'.",
             hi: "night अपवाद है — At night, 'In night' नहीं।",
           },
         },

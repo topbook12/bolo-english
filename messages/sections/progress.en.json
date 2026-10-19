@@ -64,10 +64,10 @@
       "grammar": "Grammar",
       "vocabulary": "Vocabulary",
       "mistakesTitle": "Mistakes made",
-      "betterTitle": "How a native might say it",
-      "gapsTitle": "Grammar topics to study",
-      "vocabGapsTitle": "Words to learn",
-      "suggestionsTitle": "Next suggestions",
+      "betterTitle": "You could sound more natural",
+      "gapsTitle": "Grammar to work on",
+      "vocabGapsTitle": "Words worth learning",
+      "suggestionsTitle": "Suggestions for next time",
       "transcriptTitle": "Full dialogue"
     }
   }

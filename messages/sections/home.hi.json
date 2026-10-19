@@ -65,7 +65,7 @@
     },
     "apiKey": {
       "title": "AI फ़ीचर चालू करने के लिए अपनी Gemini API Key जोड़ें",
-      "desc": "फ़्री की: aistudio.google.com/apikey — आपकी की एन्क्रिप्टेड रहकर सुरक्षित रहती है",
+      "desc": "फ़्री Key: aistudio.google.com/apikey — आपकी Key एन्क्रिप्ट होकर सुरक्षित रहती है",
       "cta": "सेट करें"
     },
     "how": {

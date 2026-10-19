@@ -56,7 +56,7 @@ export const SEED_GRAMMAR_V4_V2B1: SeedGrammarV4Entry[] = [
           lead: {
             bn: "দুটো বাক্য জোড়া দেওয়ার চারটা রোজকার শব্দ — আর বাঙালি শিক্ষার্থীদের সবচেয়ে চেনা ফাঁদ।",
             en: "The four everyday words that join two sentences — and the traps Bengali speakers know best.",
-            hi: "दो वाक्य जोड़ने वाले चार रोज़मर्रा के शब्द — और बंगाली वक्ताओं की सबसे जानी-पहचानी गलतियाँ।",
+            hi: "दो वाक्य जोड़ने वाले चार रोज़मर्रा के शब्द — और बांग्लाभाषियों की सबसे जानी-पहचानी गलतियाँ।",
           },
           points: [
             {
@@ -222,7 +222,7 @@ export const SEED_GRAMMAR_V4_V2B1: SeedGrammarV4Entry[] = [
               right: "I was tired. However, I kept working.",
               note: {
                 bn: "however কনজাংশন নয় — কমা দিয়ে দুই clause জোড়তে পারে না; নতুন বাক্য শুরু করুন আর however-এর পরে কমা দিন।",
-                en: "'However' cannot join clauses with just a comma — end the sentence, then start a new one with 'However,' .",
+                en: "'However' cannot join clauses with just a comma — end the sentence, then start a new one with 'However,'.",
                 hi: "'However' केवल कॉमा से clause नहीं जोड़ सकता — वाक्य खत्म करके नया शुरू करें और कॉमा लगाएँ।",
               },
             },
@@ -347,9 +347,9 @@ export const SEED_GRAMMAR_V4_V2B1: SeedGrammarV4Entry[] = [
               hi: "(2) जोड़ के लिए also, too, as well, in addition इस्तेमाल करें।",
             },
             {
-              bn: "(২) সময়ধারায় then, after that, later; কারণে because / since / as।",
-              en: "(2) For time sequence, then, after that, later; for reason, because / since / as.",
-              hi: "(2) क्रम के लिए then, after that, later; कारण के लिए because / since / as।",
+              bn: "সময়ধারায় then, after that, later; কারণে because / since / as।",
+              en: "For time sequence, then, after that, later; for reason, because / since / as.",
+              hi: "क्रम के लिए then, after that, later; कारण के लिए because / since / as।",
             },
             {
               bn: "(৩) লম্বা and-শৃঙ্খল ভেঙে দুটো ছোট বাক্য করুন — ছোট বাক্যও শক্তিশালী হয়।",
@@ -692,7 +692,7 @@ export const SEED_GRAMMAR_V4_V2B1: SeedGrammarV4Entry[] = [
               ],
               [
                 { bn: "put on", en: "put on", hi: "put on" },
-                { bn: "পরা (মুহূর্তের কাজ)", en: "dress in (the moment of dressing)", hi: "पहनना (उसी क्षण का काम)" },
+                { bn: "পরা (মুহূর্তের কাজ)", en: "put on (the action of dressing)", hi: "पहनना (उसी क्षण का काम)" },
                 { bn: "Put on your raincoat.", en: "Put on your raincoat.", hi: "Put on your raincoat." },
               ],
               [
@@ -860,7 +860,7 @@ export const SEED_GRAMMAR_V4_V2B1: SeedGrammarV4Entry[] = [
         {
           bn: "নাটক-ভিডিওতে শোনা phrasal verb সঙ্গে সঙ্গে একটা বাস্তব বাক্যে ব্যবহার করুন; সাবটাইটেল পড়লে দুটো বাস্তব উদাহরণ নোট করুন।",
           en: "When you hear a phrasal verb in a show, instantly use it in a real sentence about your life; note two authentic examples from the subtitles.",
-          hi: "शो में सुना phrasal verb तुरंत अपनी असली वाक्य में इस्तेमाल करें; सबटाइटल से दो असली उदाहरण नोट करें।",
+          hi: "शो में सुना phrasal verb तुरंत अपने असली वाक्य में इस्तेमाल करें; सबटाइटल से दो असली उदाहरण नोट करें।",
         },
         {
           bn: "নিজের দিনকে তিন ক্লাস্টারে বলুন: সকাল (get up, put on), কাজ (find out, put off), রাত (turn off, pick up) — ক্লাস্টার-প্র্যাকটিসেই মুখে চলে আসে।",

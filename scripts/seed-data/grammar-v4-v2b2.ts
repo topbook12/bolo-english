@@ -24,7 +24,7 @@ export const SEED_GRAMMAR_V4_V2B2: SeedGrammarV4Entry[] = [
         hi: "'I used to play cricket every day' बताता है बीती हुई आदत; 'I am used to getting up early' का अर्थ अभ्यस्त होना। दोनों लगभग एक जैसे दिखते हैं पर अर्थ बिल्कुल अलग — यहीं मध्यम स्तर के शिक्षार्थी ठोकर खाते हैं। इस पाठ में used to, would और be/get used to का भ्रम दूर करेंगे।",
       },
       roadmap: [
-        { bn: "⏰ used to + verb — অতীতের অভ্যাস, অবস্থা আর did-বাক্যের বানান-ফাঁদ", en: "⏰ used to + verb — past habits, states and the did-spelling trap", hi: "⏰ used to + verb — अतीत की आदतें, अवस्थाएँ और did-वाली spelling-जाल" },
+        { bn: "⏰ used to + verb — অতীতের অভ্যাস, অবস্থা আর did-বাক্যের বানান-ফাঁদ", en: "⏰ used to + verb — past habits, states and the did-spelling trap", hi: "⏰ used to + verb — अतीत की आदतें, अवस्थाएँ और did-वाला spelling-जाल" },
         { bn: "🔁 would — গল্প-স্মৃতির অভ্যাস-ক্রিয়া, অবস্থায় একেবারেই নিষেধ", en: "🔁 would — habit actions in stories and memories, never for states", hi: "🔁 would — कहानियों की आदत-क्रियाएँ, अवस्था में पूरी तरह मना" },
         { bn: "📊 তিনটা প্রশ্নে সিদ্ধান্ত — used to বনাম would তুলনার ছক", en: "📊 Three questions to decide — the used to vs would table", hi: "📊 तीन प्रश्नों में फ़ैसला — used to बनाम would की टेबल" },
         { bn: "⚠️ be/get used to = অভ্যস্ত থাকা — বানান কাছাকাছি, অর্থ দূরে", en: "⚠️ be/get used to = accustomed — near in spelling, worlds apart in meaning", hi: "⚠️ be/get used to = अभ्यस्त — spelling पास, अर्थ दूर" },
@@ -39,7 +39,7 @@ export const SEED_GRAMMAR_V4_V2B2: SeedGrammarV4Entry[] = [
           lead: {
             bn: "অতীতের অভ্যাস-অবস্থার সরাসরি রূপ used to — সাথে did-বাক্যের ছোট্ট বানান-ফাঁদ।",
             en: "The direct form for past habits and states — plus the small did-spelling trap.",
-            hi: "अतीत की आदत-अवस्था का सीधा रूप used to — साथ में did-वाली spelling-जाल।",
+            hi: "अतीत की आदत-अवस्था का सीधा रूप used to — साथ में did-वाला spelling-जाल।",
           },
           points: [
             { bn: "**used to + verb** বোঝায় অতীতে নিয়মিত হতো, এখন আর হয় না: I used to play cricket।", en: "**used to + verb** means a past habit, now finished: I used to play cricket.", hi: "**used to + verb** का अर्थ — अतीत में नियमित होता था, अब नहीं: I used to play cricket।" },
@@ -105,7 +105,7 @@ export const SEED_GRAMMAR_V4_V2B2: SeedGrammarV4Entry[] = [
           ],
           formula: {
             bn: "গল্পের ঢঙ: দৃশ্য used to দিয়ে, বারবার-হওয়া কাজ would দিয়ে",
-            en: "storytelling: set the scene with used to, flow the actions with would",
+            en: "storytelling: set the scene with used to, run the actions with would",
             hi: "कहानी के अंदाज़ में: दृश्य used to से, दोहराई क्रियाएँ would से",
           },
           examples: [
@@ -208,7 +208,7 @@ export const SEED_GRAMMAR_V4_V2B2: SeedGrammarV4Entry[] = [
           },
           lead: {
             bn: "দেখতে used to-র যমজ, অর্থ 'অভ্যস্ত থাকা' — মধ্যম স্তরের সবচেয়ে ধরা-পড়ার জায়গা।",
-            en: "Looks like used to's twin but means 'accustomed' — the most-caught spot at intermediate level.",
+            en: "Looks like the twin of used to but means 'accustomed' — the most-caught spot at intermediate level.",
             hi: "देखने में used to का जुड़वाँ, अर्थ 'अभ्यस्त' — मध्यम स्तर पर सबसे ज़्यादा पकड़े जाने वाली जगह।",
           },
           points: [
@@ -370,7 +370,7 @@ export const SEED_GRAMMAR_V4_V2B2: SeedGrammarV4Entry[] = [
         {
           heading: {
             bn: "🚦 much ও many: প্রশ্ন আর অস্বীকারের জায়গা",
-            en: "🚦 much and many: home in questions and negatives",
+            en: "🚦 much and many — at home in questions and negatives",
             hi: "🚦 much और many: प्रश्न और नकारात्मक वाक्यों में",
           },
           lead: {
@@ -544,7 +544,7 @@ export const SEED_GRAMMAR_V4_V2B2: SeedGrammarV4Entry[] = [
       tips: [
         {
           bn: "দিনে একবার ঘরের জিনিস দুই কলামে ভাগ করুন: countable / uncountable — furniture, information, advice, news, luggage যাবে ডান কলামে।",
-          en: "Once a day, split the things around you into two columns: countable / uncountable — furniture, information, advice, news, luggage go right.",
+          en: "Once a day, split the things around you into two columns: countable / uncountable — furniture, information, advice, news, luggage go in the right column.",
           hi: "रोज़ एक बार आसपास की चीज़ें दो कॉलम में बाँटें: countable / uncountable — furniture, information, advice, news, luggage दाएँ।",
         },
         {
@@ -588,7 +588,7 @@ export const SEED_GRAMMAR_V4_V2B2: SeedGrammarV4Entry[] = [
         { bn: "🔀 ট্যাগের মূল সূত্র — পজিটিভে নেগেটিভ ট্যাগ, auxiliary মেলান", en: "🔀 The core tag rule — positive gets a negative tag, match the auxiliary", hi: "🔀 टैग का मूल सूत्र — सकारात्मक पर नकारात्मक टैग, auxiliary मिलाएँ" },
         { bn: "📌 নিয়মের বাইরের ট্যাগ — I am, Let's, imperative, there, everyone", en: "📌 Tags outside the rule — I am, Let's, imperatives, there, everyone", hi: "📌 नियम से बाहर के टैग — I am, Let's, imperative, there, everyone" },
         { bn: "💬 শর্ট আনসার — Yes/No + সাহায্যকারী; উত্তর মেলে সত্যের সাথে", en: "💬 Short answers — Yes/No + auxiliary; answers agree with the truth", hi: "💬 शॉर्ट आंसर — Yes/No + सहायक; उत्तर सच से मेल खाता है" },
-        { bn: "🎵 ট্যাগের সুর — falling মানে সম্মতি চাওয়া, rising মানে আসল প্রশ্ন", en: "🎵 The music of tags — falling seeks agreement, rising asks for real", hi: "🎵 टैग का संगीत — falling यानी सहमति, rising यानी असली सवाल" },
+        { bn: "🎵 ট্যাগের সুর — falling মানে সম্মতি চাওয়া, rising মানে আসল প্রশ্ন", en: "🎵 The music of tags — falling seeks agreement, rising asks a real question", hi: "🎵 टैग का संगीत — falling यानी सहमति, rising यानी असली सवाल" },
       ],
       sections: [
         {
@@ -768,7 +768,7 @@ export const SEED_GRAMMAR_V4_V2B2: SeedGrammarV4Entry[] = [
           },
           lead: {
             bn: "একই ট্যাগ, সুর বদলালে অর্থ বদলায় — গলা নামলে সম্মতি চাওয়া, উঠলে আসল প্রশ্ন।",
-            en: "Same tag, different melody, different meaning — falling seeks agreement, rising asks for real.",
+            en: "Same tag, different melody, different meaning — falling seeks agreement, rising asks a real question.",
             hi: "एक ही टैग, सुर बदले तो अर्थ बदलता है — गिरता सुर सहमति, उठता सुर असली सवाल।",
           },
           points: [

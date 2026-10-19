@@ -332,7 +332,7 @@ export const SEED_LISTENING: LibraryListeningEntry[] = [
           explain: {
             bn: "প্রতিষ্ঠানটি গুলশানে, এবং গত সোমবার সাদিয়া সেখানে সাক্ষাৎকারের ডাক পায়।",
             en: "The company is in Gulshan, and Sadia got the interview call last Monday.",
-            hi: "कंपनी गुलशान में है और सादिया को सोमवार साक्षात्कार का कॉल आया।",
+            hi: "कंपनी गुलशान में है और सादिया को सोमवार को साक्षात्कार का कॉल आया।",
           },
         },
         {
@@ -590,7 +590,7 @@ export const SEED_LISTENING: LibraryListeningEntry[] = [
             hi: "चक्रवात से वन गाँवों की रक्षा कैसे करता है?",
           },
           options: [
-            { bn: "ঝড়ের পানি জমাট বেঁধে ফেলে", en: "It freezes the storm water", hi: "यह तूफ़ान का पानी जमा देता है" },
+            { bn: "ঝড়ের পানি জমাট বেঁধে ফেলে", en: "It freezes the storm water", hi: "यह तूफ़ान का पानी जमा कर देता है" },
             { bn: "বাতাস কমায় ও ঢেউ শুষে নেয়", en: "It slows the wind and soaks up waves", hi: "यह हवा धीमी कर देता है और लहरों को सोख लेता है" },
             { bn: "গ্রামবাসীদের উঁচু জায়গায় সরিয়ে দেয়", en: "It moves villagers to high ground", hi: "यह ग्रामीणों को ऊँची जगह ले जाता है" },
             { bn: "ঝড়ের আগাম খবর দেয়", en: "It sends early warnings", hi: "यह पहले से चेतावनी देता है" },
@@ -639,9 +639,9 @@ export const SEED_LISTENING: LibraryListeningEntry[] = [
         hi: "इंजीनियर जिसने कभी सीखना नहीं छोड़ा",
       },
       summary: {
-        bn: "গ্রামের ছেলে হাসান অর্ধেক দিন কারখানায় কাজ করত, রাতে পড়ত। বছরের পর বছর ধৈর্য আর লেগে থাকার জেদে সে হয়ে ওঠে সফল প্রকৌশলী। এখন সে গ্রামের ছেলেমেয়েদের বিনা পয়সায় পড়ায়।",
+        bn: "গ্রামের ছেলে হাসান দিনে কারখানায় কাজ করত, রাতে পড়ত। বছরের পর বছর ধৈর্য আর লেগে থাকার জেদে সে হয়ে ওঠে সফল প্রকৌশলী। এখন সে গ্রামের ছেলেমেয়েদের বিনা পয়সায় পড়ায়।",
         en: "Hasan, a boy from a small village, worked in a factory by day and studied by night. Years of patience and stubborn learning made him a successful engineer. Today he teaches village children for free.",
-        hi: "छोटे गाँव का लड़का हसन दिन में फ़ैक्ट्री में काम करता और रात में पढ़ता। बरसों की धैर्य और ज़िद्दी सीख ने उसे सफल इंजीनियर बना दिया। आज वह गाँव के बच्चों को मुफ़्त पढ़ाता है।",
+        hi: "छोटे गाँव का लड़का हसन दिन में फ़ैक्ट्री में काम करता और रात में पढ़ता। बरसों के धैर्य और सीखने की ज़िद ने उसे सफल इंजीनियर बना दिया। आज वह गाँव के बच्चों को मुफ़्त पढ़ाता है।",
       },
       paragraphs: [
         "Hasan grew up in a village near Mymensingh, where electricity came and went and books were rare treasures. His father repaired bicycles, and the family survived on very little. Yet whenever Hasan found a broken radio, he took it apart just to see how it worked.",
@@ -704,7 +704,7 @@ export const SEED_LISTENING: LibraryListeningEntry[] = [
           explain: {
             bn: "অষ্টম শ্রেণির পর টাকা ফুরিয়ে যাওয়ায় হাসান গাজীপুরের পোশাক কারখানায় কাজ নেয়।",
             en: "After class eight, money ran out, so Hasan took a job at a garment factory in Gazipur.",
-            hi: "आठवीं के बाद पैसा ख़त्म हो गया, इसलिए हसन ने गाज़ीपुर की गारमेंट फ़ैक्ट्री में काम लिया।",
+            hi: "आठवीं के बाद पैसा ख़त्म हो गया, इसलिए हसन ने गाज़ीपुर की गारमेंट फ़ैक्ट्री में नौकरी ली।",
           },
         },
         {
@@ -845,7 +845,7 @@ export const SEED_LISTENING: LibraryListeningEntry[] = [
           ],
           answer: 0,
           explain: {
-            bn: "লেকচারের মাঝে কারো ফোনে পুরনো বাংলা গান বাজলে দেশাতিবোধ হঠাৎই চাপে।",
+            bn: "লেকচারের মাঝে কারো ফোনে পুরনো বাংলা গান বাজলে দেশাতিবোধ হঠাৎ চাপে পড়ে।",
             en: "During a lecture, an old Bangla song on someone's phone brought her homesickness without warning.",
             hi: "व्याख्यान के बीच किसी के फ़ोन पर पुराना बांग्ला गाना बजा और घर की याद सता गई।",
           },
@@ -892,7 +892,7 @@ export const SEED_LISTENING: LibraryListeningEntry[] = [
         hi: "मोबाइल फ़ोन से मोबाइल बैंकिंग तक, तकनीक ने बांग्लादेश के ग्रामीण जीवन को बदल दिया है। किसान अब दाम जाँचते हैं और मरीज़ दूर बैठे डॉक्टर तक पहुँचते हैं। फिर भी बिजली और कौशल का अंतर बड़ी चुनौती है।",
       },
       paragraphs: [
-        "Twenty years ago, a single phone call from a village meant a long walk to the union bhaban. Today, farmers in Haor regions stream market prices on cheap smartphones while their cattle graze beside them. The change arrived quietly, village by village.",
+        "Twenty years ago, a single phone call from a village meant a long walk to the union bhaban. Today, farmers in Haor regions check market prices on cheap smartphones while their cattle graze beside them. The change arrived quietly, village by village.",
         "Mobile banking has perhaps brought the deepest shift. A garment worker in Dhaka can send money to her mother in Rangpur within seconds, without a bank branch or a bus ticket. Small shopkeepers who never had accounts now run their businesses through bKash and Nagad.",
         "Education and health have followed the same road. Students watch recorded physics lectures when the internet is cheap at night, and telemedicine lets an elderly patient in Kurigram talk to a specialist in Dhaka without travelling. Satellite data even warns fishing boats about dangerous weather.",
         "Yet the picture is not perfect. Load-shedding still interrupts online classes, older villagers often depend on their grandchildren to navigate apps, and fake news spreads faster than correction. Technology, it turns out, is only a tool — the wisdom to use it must grow in classrooms and homes alike.",
@@ -951,7 +951,7 @@ export const SEED_LISTENING: LibraryListeningEntry[] = [
           answer: 0,
           explain: {
             bn: "হাওর অঞ্চলের কৃষকরা এখন সস্তা স্মার্টফোনে বাজারদর দেখতে পারে।",
-            en: "Farmers in Haor regions can now stream market prices on cheap smartphones.",
+            en: "Farmers in Haor regions can now check market prices on cheap smartphones.",
             hi: "हाओर क्षेत्र के किसान अब सस्ते स्मार्टफ़ोन पर बाज़ार भाव देख सकते हैं।",
           },
         },
@@ -959,7 +959,7 @@ export const SEED_LISTENING: LibraryListeningEntry[] = [
           question: {
             bn: "রংপুরে মায়ের কাছে টাকা কীভাবে পাঠায় পোশাক শ্রমিক?",
             en: "How does a garment worker send money to her mother in Rangpur?",
-            hi: "गारमेंट कर्मचारी रंपुर में अपनी माँ को पैसा कैसे भेजती है?",
+            hi: "गारमेंट कर्मचारी रंगपुर में अपनी माँ को पैसा कैसे भेजती है?",
           },
           options: [
             { bn: "বাসে করে নগদ টাকা পাঠিয়ে", en: "By sending cash on a bus", hi: "बस से नक़द पैसा भेजकर" },
@@ -971,7 +971,7 @@ export const SEED_LISTENING: LibraryListeningEntry[] = [
           explain: {
             bn: "মোবাইল ব্যাংকিংয়ে ঢাকার কর্মী কয়েক সেকেন্ডেই রংপুরে মায়ের কাছে টাকা পাঠাতে পারে।",
             en: "With mobile banking, a worker in Dhaka can send money to her mother in Rangpur within seconds.",
-            hi: "मोबाइल बैंकिंग से ढाका की कर्मचारी कुछ सेकंड में रंपुर में अपनी माँ को पैसा भेज सकती है।",
+            hi: "मोबाइल बैंकिंग से ढाका की कर्मचारी कुछ सेकंड में रंगपुर में अपनी माँ को पैसा भेज सकती है।",
           },
         },
         {

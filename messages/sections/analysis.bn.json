@@ -5,7 +5,7 @@
     "grammar": "গ্রামার",
     "vocabulary": "শব্দভাণ্ডার",
     "strengthsTitle": "যা দারুণ করেছেন 💪",
-    "mistakesTitle": "ভুল ও শোধরানো",
+    "mistakesTitle": "ভুল ও সংশোধন",
     "severityMajor": "গুরুতর ভুল",
     "severityMinor": "ছোটখাটো ভুল",
     "cats": {
@@ -28,7 +28,7 @@
     "focusDrill": "৫ মিনিটের ড্রিল",
     "recurringTitle": "বারবার ফিরে আসছে 🔁",
     "statsSentences": "বাক্য বলেছেন",
-    "statsAvgWords": "গড়ে শব্দ/বাক্য",
+    "statsAvgWords": "গড় শব্দ/বাক্য",
     "statsUnique": "ইউনিক শব্দ",
     "suggestionsTitle": "পরবর্তী পরামর্শ",
     "transcriptTitle": "সম্পূর্ণ ডায়ালগ",

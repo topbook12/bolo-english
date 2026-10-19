@@ -124,7 +124,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "they = বহুবচন → s বাদ; বাংলায় 'তারা যায়' আর 'সে যায়' কানে প্রায় এক শোনায়, কিন্তু ইংরেজিতে go/goes আলাদা পথ।",
                 en: "'They' is plural — drop the s; in Bengali 'tara jay' and 'se jay' sound almost alike to the ear, but English keeps go/goes apart.",
-                hi: "'they' = বহুবচন → s হটাও; বাংগলা 'তারা যায়' আর 'সে যায়' কানে এক জাইসা, পর অংগ্রেজ़ীতে go/goes আলাদা।",
+                hi: "'they' = बहुवचन → s हटाओ; बांग्ला 'তারা যায়' और 'से যায়' कान को लगभग एक जैसे लगते हैं, पर अंग्रेज़ी में go/goes अलग हैं।",
               },
             },
             {
@@ -133,7 +133,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "my mother = she → ক্রিয়ায় s: makes; বাংলা 'মা বানান' — একবচন কর্তা, তাই ইংরেজিতে s লাগবেই।",
                 en: "'My mother' = she, so the verb takes s: makes; Bengali 'ma banan' is one singular subject, so English demands the s.",
-                hi: "'my mother' = she → ক্রিয়ায় s: makes।",
+                hi: "'my mother' = she → क्रिया में s: makes।",
               },
             },
             {
@@ -142,7 +142,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "boys = বহুবচন → are; be-verb-ও কর্তার সঙ্গে মিলবে — is শুধু একবচনের।",
                 en: "'Boys' is plural — so are; the be-verb must match the subject too — is belongs only to singulars.",
-                hi: "'boys' = বহুবচন → are; be-verb-ও কর্তার সাথে মিলবে — is কেবল একবচনের।",
+                hi: "'boys' = बहुवचन → are; be-verb भी कर्ता से मिलेगा — is केवल एकवचन के लिए।",
               },
             },
             {
@@ -150,8 +150,8 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               right: "I was at home last night.",
               note: {
                 bn: "অতীতে I-এর জুটি was — I were নয়; were যায় you/we/they-এর সঙ্গে।",
-                en: "In the past, I's partner is was — never 'I were'; were goes with you/we/they.",
-                hi: "অতীতে I-এর জুটি was — 'I were' নয়; were জাতা হয় you/we/they-এর সাথে।",
+                en: "In the past, the partner of 'I' is was — never 'I were'; were goes with you/we/they.",
+                hi: "अतीत में 'I' की जोड़ी was — 'I were' नहीं; were you/we/they के साथ जाता है।",
               },
             },
           ],
@@ -160,11 +160,11 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           heading: {
             bn: "📊 গঠন — কে কী নেয়: পূর্ণ ছক",
             en: "📊 Formation — who takes what: the full chart",
-            hi: "📊 বনাবট — কে ক্যা লেতা হৈ: পূরা চার্ট",
+            hi: "📊 बनावट — कौन क्या लेता है: पूरा चार्ट",
           },
           lead: {
             bn: "এই তিন সারির ছক আঙুলে ধরে মুখস্থ করুন — পুরো পাঠ এর ওপরেই দাঁড়িয়ে।",
-            en: "Memorise this three-row chart finger-on-the-line — the whole lesson stands on it.",
+            en: "Memorise this three-row chart with a finger on the line — the whole lesson stands on it.",
             hi: "इस तीन पंक्ति के चार्ट को रट लें — पूरा पाठ इसी पर टिका है।",
           },
           formula: {
@@ -182,7 +182,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               [
                 { bn: "I", en: "I", hi: "I" },
                 { bn: "am / have / do", en: "am / have / do", hi: "am / have / do" },
-                { bn: "মূল ক্রিয়া — I go", en: "base verb — I go", hi: "मूল क्रिया — I go" },
+                { bn: "মূল ক্রিয়া — I go", en: "base verb — I go", hi: "मूल क्रिया — I go" },
               ],
               [
                 { bn: "he/she/it", en: "he/she/it", hi: "he/she/it" },
@@ -235,7 +235,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "he/she/it-এর জুটি has; have যায় I/you/we/they-এর সঙ্গে। বাংলায় 'তার আছে' নিরপেক্ষ, তাই has ভুলে যেতে হয়।",
                 en: "The partner of he/she/it is has; have goes with I/you/we/they. Bengali 'tar ache' is neutral for everyone, so has is easy to forget.",
-                hi: "he/she/it-এর জুটি has; have জাতা হয় I/you/we/they-এর সাথে।",
+                hi: "he/she/it की जोड़ी has; have I/you/we/they के साथ जाता है।",
               },
             },
             {
@@ -244,7 +244,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "I সবসময় am — বাংলা 'আমি ক্ষুধার্ত'-তে 'হওয়া' না থাকলেও ইংরেজি অনুবাদে am বাধ্যতামূলক।",
                 en: "I always takes am — even though Bengali 'ami khudharto' has no 'to be' in it, the English translation must keep am.",
-                hi: "I সবসময় am — বাংগলা 'আমি ক্ষুধার্ত'-এ 'হোনা' না থাকলেও অংग্রেজ़ी অনুবাদে am অনিবার্য।",
+                hi: "I सदा am लेता है — बांग्ला 'আমি ক্ষুধার্ত' में 'होना' न होते भी अंग्रेज़ी अनुवाद में am ज़रूरी है।",
               },
             },
             {
@@ -252,8 +252,8 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               right: "You were absent yesterday.",
               note: {
                 bn: "অতীতে you-এর জুটি were — একজনকে বললেও you were; you-এর সঙ্গে was কখনো নয়।",
-                en: "In the past, you's partner is were — even for one person you were; was never follows you.",
-                hi: "অতীতে you-এর জুটি were — একজনের জন্যও you were; you-এর সাথে was কভি নয়।",
+                en: "In the past, the partner of 'you' is were — even for one person it is you were; was never follows you.",
+                hi: "अतीत में 'you' की जोड़ी were — एक व्यक्ति के लिए भी you were; you के साथ was कभी नहीं।",
               },
             },
             {
@@ -262,7 +262,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "parents = they → don't; doesn't শুধু একবচন তৃতীয় পুরুষের।",
                 en: "'Parents' = they, so don't; doesn't belongs only to third-person singular.",
-                hi: "'parents' = they → don't; 'doesn't' কেবল তৃতীয় পুরুষ একবচনের।",
+                hi: "'parents' = they → don't; 'doesn't' केवल तृतीय पुरुष एकवचन के लिए।",
               },
             },
             {
@@ -271,7 +271,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "they-এর প্রশ্ন Do দিয়ে; Does একবচন তৃতীয় পুরুষের সংকেত — মিলটা ইঞ্জিনেও ধরে রাখতে হয়।",
                 en: "Questions with they take Do; Does is the third-person singular signal — the agreement must be kept in the helper verb too.",
-                hi: "they-এর প্রশ্ন Do দিয়ে; Does একবচন তৃতীয় পুরুষের সংকেত — মेल সহায়ক ক্রিয়াতেও ধরে রাখতে হবে।",
+                hi: "they के प्रश्न Do से; Does एकवचन तृतीय पुरुष का संकेत है — मेल सहायक क्रिया में भी बनाए रखना होगा।",
               },
             },
           ],
@@ -280,7 +280,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           heading: {
             bn: "🚦 আভাস শব্দ — কোন কর্তা একবচন, কোন কর্তা বহুবচন",
             en: "🚦 Signal words — which subjects are singular, which are plural",
-            hi: "🚦 সংকেত শব্দ — কোন কর্তা একবচন, কোন কর্তা বহুবচন",
+            hi: "🚦 संकेत शब्द — कौन-सा कर्ता एकवचन, कौन-सा बहुवचन",
           },
           lead: {
             bn: "কর্তাকে দেখেই ক্রিয়া অনুমান করা যায় — চেনা সংকেতগুলো চিনে ফেলুন।",
@@ -330,7 +330,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
             },
             {
               bn: "এই পরিমাণের নিয়মটা শুরুতে দেখে জেনে চলুন — ভুল হলে দোষ নেই।",
-              en: "Take this quantity rule on notice at first — a mistake is fine.",
+              en: "For now, just keep this quantity rule in view — a mistake is fine.",
               hi: "यह मात्रा वाला नियम शुरुआत में देखते-सुनते चलें — गलती हो तो दोष नहीं।",
             },
             {
@@ -346,7 +346,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "everyone দেখতে বহুবচনের মতো, কিন্তু অর্থে একবচন (প্রত্যেক একজন, এক এক করে গোনা) → is।",
                 en: "'Everyone' looks plural but is singular in meaning (each single person, counted one by one) — so is.",
-                hi: "'everyone' দেখতে বহুবচনের মতো, পর অর্থে একবচন (হর এক ব্যক্তি) → is।",
+                hi: "'everyone' देखने में बहुवचन जैसा, पर अर्थ में एकवचन (एक-एक व्यक्ति, एक-एक करके गिना) → is।",
               },
             },
             {
@@ -355,7 +355,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "দুই কর্তা যুক্ত হলে বহুবচন → are; বাংলা 'বাবা আর চাচা অপেক্ষা করছেন'-এও কার্যত দুইজন।",
                 en: "Two subjects joined by and make a plural — are; in Bengali too it is effectively two people waiting.",
-                hi: "দো কর্তা 'and' দিয়ে জুড়লে বহুবচন → are।",
+                hi: "दो कर्ता 'and' से जुड़ें तो बहुवचन → are।",
               },
             },
             {
@@ -364,7 +364,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "these-এর সঙ্গে বহুবচন নাম (books) আর বহুবচন ক্রিয়া (are) — দুটোই মিলবে; বাংলা 'এই বইটা'-র একবচন ভাব টেনে আনলে ভুল।",
                 en: "With these use a plural noun (books) and a plural verb (are) — both must agree; dragging the Bengali singular feel of 'ei boita' in creates the error.",
-                hi: "'these'-এর সাথে বহুবচন নাম (books) আর বহুবচন ক্রিয়া (are) — দোনো মিলবে।",
+                hi: "'these' के साथ बहुवचन संज्ञा (books) और बहुवचन क्रिया (are) — दोनों मिलेंगे।",
               },
             },
             {
@@ -373,7 +373,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "nobody/somebody/everybody/anyone — সবই একবচন → knows; বাংলা 'কেউ জানে না' নিরপেক্ষ শোনায় বলে এই s সহজে বাদ যায়।",
                 en: "Nobody/somebody/everybody/anyone — all are singular, so knows; Bengali 'keu jane na' sounds neutral, which is why this s slips away.",
-                hi: "nobody/somebody/everybody/anyone — সবই একবচন → knows।",
+                hi: "nobody/somebody/everybody/anyone — सब एकवचन → knows।",
               },
             },
           ],
@@ -382,7 +382,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           heading: {
             bn: "🔁 am / is / are — আর অতীতে was / were",
             en: "🔁 am / is / are — and was / were in the past",
-            hi: "🔁 am / is / are — আর অতীতে was / were",
+            hi: "🔁 am / is / are — और अतीत में was / were",
           },
           lead: {
             bn: "be-verb-ই ইংরেজি বাক্যের মেরুদণ্ড — এর মিল একবার গেলে পুরো বাক্য ভেঙে পড়ে।",
@@ -462,7 +462,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "they → were; অতীতেও মিল লাগেই — বাংলা 'তারা ছিল' এক রূপে চললেও ইংরেজি দুই রূপে চলে।",
                 en: "'They' takes were; agreement applies in the past too — where Bengali runs on one form 'chhilo', English runs on two.",
-                hi: "they → were; অতীতেও মেল লাগেই।",
+                hi: "they → were; अतीत में भी मेल ज़रूरी है।",
               },
             },
             {
@@ -471,7 +471,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "you একজন হলেও are — I am / you are / he is ত্রয়ী মুখস্থ রাখুন; you-এর সঙ্গে is/am দুটোই ভুল।",
                 en: "Even one 'you' takes are — keep the trio I am / you are / he is memorised; both is and am are wrong after you.",
-                hi: "'you' একজন হলেও are — I am / you are / he is ত্রয়ী রটাও।",
+                hi: "'you' एक व्यक्ति होकर भी are — I am / you are / he is त्रयी रटें।",
               },
             },
             {
@@ -480,7 +480,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "প্রশ্নে be-verb সামনে আসে — বাংলার মতো শুধু শেষে '?' বসিয়ে বাক্য প্রশ্ন হয় না।",
                 en: "In questions the be-verb moves to the front — a sentence does not become a question just by tacking '?' at the end the Bengali way.",
-                hi: "প্রশ্নে be-verb সামনে আসে — শুধু শেষে '?' বসিয়ে প্রশ্ন হয় না।",
+                hi: "प्रश्न में be-verb सामने आता है — केवल अंत में '?' लगाकर प्रश्न नहीं बनता।",
               },
             },
             {
@@ -489,7 +489,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "we → weren't; wasn't শুধু I/he/she/it-এর। বাংলা 'আমরা ছিলাম না' — রূপ এক, ইংরেজি ভাগ দুই।",
                 en: "'We' takes weren't; wasn't belongs to I/he/she/it only. Bengali 'amra chhilam na' has one form — English splits it in two.",
-                hi: "we → weren't; 'wasn't' কেবল I/he/she/it-এর।",
+                hi: "we → weren't; 'wasn't' केवल I/he/she/it के लिए।",
               },
             },
             {
@@ -497,8 +497,8 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               right: "He goes to the gym daily.",
               note: {
                 bn: "be-verb + মূল ক্রিয়া একসঙ্গে আসে না; অভ্যাস বোঝাতে শুধুই goes — 'প্রতিদিন যায়'।",
-                en: "A be-verb and a main verb never come together; for a daily habit it is simply goes — 'goes daily'.",
-                hi: "be-verb + মূল ক্রিয়া একসাথে আসে না; আদত বুঝাতে কেবল goes।",
+                en: "A be-verb and a main verb never come together; for a daily habit it is simply goes.",
+                hi: "be-verb + मूल क्रिया साथ नहीं आते; आदत बताने के लिए बस goes।",
               },
             },
           ],
@@ -507,11 +507,11 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           heading: {
             bn: "🤝 have / has আর do / does — জোড়া মিলিয়ে চেনা",
             en: "🤝 have / has and do / does — knowing the pairs",
-            hi: "🤝 have / has আর do / does — জোড়া পেহচাননা",
+            hi: "🤝 have / has और do / does — जोड़ियाँ पहचानना",
           },
           lead: {
             bn: "মালিকানার has আর প্রশ্ন-নেগেটিভের does — দুটোই তৃতীয় পুরুষে রূপ বদলায়।",
-            en: "Ownership's has and the question-negative does — both change shape for the third person.",
+            en: "The has of ownership and the does of questions and negatives — both change shape for the third person.",
             hi: "मालिकियत का has और प्रश्न-नेगेटिव का does — दोनों तृतीय पुरुष में रूप बदलते हैं।",
           },
           formula: {
@@ -547,7 +547,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
             {
               bn: "বাংলার 'আছে' সব কর্তায় এক (আমার আছে, তার আছে) — তাই 'He have' লেখার প্রবণতা জন্মায়।",
               en: "Bengali 'ache' stays the same for every subject (amar ache, tar ache) — which breeds the habit of writing 'He have'.",
-              hi: "বাংগলার 'আছে' सब कर्ताओं में एक (আমার আছে, তার আছে) — इसलिए 'He have' लिखने की आदत जन्म लेती है।",
+              hi: "बांग्ला का 'আছে' हर कर्ता के साथ एक है (আমার আছে, তার আছে) — इसीलिए 'He have' लिखने की आदत बनती है।",
             },
             {
               bn: "মনে রাখুন: has একবচন তৃতীয় পুরুষের ব্যক্তিগত সম্পত্তি।",
@@ -587,7 +587,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "she → has; বাংলা 'তার দুটো মোবাইল আছে' — 'আছে' নিরপেক্ষ, ইংরেজি নিরপেক্ষ নয়।",
                 en: "'She' takes has; Bengali 'tar duto mobile ache' uses a neutral 'ache', but English is not neutral here.",
-                hi: "she → has; বাংগলা 'আছে' নিরপেক্ষ, পর অংগ্রেজি নিরপেক্ষ নহীং।",
+                hi: "she → has; बांग्ला 'আছে' निरपेक्ष है, पर अंग्रेज़ी निरपेक्ष नहीं।",
               },
             },
             {
@@ -596,7 +596,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "does s-এর দায়িত্ব নিলে পেছনের ক্রিয়া সাধারণ রূপে (have); s দুই জায়গায় বসে না।",
                 en: "Once does has taken the s, the following verb returns to its plain form (have); the s never sits in two places.",
-                hi: "does s-এর দায়িত্ব নিলে পিছের ক্রিয়া সাধারণ রূপে (have)।",
+                hi: "does s की ज़िम्मेदारी ले ले तो पीछे की क्रिया साधारण रूप में (have)।",
               },
             },
             {
@@ -605,7 +605,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "my brother = he → doesn't; পরের have সাধারণ রূপেই থাকবে — doesn't have।",
                 en: "'My brother' = he, so doesn't; the following have stays plain — doesn't have.",
-                hi: "'my brother' = he → doesn't; পিছের have সাধারণ রূপেই।",
+                hi: "'my brother' = he → doesn't; पीछे का have साधारण रूप में ही।",
               },
             },
             {
@@ -613,8 +613,8 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               right: "I have a headache.",
               note: {
                 bn: "I → have; ব্যথা, বাড়ি, সমস্যা, ভাইবোন — যা-ই হোক, I-এর জুটি have।",
-                en: "I takes have — pain, house, problem, siblings, whatever it is, I's partner is have.",
-                hi: "I → have; দর্দ, ঘর, মুশকিল — ক্যা ভি হো, I-এর জুটি have।",
+                en: "I takes have — pain, house, problem, siblings, whatever it is, the partner of 'I' is have.",
+                hi: "I → have; दर्द, घर, मुश्किल — कुछ भी हो, 'I' की जोड़ी have।",
               },
             },
             {
@@ -623,7 +623,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "teachers = বহুবচন → have; -s যুক্ত নাম দেখলেই বহুবচন ক্রিয়া ভাবুন।",
                 en: "'Teachers' is plural, so have; when you see a noun ending in -s, think plural verb.",
-                hi: "'teachers' = বহুবচন → have।",
+                hi: "'teachers' = बहुवचन → have।",
               },
             },
           ],
@@ -632,11 +632,11 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           heading: {
             bn: "🎯 লম্বা বাক্যে মিল ধরে রাখা — আসল কর্তাকে চেনা",
             en: "🎯 Keeping agreement in long sentences — find the real subject",
-            hi: "🎯 লম্বে বাক্যে মেল — অসলি কর্তা পেহচাননা",
+            hi: "🎯 लंबे वाक्य में मेल — असली कर्ता पहचानना",
           },
           lead: {
             bn: "লম্বা বাক্যে চোখকে ফাঁকি দেওয়ার শত উপায় — আসল কর্তা ধরলেই মিল আর ভাঙে না।",
-            en: "Long sentences fool the eye a hundred ways — catch the real subject and the match never breaks.",
+            en: "Long sentences fool the eye in a hundred ways — catch the real subject and the match never breaks.",
             hi: "लंबे वाक्य में आँख को धोखा देने के सौ तरीके — असली कर्ता पकड़ो, मेल फिर नहीं टूटेगा।",
           },
           formula: {
@@ -693,7 +693,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "কাজটা করে the colour (একবচন); of these walls শুধু বর্ণনা → is। 'walls'-এর -s চোখে পড়লেও কর্তা নয়।",
                 en: "The doer is the colour (singular); 'of these walls' is only description — so is; the -s on walls may catch the eye but it is not the subject.",
-                hi: "কামটা করে the colour (একবচন); 'of these walls' কেবল বর্ণনা → is।",
+                hi: "काम करता है the colour (एकवचन); 'of these walls' केवल वर्णना → is।",
               },
             },
             {
@@ -702,7 +702,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "one একবচন → lives; cousins শুধু তালিকা — 'একজন... থাকেন' বাংলায়ও এক, ইংরেজিতেও এক।",
                 en: "'One' is singular — lives; cousins is only the list. 'One of them lives' is singular in Bengali too, and in English as well.",
-                hi: "'one' একবচন → lives; 'cousins' কেবল তালিকা।",
+                hi: "'one' एकवचन → lives; 'cousins' केवल सूची है।",
               },
             },
             {
@@ -711,7 +711,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "আসল কর্তা the students (বহুবচন) → work; in this class মাঝের শব্দ — 'class' নয়, শিক্ষার্থীরাই পরিশ্রম করে।",
                 en: "The real subject is the students (plural) — work; 'in this class' is just middle furniture — it is the students who work hard, not the class.",
-                hi: "আসলি কর্তা the students (বহুবচন) → work; 'in this class' কেবল বিচের শব্দ।",
+                hi: "असली कर्ता the students (बहुवचन) → work; 'in this class' केवल बीच के शब्द।",
               },
             },
             {
@@ -720,7 +720,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "shoes জোড়া → বহুবচন → are; বাংলায় 'জুতা বিছানার নিচে' একবচনে ভাবতেই ভুল জন্মায় — ইংরেজি জুটিকে দুই গুনে।",
                 en: "Shoes come in a pair — plural — so are; thinking of Bengali 'juta bichanar niche' in the singular is exactly what breeds the error — English counts the pair as two.",
-                hi: "'shoes' জোড়া → বহুবচন → are; বাংগলা একবচন ভাবে ভুল জন্মায়।",
+                hi: "'shoes' जोड़ा → बहुवचन → are; बांग्ला एकवचन सोच से ही गलती पैदा होती है।",
               },
             },
           ],
@@ -729,7 +729,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           heading: {
             bn: "⚠️ বাঙালি শিক্ষার্থীদের কমন ভুল",
             en: "⚠️ Common mistakes by Bengali speakers",
-            hi: "⚠️ বাংগলাভাষী ছাত্রোঁ কি আম গলতিযাঁ",
+            hi: "⚠️ बांग्लाभाषी छात्रों की आम गलतियाँ",
           },
           lead: {
             bn: "ভুলের বংশতালিকা চিনলে সারানো সহজ — পাঁচটা চেনা ফাঁদ আর তাদের বাংলা উৎস।",
@@ -770,7 +770,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "'সে বাসে অফিসে যায়' — বাংলা ক্রিয়া 'যায়' নিজেই তৃতীয় পুরুষ; ইংরেজির তৃতীয় পুরুষের চিহ্ন ক্রিয়ার শেষের s — বাদ দিলে মিলই নেই।",
                 en: "'Se buse office-e jay' — the Bengali verb ending 'jay' is already third person; in English that mark is the final s on the verb, and dropping it removes the agreement altogether.",
-                hi: "'যায়' নিজেই তৃতীয় পুরুষ; অংগ্রেজির তৃতীয় পুরুষের চিহ্ন ক্রিয়ার অন্তের s।",
+                hi: "'যায়' स्वयं ही तृतीय पुरुष है; अंग्रेज़ी का तृतीय-पुरुष चिह्न क्रिया के अंत का s है।",
               },
             },
             {
@@ -778,8 +778,8 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               right: "They were very happy.",
               note: {
                 bn: "'তারা খুব খুশি ছিল' — বাংলায় 'ছিল' সবার জন্য কাছাকাছি; ইংরেজিতে they-এর জুটি were।",
-                en: "'Tara khub khushi chhilo' — Bengali 'chhilo' nearly suits everyone; in English they's partner is were.",
-                hi: "'ছিল' সবার জন্য কাছাকাছি; অংগ্রেজিতে they-এর জুটি were।",
+                en: "'Tara khub khushi chhilo' — Bengali 'chhilo' serves every subject alike; in English the partner of 'they' is were.",
+                hi: "'ছিল' सबके लिए लगभग एक जैसा; अंग्रेज़ी में they की जोड़ी were।",
               },
             },
             {
@@ -788,7 +788,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "'আমার দুই বোন আছে' — 'আছে' বাংলায় নিরপেক্ষ; ইংরেজিতে I → have, একমাত্র।",
                 en: "'Amar dui bon ache' — Bengali 'ache' is neutral; in English I takes have, only and always.",
-                hi: "'আছে' বাংগলায় নিরপেক্ষ; অংগ্রেজিতে I → have।",
+                hi: "'আছে' बांग्ला में निरपेक्ष; अंग्रेज़ी में I → have।",
               },
             },
             {
@@ -797,7 +797,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "'বন্ধুরা আজ রাতে আসছে' — friends বহুবচন, তাই are; বাংলা 'বন্ধুরা'-কে একগোছা মনে হলেও ইংরেজি গুনে দেখে।",
                 en: "'Bandhura aj rate aschhe' — friends is plural, so are; even though 'bandhura' feels like one bunch in Bengali, English counts heads.",
-                hi: "'friends' বহুবচন, ইসলিএ are; অংग্রেজি গিনতি করে দেখে।",
+                hi: "'friends' बहुवचन है, इसलिए are; अंग्रेज़ी गिनकर देखती है।",
               },
             },
             {
@@ -806,7 +806,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "'সবাই আজ উপস্থিত' — 'সবাই' বহুবচন মনে হলেও everyone-এর গণনা এক এক করে → is; every-body/any-body-ও একই।",
                 en: "'Shobai aj uposthit' — though 'shobai' feels plural, everyone is counted one by one — so is; everybody/anybody behave the same way.",
-                hi: "'সবাই' বহুবচন লাগে, পর everyone-এর গিনতি এক-এক করে → is।",
+                hi: "'সবাই' बहुवचन लगता है, पर everyone की गिनती एक-एक करके होती है → is।",
               },
             },
           ],
@@ -815,7 +815,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           heading: {
             bn: "📖 ছোট গল্পে দেখা যাক",
             en: "📖 See it in a mini story",
-            hi: "📖 এক ছোটি কহানি মে দেখেং",
+            hi: "📖 एक छोटी कहानी में देखें",
           },
           lead: {
             bn: "আরিফের পরিচয়-গল্পে পাঠের প্রতিটা নিয়ম একসঙ্গে কাজ করতে দেখুন।",
@@ -826,37 +826,37 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
             {
               bn: "শিক্ষক বলেন, 'This is Arif. He is from Rajshahi.' — পরিচয়ের প্রথম বাক্যেই he → is।",
               en: "The teacher says, 'This is Arif. He is from Rajshahi.' — the very first line shows he → is.",
-              hi: "शिक्षक কহতे হৈ, 'This is Arif. He is from Rajshahi.' — পহলे হি বাক্যে he → is।",
+              hi: "शिक्षक कहते हैं, 'This is Arif. He is from Rajshahi.' — पहले ही वाक्य में he → is।",
             },
             {
               bn: "আরিফ বলে, 'I am twelve years old. I have two sisters.' — I → am/have।",
               en: "Arif says, 'I am twelve years old. I have two sisters.' — I → am/have.",
-              hi: "আরিফ কহতা হৈ, 'I am twelve years old. I have two sisters.' — I → am/have।",
+              hi: "आरिफ कहता है, 'I am twelve years old. I have two sisters.' — I → am/have।",
             },
             {
               bn: "নীলা যোগ করে, 'His sisters are in our school too. They are in class eight.' — they → are।",
               en: "Nila adds, 'His sisters are in our school too. They are in class eight.' — they → are.",
-              hi: "নীলা জোগাড় করে, 'His sisters are in our school too. They are in class eight.' — they → are।",
+              hi: "नीला जोड़ती है, 'His sisters are in our school too. They are in class eight.' — they → are।",
             },
             {
               bn: "শিক্ষক জিজ্ঞেস করেন, 'Does your father work here in Dhaka?' আরিফ: 'Yes, he does. He has a shop in Mirpur.'",
               en: "The teacher asks, 'Does your father work here in Dhaka?' Arif: 'Yes, he does. He has a shop in Mirpur.'",
-              hi: "শিক্ষক পুছেন, 'Does your father work here in Dhaka?' আরিফ: 'Yes, he does. He has a shop in Mirpur.'",
+              hi: "शिक्षक पूछते हैं, 'Does your father work here in Dhaka?' आरिफ: 'Yes, he does. He has a shop in Mirpur.'",
             },
             {
               bn: "'My mother and my uncle run it together.' — 'A and B' দেখলেই ক্রিয়ার s খুলে যায় → run।",
               en: "'My mother and my uncle run it together.' — on seeing 'A and B', the s comes off the verb → run.",
-              hi: "'My mother and my uncle run it together.' — 'A and B' দেখতে হি क्रिया का s হট জাতা হৈ → run।",
+              hi: "'My mother and my uncle run it together.' — 'A and B' देखते ही क्रिया का s हट जाता है → run।",
             },
             {
               bn: "নীলা হেসে বলে, 'Everyone in his family is hardworking!' — everyone একবচন → is।",
               en: "Nila laughs, 'Everyone in his family is hardworking!' — everyone is singular → is.",
-              hi: "নীলা হাসি দিয়ে কহে, 'Everyone in his family is hardworking!' — everyone একবচন → is।",
+              hi: "नीला हँसकर कहती है, 'Everyone in his family is hardworking!' — everyone एकवचन → is।",
             },
             {
               bn: "এক নজরে: I → am/have/do; he/she/it → is/has/does/-s; we/you/they → are/have/do; অতীতে I/he/she/it → was, বাকি সব → were।",
               en: "In a nutshell: I → am/have/do; he/she/it → is/has/does/-s; we/you/they → are/have/do; in the past I/he/she/it → was, everyone else → were.",
-              hi: "এক নজর মে: I → am/have/do; he/she/it → is/has/does/-s; we/you/they → are/have/do; অতীতে I/he/she/it → was, বাকি सब → were।",
+              hi: "एक नज़र में: I → am/have/do; he/she/it → is/has/does/-s; we/you/they → are/have/do; अतीत में I/he/she/it → was, बाकी सब → were।",
             },
             {
               bn: "আরও: everyone/nobody একবচন; 'A and B' বহুবচন; মাঝের শব্দ নয় — আসল কর্তাই ক্রিয়া ঠিক করে।",
@@ -871,7 +871,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "he → is; পরিচয়ের প্রথম বাক্যই be-verb-এর মিল শেখার সেরা জায়গা।",
                 en: "'He' takes is; the very first sentence of an introduction is the best place to practise be-verb agreement.",
-                hi: "he → is; পরিচয়ের প্রথম বাক্যই মেল শেখার সেরা জায়গা।",
+                hi: "he → is; परिचय का पहला वाक्य ही मेल सीखने की सबसे अच्छी जगह।",
               },
             },
             {
@@ -880,7 +880,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "does-এর পরে মূল ক্রিয়া s ছাড়া — work; s-এর দায়িত্ব does-এর।",
                 en: "After does the main verb loses its s — work; does is the s-holder.",
-                hi: "does-এর পিছে মূল ক্রিয়া s ছাড়া — work।",
+                hi: "does के पीछे मूल क्रिया s के बिना — work।",
               },
             },
             {
@@ -889,7 +889,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "দুই কর্তা → বহুবচন → run; 'A and B' দেখলেই ক্রিয়ার s খুলে যাবে।",
                 en: "Two subjects make a plural — run; whenever you see 'A and B', the s comes off the verb.",
-                hi: "দো কর্তা → বহুবচন → run।",
+                hi: "दो कर्ता → बहुवचन → run।",
               },
             },
             {
@@ -898,7 +898,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "everyone একবচন — of/in-এর পরের অংশ নয়, everyone-ই কর্তা → is।",
                 en: "'Everyone' is singular — the of/in part is not the subject, everyone is — so is.",
-                hi: "'everyone' একবচন — of/in-এর ভাগ নয়, everyone-ই কর্তা → is।",
+                hi: "'everyone' एकवचन — of/in का हिस्सा नहीं, everyone ही कर्ता → is।",
               },
             },
           ],
@@ -908,52 +908,52 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
         {
           bn: "তিন সারির ছক মুখস্থ করুন: I → am/do/have; he/she/it → is/does/has; we/you/they → are/do/have — ক্রিয়া বসানোর আগে কর্তার সারি চিনে নিন।",
           en: "Memorise the three-row chart: I → am/do/have; he/she/it → is/does/has; we/you/they → are/do/have — before placing a verb, recognise the subject's row.",
-          hi: "तिन সারির চার্ট রটাও: I → am/do/have; he/she/it → is/does/has; we/you/they → are/do/have।",
+          hi: "तीन पंक्तियों का चार्ट रटें: I → am/do/have; he/she/it → is/does/has; we/you/they → are/do/have।",
         },
         {
           bn: "তৃতীয় পুরুষ একবচন = s-এর দেশ: is, has, does, plays — একবারে এক শব্দের সম্পত্তি।",
           en: "Third-person singular is the land of s: is, has, does, plays — and the s belongs to one word at a time.",
-          hi: "তৃতীয় পুরুষ একবচন = s-এর দেশ: is, has, does, plays — একবারে এক শব্দের সম্পত্তি।",
+          hi: "तृतीय पुरुष एकवचन = s का देश: is, has, does, plays — एक समय में s केवल एक शब्द का।",
         },
         {
           bn: "বহুবচন কর্তার সঙ্গে s নেই — they go, my friends play; বাংলার 'তারা যায়'-এর মোহে they goes লিখবেন না।",
           en: "Plural subjects take no s — they go, my friends play; do not let the Bengali echo of 'tara jay' tempt you into 'they goes'.",
-          hi: "বহুবচন কর্তার সাথে s নেই — they go, my friends play; 'they goes' লিখবেন না।",
+          hi: "बहुवचन कर्ता के साथ s नहीं — they go, my friends play; 'they goes' न लिखें।",
         },
         {
           bn: "অতীতের be-verb মাত্র দুই রূপ: I/he/she/it → was; you/we/they → were।",
           en: "The past be-verb has only two forms: I/he/she/it → was; you/we/they → were.",
-          hi: "অতীতের be-verb কেবল দো রূপ: I/he/she/it → was; you/we/they → were।",
+          hi: "अतीत के be-verb के केवल दो रूप: I/he/she/it → was; you/we/they → were।",
         },
         {
           bn: "you একজন হলেও you are / you were — বাংলা 'তুমি' না 'আপনারা' দেখে ক্রিয়া বদলাবেন না।",
           en: "Even one 'you' takes you are / you were — never change the verb based on the Bengali choice between 'tumi' and 'apnara'.",
-          hi: "'you' একজন হলেও you are / you were — বাংগলা 'তুমি' না 'আপনারা' দেখে ক্রিয়া বদলাবেন না।",
+          hi: "'you' एक व्यक्ति हो तब भी you are / you were — बांग्ला 'তুমি' या 'আপনারা' देखकर क्रिया न बदलें।",
         },
         {
           bn: "everyone, everybody, someone, nobody, each — সবই একবচন: Everyone is, Nobody knows।",
           en: "everyone, everybody, someone, nobody, each — all are singular: Everyone is, Nobody knows.",
-          hi: "everyone, everybody, someone, nobody, each — সবই একবচন: Everyone is, Nobody knows।",
+          hi: "everyone, everybody, someone, nobody, each — सब एकवचन: Everyone is, Nobody knows।",
         },
         {
           bn: "দুই কর্তা and দিয়ে জুড়লে বহুবচন: My father and mother are... — ক্রিয়ার s খুলে যাবে।",
           en: "Two subjects joined by and make a plural: My father and mother are... — the s comes off the verb.",
-          hi: "দো কর্তা and দিয়ে জুড়লে বহুবচন: My father and mother are...",
+          hi: "दो कर्ता and से जुड़ें तो बहुवचन: My father and mother are...",
         },
         {
           bn: "does বসলে পেছনের ক্রিয়া থেকে s ছেড়ে দিন: Does he play? He doesn't have... — s একবারে এক জায়গায়।",
           en: "When does appears, release the s from the following verb: Does he play? He doesn't have... — the s sits in one place at a time.",
-          hi: "does বৈঠলে পিছের ক্রিয়া থেকে s ছেড়ে দেন: Does he play? He doesn't have...",
+          hi: "does बैठते ही पीछे की क्रिया से s छोड़ दें: Does he play? He doesn't have...",
         },
         {
           bn: "লম্বা বাক্যে আগে আসল কর্তা খুঁজুন (of/in দিয়ে শুরু হওয়া মাঝের অংশ বাদ দিন), তারপর ক্রিয়া মেলান।",
           en: "In long sentences find the real subject first (set aside the middle part starting with of/in), then match the verb.",
-          hi: "লম্বা বাক্যে আগে আসলি কর্তা খোঁজেন (of/in দিয়ে শুরু মাঝের ভাগ বাদ দেন), তারপর ক্রিয়া মেলান।",
+          hi: "लंबे वाक्य में पहले असली कर्ता खोजें (of/in से शुरू होने वाला बीच का हिस्सा अलग रखें), फिर क्रिया मिलाएँ।",
         },
         {
           bn: "রোজ নিজের সম্পর্কে ৫টা বাক্য বলুন — I am..., I have..., He is..., She has..., They are... — ছকটা মুখস্থ হয়ে যাবে।",
           en: "Say five sentences about yourself every day — I am..., I have..., He is..., She has..., They are... — and the chart becomes memory.",
-          hi: "রোজ নিজের বারে ৫টা বাক্য বোলেন — I am..., I have..., He is..., She has..., They are...",
+          hi: "रोज़ अपने बारे में 5 वाक्य बोलें — I am..., I have..., He is..., She has..., They are...",
         },
       ],
       quiz: [
@@ -974,7 +974,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "children = বহুবচন → are; is/was একবচনের।",
             en: "'Children' is plural — are; is/was belong to singulars.",
-            hi: "'children' = বহুবচন → are।",
+            hi: "'children' = बहुवचन → are।",
           },
         },
         {
@@ -984,7 +984,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "she → doesn't; নেগেটিভেও মিল ধরে রাখতে হয় — doesn't eat।",
             en: "'She' takes doesn't; the agreement holds in negatives too — doesn't eat.",
-            hi: "she → doesn't; নিষেধেও মেল ধরে রাখতে হয়।",
+            hi: "she → doesn't; निषेध में भी मेल बनाए रखें।",
           },
         },
         {
@@ -993,8 +993,8 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           answer: 2,
           explanation: {
             bn: "last night = অতীত; I-এর অতীত জুটি was — I was।",
-            en: "'Last night' is the past; I's past partner is was — I was.",
-            hi: "'last night' = অতীত; I-এর অতীত জুটি was।",
+            en: "'Last night' is the past; the past partner of 'I' is was — I was.",
+            hi: "'last night' = अतीत; 'I' की अतीत जोड़ी was।",
           },
         },
         {
@@ -1004,7 +1004,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "they → were; অতীতের ঘটনা, তাই were — বাংলা 'তারা খুব ক্লান্ত ছিল'।",
             en: "'They' takes were; a past event, so were — 'they were very tired'.",
-            hi: "they → were; অতীতের ঘটনা।",
+            hi: "they → were; अतीत की घटना।",
           },
         },
         {
@@ -1014,7 +1014,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "everyone একবচন → is; বহুবচনের মতো দেখালেও গণনা এক এক করে।",
             en: "'Everyone' is singular — is; though it looks plural, it is counted one by one.",
-            hi: "'everyone' একবচন → is।",
+            hi: "'everyone' एकवचन → is।",
           },
         },
         {
@@ -1024,7 +1024,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "দুই কর্তা and-যুক্ত → বহুবচন → are; 'A and B' দেখলেই are ভাবুন।",
             en: "Two subjects joined by and make a plural — are; on seeing 'A and B', think are.",
-            hi: "দো কর্তা and-যুক্ত → বহুবচন → are।",
+            hi: "दो कर्ता and-युक्त → बहुवचन → are।",
           },
         },
         {
@@ -1034,7 +1034,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "your friends = they → প্রশ্নে Do; Does একবচন তৃতীয় পুরুষের।",
             en: "'Your friends' = they, so Do in questions; Does is for third-person singular.",
-            hi: "'your friends' = they → প্রশ্নে Do।",
+            hi: "'your friends' = they → प्रश्न में Do।",
           },
         },
         {
@@ -1044,7 +1044,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "আসল কর্তা the colour (একবচন) → is; of these doors শুধু বর্ণনা।",
             en: "The real subject is the colour (singular) — is; 'of these doors' is only description.",
-            hi: "আসলি কর্তা the colour (একবচন) → is।",
+            hi: "असली कर्ता the colour (एकवचन) → is।",
           },
         },
         {
@@ -1059,7 +1059,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "he/she/it-এর জুটি has — He has a new laptop; have যায় I/you/we/they-এর সঙ্গে, haves বলে কিছু নেই, be-verb + have একসঙ্গে আসে না।",
             en: "The partner of he/she/it is has — He has a new laptop; have goes with I/you/we/they, 'haves' does not exist, and a be-verb never pairs with have.",
-            hi: "he/she/it-এর জুটি has — He has a new laptop।",
+            hi: "he/she/it की जोड़ी has — He has a new laptop।",
           },
         },
       ],
@@ -1130,7 +1130,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           heading: {
             bn: "🧭 কখন ব্যবহার হয় — প্রশ্নের দুই পরিবার",
             en: "🧭 When to use it — the two families of questions",
-            hi: "🧭 कब ইस্তেমাল हোতা হৈ — प्रश्न के দो परिवार",
+            hi: "🧭 कब इस्तेमाल करें — प्रश्नों के दो परिवार",
           },
           lead: {
             bn: "বাংলায় 'কি' প্রশ্ন বানায়, ইংরেজিতে ক্রম বদল — এই ফারাকই আজকের পাঠের মূলমন্ত্র।",
@@ -1217,7 +1217,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           heading: {
             bn: "🏗️ গঠন — do/does/did + কর্তা + V1 (সব পুরুষ)",
             en: "🏗️ Formation — do/does/did + subject + V1 (every person)",
-            hi: "🏗️ বনাবট — do/does/did + कर्ता + V1 (हर পুরুষ)",
+            hi: "🏗️ बनावट — do/does/did + कर्ता + V1 (हर पुरुष)",
           },
           lead: {
             bn: "সাধারণ ক্রিয়ার প্রশ্নের একটাই সূত্র — আর helper নিজেই কাল আর s-এর বোঝা বহন করে।",
@@ -1287,7 +1287,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
             {
               bn: "কর্তা বদলালে do/does-এর ভাগও বদলায়: I do, he does — ঠিক যেমন বাংলায় 'কি করো/কি করে'।",
               en: "When the subject changes, the do/does split changes too: I do, he does — just as Bengali changes 'ki koro/ki kore'.",
-              hi: "कर्ता बदलने पर do/does का बँटवारा भी बदलता है: I do, he does — जैसे बांग्ला में 'कি করো/কি করে'।",
+              hi: "कर्ता बदलने पर do/does का बँटवारा भी बदलता है: I do, he does — जैसे बांग्ला में 'কি করো/কি করে' बदलता है।",
             },
           ],
           examples: [
@@ -1342,7 +1342,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           heading: {
             bn: "🚦 আভাস শব্দ — wh-পরিবার ও তাদের আসন",
             en: "🚦 Signal words — the wh-family and their seat",
-            hi: "🚦 সংকেত শব্দ — wh-परिवार और উনকি सीट",
+            hi: "🚦 संकेत शब्द — wh-परिवार और उनकी सीट",
           },
           lead: {
             bn: "wh-পরিবারের শব্দগুলো মুখস্থ — আর মনে রাখুন, তাদের আসন বাক্যের একদম প্রথম পদ।",
@@ -1401,7 +1401,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           points: [
             {
               bn: "how-এর সঙ্গে জুড়ে আরও যন্ত্র: how much (কত — অগণনযোগ্য/দাম), how many (কয়টা — গণনাযোগ্য)।",
-              en: "With how more tools are built: how much (quantity — uncountables and prices), how many (countables).",
+              en: "The word how builds more tools: how much (quantity — uncountables and prices), how many (countables).",
               hi: "how के साथ और औज़ार: how much (कितना — अगणनीय/क़ीमत), how many (कितने — गिनने योग्य)।",
             },
             {
@@ -1441,7 +1441,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "ক্লাসরুমের সবচেয়ে চেনা ভুল — 'এই শব্দের মানে কী?' ইংরেজিতে does + this word + mean; this word-ই কর্তা, তাই do-পরিবার লাগবেই।",
                 en: "The most familiar classroom mistake — English takes does + this word + mean; this word is itself the subject, so the do-family is compulsory.",
-                hi: "कक्षा की सबसे जानी-पहचानी गलती — अंग्रेज़ी লেতी হৈ does + this word + mean।",
+                hi: "कक्षा की सबसे जानी-पहचानी गलती — अंग्रेज़ी लेती है does + this word + mean।",
               },
             },
             {
@@ -1459,7 +1459,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "'দাম কত?' ভেবে অনুবাদ করলে ক্রম ভাঙে; নিয়ম: how much + does + কর্তা + V1।",
                 en: "Translating the Bengali thought 'dam koto?' breaks the order; the rule is how much + does + subject + V1.",
-                hi: "'दाम कितना?' सोचকर अनुवाद करने पर क्रम टूटता है; नियम: how much + does + कर्ता + V1।",
+                hi: "'दाम कितना?' सोचकर अनुवाद करने पर क्रम टूटता है; नियम: how much + does + कर्ता + V1।",
               },
             },
           ],
@@ -1468,7 +1468,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           heading: {
             bn: "🧩 wh-প্রশ্নের স্থির ক্রম — চার ধাপ",
             en: "🧩 The fixed order of wh-questions — four steps",
-            hi: "🧩 wh-प्रश्न का स्थिर क्रम — चार কদম",
+            hi: "🧩 wh-प्रश्न का स्थिर क्रम — चार कदम",
           },
           lead: {
             bn: "এই চার ধাপের ক্রম কখনো ভাঙে না — মুখস্থ করলে wh-প্রশ্ন আর ভুল হবে না।",
@@ -1489,12 +1489,12 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
             {
               bn: "আরও দেখুন: What do you want? Why is she crying? When will they arrive?",
               en: "More: What do you want? Why is she crying? When will they arrive?",
-              hi: "औর दেखें: What do you want? Why is she crying? When will they arrive?",
+              hi: "और देखें: What do you want? Why is she crying? When will they arrive?",
             },
             {
               bn: "বাংলা অভ্যাস প্রশ্ন-শব্দের পরেই কর্তা বসিয়ে দেয় ('What you want?') — এটাই সবচেয়ে পরিচিত ভুল।",
               en: "The Bengali habit pushes the subject right after the question word ('What you want?') — the most familiar mistake.",
-              hi: "बांग्ला की आदत प्रश्न-शब्द के ठीক बाद कर्ता बिठा देती है ('What you want?') — यही सबसे कॉमन गलती है।",
+              hi: "बांग्ला की आदत प्रश्न-शब्द के ठीक बाद कर्ता बिठा देती है ('What you want?') — यही सबसे जानी-पहचानी गलती है।",
             },
             {
               bn: "ছোট করে মনে রাখুন: wh-এর পরে কর্তা নয়, আগে auxiliary।",
@@ -1509,7 +1509,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
             {
               bn: "ঠিক হবে Where did you go? — did-এর ভেতরেই অতীত আছে, went-এর দরকার নেই।",
               en: "The right form is Where did you go? — the past is already inside did; went is not needed.",
-              hi: "सही রূप Where did you go? — अतीত did के ভीতर ही है, went की ज़रूरत নहीं।",
+              hi: "सही रूप Where did you go? है — अतीत did के भीतर ही है, went की ज़रूरत नहीं।",
             },
           ],
           examples: [
@@ -1546,7 +1546,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "did কর্তার আগে, আর মূল ক্রিয়া do V1-এ — How did you do...?",
                 en: "'Did' comes before the subject and the main verb do stays V1 — How did you do...?",
-                hi: "did कर्ता से पहले, मूल क्रियা do V1 में — How did you do...?",
+                hi: "did कर्ता से पहले, और मूल क्रिया do V1 में — How did you do...?",
               },
             },
             {
@@ -1554,8 +1554,8 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               right: "Who called you last night?",
               note: {
                 bn: "'কে ফোন করেছিল?'-এ who নিজেই কর্তা — কর্তা-who-এর সঙ্গে do লাগে না; কিন্তু 'তুমি কাকে ফোন করেছ?' হলে Whom did you call? — do ফেরত আসবে।",
-                en: "In 'Who called you?' the word who is itself the subject, so no do joins a subject-who; but for 'Whom did you call?' (you called whom) do comes back.",
-                hi: "'Who called you?' में who स्वयं कर्ता है, इसलिए do নহীं আতা; पर 'Whom did you call?' মে do ঵ापস আতा है।",
+                en: "In 'Who called you?' the word who is itself the subject, so no do is needed; but for 'Whom did you call?' (you called whom) do comes back.",
+                hi: "'Who called you?' में who स्वयं कर्ता है, इसलिए do नहीं आता; पर 'Whom did you call?' में do वापस आता है।",
               },
             },
           ],
@@ -1564,7 +1564,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           heading: {
             bn: "🔀 যেখানে do লাগে না — be-verb, modal, auxiliary",
             en: "🔀 Where do is not needed — be-verbs, modals, auxiliaries",
-            hi: "🔀 জহাঁ do নহীং লগতা — be-verb, modal, auxiliary",
+            hi: "🔀 जहाँ do नहीं लगता — be-verb, modal, auxiliary",
           },
           lead: {
             bn: "সব প্রশ্নে do লাগে না — বাক্যে থাকা শব্দটাই নিজে কর্তার সামনে উল্টে আসে।",
@@ -1585,7 +1585,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
             {
               bn: "**modal**-এর ক্ষেত্রেও একই (can/will/shall/should/must), আর auxiliary-ও (have/has) — do-এর জায়গাই থাকে না।",
               en: "The same with **modals** (can/will/shall/should/must) and auxiliaries (have/has) — do has no seat.",
-              hi: "**modal** के साथ भी ঵হী (can/will/shall/should/must), ঔর auxiliary ভी (have/has) — do की জगह ही नहीं रहती।",
+              hi: "**modal** के साथ भी वही (can/will/shall/should/must), और auxiliary भी (have/has) — do की जगह ही नहीं रहती।",
             },
             {
               bn: "You are ready. → Are you ready? He is your brother. → Is he your brother?",
@@ -1600,22 +1600,22 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
             {
               bn: "wh-প্রশ্নেও একই নিয়ম — wh + be/modal + কর্তা: What are you doing? Where is the bus? Why is he angry?",
               en: "The same rule in wh-questions — wh + be/modal + subject: What are you doing? Where is the bus? Why is he angry?",
-              hi: "wh-प्रश्नों में भी ঵হी নিয়ম — wh + be/modal + कर्ता: What are you doing? Where is the bus? Why is he angry?",
+              hi: "wh-प्रश्नों में भी वही नियम — wh + be/modal + कर्ता: What are you doing? Where is the bus? Why is he angry?",
             },
             {
               bn: "সবচেয়ে চেনা ভুল: **'What you doing?'** — বাক্যে be-verb-ই নেই! ঠিক হবে What are you doing?",
               en: "The most familiar mistake: **'What you doing?'** — the sentence has no be-verb at all! The right form is What are you doing?",
-              hi: "सবसे जानी-पहचानी গলতি: **'What you doing?'** — বাক্যে be-verb হি নহীং! সহী রূপ What are you doing?",
+              hi: "सबसे जानी-पहचानी गलती: **'What you doing?'** — वाक्य में be-verb है ही नहीं! सही रूप What are you doing?",
             },
             {
               bn: "doing শুনলেই মনে করুন — doing-এর সামনে am/is/are বাধ্যতামূলক।",
               en: "The moment you hear doing, remember — an am/is/are before it is compulsory.",
-              hi: "doing सुনते হি याद रखें — doing से पहले am/is/are अनिवार्य।",
+              hi: "doing सुनते ही याद रखें — doing से पहले am/is/are अनिवार्य है।",
             },
             {
               bn: "আর do-এর সঙ্গে modal কখনো জোড়া দেবেন না — Do you can swim? ভুল; Can you swim? ঠিক।",
               en: "And never pair do with a modal — 'Do you can swim?' is wrong; Can you swim? is right.",
-              hi: "और do को modal से कभी ন জোড়েं — 'Do you can swim?' গলত; Can you swim? ঠিক।",
+              hi: "और do को modal से कभी न जोड़ें — 'Do you can swim?' गलत; Can you swim? सही।",
             },
           ],
           examples: [
@@ -1625,7 +1625,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "চ্যাটে সবচেয়ে ঘন ঘন দেখা ভুল — doing-এর আগে am/is/are ছাড়া বাক্য ইংরেজিতে দাঁড়ায় না।",
                 en: "The most frequent chat mistake — English cannot stand a 'doing' without am/is/are before it.",
-                hi: "चैट की सबसे আম গলতি — doing সে পহলে am/is/are কে বিন বাক্য খড়া নহীং হোতা।",
+                hi: "चैट की सबसे आम गलती — doing से पहले am/is/are के बिना वाक्य अंग्रेज़ी में खड़ा नहीं होता।",
               },
             },
             {
@@ -1634,7 +1634,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "can-ই প্রশ্ন বানানোর যন্ত্র — do-এর সঙ্গে modal জোড়া দেওয়া যায় না।",
                 en: "'Can' is itself the question-maker — a modal never pairs with do.",
-                hi: "can स्वयं प्रश्न-निर्माता হৈ — modal কে সাথ do নহীং জুড়তা।",
+                hi: "can स्वयं प्रश्न-निर्माता है — modal के साथ do नहीं जुड़ता।",
               },
             },
             {
@@ -1643,7 +1643,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "be-verb থাকলে do ঢোকার জায়গাই নেই — is-ই উল্টে সামনে।",
                 en: "When a be-verb is there, do has no seat — is itself flips to the front.",
-                hi: "be-verb হোনে পর do কি কোই জগহ নহীং — is स্বয়ं পলটকর আগে।",
+                hi: "be-verb होने पर do की कोई जगह नहीं — is स्वयं ही पलटकर आगे आता है।",
               },
             },
             {
@@ -1652,7 +1652,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "will কর্তা (the train)-এর আগে ওঠবে — wh + will + কর্তা + V1।",
                 en: "'Will' steps in front of the subject (the train) — wh + will + subject + V1.",
-                hi: "will कर्ता (the train) से पहলे জাএগা — wh + will + कर्ता + V1।",
+                hi: "will कर्ता (the train) से पहले चला जाएगा — wh + will + कर्ता + V1।",
               },
             },
             {
@@ -1661,7 +1661,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "একই ভুলের আরেক চেহারা — wh-এর পরে কর্তা নয়, be-verb।",
                 en: "Another face of the same mistake — after the wh-word comes the be-verb, not the subject.",
-                hi: "উসী গলতी কা এক ঔর চেহরা — wh কে বাদ কর্তা নহীং, be-verb।",
+                hi: "उसी गलती का एक और चेहरा — wh के बाद कर्ता नहीं, be-verb आता है।",
               },
             },
           ],
@@ -1670,28 +1670,28 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           heading: {
             bn: "💬 ছোট উত্তর — Yes, I do / No, I don't",
             en: "💬 Short answers — Yes, I do / No, I don't",
-            hi: "💬 ছোটে উত্তর — Yes, I do / No, I don't",
+            hi: "💬 छोटे उत्तर — Yes, I do / No, I don't",
           },
           lead: {
             bn: "উত্তরে পুরো বাক্য লাগে না — প্রশ্ন যে auxiliary নিয়েছিল, উত্তরে সেটাই ফেরে।",
             en: "A full sentence is not needed to answer — the auxiliary the question used is the one that returns.",
-            hi: "उत्तर में पूरा वाक्य नहीं चाहिए — प्रश्न जो auxiliary লाया থা, বহी লৌটতা হৈ।",
+            hi: "उत्तर में पूरा वाक्य नहीं चाहिए — प्रश्न जो auxiliary लाया था, वही लौटता है।",
           },
           formula: {
             bn: "Yes/No + কর্তা + প্রশ্নের auxiliary-ই ফেরত",
             en: "Yes/No + subject + the very auxiliary the question used",
-            hi: "Yes/No + कर्ता + प्रश्न वाला বহी auxiliary",
+            hi: "Yes/No + कर्ता + प्रश्न वाला वही auxiliary",
           },
           points: [
             {
               bn: "ছোট উত্তরই স্বাভাবিক: Yes, I do. / No, I don't. / Yes, she is. / No, he didn't. / Yes, I can।",
               en: "The short answer is natural: Yes, I do. / No, I don't. / Yes, she is. / No, he didn't. / Yes, I can.",
-              hi: "ছোটা উত্তর হी স্বাভাবিক: Yes, I do. / No, I don't. / Yes, she is. / No, he didn't. / Yes, I can।",
+              hi: "छोटा उत्तर ही स्वाभाविक है: Yes, I do. / No, I don't. / Yes, she is. / No, he didn't. / Yes, I can।",
             },
             {
               bn: "Do you like tea? → Yes, I do (like নয়!)। Is Rahim your friend? → Yes, he is।",
               en: "Do you like tea? → Yes, I do (not 'like'). Is Rahim your friend? → Yes, he is.",
-              hi: "Do you like tea? → Yes, I do ('like' নহীং)। Is Rahim your friend? → Yes, he is।",
+              hi: "Do you like tea? → Yes, I do ('like' नहीं)। Is Rahim your friend? → Yes, he is।",
             },
             {
               bn: "Did you watch the match? → Yes, I did। Can she drive? → No, she can't।",
@@ -1701,22 +1701,22 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
             {
               bn: "বাংলায় বলি 'হ্যাঁ, খেয়েছি' — মূল ক্রিয়া ফিরে আসে; ইংরেজিতে auxiliary-ই ফেরে, মূল ক্রিয়া থাকে না।",
               en: "In Bengali we answer 'hyan, kheyechhi' — the main verb comes back; in English the auxiliary returns, the main verb stays out.",
-              hi: "बांग्लা মে কহতে হৈ 'হাঁ, খেয়েছি' — मूल क्रियা লৌটতी হৈ; অंग্রेज़ी মে auxiliary লৌটতা হৈ, मूल क्रिया নহীং।",
+              hi: "बांग्ला में कहते हैं 'হাঁ, খেয়েছি' — मूल क्रिया लौटती है; अंग्रेज़ी में auxiliary लौटता है, मूल क्रिया नहीं।",
             },
             {
               bn: "'Yes, I ate' বললেও হয়, কিন্তু Yes, I did সবচেয়ে স্বাভাবিক।",
               en: "'Yes, I ate' is possible, but Yes, I did is the most natural.",
-              hi: "'Yes, I ate' সম্ভব হৈ, পর Yes, I did সবসে স্বাভাবিক।",
+              hi: "'Yes, I ate' भी चलता है, पर Yes, I did सबसे स्वाभाविक है।",
             },
             {
               bn: "ফাঁদ ১: ছোট হ্যাঁ-উত্তরে contraction নয় — 'Yes, he's' ভুল, Yes, he is ঠিক।",
               en: "Trap 1: no contraction in a short yes-answer — 'Yes, he's' is wrong, Yes, he is is right.",
-              hi: "জাল 1: ছোটে হাঁ-উত্তর মে contraction নহীং — 'Yes, he's' গলত, Yes, he is সহী।",
+              hi: "जाल 1: छोटे हाँ-उत्तर में contraction नहीं — 'Yes, he's' गलत, Yes, he is सही।",
             },
             {
               bn: "ফাঁদ ২: auxiliary মিলাতে হবে — Are they at home? প্রশ্নের উত্তর Yes, they are; Yes, they do নয়।",
               en: "Trap 2: the auxiliary must match — for Are they at home? the answer is Yes, they are, never Yes, they do.",
-              hi: "जाल 2: auxiliary মিলানা হোগা — Are they at home? কা উত্তর Yes, they are; Yes, they do নহীং।",
+              hi: "जाल 2: auxiliary मिलाना होगा — Are they at home? का उत्तर Yes, they are; Yes, they do नहीं।",
             },
           ],
           examples: [
@@ -1726,7 +1726,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "ছোট উত্তরে auxiliary-ই ফেরে — Do-প্রশ্নের উত্তর Yes, I do; 'হ্যাঁ, পছন্দ করি'-র অনুবাদ হিসেবে Yes, I like বলা হয় না।",
                 en: "In short answers the auxiliary returns — a Do-question takes Yes, I do; 'Yes, I like' is a Bengali translation, not English.",
-                hi: "ছোটে উত্তর মে auxiliary হी লৌটতা হৈ — Do-प्रश्न কा উত্তর Yes, I do।",
+                hi: "छोटे उत्तर में auxiliary ही लौटता है — Do-प्रश्न का उत्तर Yes, I do।",
               },
             },
             {
@@ -1735,7 +1735,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "ছোট হ্যাঁ-উত্তরে contraction চলে না — Yes, he's ভুল, Yes, he is ঠিক; contraction শুধু লম্বা বাক্যে চলে।",
                 en: "A short yes-answer takes no contraction — 'Yes, he's' is wrong, Yes, he is is right; contractions belong to longer sentences.",
-                hi: "ছোটে হাঁ-উত্তর মে contraction নহীং — 'Yes, he's' গলত, Yes, he is সহী।",
+                hi: "छोटे हाँ-उत्तर में contraction नहीं — 'Yes, he's' गलत, Yes, he is सही।",
               },
             },
             {
@@ -1744,7 +1744,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "did-প্রশ্নের উত্তর did — অতীতের প্রশ্ন অতীতের auxiliary-তেই উত্তর পায়; মূল ক্রিয়া দোহরাতে হয় না।",
                 en: "A did-question is answered with did — a past question takes the past auxiliary; no need to repeat the main verb.",
-                hi: "did-प्रश्न का উত্তর did হি হৈ — मूল क्रिया দোহরানে কি জ़রूরत নহীং।",
+                hi: "did-प्रश्न का उत्तर did ही है — मूल क्रिया दोहराने की ज़रूरत नहीं।",
               },
             },
             {
@@ -1753,7 +1753,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "প্রশ্নের auxiliary আর উত্তরের auxiliary মিলবে — Are-প্রশ্নে do নয়, are।",
                 en: "The auxiliary of the question and the answer must match — an Are-question takes are, not do.",
-                hi: "প्रশ্ন ঔর উত্তর কा auxiliary মিলেগা — Are-प्रश्न মে do নহীং, are।",
+                hi: "प्रश्न और उत्तर का auxiliary मिलेगा — Are-प्रश्न में do नहीं, are।",
               },
             },
             {
@@ -1762,7 +1762,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "can-প্রশ্নের নেগেটিভ উত্তর can't — don't এখানে অচেনা; উত্তরও প্রশ্নের auxiliary-ই ধারণ করে।",
                 en: "The negative answer to a can-question is can't — 'don't' is a stranger here; the answer borrows the question's auxiliary.",
-                hi: "can-प्रश्न का নকারাত্মক উত্তর can't হৈ — 'don't' যহাঁ অনজান হৈ।",
+                hi: "can-प्रश्न का नकारात्मक उत्तर can't है — 'don't' यहाँ अनजान है।",
               },
             },
           ],
@@ -1771,42 +1771,42 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           heading: {
             bn: "⚠️ বাঙালি শিক্ষার্থীদের কমন ভুল — প্রশ্নের জগতে",
             en: "⚠️ Common mistakes by Bengali speakers — in the world of questions",
-            hi: "⚠️ বাংগলাভাষী ছাত্রোঁ কি আম গলতিযাঁ — প্রশ্নের জগতে",
+            hi: "⚠️ बांग्लाभाषी छात्रों की आम गलतियाँ — प्रश्नों की दुनिया में",
           },
           lead: {
             bn: "সব ভুলের শিকড় এক — বাংলায় 'কি' আর গলার স্বর প্রশ্ন বানায়, শব্দের ক্রম নয়।",
             en: "All these mistakes share one root — in Bengali 'ki' and the rising tone make the question, not the word order.",
-            hi: "सब गलतियों की জড় এক — বাংগ্লা মে 'কি' ঔর উঠती আবাজ़ প्रশ্ন বনাতী হৈ, শব্দ-ক্রম নহীং।",
+            hi: "सब गलतियों की जड़ एक है — बांग्ला में 'কি' और उठती आवाज़ प्रश्न बनाती है, शब्द-क्रम नहीं।",
           },
           table: {
             head: [
               { bn: "ভুল পরিবার", en: "Error family", hi: "गलती-परिवार" },
               { bn: "উদাহরণ", en: "Example", hi: "उदाहरण" },
-              { bn: "সঠিক রূপ", en: "Correct form", hi: "सही রূপ" },
+              { bn: "সঠিক রূপ", en: "Correct form", hi: "सही रूप" },
             ],
             rows: [
               [
-                { bn: "wh-এর পরে কর্তা", en: "subject right after the wh-word", hi: "wh-শব্দ কे বাদ কর্তা" },
+                { bn: "wh-এর পরে কর্তা", en: "subject right after the wh-word", hi: "wh-शब्द के बाद कर्ता" },
                 { bn: "What you want?", en: "What you want?", hi: "What you want?" },
                 { bn: "What do you want?", en: "What do you want?", hi: "What do you want?" },
               ],
               [
-                { bn: "did/does-এর পরে V2 বা s", en: "V2 or s after did/does", hi: "did/does কे বাদ V2 বা s" },
+                { bn: "did/does-এর পরে V2 বা s", en: "V2 or s after did/does", hi: "did/does के बाद V2 या s" },
                 { bn: "Where did she went?", en: "Where did she went?", hi: "Where did she went?" },
                 { bn: "Where did she go?", en: "Where did she go?", hi: "Where did she go?" },
               ],
               [
-                { bn: "গলার স্বরেই প্রশ্ন ভাবা", en: "question by rising tone alone", hi: "উठती আবাজ़ সে হি প्रশ্ন" },
+                { bn: "গলার স্বরেই প্রশ্ন ভাবা", en: "question by rising tone alone", hi: "उठती आवाज़ से ही प्रश्न" },
                 { bn: "You are coming?", en: "You are coming?", hi: "You are coming?" },
                 { bn: "Are you coming?", en: "Are you coming?", hi: "Are you coming?" },
               ],
               [
-                { bn: "do + be/modal জোড়া", en: "pairing do with a be/modal", hi: "do + be/modal কি জোড়ी" },
+                { bn: "do + be/modal জোড়া", en: "pairing do with a be/modal", hi: "do + be/modal की जोड़ी" },
                 { bn: "Do you can swim?", en: "Do you can swim?", hi: "Do you can swim?" },
                 { bn: "Can you swim?", en: "Can you swim?", hi: "Can you swim?" },
               ],
               [
-                { bn: "ছোট উত্তরে ভুল auxiliary", en: "wrong auxiliary in short answers", hi: "ছোটে উত্তর মে গলত auxiliary" },
+                { bn: "ছোট উত্তরে ভুল auxiliary", en: "wrong auxiliary in short answers", hi: "छोटे उत्तर में गलत auxiliary" },
                 { bn: "Yes, they do (Are they...?)", en: "Yes, they do (Are they...?)", hi: "Yes, they do (Are they...?)" },
                 { bn: "Yes, they are", en: "Yes, they are", hi: "Yes, they are" },
               ],
@@ -1816,22 +1816,22 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
             {
               bn: "পাশের ছকের পাঁচ পরিবারই এই পাঠের প্রায় সব ভুল ঢেকে দেয় — প্রতিটার সঙ্গে সঠিক রূপও আছে।",
               en: "The five families in the table cover nearly every mistake of this lesson — each with its correct form.",
-              hi: "पास কे चार्ट के পাঁচ পरिवার ইস পাঠ কি লগভগ সब গলতিযাঁ ঢक দেতে হৈ — হর এক কে সহী রূপ ভী।",
+              hi: "पास के चार्ट के पाँच परिवार इस पाठ की लगभग सब गलतियाँ ढक देते हैं — हर एक के साथ सही रूप भी।",
             },
             {
               bn: "প্রশ্ন লেখার আগে তিনটা প্রশ্ন করুন: বাক্যে be-verb বা modal আছে?",
               en: "Before writing a question, ask three things: does the sentence have a be-verb or modal?",
-              hi: "प्रश्न লিখনে সে পহলে তিন সবাল: বাক্য মে be-verb বা modal হৈ?",
+              hi: "प्रश्न लिखने से पहले तीन सवाल: वाक्य में be-verb या modal है?",
             },
             {
               bn: "থাকলে ওটাই সামনে; না থাকলে do/does/did আনুন — তারপর কর্তা, তারপর V1।",
               en: "If yes, that word goes first; if not, take do/does/did — then the subject, then V1.",
-              hi: "হো তো বহী আগে; নহীং তো do/does/did — ফির कर्तা, ফির V1।",
+              hi: "है तो वही आगे; नहीं तो do/does/did — फिर कर्ता, फिर V1।",
             },
             {
               bn: "এই তিন প্রশ্নের অভ্যাসই পাঁচ ভুল পরিবারের দরজা বন্ধ রাখে।",
               en: "This three-question habit keeps the doors of all five error families shut.",
-              hi: "तিন सवालোं কি আদত হি পাঁচো গলতी-পरিবার কা দরবাজ़া বন্দ রাখতা হৈ।",
+              hi: "तीन सवालों की आदत ही पाँचों गलती-परिवारों का दरवाज़ा बंद रखती है।",
             },
           ],
           examples: [
@@ -1841,7 +1841,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "wh-এর পরে do — কর্তা তারপর; পুরনো অভ্যাসের বাঁধ ভাঙুন।",
                 en: "After the wh-word comes do — the subject follows; break the old habit.",
-                hi: "wh-শব্দ কে বাদ do — कर्तা বাদ মে; পুরানী আদত তোড়েং।",
+                hi: "wh-शब्द के बाद do — कर्ता बाद में; पुरानी आदत तोड़ें।",
               },
             },
             {
@@ -1850,7 +1850,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "did-এর ভেতরে অতীত আছে — went বাড়তি; ক্রিয়া V1-এ থাকবে।",
                 en: "The past is already inside did — went is extra; the verb stays V1.",
-                hi: "अतीত did কে ভীতর হৈ — went অতিরিক্ত; क्रিযा V1।",
+                hi: "अतीत did के भीतर है — went अतिरिक्त है; क्रिया V1।",
               },
             },
             {
@@ -1859,7 +1859,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "লেখায় গলার স্বর শোনা যায় না — ক্রমই প্রশ্নের একমাত্র চিহ্ন।",
                 en: "Writing cannot show a rising tone — the order is the only question-mark.",
-                hi: "লিখত সময় আবাজ़ সুনাঈ নহীং দেতী — क्रম হी প्रশ্ন কি এकমাত্র নিশানী।",
+                hi: "लिखते समय आवाज़ सुनाई नहीं देती — क्रम ही प्रश्न की एकमात्र निशानी है।",
               },
             },
             {
@@ -1868,7 +1868,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "s একবারে এক শব্দের — does-এর গায়ে চলে গেছে, plays-এ আর নেই।",
                 en: "The s belongs to one word at a time — it has moved onto does, so not on plays.",
-                hi: "s এক সময় মে এক হী শব্দ কা — does পর চলা গ্যা, plays পর নহীং।",
+                hi: "s एक समय में केवल एक शब्द का — does पर चला गया, plays पर नहीं।",
               },
             },
             {
@@ -1877,7 +1877,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "নেগেটিভ wh-প্রশ্ন: wh + didn't + কর্তা + V1 — didn't কর্তার আগে, আর came নয় come।",
                 en: "Negative wh-question: wh + didn't + subject + V1 — didn't before the subject, and come, not came.",
-                hi: "नकारात्मक wh-प्रश्न: wh + didn't + कर्तা + V1 — didn't कर्तা সে পहলে, came নহীং come।",
+                hi: "नकारात्मक wh-प्रश्न: wh + didn't + कर्ता + V1 — didn't कर्ता से पहले, और came नहीं come।",
               },
             },
           ],
@@ -1886,48 +1886,48 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           heading: {
             bn: "📖 ছোট গল্পে দেখা যাক",
             en: "📖 See it in a mini story",
-            hi: "📖 এক ছোটী কহানী মে দেখেং",
+            hi: "📖 एक छोटी कहानी में देखें",
           },
           lead: {
             bn: "নাদিয়া-রাকিবের ফোন-কথায় পাঠের প্রতিটা নিয়ম একসঙ্গে কাজ করতে দেখুন।",
             en: "Watch every rule of this lesson work together in Nadia and Rakib's phone call.",
-            hi: "नादिया-राकিব কি ফ़ोন-বातচीত মें পাঠ কा হর নিয়ম এক সাথ কাম করতে দেখেং।",
+            hi: "नादिया-राकिब की फ़ोन-बातचीत में पाठ का हर नियम एक साथ काम करते देखें।",
           },
           points: [
             {
               bn: "নাদিয়া ফোনে জিজ্ঞেস করে, 'Where are you? Are you still at home?' — প্রশ্নে be-verb কর্তার সামনে।",
               en: "Nadia asks on the phone, 'Where are you? Are you still at home?' — in questions the be-verb stands before the subject.",
-              hi: "নাদিয়া ফ़ोন পর পুছতী হৈ, 'Where are you? Are you still at home?' — প्रश্ন মে be-verb कर्ता সে পহলে।",
+              hi: "नादिया फ़ोन पर पूछती है, 'Where are you? Are you still at home?' — प्रश्न में be-verb कर्ता से पहले।",
             },
             {
               bn: "রাকিব ঘুম ভাঙা গলায় বলে, 'Yes, I am. Why are you calling so early?' — ছোট উত্তরে be-verb ফেরে; wh + be + কর্তা।",
               en: "Rakib answers in a sleepy voice, 'Yes, I am. Why are you calling so early?' — the be-verb returns in the short answer; wh + be + subject.",
-              hi: "राकিব নীংদ ভরী আবাজ় মে কহতা হৈ, 'Yes, I am. Why are you calling so early?' — ছোটে উত্তর মে be-verb লৌটা; wh + be + কর্তা।",
+              hi: "राकिब नींद भरी आवाज़ में कहता है, 'Yes, I am. Why are you calling so early?' — छोटे उत्तर में be-verb लौटता है; wh + be + कर्ता।",
             },
             {
               bn: "নাদিয়া হতভম্ব, 'Did you forget? Today is our class trip!' — did + V1।",
               en: "Nadia is stunned, 'Did you forget? Today is our class trip!' — did + V1.",
-              hi: "নাদিয়া চৌংকতী হৈ, 'Did you forget? Today is our class trip!' — did + V1।",
+              hi: "नादिया चौंकती है, 'Did you forget? Today is our class trip!' — did + V1।",
             },
             {
               bn: "রাকিব লাফিয়ে ওঠে, 'Oh no! What time does the bus leave?' — wh + does + কর্তা + V1।",
               en: "Rakib jumps up, 'Oh no! What time does the bus leave?' — wh + does + subject + V1.",
-              hi: "राकিব ছলাঁগ মারতা হৈ, 'Oh no! What time does the bus leave?' — wh + does + কর্তা + V1।",
+              hi: "राकिब छलाँग मारता है, 'Oh no! What time does the bus leave?' — wh + does + कर्ता + V1।",
             },
             {
               bn: "'At eight. Can you reach the school by half past seven?' 'Yes, I can. Wait for me at the gate!' — modal প্রশ্ন, modal উত্তর।",
               en: "'At eight. Can you reach the school by half past seven?' 'Yes, I can. Wait for me at the gate!' — a modal question, a modal answer.",
-              hi: "'At eight. Can you reach the school by half past seven?' 'Yes, I can. Wait for me at the gate!' — modal প্রশ্ন, modal উত্তর।",
+              hi: "'At eight. Can you reach the school by half past seven?' 'Yes, I can. Wait for me at the gate!' — modal प्रश्न, modal उत्तर।",
             },
             {
               bn: "এক নজরে — yes/no প্রশ্ন: Do/Does/Did + কর্তা + V1; be-verb বা modal থাকলে ওটাই কর্তার সামনে।",
               en: "In a nutshell — yes/no questions: Do/Does/Did + subject + V1; with a be-verb or modal, that word goes in front of the subject.",
-              hi: "एক নজ़র মে — yes/no প्रश্ন: Do/Does/Did + कर्तা + V1; be-verb বा modal হো তো বহী कर্তা কে সামনে।",
+              hi: "एक नज़र में — yes/no प्रश्न: Do/Does/Did + कर्ता + V1; be-verb या modal हो तो वही कर्ता के सामने।",
             },
             {
               bn: "wh-প্রশ্ন: wh + auxiliary + কর্তা + V1; ছোট উত্তর: Yes/No + কর্তা + সেই auxiliary। 'কি' লাগবে না — ক্রমই প্রশ্ন।",
               en: "wh-questions: wh + auxiliary + subject + V1; short answers: Yes/No + subject + that same auxiliary. No 'ki' is needed — the order itself is the question.",
-              hi: "wh-प्रश्न: wh + auxiliary + कर्तা + V1; ছোটा উত্তর: Yes/No + कर्ता + বহী auxiliary। 'কি' কি জ़রूরত নহীং — क्रम হী প्रश্ন হৈ।",
+              hi: "wh-प्रश्न: wh + auxiliary + कर्ता + V1; छोटा उत्तर: Yes/No + कर्ता + वही auxiliary। 'কি' की ज़रूरत नहीं — क्रम ही प्रश्न है।",
             },
           ],
           examples: [
@@ -1937,7 +1937,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "প্রশ্নে be-verb কর্তার সামনে — are + you।",
                 en: "In questions the be-verb stands before the subject — are + you.",
-                hi: "প्रश্ন মে be-verb कर्तা সে পহলে — are + you।",
+                hi: "प्रश्न में be-verb कर्ता से पहले — are + you।",
               },
             },
             {
@@ -1946,7 +1946,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "What time-ও wh-পরিবারের — does + কর্তা + V1 লাগবেই।",
                 en: "'What time' belongs to the wh-family — it still takes does + subject + V1.",
-                hi: "What time ভী wh-परिबार মে হৈ — does + कर्तা + V1 লगেগা।",
+                hi: "What time भी wh-परिवार में है — does + कर्ता + V1 लगेगा।",
               },
             },
             {
@@ -1955,7 +1955,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "modal-এর পরে to নয় — বাংলা 'পারবে কি আসতে?'-র ছায়া।",
                 en: "No to after a modal — the shadow of Bengali 'parbe ki aaste?'",
-                hi: "modal কে বাদ to নহীং — বাংগ্লা 'পারবে কি আসতে?' কি ছায়া।",
+                hi: "modal के बाद to नहीं — बांग्ला 'পারবে কি আসতে?' की छाया।",
               },
             },
             {
@@ -1964,7 +1964,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
               note: {
                 bn: "did + V1 — forgot নয়, forget; অতীতের চিহ্ন একবারই।",
                 en: "did + V1 — not forgot, forget; the past marker appears only once.",
-                hi: "did + V1 — forgot নহীং, forget।",
+                hi: "did + V1 — forgot नहीं, forget।",
               },
             },
           ],
@@ -1974,52 +1974,52 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
         {
           bn: "প্রশ্ন লেখার আগে বাক্যে be-verb বা modal আছে কি না দেখুন — থাকলে ওটাই কর্তার সামনে ওঠে; না থাকলে do/does/did আনুন।",
           en: "Before writing a question, check for a be-verb or modal — if there is one, it goes in front of the subject; if not, bring in do/does/did.",
-          hi: "प्रश্ন লিখনে সে পহলে বাক্য মে be-verb বा modal দেখেং — হো তো বহী कर्तা কে সামনে; নহীং তো do/does/did লাএँ।",
+          hi: "प्रश्न लिखने से पहले वाक्य में be-verb या modal देखें — है तो वही कर्ता के सामने; नहीं तो do/does/did लाएँ।",
         },
         {
           bn: "wh-শব্দ সবসময় প্রথম পদ — wh + auxiliary + কর্তা + V1, চার ধাপ মনে রাখুন।",
           en: "The wh-word is always the first word — wh + auxiliary + subject + V1; remember the four steps.",
-          hi: "wh-শব্দ হমেশা পহলা পদ — wh + auxiliary + कर्ता + V1, চার কদম রটেं।",
+          hi: "wh-शब्द हमेशा पहला पद — wh + auxiliary + कर्ता + V1, चार कदम रटें।",
         },
         {
           bn: "did/does বসলে মূল ক্রিয়া V1 — অতীতের চিহ্ন বা s একবারে এক শব্দের সম্পত্তি।",
           en: "When did/does is there, the main verb stays V1 — the past marker or the s belongs to one word at a time.",
-          hi: "did/does বৈठতে হি मूল क्रिया V1 — অতीत বা s এক সময় মে এক শব্দ কা।",
+          hi: "did/does बैठते ही मूल क्रिया V1 — अतीत या s एक समय में एक शब्द का।",
         },
         {
           bn: "'What you doing?' চ্যাটে চলে যায়, কিন্তু ভুল — doing শুনলেই am/is/are বসান।",
           en: "'What you doing?' passes in chat, but it is wrong — the moment you hear doing, place am/is/are before it.",
-          hi: "'What you doing?' চैট মে চল জাতা হৈ, পর গলত হৈ — doing সুনতে হি am/is/are বিঠাএं।",
+          hi: "'What you doing?' चैट में चल जाता है, पर गलत है — doing सुनते ही am/is/are बिठाएँ।",
         },
         {
           bn: "ছোট উত্তরে auxiliary-ই ফেরে — Yes, I do / Yes, I am / Yes, I did; মূল ক্রিয়া নয়।",
           en: "In short answers the auxiliary returns — Yes, I do / Yes, I am / Yes, I did; not the main verb.",
-          hi: "ছোটে উত্তর মে auxiliary হী লৌটতা হৈ — Yes, I do / Yes, I am / Yes, I did; मूल क्रिया নহীং।",
+          hi: "छोटे उत्तर में auxiliary ही लौटता है — Yes, I do / Yes, I am / Yes, I did; मूल क्रिया नहीं।",
         },
         {
           bn: "ছোট হ্যাঁ-উত্তরে contraction নয় — Yes, he is ঠিক, Yes, he's ভুল।",
           en: "No contraction in a short yes-answer — Yes, he is is right, 'Yes, he's' is wrong.",
-          hi: "ছোটে হাঁ-উত্তর মে contraction নহীং — Yes, he is সহী, 'Yes, he's' গলত।",
+          hi: "छोटे हाँ-उत्तर में contraction नहीं — Yes, he is सही, 'Yes, he's' गलत।",
         },
         {
           bn: "প্রশ্নের auxiliary আর উত্তরের auxiliary মিলবে — Are they...? → Yes, they are।",
           en: "The auxiliary of the question and of the answer must match — Are they...? takes Yes, they are.",
-          hi: "প्रশ্ন ঔর উত্তর কা auxiliary মিলেগা — Are they...? → Yes, they are।",
+          hi: "प्रश्न और उत्तर का auxiliary मिलेगा — Are they...? → Yes, they are।",
         },
         {
           bn: "নেগেটিভ প্রশ্ন: Why didn't you come? — didn't + কর্তা + V1; didn't came কখনো নয়।",
           en: "Negative question: Why didn't you come? — didn't + subject + V1; never 'didn't came'.",
-          hi: "नकारात्मক প्रश্ন: Why didn't you come? — didn't + कर्ता + V1; 'didn't came' কভি নহীং।",
+          hi: "नकारात्मक प्रश्न: Why didn't you come? — didn't + कर्ता + V1; 'didn't came' कभी नहीं।",
         },
         {
           bn: "What time / What colour-জাতীয় প্রশ্নেও do/does লাগে — What time does the shop open?",
           en: "Questions like What time / What colour still take do/does — What time does the shop open?",
-          hi: "What time / What colour জৈसে প्रश্নোং মে ভী do/does লগতা হৈ — What time does the shop open?",
+          hi: "What time / What colour जैसे प्रश्नों में भी do/does लगता है — What time does the shop open?",
         },
         {
           bn: "রোজ নিজেকে ৫টা প্রশ্ন করুন — What am I doing? Where do I keep my keys? — ক্রমটা মুখে বসে যাবে।",
           en: "Ask yourself five questions every day — What am I doing? Where do I keep my keys? — and the order settles on your tongue.",
-          hi: "রোজ़ খুদ সে 5 প्रश্ন পুছেं — What am I doing? Where do I keep my keys? — क्रম জ़ুবান পর বৈঠ জাএগা।",
+          hi: "रोज़ खुद से 5 प्रश्न पूछें — What am I doing? Where do I keep my keys? — क्रम ज़ुबान पर बैठ जाएगा।",
         },
       ],
       quiz: [
@@ -2030,7 +2030,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "you = I/you/we/they শ্রেণির কর্তা, like সাধারণ ক্রিয়া → প্রশ্নে Do।",
             en: "'You' belongs to the I/you/we/they group and like is an ordinary verb, so Do in the question.",
-            hi: "'you' I/you/we/they বর্গ কা कर्तা হৈ, like साधारণ क्रिया → প्रশ্ন মে Do।",
+            hi: "'you' I/you/we/they वर्ग का कर्ता है, like साधारण क्रिया → प्रश्न में Do।",
           },
         },
         {
@@ -2040,7 +2040,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "last week = অতীত → did; did-এর পরে V1: go।",
             en: "'Last week' is the past — did; after did the verb stays go.",
-            hi: "'last week' = অতীত → did; did কे বাদ V1: go।",
+            hi: "'last week' = अतीत → did; did के बाद V1: go।",
           },
         },
         {
@@ -2050,7 +2050,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "doing-এর আগে be-verb বাধ্যতামূলক — she → is: What is she doing?",
             en: "A be-verb must stand before doing — she takes is: What is she doing?",
-            hi: "doing সে পহলে be-verb অনিবার্য — she → is: What is she doing?",
+            hi: "doing से पहले be-verb अनिवार्य — she → is: What is she doing?",
           },
         },
         {
@@ -2060,7 +2060,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "your father = he → Does; work সাধারণ ক্রিয়া → do-পরিবার।",
             en: "'Your father' = he, so Does; work is an ordinary verb — the do-family.",
-            hi: "'your father' = he → Does; work साधारণ क्रिया → do-परिबार।",
+            hi: "'your father' = he → Does; work साधारण क्रिया → do-परिवार।",
           },
         },
         {
@@ -2070,7 +2070,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "the baby = একবচন → is crying; wh + is + কর্তা।",
             en: "'The baby' is singular — is crying; wh + is + subject.",
-            hi: "'the baby' একবচন → is crying; wh + is + कर्ता।",
+            hi: "'the baby' एकवचन → is crying; wh + is + कर्ता।",
           },
         },
         {
@@ -2085,7 +2085,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "wh + did + কর্তা + V1 — Where did you go?; বাকিগুলো ক্রম ভাঙা।",
             en: "wh + did + subject + V1 — Where did you go?; the others break the order.",
-            hi: "wh + did + कर्तা + V1 — Where did you go?; বাকी क्रম তোड়তে হৈ।",
+            hi: "wh + did + कर्ता + V1 — Where did you go?; बाकी क्रम तोड़ते हैं।",
           },
         },
         {
@@ -2095,7 +2095,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "Do-প্রশ্নের ছোট উত্তর Yes, I do — মূল ক্রিয়া ফেরে না।",
             en: "The short answer to a Do-question is Yes, I do — the main verb does not return.",
-            hi: "Do-प्रश्न কा ছोটা উত্তর Yes, I do — मूल क्रियা নহীং লৌটতী।",
+            hi: "Do-प्रश्न का छोटा उत्तर Yes, I do — मूल क्रिया नहीं लौटती।",
           },
         },
         {
@@ -2110,7 +2110,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "modal প্রশ্নে modal-ই সামনে — Can she drive?; do বা V2 এখানে আসে না।",
             en: "In a modal question the modal itself comes first — Can she drive?; neither do nor V2 fits here.",
-            hi: "modal প्रश্ন মে modal স্বয়ং সামনে — Can she drive?; do বा V2 যহাঁ নহীং আতা।",
+            hi: "modal प्रश्न में modal स्वयं सामने — Can she drive?; do या V2 यहाँ नहीं आता।",
           },
         },
         {
@@ -2120,7 +2120,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "they + be-verb → Are; প্রশ্নে are কর্তার সামনে উল্টে যায়।",
             en: "'They' takes the be-verb are; in the question are flips in front of the subject.",
-            hi: "'they' কে সাথ be-verb are; প्रশ্ন মে are कर्तা কे সামনে পলটতা হৈ।",
+            hi: "'they' के साथ be-verb are; प्रश्न में are कर्ता के सामने पलट जाता है।",
           },
         },
         {
@@ -2135,7 +2135,7 @@ export const SEED_GRAMMAR_V4_B1B: SeedGrammarV4Entry[] = [
           explanation: {
             bn: "অতীতের wh-প্রশ্ন: Where did he go? — did + he + go; went বাদ।",
             en: "Past wh-question: Where did he go? — did + he + go; went drops out.",
-            hi: "अतीत কा wh-प्रश्न: Where did he go? — did + he + go; went হটতা হৈ।",
+            hi: "अतीत का wh-प्रश्न: Where did he go? — did + he + go; went हट जाता है।",
           },
         },
       ],

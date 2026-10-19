@@ -192,7 +192,7 @@ export const SEED_GRAMMAR_V4_V2A1: SeedGrammarV4Entry[] = [
             { bn: "**than** = 'চেয়ে' (তুলনা), then = 'তারপর' (সময়) — উচ্চারণ কাছাকাছি, কাজ সম্পূর্ণ আলাদা।", en: "**Than** = comparison ('চেয়ে'), then = time ('তারপর') — near-identical sounds, completely different jobs.", hi: "**than** = तुलना ('से'), then = समय ('तब/फिर') — आवाज़ मिलती है, काम बिल्कुल अलग।" },
             { bn: "better, worse-এর মতো irregular comparative-এ জোর দিতে **much/far** বসান — much better, far worse; more বসালেই দ্বিগুণ হয়ে যায়।", en: "To intensify an irregular comparative like better or worse, use **much/far** — much better, far worse; more doubles the marker.", hi: "better, worse जैसे irregular comparative पर ज़ोर के लिए **much/far** लगाएँ — much better, far worse; more लगाया तो दोहराव।" },
             { bn: "superlative-এর আগে **the** লাগবেই: the best player, the most expensive।", en: "A superlative must carry **the**: the best player, the most expensive.", hi: "superlative से पहले **the** ज़रूरी: the best player, the most expensive।" },
-            { bn: "তুলনার দুই পাশ পাল্লা মিলিয়ে সাজান: This room is bigger than that one — জটিল গোছানোর দরকার নেই।", en: "Keep the two sides of a comparison parallel and clean: This room is bigger than that one — no fancy arranging needed.", hi: "तुलना के दोनों पक्ष पाला मिलाकर साफ़ रखें: This room is bigger than that one — उलझाने की ज़रूरत नहीं।" },
+            { bn: "তুলনার দুই পাশ পাল্লা মিলিয়ে সাজান: This room is bigger than that one — জটিল গোছানোর দরকার নেই।", en: "Keep the two sides of a comparison parallel and clean: This room is bigger than that one — no fancy arranging needed.", hi: "तुलना के दोनों पक्ष तराज़ू मिलाकर साफ़ रखें: This room is bigger than that one — उलझाने की ज़रूरत नहीं।" },
           ],
           examples: [
             {
@@ -284,7 +284,7 @@ export const SEED_GRAMMAR_V4_V2A1: SeedGrammarV4Entry[] = [
             hi: "Passive का पूरा खेल एक ही सूत्र में — पहले सूत्र साफ़ कर लें।",
           },
           points: [
-            { bn: "Passive-এর সূত্র: **object** উঠে subject-এর চেয়ারে বসে, আসল কর্তা পেছনে সরে বা মুছে যায়।", en: "The passive recipe: the **object** moves into the subject's chair, and the real doer steps back or disappears.", hi: "Passive का सूत्र: **object** subject की कुर्सी पर बैठ जाता है, और असली कर्ता पीछे हट जाता या गायब हो जाता है।" },
+            { bn: "Passive-এর সূত্র: **object** উঠে subject-এর চেয়ারে বসে, আসল কর্তা পেছনে সরে বা মুছে যায়।", en: "The passive recipe: the **object** moves into the subject's chair, and the real doer steps back or disappears.", hi: "Passive का सूत्र: **object** subject की कुर्सी पर बैठ जाता है, और असली कर्ता पीछे हट जाता है या गायब हो जाता है।" },
             { bn: "**be-verb** tense-এর পুরো ভার বহন করে, আর মূল verb হয়ে যায় V3 (past participle)।", en: "The **be verb** carries the whole tense, while the main verb becomes V3 (past participle).", hi: "**be verb** tense का पूरा बोझ उठाता है, और मुख्य verb V3 (past participle) बन जाता है।" },
             { bn: "Simple present-এ **is/are** + V3: The shop is closed every Sunday; Rice is grown here।", en: "Simple present takes **is/are** + V3: The shop is closed every Sunday; Rice is grown here.", hi: "Simple present में **is/are** + V3: The shop is closed every Sunday; Rice is grown here।" },
             { bn: "Simple past-এ **was/were** + V3: The letter was posted yesterday।", en: "Simple past takes **was/were** + V3: The letter was posted yesterday.", hi: "Simple past में **was/were** + V3: The letter was posted yesterday।" },
@@ -307,7 +307,7 @@ export const SEED_GRAMMAR_V4_V2A1: SeedGrammarV4Entry[] = [
               right: "Rice is grown in many districts.",
               note: {
                 bn: "ধান নিজে grow করে না, মানুষ grow করে — কর্তা বাদ দিলে present passive লাগবে: is + grown (V3)।",
-                en: "Rice doesn't grow itself — people grow it; with the doer left out, the present passive is is + grown.",
+                en: "Rice doesn't grow itself — people grow it; with the doer left out, the present passive is: is + grown.",
                 hi: "धान खुद grow नहीं करता — करने वाले को हटाने पर present passive बनेगा: is + grown।",
               },
             },
@@ -650,7 +650,7 @@ export const SEED_GRAMMAR_V4_V2A1: SeedGrammarV4Entry[] = [
           heading: { bn: "🗣️ রিপোর্টেড নির্দেশ: told/asked + to + verb", en: "🗣️ Reported commands: told/asked + to + verb", hi: "🗣️ रिपोर्टेड आदेश: told/asked + to + verb" },
           lead: {
             bn: "আদেশ আর অনুরোধের রিপোর্টে সুত্র একটাই — person + to + base verb।",
-            en: "Commands and requests report with one formula — person + to + base verb.",
+            en: "Commands and requests are reported with one formula — person + to + base verb.",
             hi: "आदेश और अनुरोध की रिपोर्ट का एक ही सूत्र — person + to + base verb।",
           },
           points: [

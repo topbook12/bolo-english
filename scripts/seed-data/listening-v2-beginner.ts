@@ -185,7 +185,7 @@ export const SEED_LISTENING_V2_BEGINNER: SeedListeningV2Entry[] = [
         "Today Sadia moves into Aunt Nasrin's flat. The flat is on the third floor. It is small, but clean and bright. Sadia has a little room near the window. She puts her clothes in a box and her books on the small table. The flat feels warm.",
         "In the afternoon, someone knocks on the door. It is Mrs. Haque from the next flat. She has a small baby in her arms. \"Welcome, sister!\" she says. \"Come to my home any time.\" The baby looks at Sadia and laughs. Sadia smiles back. Now she knows one neighbour in this big city.",
         "At night, Sadia writes a letter to her family. She writes to her mother, her father and her little brother. \"Dhaka is big, but my aunt is kind,\" she writes. \"I have a nice room and a good neighbour here. Do not worry about me. I am happy in Dhaka.\"",
-        "Aunt Nasrin makes hot tea and sits with her. They talk about the family in the village. Sadia remembers her grandmother's stories. Then her aunt says, \"This flat is your home too, Sadia.\" Sadia feels her eyes are wet, but she smiles. \"Tomorrow I cook with you,\" she says. Aunt Nasrin laughs happily.",
+        "Aunt Nasrin makes hot tea and sits with her. They talk about the family in the village. Sadia remembers her grandmother's stories. Then her aunt says, \"This flat is your home too, Sadia.\" Sadia feels tears in her eyes, but she smiles. \"Tomorrow I cook with you,\" she says. Aunt Nasrin laughs happily.",
       ],
       vocabulary: [
         {
@@ -330,7 +330,7 @@ export const SEED_LISTENING_V2_BEGINNER: SeedListeningV2Entry[] = [
         "In the morning, Sadia cooks rice for the first time. The kitchen is small, but it has everything. Aunt Nasrin helps her. \"More water, less fire,\" she says with a smile. At first, the rice is too soft. Sadia's face is red. But the second pot is very good.",
         "After breakfast, they go to the market near the flat. The market is busy and noisy. Sellers call out, \"Come, come!\" There are tomatoes, eggs, rice and fish everywhere. Aunt Nasrin talks with the sellers like old friends. Sadia carries the big bag and looks at everything. The colours are beautiful.",
         "Aunt Nasrin buys fish for Friday. Sadia asks about the price. \"Fish is expensive in Dhaka,\" her aunt says. \"But look — tea is cheap here.\" They drink hot tea at a small shop. It costs ten taka. Sadia likes the busy market very much. It is not like her quiet village.",
-        "At home, they cook the fish together. The fish smells wonderful, and the rice is perfect this time. After lunch, Aunt Nasrin says, \"Sunday is your first day at college.\" Sadia feels happy and afraid again. She cleans her bag and puts her books inside. She wants to sleep early tonight.",
+        "At home, they cook the fish together. The fish smells wonderful, and the rice is perfect this time. After lunch, Aunt Nasrin says, \"Sunday is your first day at college.\" Sadia feels happy and afraid again. She tidies her bag and puts her books inside. She wants to sleep early tonight.",
       ],
       vocabulary: [
         {
@@ -395,7 +395,7 @@ export const SEED_LISTENING_V2_BEGINNER: SeedListeningV2Entry[] = [
           answer: 1,
           explain: {
             bn: "প্রথম অনুচ্ছেদে সাদিয়া প্রথমবার ভাত রান্না করে; প্রথম হাঁড়ির ভাত বেশি নরম হয়ে যায়।",
-            en: "In the first paragraph, Sadia cooks rice for the first time; the first pot is too soft.",
+            en: "In the first paragraph, Sadia cooks rice for the first time; the rice from the first pot is too soft.",
             hi: "पहले अनुच्छेद में सादिया पहली बार चावल पकाती है; पहली हांडी का चावल ज़्यादा नरम हो जाता है।",
           },
         },
@@ -450,7 +450,7 @@ export const SEED_LISTENING_V2_BEGINNER: SeedListeningV2Entry[] = [
           explain: {
             bn: "শেষ অনুচ্ছেদে দুপুরের পর খালা বলেন, 'রবিবার তোমার কলেজের প্রথম দিন।'",
             en: "In the last paragraph, after lunch, Aunt Nasrin says, \"Sunday is your first day at college.\"",
-            hi: "आख़िरी अनुच्छेद में दोपहर के बाद मौसी कहती हैं, 'रविवार है कॉलेज का पहला दिन।'",
+            hi: "आख़िरी अनुच्छेद में दोपहर के बाद मौसी कहती हैं, 'रविवार तुम्हारा कॉलेज का पहला दिन है।'",
           },
         },
       ],

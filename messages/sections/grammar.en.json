@@ -17,7 +17,7 @@
     },
     "noKey": {
       "title": "Lessons & most quizzes are completely free",
-      "body": "Read every lesson and play the quizzes with NO key at all. You only need your own free Gemini key (aistudio.google.com/apikey) to ask questions or play a few extra quizzes — add it in Settings."
+      "body": "Read every lesson and take the quizzes with NO key at all. You only need your own free Gemini key (aistudio.google.com/apikey) to ask questions or take a few extra quizzes — add it in Settings."
     },
     "howTo": {
       "title": "How it works",
@@ -158,7 +158,7 @@
       "progressAria": "Quiz progress {pct}%",
       "chooseAnswer": "Choose an answer",
       "correct": "Correct!",
-      "wrong": "Not quite — the correct answer: {answer}",
+      "wrong": "Not quite — correct answer: {answer}",
       "explanation": "Explanation:",
       "nextQuestion": "Next question",
       "seeResult": "See results",

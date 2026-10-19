@@ -1,10 +1,10 @@
 {
   "analysis": {
     "scoreOverall": "समग्र स्कोर",
-    "fluency": "प्रवाह",
+    "fluency": "फ्लुएंसी",
     "grammar": "ग्रामर",
     "vocabulary": "शब्दावली",
-    "strengthsTitle": "जो आपने बढ़िया किया 💪",
+    "strengthsTitle": "जो आपने अच्छा किया 💪",
     "mistakesTitle": "सुधारने योग्य गलतियाँ",
     "severityMajor": "बड़ी गलती",
     "severityMinor": "छोटी गलती",
@@ -30,8 +30,8 @@
     "statsSentences": "बोले गए वाक्य",
     "statsAvgWords": "औसत शब्द/वाक्य",
     "statsUnique": "यूनिक शब्द",
-    "suggestionsTitle": "आगे के सुझाव",
+    "suggestionsTitle": "आगे के लिए सुझाव",
     "transcriptTitle": "पूरा संवाद",
-    "coverage": "आपके बोले {n} / {m} लाइन विश्लेषण में आए"
+    "coverage": "आपके बोले {n} / {m} लाइन विश्लेषण में शामिल हुए"
   }
 }

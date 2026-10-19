@@ -51,8 +51,8 @@ export const SEED_GRAMMAR_V4_I3: SeedGrammarV4Entry[] = [
           },
           lead: {
             bn: "ইংরেজির কাল একটা জাল — তিন সময়ের সঙ্গে চার রূপ মিলে বারো পরিবার; দুটো প্রশ্নেই ঠিক ঘর মেলে।",
-            en: "English tenses are a net — three times crossed with four forms make twelve families; two questions find the right room.",
-            hi: "अंग्रेज़ी काल एक जाल हैं — तीन समय × चार रूप = बारह परिवार; दो सवालों में सही डिब्बा मिलता है।",
+            en: "English tenses are a net — three times crossed with four forms make twelve families; two questions find the right family.",
+            hi: "अंग्रेज़ी काल एक जाल है — तीन समय × चार रूप = बारह परिवार; दो सवालों में सही डिब्बा मिलता है।",
           },
           points: [
             { bn: "**তিন সময় × চার aspect** — past/present/future জুড়ুন simple, continuous, perfect, perfect continuous-এর সঙ্গে: ৩ × ৪ = ১২ পরিবার।", en: "**Three times × four aspects** — cross past/present/future with simple, continuous, perfect, perfect continuous: 3 × 4 = 12 families.", hi: "**तीन समय × चार aspects** — past/present/future को simple, continuous, perfect, perfect continuous से मिलाइए: 3 × 4 = 12 परिवार।" },
@@ -187,7 +187,7 @@ export const SEED_GRAMMAR_V4_I3: SeedGrammarV4Entry[] = [
             hi: "continuous = सही काल का be + -ing; perfect = सही काल का have + V3; perfect continuous = सही काल का have been + -ing",
           },
           points: [
-            { bn: "এক ক্রিয়া (eat) দিয়েই বারোটা রূপ লেখা যায় — নিচের ছকে তিন সময়ের চারটা করে ধাপ।", en: "One verb (eat) is enough to write all twelve forms — the table below shows four steps in each time.", hi: "एक क्रिया (eat) से ही बारहों रूप लिखे जा सकते हैं — नीचे तालिका में हर समय के चार चरण।" },
+            { bn: "এক ক্রিয়া (eat) দিয়েই বারোটা রূপ লেখা যায় — নিচের ছকে তিন সময়ের চারটা করে ধাপ।", en: "One verb (eat) is enough to write all twelve forms — the table below shows four steps for each time.", hi: "एक क्रिया (eat) से ही बारहों रूप लिखे जा सकते हैं — नीचे तालिका में हर समय के चार चरण।" },
             { bn: "বদলায় শুধু সহায়কের কাল-রূপ: am/is/are → was/were → will be; have/has → had → will have।", en: "Only the helper's tense changes: am/is/are → was/were → will be; have/has → had → will have.", hi: "बदलता केवल सहायक का काल: am/is/are → was/were → will be; have/has → had → will have।" },
             { bn: "মূল ক্রিয়া কখনো রূপ বদলায় না — এই একটা লাইন মনে রাখলেই বারোটা রূপ হাতের মুঠোয়।", en: "The main verb never changes form — keep this one line and all twelve forms fit in your fist.", hi: "मुख्य क्रिया कभी रूप नहीं बदलती — यही एक पंक्ति याद रखें, बारहों रूप मुट्ठी में।" },
           ],
@@ -283,7 +283,7 @@ export const SEED_GRAMMAR_V4_I3: SeedGrammarV4Entry[] = [
           points: [
             { bn: "**Action ক্রিয়া** (run, eat, write, build) করা হয় — চলমান দেখাতে continuous নেয়: I am writing।", en: "**Action verbs** (run, eat, write, build) are done — they take the continuous to show progress: I am writing.", hi: "**Action क्रियाएँ** (run, eat, write, build) की जाती हैं — चलता दिखाने को continuous लेती हैं: I am writing।" },
             { bn: "**State ক্রিয়া** অবস্থা, মন-মজুরি, সম্পর্ক — know, understand, believe, remember, mean, want, need, prefer, love, hate, like।", en: "**State verbs** are conditions, states of mind, relationships — know, understand, believe, remember, mean, want, need, prefer, love, hate, like.", hi: "**State क्रियाएँ** अवस्था, मन-स्थिति, संबंध — know, understand, believe, remember, mean, want, need, prefer, love, hate, like।" },
-            { bn: "আরও state: seem, look (মনে হওয়া), sound, belong, own, contain, cost, matter।", en: "More state verbs: seem, look (seem), sound, belong, own, contain, cost, matter.", hi: "और भी state: seem, look (प्रतीत), sound, belong, own, contain, cost, matter।" },
+            { bn: "আরও state: seem, look (মনে হওয়া), sound, belong, own, contain, cost, matter।", en: "More state verbs: seem, look (meaning 'seem'), sound, belong, own, contain, cost, matter.", hi: "और भी state: seem, look (प्रतीत), sound, belong, own, contain, cost, matter।" },
             { bn: "এরা সাধারণত continuous পায় না: I know (নয় I am knowing), This book belongs to Rina।", en: "They normally refuse the continuous: I know (not I am knowing), This book belongs to Rina.", hi: "ये सामान्यतः continuous नहीं लेतीं: I know (नहीं I am knowing), This book belongs to Rina।" },
             { bn: "কারণ সহজ — জানা-বোঝা-চাওয়া প্রক্রিয়া নয়, এক অবস্থা: নদীর মতো বয়ে না গিয়ে পাহাড়ের মতো দাঁড়িয়ে থাকে।", en: "The reason is simple — knowing-understanding-wanting is not a process but a state: they stand like a mountain, not flow like a river.", hi: "कारण सरल — जानना-समझना-चाहना प्रक्रिया नहीं, अवस्था है: नदी की तरह बहती नहीं, पहाड़ की तरह खड़ी रहती है।" },
           ],
@@ -486,7 +486,7 @@ export const SEED_GRAMMAR_V4_I3: SeedGrammarV4Entry[] = [
           },
           lead: {
             bn: "স্ক্রল করার আগে পাঁচ লাইনে পুরো মানচিত্র চোখে বসিয়ে নিন।",
-            en: "Before you scroll on, seat the whole map in your eyes with five lines.",
+            en: "Before you scroll on, take in the whole map in five lines.",
             hi: "आगे बढ़ने से पहले पाँच पंक्तियों में पूरा नक्शा आँखों में बिठा लीजिए।",
           },
           points: [
@@ -610,8 +610,8 @@ export const SEED_GRAMMAR_V4_I3: SeedGrammarV4Entry[] = [
           },
           points: [
             { bn: "**a/an উচ্চারণে ঠিক হয়, বানানে নয়** — শব্দের প্রথম ধ্বনিই দরজা খোলে।", en: "**a/an follows pronunciation, not spelling** — the word's first sound opens the door.", hi: "**a/an उच्चारण से तय, वर्तनी से नहीं** — शब्द की पहली ध्वनि दरवाज़ा खोलती है।" },
-            { bn: "প্রথম ধ্বনি স্বরধ্বনি হলে **an**: an apple, an egg, an hour (h নীরব), an honest man, an M.A., an X-ray।", en: "A vowel first sound takes **an**: an apple, an egg, an hour (silent h), an honest man, an M.A., an X-ray.", hi: "पहली ध्वनि स्वर हो तो **an**: an apple, an egg, an hour (h मौन), an honest man, an M.A., an X-ray।" },
-            { bn: "প্রথম ধ্বনি ব্যঞ্জনধ্বনি হলে **a**: a book, a university ('ইউ'), a European, a one-rupee coin ('ওয়ান'), a UNESCO seat।", en: "A consonant first sound takes **a**: a book, a university ('yu'), a European, a one-rupee coin ('wun'), a UNESCO seat.", hi: "पहली ध्वनि व्यंजन हो तो **a**: a book, a university ('यू'), a European, a one-rupee coin ('वन'), a UNESCO seat।" },
+            { bn: "প্রথম ধ্বনি স্বরধ্বনি হলে **an**: an apple, an egg, an hour (h নীরব), an honest man, an M.A., an X-ray।", en: "If the first sound is a vowel, use **an**: an apple, an egg, an hour (silent h), an honest man, an M.A., an X-ray.", hi: "पहली ध्वनि स्वर हो तो **an**: an apple, an egg, an hour (h मौन), an honest man, an M.A., an X-ray।" },
+            { bn: "প্রথম ধ্বনি ব্যঞ্জনধ্বনি হলে **a**: a book, a university ('ইউ'), a European, a one-rupee coin ('ওয়ান'), a UNESCO seat।", en: "If the first sound is a consonant, use **a**: a book, a university ('yu'), a European, a one-rupee coin ('wun'), a UNESCO seat.", hi: "पहली ध्वनि व्यंजन हो तो **a**: a book, a university ('यू'), a European, a one-rupee coin ('वन'), a UNESCO seat।" },
             { bn: "**জায়গা-ক্রম**: article + adjective + noun — a big red car, an old wooden door।", en: "**Placement order**: article + adjective + noun — a big red car, an old wooden door.", hi: "**क्रम**: article + adjective + noun — a big red car, an old wooden door।" },
             { bn: "article-ই phrase-এর সবার আগে: a really big car।", en: "The article always leads the phrase: a really big car.", hi: "article ही वाक्यांश के सबसे आगे: a really big car।" },
             { bn: "এক noun-phrase-এ একটাই article/determiner — the my book নয়; the book বা my book।", en: "One noun phrase takes one article/determiner — not the my book; either the book or my book.", hi: "एक noun-phrase में एक ही article/determiner — the my book नहीं; the book या my book।" },
@@ -683,7 +683,7 @@ export const SEED_GRAMMAR_V4_I3: SeedGrammarV4Entry[] = [
           lead: {
             bn: "ইংরেজিতে 'কিছুই না বসা'-ও নিয়ম — শূন্য আর্টিকেলের নিজস্ব পাঁচ রাজ্য আছে।",
             en: "In English, placing nothing is also a rule — the zero article rules five kingdoms of its own.",
-            hi: "अंग्रेज़ी में 'कुछ न रखना' भी नियम है — zero-article का अपना पाँच साम्राज्य है।",
+            hi: "अंग्रेज़ी में 'कुछ न रखना' भी नियम है — zero-article के अपने पाँच साम्राज्य हैं।",
           },
           points: [
             { bn: "**প্রতিষ্ঠান-ভাবে শূন্য**: go to school (ছাত্র হয়ে পড়তে), be in hospital (রোগী হয়ে — ব্রিটিশ ইংরেজি), go to bed (ঘুমাতে), go to prison (দোষী হয়ে), at university (পড়াশোনার ধাপে)।", en: "**Institution-sense takes zero**: go to school (as a pupil), be in hospital (as a patient — British English), go to bed (to sleep), go to prison (as an offender), at university (as a student).", hi: "**संस्था-भाव में शून्य**: go to school (छात्र बनकर), be in hospital (रोगी बनकर — ब्रिटिश अंग्रेज़ी), go to bed (सोने को), go to prison (अपराधी बनकर), at university (पढ़ाई के चरण में)।" },
@@ -776,7 +776,7 @@ export const SEED_GRAMMAR_V4_I3: SeedGrammarV4Entry[] = [
             { bn: "**a/an + একবচন** — 'যেকোনো একটা, সাধারণত যা হয়': A tiger can swim, A child needs love।", en: "**a/an + singular** — 'any one of them, as they usually are': A tiger can swim, A child needs love.", hi: "**a/an + एकवचन** — 'कोई भी एक, जैसा साधारणतया होता है': A tiger can swim, A child needs love।" },
             { bn: "**বহুবচন** — সবচেয়ে প্রচলিত সাধারণী: Tigers are endangered, Children need love।", en: "**The plural** — the most common generic: Tigers are endangered, Children need love.", hi: "**बहुवचन** — सबसे प्रचलित सामान्य: Tigers are endangered, Children need love।" },
             { bn: "সাবধান-খুঁটি: 'A tiger is endangered' শোনায় 'যেকোনো একটা বাঘ বিপন্ন' — প্রজাতি-সংকটের ঘোষণায় the + একবচন বা বহুবচনই স্বাভাবিক।", en: "Caution peg: 'A tiger is endangered' sounds like 'any single tiger is endangered' — for a species-crisis announcement, the + singular or the plural is natural.", hi: "सावधानी-कील: 'A tiger is endangered' सुनाई देगा 'कोई भी एक बाघ खतरे में' — प्रजाति-संकट की घोषणा में the + एकवचन या बहुवचन ही स्वाभाविक।" },
-            { bn: "একই the-পরিবার: বাদ্যযন্ত্র I play the guitar (যন্ত্র হিসেবে), কিন্তু খেলা শূন্য — I play football।", en: "The same the-family: instruments take I play the guitar (as an instrument), but games stay zero — I play football.", hi: "वही the-परिवार: वाद्ययंत्र I play the guitar (यंत्र के रूप में), पर खेल शून्य — I play football।" },
+            { bn: "একই the-পরিবার: বাদ্যযন্ত্র I play the guitar (যন্ত্র হিসেবে), কিন্তু খেলা শূন্য — I play football।", en: "The same the-family: instruments take the — I play the guitar; but games stay zero — I play football.", hi: "वही the-परिवार: वाद्ययंत्र I play the guitar (यंत्र के रूप में), पर खेल शून्य — I play football।" },
           ],
           table: {
             head: [{ bn: "রাস্তা", en: "Road", hi: "रास्ता" }, { bn: "সুর", en: "Tone", hi: "सुर" }, { bn: "নমুনা", en: "Sample", hi: "नमूना" }],
@@ -862,7 +862,7 @@ export const SEED_GRAMMAR_V4_I3: SeedGrammarV4Entry[] = [
           },
           lead: {
             bn: "স্ক্রল শেষে পুরো পাঠটা পাঁচ লাইনে চোখে বসিয়ে নিন।",
-            en: "Before you leave, seat the whole lesson in five lines.",
+            en: "Before you leave, take in the whole lesson in five lines.",
             hi: "जाने से पहले पूरा पाठ पाँच पंक्तियों में आँखों में बिठा लीजिए।",
           },
           points: [

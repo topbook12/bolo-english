@@ -72,7 +72,7 @@ export const SEED_GRAMMAR_V4_I1B: SeedGrammarV4Entry[] = [
           },
           lead: {
             bn: "দুই যন্ত্র আলাদা চিনুন — auxiliary-আগে না স্টেটমেন্ট-ক্রম; অর্ধেক ভুল এখানেই শেষ।",
-            en: "Know the two machines apart — auxiliary-first or statement order; half your mistakes end here.",
+            en: "Tell the two machines apart — auxiliary-first or statement order; half your mistakes end here.",
             hi: "दो मशीनें अलग पहचानिए — auxiliary-पहले या statement-क्रम; आधी गलतियाँ यहीं खत्म।",
           },
           points: [
@@ -82,7 +82,7 @@ export const SEED_GRAMMAR_V4_I1B: SeedGrammarV4Entry[] = [
             { bn: "কাল দরকার হলে ভেতরের মূল ক্রিয়া নিজেই বদলে যায়: Do you know **what this word means**? I wonder where he went।", en: "When tense is needed, the inner main verb changes by itself: Do you know **what this word means**? I wonder where he went.", hi: "काल चाहिए तो भीतर की मुख्य क्रिया खुद बदल जाती है: Do you know **what this word means**? I wonder where he went।" },
             { bn: "yes/no প্রশ্ন মোড়া হলে **if/whether** বসে: Can you tell me if she is at home?", en: "A wrapped yes/no question takes **if/whether**: Can you tell me if she is at home?", hi: "लिपटा yes/no प्रश्न **if/whether** लेता है: Can you tell me if she is at home?" },
             { bn: "**whether…or not**-জুটি জোর দেয় 'আসবে-ই-আসবে কি না'।", en: "The **whether…or not** pair stresses 'is he coming, yes or no'.", hi: "**whether…or not** जोड़ी 'आएगा-ही-आएगा या नहीं' का बल देती है।" },
-            { bn: "দুই যন্ত্র আলাদা করে চিনতে পারলেই প্রশ্নের অর্ধেক ভুল শেষ।", en: "Recognise the two machines separately and half your question mistakes are over.", hi: "दोनों मशीनें अलग-अलग पहचान लो — आधी प्रश्न-गलतियाँ खत्म।" },
+            { bn: "দুই যন্ত্র আলাদা করে চিনতে পারলেই প্রশ্নের অর্ধেক ভুল শেষ।", en: "Tell the two machines apart and half your question mistakes disappear.", hi: "दोनों मशीनें अलग-अलग पहचान लीजिए — आधी प्रश्न-गलतियाँ खत्म।" },
           ],
           formula: {
             bn: "QUASM সূত্র (সোজা প্রশ্ন): QUestion-word + Auxiliary + Subject + Main verb — Where do you live?",
@@ -233,7 +233,7 @@ export const SEED_GRAMMAR_V4_I1B: SeedGrammarV4Entry[] = [
           points: [
             { bn: "কথ্য ইংরেজিতে প্রিপজিশন প্রশ্নের একদম **শেষে** বসে — What are you looking at?", en: "In spoken English the preposition sits right **at the end** — What are you looking at?", hi: "बोलचाल की अंग्रेज़ी में preposition एकदम **अंत में** — What are you looking at?" },
             { bn: "আরও: Who did you talk to? Where do you come from? What is this made of?", en: "More: Who did you talk to? Where do you come from? What is this made of?", hi: "और भी: Who did you talk to? Where do you come from? What is this made of?" },
-            { bn: "'At what are you looking?'-এর মতো সামনে তোলা বইয়ের পুরনো ভাষা — কথায় আজীবন অদ্ভুত শোনায়।", en: "Fronting it ('At what are you looking?') is bookish old style — it sounds odd in speech for life.", hi: "आगे खींचना ('At what are you looking?') किताबी पुराना अंदाज़ — बोली में हमेशा अजीब।" },
+            { bn: "'At what are you looking?'-এর মতো সামনে তোলা বইয়ের পুরনো ভাষা — কথায় আজীবন অদ্ভুত শোনায়।", en: "Fronting it ('At what are you looking?') is bookish old style — it will always sound odd in speech.", hi: "आगे खींचना ('At what are you looking?') किताबी पुराना अंदाज़ — बोली में हमेशा अजीब।" },
             { bn: "ভদ্রতার সিঁড়ি নিচ থেকে: Can you help me? → Could you help me? → Would you mind helping me?", en: "The politeness ladder from the bottom: Can you help me? → Could you help me? → Would you mind helping me?", hi: "विनम्रता की सीढ़ी नीचे से: Can you help me? → Could you help me? → Would you mind helping me?" },
             { bn: "আরও উপরে: Do you think you could help me? → I was wondering if you could help me।", en: "Higher still: Do you think you could help me? → I was wondering if you could help me.", hi: "और ऊपर: Do you think you could help me? → I was wondering if you could help me।" },
             { bn: "mind-এর পরে **-ing** — Would you mind opening the window?", en: "After mind comes **-ing** — Would you mind opening the window?", hi: "mind के बाद **-ing** — Would you mind opening the window?" },
@@ -262,7 +262,7 @@ export const SEED_GRAMMAR_V4_I1B: SeedGrammarV4Entry[] = [
           lead: {
             bn: "বাংলার ক্রম, 'কি'-ভাব আর 'good name' — তিন ফাঁদ চিনলেই ধরা খাবেন না।",
             en: "The Bengali order, the 'কি' feeling and 'good name' — spot these three traps and you are safe.",
-            hi: "हिंदी/बांग्ला क्रम, 'क्या' भाव और 'good name' — तीन जाल पहचानो, फँसोगे नहीं।",
+            hi: "हिंदी/बांग्ला क्रम, 'क्या' भाव और 'good name' — तीन जाल पहचानिए, फँसेंगे नहीं।",
           },
           points: [
             { bn: "**ফাঁদ এক** — বাংলা প্রশ্নে wh-শব্দ প্রায়ই মাঝখানে: 'তুমি কোথায় যাবে?', 'সে কী চায়?'।", en: "**Trap one** — Bengali often keeps the wh-word mid-sentence: 'তুমি কোথায় যাবে?', 'সে কী চায়?'.", hi: "**जाल एक** — हिंदी/बांग्ला में wh-शब्द अक्सर बीच में: 'तुम कहाँ जाओगे?', 'वह क्या चाहता है?'।" },
@@ -276,7 +276,7 @@ export const SEED_GRAMMAR_V4_I1B: SeedGrammarV4Entry[] = [
           examples: [
             { wrong: "What you want to eat?", right: "What do you want to eat?", note: { bn: "সোজা প্রশ্ন → do লাগবেই; বাংলা ক্রম 'কী খেতে চাও' হুবহু টানলে এই ভুল।", en: "A direct question → do is compulsory; pulling the Bengali order across creates this error.", hi: "सीधा प्रश्न → do ज़रूरी; हिंदी क्रम खींचने से यही गलती।" } },
             { wrong: "Where you live?", right: "Where do you live?", note: { bn: "present simple প্রশ্নে do/does; 'Where you live' স্টেটমেন্ট-ক্রম।", en: "Present-simple questions need do/does; 'Where you live' is statement order.", hi: "present simple प्रश्न में do/does; 'Where you live' statement-क्रम है।" } },
-            { wrong: "Do you know where does he work?", right: "Do you know where he works?", note: { bn: "মোড়া প্রশ্নে does বাদ — works-এই -s আছে।", en: "Drop does in the wrapped question — works already carries the -s.", hi: "लिपटे प्रश्न में does हटाओ — works में ही -s है।" } },
+            { wrong: "Do you know where does he work?", right: "Do you know where he works?", note: { bn: "মোড়া প্রশ্নে does বাদ — works-এই -s আছে।", en: "Drop does in the wrapped question — works already carries the -s.", hi: "लिपटे प्रश्न में does हटाइए — works में ही -s है।" } },
             { wrong: "What is your good name, please?", right: "What is your name, please?", note: { bn: "'good name' বাংলা-ইংরেজি; ইংরেজিভাষীর কাছে অর্থহীন শোনায়।", en: "'Good name' is Bengali-English; to a native speaker it sounds meaningless.", hi: "'good name' बांग्ला-अंग्रेज़ी है; native को अर्थहीन लगती है।" } },
             { wrong: "You are coming to the party?", right: "Are you coming to the party?", note: { bn: "সুর দিয়ে প্রশ্ন করা কথায় চললেও লিখিত-পরীক্ষায় inversion বাধ্যতামূলক।", en: "Rising-intonation questions pass in speech, but writing and exams demand the inversion.", hi: "सुर से पूछना बोलचाल में चलता है, पर लिखित-परीक्षा में inversion अनिवार्य।" } },
           ],
@@ -356,7 +356,7 @@ export const SEED_GRAMMAR_V4_I1B: SeedGrammarV4Entry[] = [
         hi: "जिसने किया यह जानना ज़रूरी न हो, सिर्फ़ क्या हुआ वह मायने रखे — यहीं से पैसिव का जन्म होता है। इस पाठ से पहले be-रूप (am/is/are, was/were, being, been) और V1/V2/V3 की समझ (beginner पाठ) पक्की होनी चाहिए; beginner का Passive Voice पाठ पढ़ा हो — तीन कालों का basic पैसिव — तो यहाँ का पूरा काल-नक्शा आसान लगेगा। यहाँ सीखेंगे: आठ रूपों का पैसिव (is done, was done, is being done, was being done, has been done, had been done, will be done, can be done), by + कर्ता कब रहेगा कब हटेगा, कौन-सी क्रिया पैसिव नहीं होती, दो-कर्म वाली क्रियाओं का पैसिव (I was given…), get-पैसिव, और It is said that… जैसा impersonal पैसिव।",
       },
       roadmap: [
-        { bn: "🎯 প্যাসিভ কখন — কাজ মুখ্য, কর্তা নয়", en: "🎯 When the passive — the action matters, not the doer", hi: "🎯 पैसिव कब — काम मायने रखता है, कर्ता नहीं" },
+        { bn: "🎯 প্যাসিভ কখন — কাজ মুখ্য, কর্তা নয়", en: "🎯 When to use the passive — the action matters, not the doer", hi: "🎯 पैसिव कब — काम मायने रखता है, कर्ता नहीं" },
         { bn: "🏗️ মূল যন্ত্র: কর্ম কর্তার চেয়ারে + be + V3", en: "🏗️ The core machine: object in the subject's chair + be + V3", hi: "🏗️ मूल मशीन: कर्म subject की कुर्सी पर + be + V3" },
         { bn: "📊 আট রূপ — কাল ধরে ধরে প্যাসিভ ফর্মুলা", en: "📊 Eight shapes — the tense-by-tense passive formula list", hi: "📊 आठ रूप — काल-दर-काल पैसिव फॉर्मूला सूची" },
         { bn: "🚦 প্যাসিভ-এলাকার চিহ্ন — নোটিশ থেকে খবর", en: "🚦 Signs of passive territory — notices to news", hi: "🚦 पैसिव-इलाके की निशानियाँ — नोटिस से खबर तक" },
@@ -524,7 +524,7 @@ export const SEED_GRAMMAR_V4_I1B: SeedGrammarV4Entry[] = [
             ],
           },
           examples: [
-            { wrong: "The thief was arrested by the police.", right: "The thief was arrested.", note: { bn: "পুলিশই গ্রেপ্তার করে — বলা-না-বলা সমান; by-ফ্রেজ বাড়তি বোঝা।", en: "The police are the only ones who arrest — saying it or not makes no difference; the by-phrase is dead weight.", hi: "गिरफ़्तारी पुलिस ही करती है — कहा हो या न हो, बात वही; by-वाक्यांश फ़ालतू बोझ।" } },
+            { wrong: "The thief was arrested by the police.", right: "The thief was arrested.", note: { bn: "পুলিশই গ্রেপ্তার করে — বলা-না-বলা সমান; by-ফ্রেজ বাড়তি বোঝা।", en: "The police are the only ones who arrest — whether you say it or not makes no difference; the by-phrase is dead weight.", hi: "गिरफ़्तारी पुलिस ही करती है — कहा हो या न हो, बात वही; by-वाक्यांश फ़ालतू बोझ।" } },
             { wrong: "Hamlet was written.", right: "Hamlet was written by Shakespeare.", note: { bn: "কে লিখল সেটাই মূল তথ্য — এখানে by-ফ্রেজ বাধ্যতামূলক।", en: "Who wrote it is the whole point — here the by-phrase is compulsory.", hi: "किसने लिखा, यही मूल जानकारी है — यहाँ by-वाक्यांश अनिवार्य।" } },
             { wrong: "This saree was bought by me by my mother.", right: "This saree was bought by my mother.", note: { bn: "কেনাটা মায়ের করা — কর্তা একজনই; দুই by দিয়ে দুই কর্তা হয় না।", en: "The buying was mother's doing — one agent only; two by's cannot make two agents.", hi: "ख़रीद माँ ने की — कर्ता एक ही; दो by से दो कर्ता नहीं बनते।" } },
             { wrong: "The kitchen is cleaned by someone every day.", right: "The kitchen is cleaned every day.", note: { bn: "someone/somebody কর্তা হলে সাধারণত বাদই — অর্থ ওটাই ধরে নেয়।", en: "When the doer is someone/somebody, it usually drops — the meaning already implies it.", hi: "कर्ता someone/somebody हो तो सामान्यतः हट जाता है — अर्थ वैसे भी वही लेता है।" } },
@@ -597,7 +597,7 @@ export const SEED_GRAMMAR_V4_I1B: SeedGrammarV4Entry[] = [
           examples: [
             { wrong: "He was given me a book.", right: "I was given a book (by him). / He gave me a book.", note: { bn: "মানুষ-কর্ম আগে থাকলে মানুষটাই প্যাসিভ কর্তা — I was given; 'He was given me' অর্থহীন।", en: "With the person-object first, the person becomes the passive subject — I was given; 'He was given me' is meaningless.", hi: "इंसान-कर्म पहले हो तो इंसान ही पैसिव subject — I was given; 'He was given me' अर्थहीन।" } },
             { wrong: "A book was given me.", right: "A book was given to me.", note: { bn: "জিনিস-কর্ম কর্তা হলে মানুষের আগে to লাগবে।", en: "When the thing-object becomes the subject, to goes before the person.", hi: "चीज़-कर्म subject बने तो इंसान से पहले to लगेगा।" } },
-            { wrong: "People say that he is a genius.", right: "It is said that he is a genius. / He is said to be a genius.", note: { bn: "খবরের impersonal প্যাসিভ — people-কে মুছে It is said / He is said to be।", en: "News-style impersonal passive — wipe out people: It is said / He is said to be.", hi: "खबरों का impersonal पैसिव — people मिटाओ: It is said / He is said to be।" } },
+            { wrong: "People say that he is a genius.", right: "It is said that he is a genius. / He is said to be a genius.", note: { bn: "খবরের impersonal প্যাসিভ — people-কে মুছে It is said / He is said to be।", en: "News-style impersonal passive — wipe out people: It is said / He is said to be.", hi: "खबरों का impersonal पैसिव — people मिटाइए: It is said / He is said to be।" } },
             { wrong: "She got invite to the wedding.", right: "She got invited to the wedding.", note: { bn: "get-প্যাসিভেও V3 লাগবেই; কথ্যে was invited-এর বদলে খুব প্রচলিত।", en: "The get-passive also needs V3; in speech it is very common instead of was invited.", hi: "get-पैसिव में भी V3 लगेगा; बोलचाल में was invited की जगह बहुत चलता है।" } },
             { wrong: "It is said him to be honest.", right: "He is said to be honest.", note: { bn: "X is said to be… প্যাটার্নে ব্যক্তিটাই কর্তা; It is said-এর পরে পূর্ণ ক্লজ (that he is honest) চায়।", en: "In the X is said to be… pattern the person is the subject; It is said wants a full clause (that he is honest).", hi: "X is said to be… पैटर्न में इंसान ही subject; It is said के बाद पूरा क्लज़ चाहिए (that he is honest)।" } },
           ],
@@ -617,7 +617,7 @@ export const SEED_GRAMMAR_V4_I1B: SeedGrammarV4Entry[] = [
             { bn: "**ফাঁদ এক** — বাংলার 'কাজটা করা হচ্ছে' শুনে শিক্ষার্থীরা is doing লেখেন।", en: "**Trap one** — hearing the Bengali doer-less 'কাজটা করা হচ্ছে', learners write is doing.", hi: "**जाल एक** — 'काम किया जा रहा है' सुनकर विद्यार्थी is doing लिख देते हैं।" },
             { bn: "বাংলার কর্ম-প্রধান বাক্য ইংরেজিতে being-সহ প্যাসিভ — is being done, is being repaired, is being built।", en: "The Bengali object-led sentence is the English passive with being — is being done, is being repaired, is being built.", hi: "कर्म-प्रधान वाक्य अंग्रेज़ी में being वाला पैसिव — is being done, is being repaired, is being built।" },
             { bn: "**ফাঁদ দুই** — V3 বাদ পড়ে যাওয়া: is build, was wrote, has been finish।", en: "**Trap two** — the V3 falls out: is build, was wrote, has been finish.", hi: "**जाल दो** — V3 छूट जाना: is build, was wrote, has been finish।" },
-            { bn: "প্যাসিভের হৃদয় **V3** — be-এর পরে V1/V2 দেখলেই থামুন।", en: "The heart of the passive is **V3** — if you see V1/V2 after be, stop.", hi: "पैसिव का दिल **V3** — be के बाद V1/V2 दिखे तो रुक जाओ।" },
+            { bn: "প্যাসিভের হৃদয় **V3** — be-এর পরে V1/V2 দেখলেই থামুন।", en: "The heart of the passive is **V3** — if you see V1/V2 after be, stop.", hi: "पैसिव का दिल **V3** — be के बाद V1/V2 दिखे तो रुक जाइए।" },
             { bn: "**ফাঁদ তিন** — intransitive বা stative ক্রিয়ায় জোর করে প্যাসিভ: was happened, was occurred, is belonged।", en: "**Trap three** — forcing the passive onto intransitive or stative verbs: was happened, was occurred, is belonged.", hi: "**जाल तीन** — intransitive या stative क्रियाओं पर ज़बरदस्ती पैसिव: was happened, was occurred, is belonged।" },
             { bn: "এই তিন ফাঁদ পার হলেই প্যাসিভের **৮০% ভুল শেষ**।", en: "Cross these three traps and **eighty per cent of passive errors are gone**.", hi: "इन तीन जालों को पार करते ही पैसिव की **80% गलतियाँ खत्म**।" },
           ],
@@ -637,7 +637,7 @@ export const SEED_GRAMMAR_V4_I1B: SeedGrammarV4Entry[] = [
           },
           lead: {
             bn: "স্কুল-ম্যাগাজিনের এক খবরেই ছয় রূপের প্যাসিভ — জীবন্ত রিভিশন।",
-            en: "One school-magazine report carries six passive shapes — revision come alive.",
+            en: "One school-magazine report carries six passive shapes — revision comes alive.",
             hi: "स्कूल-मैगज़ीन की एक खबर में ही पैसिव के छह रूप — जीवंत रिवीजन।",
           },
           points: [
@@ -648,7 +648,7 @@ export const SEED_GRAMMAR_V4_I1B: SeedGrammarV4Entry[] = [
             { bn: "হেড-বয়, who got selected for the national quiz, cut the ribbon — কথ্য get-প্যাসিভও এসে গেল।", en: "The head boy, who got selected for the national quiz, cut the ribbon — the spoken get-passive joins in.", hi: "हेड-बॉय, who got selected for the national quiz, cut the ribbon — बोलचाल का get-पैसिव भी आ गया।" },
             { bn: "এক প্যারায় ছয় রূপ — was opened, had been planned, was completed, are being arranged, can be booked, were donated।", en: "Six shapes in one paragraph — was opened, had been planned, was completed, are being arranged, can be booked, were donated.", hi: "एक पैराग्राफ में छह रूप — was opened, had been planned, was completed, are being arranged, can be booked, were donated।" },
             { bn: "by-ফ্রেজ শুধু তথ্যে (minister, former students); impersonal It is said that; আর get-প্যাসিভ got selected।", en: "By-phrases only where they inform (minister, former students); the impersonal It is said that; and the get-passive got selected.", hi: "by-वाक्यांश केवल जानकारी जहाँ (minister, former students); impersonal It is said that; और get-पैसिव got selected।" },
-            { bn: "এক নজরে — মূল সূত্র be + V3; happen/belong/resemble/have-র প্যাসিভ নেই; মানুষ-কর্তা প্রিয় (I was given a pen); খবরে It is said; কথ্যে get + V3।", en: "At a glance — the core formula be + V3; happen/belong/resemble/have have no passive; the person-subject passive is the favourite (I was given a pen); news uses It is said; speech uses get + V3.", hi: "एक नज़र में — मूल सूत्र be + V3; happen/belong/resemble/have का पैसिव नहीं; इंसान-subject पैसिव पसंदीदा (I was given a pen); खबरों में It is said; बोलचाल में get + V3।" },
+            { bn: "এক নজরে — মূল সূত্র be + V3; happen/belong/resemble/have-র প্যাসিভ নেই; মানুষ-কর্তা প্রিয় (I was given a pen); খবরে It is said; কথ্যে get + V3।", en: "At a glance — the core formula be + V3; happen/belong/resemble/have refuse the passive; the person-subject passive is the favourite (I was given a pen); news uses It is said; speech uses get + V3.", hi: "एक नज़र में — मूल सूत्र be + V3; happen/belong/resemble/have का पैसिव नहीं; इंसान-subject पैसिव पसंदीदा (I was given a pen); खबरों में It is said; बोलचाल में get + V3।" },
           ],
           examples: [
             { wrong: "The library was opened from the minister.", right: "The library was opened by the education minister.", note: { bn: "কর্তা বোঝাতে by — from নয়।", en: "The agent takes by — not from.", hi: "कर्ता के लिए by — from नहीं।" } },

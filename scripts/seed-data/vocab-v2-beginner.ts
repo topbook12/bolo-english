@@ -145,7 +145,7 @@ export const SEED_VOCAB_V2_BEGINNER: SeedVocabV2Entry[] = [
       ],
       tip: {
         bn: "শরীর ভালো না থাকলে স্কুলে বলুন 'I'm feeling sick today' — ছুটির ভালো কারণ।",
-        en: "If you feel ill, tell your teacher 'I'm feeling sick today' — a good reason for leave.",
+        en: "If you feel ill, tell your teacher 'I'm feeling sick today' — a good reason to stay home.",
         hi: "तबीयत ठीक न हो तो कहें 'I'm feeling sick today' — छुट्टी का अच्छा कारण।",
       },
       synonyms: ["ill", "unwell"],
@@ -248,7 +248,7 @@ export const SEED_VOCAB_V2_BEGINNER: SeedVocabV2Entry[] = [
       },
       englishMeaning: "not strong; having little power or energy",
       examples: [
-        { en: "After the fever he felt weak for a week.", bn: "জ্বরের পর এক সপ্তাহ তার শরীরটা দুর্বল লাগছিল।" },
+        { en: "After his fever, he felt weak for a week.", bn: "জ্বরের পর এক সপ্তাহ তার শরীরটা দুর্বল লাগছিল।" },
         { en: "Grandmother's legs have become weak with age.", bn: "বয়সের কারণে দাদির পা দুর্বল হয়ে গেছে।" },
       ],
       tip: {
@@ -1178,7 +1178,7 @@ export const SEED_VOCAB_V2_BEGINNER: SeedVocabV2Entry[] = [
         { en: "Every morning I take a walk in the park.", bn: "প্রতি সকালে আমি পার্কে হাঁটতে যাই।" },
       ],
       tip: {
-        bn: "দুপুর ১২টার আগ পর্যন্ত 'Good morning' — এরপর বলুন 'Good afternoon'।",
+        bn: "দুপুর ১২টার আগে পর্যন্ত 'Good morning' — এরপর বলুন 'Good afternoon'।",
         en: "Say 'Good morning' until 12 noon — after that switch to 'Good afternoon'.",
         hi: "दोपहर 12 बजे तक 'Good morning' कहें — उसके बाद 'Good afternoon'।",
       },
