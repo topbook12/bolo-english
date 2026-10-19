@@ -71,7 +71,13 @@ export async function POST(req: NextRequest) {
           );
         }
       } else if (mode === "quick") {
-        room = await findQuickRoom(intent);
+        // Final attempt: force-create. Under a burst of simultaneous joiners
+        // every room can fill between our findQuickRoom read and the CAS
+        // write ("full" on every retry) — failing with roomFull used to
+        // bounce a real learner out of matching. Worst case they wait in
+        // their own room and the client's matching re-roll converges them
+        // into the oldest open room (Task 17 stress-test finding).
+        room = attempt === 3 ? null : await findQuickRoom(intent);
       }
       // mode === "private" → always create a fresh room
 
@@ -104,53 +110,59 @@ export async function POST(req: NextRequest) {
       }
 
       // join existing room — recheck capacity INSIDE a transaction so two
-      // concurrent joins can't both pass the check and lose a participant
-      // (read-modify-write on the participants JSON is not atomic otherwise).
+      // concurrent joins can't both pass the check and lose a participant.
+      // The update itself is a COMPARE-AND-SWAP on the participants JSON we
+      // just read: if another join/leave/poll-prune committed between our
+      // read and write, the UPDATE matches 0 rows and we retry with a fresh
+      // read (Task 17 audit — last-writer-wins used to silently drop one of
+      // two simultaneous joiners, exactly the "who connects with whom"
+      // failure under many concurrent calls).
       const joined = await db.$transaction(async (tx) => {
         const fresh = await tx.callRoom.findUnique({ where: { id: room.id } });
         if (!fresh || fresh.status !== "open") return null;
         const participants = parseParticipants(fresh.participants);
-        // Same deviceId already in the room? A CRASHED client (reload / killed
-        // tab) leaves a ghost participant that lingers until the 150s prune —
-        // returning 409 locked the user out of quick-match AND code-join for
-        // ~3 minutes (audit fix). A participant whose heartbeat is stale for
-        // >90s is provably not live (heartbeat every 45s) → replace it.
+        // Same deviceId already in the room? A CRASHED client (killed app /
+        // lost network) leaves a ghost participant; the newest session of the
+        // same device always WINS — the ghost is replaced immediately, no
+        // 90-second lockout (a mobile kill+reopen used to be locked out with
+        // 409 until the ghost's heartbeat expired). A device cannot meaning-
+        // fully be in two calls: the old tab's next poll returns closed.
         const existingIdx = participants.findIndex((p) => p.deviceId === deviceId);
-        if (existingIdx !== -1) {
-          const ghost = participants[existingIdx];
-          const seen =
-            typeof ghost.lastSeenAt === "number" && ghost.lastSeenAt > 0
-              ? ghost.lastSeenAt
-              : ghost.joinedAt;
-          if (Date.now() - seen < 90_000) return "already" as const;
-          participants.splice(existingIdx, 1);
-        }
+        if (existingIdx !== -1) participants.splice(existingIdx, 1);
         if (participants.length >= fresh.maxPeers) return "full" as const;
         participants.push({ peerId, name, deviceId, joinedAt: Date.now(), lastSeenAt: Date.now() });
-        await tx.callRoom.update({
-          where: { id: fresh.id },
-          data: { participants: serializeParticipants(participants) },
-        });
+        const asRead = fresh.participants;
+        const updated = await tx
+          .$executeRawUnsafe(
+            `UPDATE "CallRoom" SET "participants" = ?, "updatedAt" = ? WHERE "id" = ? AND "participants" = ?`,
+            serializeParticipants(participants),
+            new Date(),
+            fresh.id,
+            asRead
+          )
+          .catch(() => 0);
+        if (updated === 0) return "contended" as const;
         return participants.map((p) => ({ peerId: p.peerId, name: p.name }));
       });
 
       if (joined === null) {
-        if (mode === "quick" && attempt < 3) continue; // room vanished — retry
+        if (attempt < 3) continue; // room vanished — retry (any mode)
         return NextResponse.json(
           { ok: false, error: apiMsg(locale, "roomNotFound") },
           { status: 404 }
+        );
+      }
+      if (joined === "contended") {
+        if (attempt < 3) continue; // concurrent roster change — retry with a fresh read
+        return NextResponse.json(
+          { ok: false, error: apiMsg(locale, "joinFailed") },
+          { status: 500 }
         );
       }
       if (joined === "full") {
         if (mode === "quick" && attempt < 3) continue; // try another room/create
         return NextResponse.json(
           { ok: false, error: apiMsg(locale, "roomFull") },
-          { status: 409 }
-        );
-      }
-      if (joined === "already") {
-        return NextResponse.json(
-          { ok: false, error: apiMsg(locale, "alreadyInRoom") },
           { status: 409 }
         );
       }

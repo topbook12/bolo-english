@@ -2585,3 +2585,46 @@ Stage Summary:
 - Whole-site language pass complete: UI (51 files) + content (38 seed files, ~250 content items) in
   bn/en/hi; one-deploy production sweep guaranteed via v5 markers; parity tooling added for future
   i18n maintenance; zero code-logic changes, zero schema changes
+
+---
+Task ID: 17 (main)
+Agent: main (Z.ai Code)
+Task: Connection-reliability audit — concurrent-call pairing races + all connection issues, fix everything found
+
+Work Log:
+- User report: "একসাথে অনেকগুলো কল করলে কে কার সাথে কানেক্ট হবে — কানেকশন রিলেটেড সব ইস্যু চেক ও ফিক্স"
+- Deep audit: signaling.ts, /api/call/{join,poll,leave,send,ice}, call-client.ts, use-webrtc.ts, CallFlow.tsx, turn-pool
+- FIXED B1 (CRITICAL): poll route blind roster write clobbered concurrent joins/leaves — a quick-match
+  joiner committing between a peer's poll read+write vanished silently (next poll → closed). Poll write
+  is now a COMPARE-AND-SWAP (UPDATE ... WHERE participants = <as-read>); on contention the write AND
+  the bye broadcast are skipped; next poll re-merges. Lost joiner now impossible.
+- FIXED B2: join route roster tx was last-writer-wins (two simultaneous joiners to one slot — one
+  silently dropped). Join update is now CAS inside the tx; contention → retry with fresh read.
+- FIXED B3 (burst 409): 6+ simultaneous quick-match joiners filled every room between findQuickRoom
+  read and CAS write; the final attempt used to fail 409 roomFull. Final attempt now force-creates.
+- FIXED B4: leave route could blind-delete a room a joiner had JUST been added to / resurrect a leaver
+  (concurrent poll markSeen). Update + delete both CAS now; bye only sent when the CAS applied.
+- FIXED B5 (UX): same-device rejoin used to 409 "alreadyInRoom" for up to 90s after a mobile app kill
+  (no beforeunload beacon) — lockout removed; newest session of a device always replaces the ghost.
+- FIXED B6 (1:1 resilience): onClosed one-shot silent rejoin extended from group-only to 1:1
+  quick-match + code rooms — a screen-lock/network-death pruned caller now re-enters the SAME room
+  while the partner waits; WebRTC mesh rebuilds on the roster change.
+- FIXED B7: 1:1 auto-end (empty roster 3s) raced the rejoin and killed recoverable calls — now waits
+  while a rejoin is in flight (rejoining state + ref guard, effect re-runs when rejoin settles).
+- FIXED B8 (stress-test discovery): simultaneous quick-match arrivals each created their own room and
+  waited ALONE forever. Client matching re-roll added (1:1 only): after 8s alone, silently leave
+  (empty room → deleted) and re-match; fresh join lands in the OLDEST open room → deterministic
+  convergence into pairs.
+- New scripts/call-stress-test.mjs: 7 scenarios / 15 assertions against the live dev server —
+  concurrent joins, staggered pairing, join-vs-poll hammer, signal ordering + seq cursor,
+  ghost rejoin, leave-vs-poll, room cleanup. RESULT: 15/15 PASS (after fixes; before fixes B1-B3
+  produced lost joiners, a 409 lockout, and a burst 409).
+- Verified live: bn speaking menu renders; media-permission gate behaves correctly in headless
+  (deny → back to menu); tsc clean; eslint clean; dev.log clean.
+
+Stage Summary:
+- Signaling now safe under concurrency: every roster mutation (join/poll-prune/leave) is a
+  compare-and-swap; nobody can be silently lost, resurrected, or locked out
+- 1:1 calls recover from network death via one-shot rejoin; simultaneous waiters converge via re-roll
+- Audit of WebRTC layer found it already strong (watchdog, ICE-restart ladder, glare rollback,
+  quality sampler, pendingPC dedup) — no changes needed there

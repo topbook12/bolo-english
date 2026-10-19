@@ -46,35 +46,58 @@ export async function GET(req: NextRequest) {
    * Here any participant silent for STALE_PARTICIPANT_MS is dropped from the
    * roster and a "bye" is broadcast so tiles disappear immediately. My own
    * lastSeenAt is refreshed lazily (only when >20s old, or when a prune
-   * happens) to keep the write rate low. */
+   * happens) to keep the write rate low.
+   *
+   * CONCURRENCY (audit Task 17): the roster write used to be a blind
+   * read-modify-write — a join/leave committing between our read and write
+   * was CLOBBERED (a fresh quick-match joiner silently vanished and their
+   * next poll returned closed). The write is now a compare-and-swap on the
+   * exact participants JSON we read: if anything changed underneath us the
+   * UPDATE matches 0 rows, we send no "bye", and the NEXT poll (1.2s later)
+   * re-merges against the fresh roster. A concurrent join can never be lost. */
   const now = Date.now();
   const staleCutoff = now - STALE_PARTICIPANT_MS;
+  const asRead = room.participants;
   const dropped = participants.filter(
     (p) => p.peerId !== peerId && participantLastSeen(p) < staleCutoff
   );
   let roster = participants;
-  const markSeen = (list: typeof participants) =>
-    list.map((p) => (p.peerId === peerId ? { ...p, lastSeenAt: now } : p));
-
   if (dropped.length > 0) {
     roster = participants.filter(
       (p) => p.peerId === peerId || participantLastSeen(p) >= staleCutoff
     );
-    for (const d of dropped) {
-      await appendSignalMessage(roomId, d.peerId, null, "bye", { peerId: d.peerId }).catch(() => null);
-    }
+  }
+  const needSeen = now - participantLastSeen(me) > 20_000;
+  let writeApplied = false;
+
+  if (dropped.length > 0 || needSeen) {
+    const marked = roster.map((p) => (p.peerId === peerId ? { ...p, lastSeenAt: now } : p));
+    const updated = await db
+      .$executeRawUnsafe(
+        `UPDATE "CallRoom" SET "participants" = ?, "updatedAt" = ? WHERE "id" = ? AND "participants" = ?`,
+        serializeParticipants(marked),
+        new Date(),
+        roomId,
+        asRead
+      )
+      .catch(() => 0);
+    // 0 rows = a concurrent join/leave won the race — skip the write AND the
+    // "bye" broadcast; our next poll re-reads the fresh roster and re-prunes.
+    writeApplied = updated > 0;
+    if (writeApplied) roster = marked;
   }
 
-  if (dropped.length > 0 || now - participantLastSeen(me) > 20_000) {
-    await db.callRoom
-      .update({ where: { id: roomId }, data: { participants: serializeParticipants(markSeen(roster)) } })
-      .catch(() => null);
-  }
-
-  // heartbeat + opportunistic pruning
+  // heartbeat + opportunistic pruning (timestamp-only write — no lost-update risk)
   if (hb) {
     await db.callRoom.update({ where: { id: roomId }, data: { updatedAt: new Date() } }).catch(() => null);
     if (Math.random() < 0.1) void pruneOldMessages(roomId);
+  }
+
+  // "bye" only for a prune whose write actually committed
+  if (writeApplied && dropped.length > 0) {
+    for (const d of dropped) {
+      await appendSignalMessage(roomId, d.peerId, null, "bye", { peerId: d.peerId }).catch(() => null);
+    }
   }
 
   const messages = await db.signalMessage.findMany({

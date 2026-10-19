@@ -93,6 +93,15 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
   );
   const [mode, setMode] = useState<Mode>("matching");
   const [joining, setJoining] = useState(false);
+  /* Recovery rejoin in flight (network death / screen-lock prune). Tracked in
+   * BOTH a ref (synchronous checks inside timers) and state (the 1:1 auto-end
+   * effect must re-evaluate when the rejoin settles) — Task 17. */
+  const [rejoining, setRejoining] = useState(false);
+  const rejoiningRef = useRef(false);
+  const setRejoinBoth = useCallback((v: boolean) => {
+    rejoiningRef.current = v;
+    setRejoining(v);
+  }, []);
   const [roomCode, setRoomCode] = useState<string | null>(null);
   const [codeCopied, setCodeCopied] = useState(false);
   const [connectionIssue, setConnectionIssue] = useState(false);
@@ -148,6 +157,10 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
   const [unreadChat, setUnreadChat] = useState(0);
   const [chatMessages, setChatMessages] = useState<{ speaker: string; text: string; mine: boolean }[]>([]);
   const peerNamesRef = useRef<Map<string, string>>(new Map());
+  // How many peers are currently in MY roster (me included). Drives the
+  // quick-match re-roll: 1 = still waiting alone. Updated from the join
+  // result and every roster change.
+  const peersCountRef = useRef(1);
   // Names of EVERY peer ever seen in this room. The roster map above is
   // rebuilt on every roster change — a "bye" processed in the same poll as
   // the departure used to find no name and silently skip the
@@ -311,9 +324,11 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
         return m;
       };
       peerNamesRef.current = buildNames(result.peers);
+      peersCountRef.current = result.peers.length;
 
       client.onPeers((peers) => {
         peerNamesRef.current = buildNames(peers);
+        peersCountRef.current = peers.length;
         webrtc.handleRoomState(
           peers.map((p) => ({ id: p.peerId, name: peerDisplayName(p.peerId, p.name) }))
         );
@@ -378,18 +393,25 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
         clientRef.current = null;
         recStopRef.current();
         // Mobile resilience: a screen-lock/network death gets the participant
-        // pruned server-side and surfaces as poll {closed:true}. For group/
-        // code rooms ONE silent rejoin attempt keeps a live conversation
-        // alive (PCs are torn down via an empty roster — local media is kept
-        // so the camera light stays honest). Quick-match 1:1 keeps the old
-        // exit — the partner is gone anyway, matching would be empty.
-        if (intent === "group" && !rejoinedRef.current) {
+        // pruned server-side and surfaces as poll {closed:true}. ONE silent
+        // rejoin attempt keeps a live conversation alive (PCs are torn down
+        // via an empty roster — local media is kept so the camera light stays
+        // honest). Task 17: this now covers 1:1 quick-match too — a pruned
+        // caller re-enters the SAME room while the partner is still waiting
+        // (the partner's roster shows us leave, then return with a new peer
+        // id, and the WebRTC mesh rebuilds automatically). If the partner is
+        // really gone, the rejoin lands us in an empty call and the 1:1
+        // auto-end sweep below ends it cleanly on the ended screen.
+        if (!rejoinedRef.current) {
           rejoinedRef.current = true;
           webrtc.handleRoomState([]); // close PCs, keep local media
           toast({ title: t("reconnecting") });
-          void joinRoom().then(() => {
-            if (modeRef.current === "call") recStartRef.current();
-          });
+          setRejoinBoth(true);
+          void joinRoom()
+            .then(() => {
+              if (modeRef.current === "call") recStartRef.current();
+            })
+            .finally(() => setRejoinBoth(false));
           return;
         }
         toast({ title: t("roomClosedTitle"), description: t("roomClosedDesc"), variant: "destructive" });
@@ -434,6 +456,31 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
     startedRef.current = true;
     void joinRoom();
   }, [deviceId, joinRoom]);
+
+  /* ── simultaneous-arrival re-roll (quick match only) ──
+   * REAL concurrency stress-test finding (Task 17): several people tapping
+   * Quick Match in the same instant each find no room to join and each
+   * CREATE their own — everyone then waits alone forever (signaling never
+   * introduces two waiting hosts to each other). While matching on a 1:1
+   * quick room with no partner yet, silently leave the empty room and
+   * re-match: leaving deletes an empty room, and a fresh join always lands
+   * in the OLDEST open room (server: orderBy createdAt asc), so waiting
+   * hosts converge into pairs deterministically. Group/code hosts keep
+   * their room — friends join by code — and never re-roll. */
+  useEffect(() => {
+    if (intent !== "one") return;
+    const iv = setInterval(() => {
+      if (modeRef.current !== "matching") return;
+      if (joiningRef.current) return; // a join/re-roll is already in flight
+      if (peersCountRef.current >= 2) return; // partner arrived — nothing to do
+      const client = clientRef.current;
+      if (!client) return;
+      client.leave(); // empty room → server deletes it
+      clientRef.current = null;
+      void joinRoom(); // fresh quick-match — lands in the oldest open room
+    }, 8_000);
+    return () => clearInterval(iv);
+  }, [intent, joinRoom]);
 
   const retryMedia = () => {
     void joinRoom();
@@ -527,12 +574,19 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
    * server pruned them). Give signaling ~3s to settle (bye + roster update
    * can arrive a poll apart), then end the call here too — the user lands on
    * the normal ended screen with the AI analysis option instead of staring
-   * at an empty "live" room. Group calls keep the room open for the host. */
+   * at an empty "live" room. Group calls keep the room open for the host.
+   * Task 17: NEVER fire while a recovery rejoin is in flight — the empty
+   * roster right after a prune is EXPECTED, and killing the call here used
+   * to race the rejoin and turn a recoverable 1:1 call into "call ended".
+   * When the rejoin settles alone (partner truly gone), the effect re-runs
+   * (rejoining is a dependency) and the timer fires normally. */
   useEffect(() => {
     if (mode !== "call" || !oneToOneRef.current) return;
     if (webrtc.remotePeers.length > 0) return;
+    if (rejoiningRef.current) return;
     const timer = setTimeout(() => {
       if (modeRef.current !== "call") return;
+      if (rejoiningRef.current) return;
       recStopRef.current();
       clientRef.current?.leave();
       clientRef.current = null;
@@ -545,7 +599,7 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
       setMode("ended");
     }, 3_000);
     return () => clearTimeout(timer);
-  }, [mode, webrtc.remotePeers.length]);
+  }, [mode, webrtc.remotePeers.length, rejoining]);
 
   /* ── live AI correction loop (first check @12s, then every 60s) ──
    * Checkpoint-based: each tick analyzes only the lines spoken SINCE the last
