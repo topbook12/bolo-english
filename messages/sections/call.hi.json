@@ -78,6 +78,12 @@
     "vocabGapsTitle": "सीखने लायक शब्द",
     "suggestionsTitle": "आगे के लिए सुझाव",
     "transcriptTitle": "पूरा संवाद",
-    "improved": "सुधरा हुआ"
+    "improved": "सुधरा हुआ",
+    "layoutStack": "व्हाट्सएप-स्टाइल व्यू",
+    "layoutGrid": "ग्रिड व्यू",
+    "fullscreenEnter": "फ़ुल स्क्रीन",
+    "fullscreenExit": "फ़ुल स्क्रीन से बाहर निकलें",
+    "swapViews": "दोनों व्यू बदलें",
+    "immersiveHint": "फ़ुल-स्क्रीन कॉल — बाहर निकलने के लिए Esc दबाएँ"
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import {
   Mic,
@@ -22,11 +23,19 @@ import {
   SignalMedium,
   SignalLow,
   Gauge,
+  LayoutGrid,
+  PictureInPicture2,
+  Maximize,
+  Minimize,
+  ArrowLeftRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import CallAvatar, { VoiceEq } from "@/components/speaking/CallAvatar";
 import type { RemotePeer } from "@/hooks/use-webrtc";
+
+/* Layout preference persistence (Task 18) — WhatsApp-style stack vs grid */
+const LAYOUT_STORAGE_KEY = "bolo_call_layout";
 
 /* ── talking indicator (Web Audio, best-effort) ──
  * Per remote stream: AudioContext → AnalyserNode, RMS sampled every ~200ms.
@@ -143,6 +152,8 @@ function VideoTile({
   videoOff,
   micOff,
   quality,
+  badgeLeft,
+  avatarSize,
 }: {
   stream: MediaStream | null;
   name: string;
@@ -163,6 +174,11 @@ function VideoTile({
   micOff?: boolean;
   /** getStats link quality — shows the signal badge for remote peers. */
   quality?: "good" | "fair" | "poor";
+  /** Stack mode: the floating PiP / film-strip column sits top-RIGHT, so the
+   *  main tile moves its quality badge to the top-LEFT to stay visible. */
+  badgeLeft?: boolean;
+  /** Avatar diameter for the no-video fallback — smaller inside PiP tiles. */
+  avatarSize?: number;
 }) {
   const ref = useRef<HTMLVideoElement>(null);
   const t = useTranslations("call");
@@ -263,7 +279,9 @@ function VideoTile({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-2xl border shadow-lg transition-shadow duration-300",
+        // h-full: stretches to whatever wrapper the parent gives (grid row,
+        // absolute-fill spotlight, or the small PiP tile) — Task 18 layouts.
+        "relative h-full w-full overflow-hidden rounded-2xl border shadow-lg transition-shadow duration-300",
         // Remote feeds use a soft dark radial backdrop so portrait phone video
         // (object-contain) never shows hard letterbox edges.
         contain
@@ -291,7 +309,7 @@ function VideoTile({
       {videoOff && (
         <div className="absolute inset-0 grid place-items-center bg-[radial-gradient(ellipse_at_center,rgba(16,68,72,0.55),rgba(4,12,16,0.98))]">
           <div className="flex flex-col items-center gap-2.5">
-            <CallAvatar name={name} size={84} />
+            <CallAvatar name={name} size={avatarSize ?? 84} />
           </div>
         </div>
       )}
@@ -306,7 +324,8 @@ function VideoTile({
                 : t("netPoor")
           }
           className={cn(
-            "absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-black/55 px-2 py-1 text-[10px] font-semibold ring-1 ring-white/15 backdrop-blur-md",
+            "absolute inline-flex items-center gap-1 rounded-full bg-black/55 px-2 py-1 text-[10px] font-semibold ring-1 ring-white/15 backdrop-blur-md",
+            badgeLeft ? "left-2 top-2" : "right-2 top-2",
             quality === "good" && "text-emerald-300",
             quality === "fair" && "text-amber-300",
             quality === "poor" && "animate-pulse text-rose-300"
@@ -434,6 +453,131 @@ export default function CallRoom({
   const chatEndRef = useRef<HTMLDivElement>(null);
   const talking = useTalkingPeers(remotePeers);
 
+  /* ── Task 18: call layout system ─────────────────────────────────────
+   * "grid"  → classic tiled grid (every participant side-by-side)
+   * "stack" → WhatsApp-style: ONE big video + the others stacked on top of
+   *           it as a floating column / PiP; tap a small tile to swap it
+   *           into the big view.
+   * Phones default to the WhatsApp-style stack, larger screens to the grid;
+   * an explicit user choice persists across calls in localStorage. */
+  const [layout, setLayout] = useState<"grid" | "stack">(() => {
+    if (typeof window === "undefined") return "grid";
+    try {
+      const saved = window.localStorage.getItem(LAYOUT_STORAGE_KEY);
+      if (saved === "grid" || saved === "stack") return saved;
+    } catch {
+      /* private mode */
+    }
+    return window.matchMedia("(max-width: 639px)").matches ? "stack" : "grid";
+  });
+  const toggleLayout = () => {
+    setLayout((v) => {
+      const next = v === "grid" ? "stack" : "grid";
+      try {
+        window.localStorage.setItem(LAYOUT_STORAGE_KEY, next);
+      } catch {
+        /* private mode */
+      }
+      return next;
+    });
+  };
+
+  /* ── Task 18: Zoom-style full-screen (immersive) mode ────────────────
+   * The whole CallRoom portals to <body> as a fixed full-viewport overlay
+   * (works on iOS Safari too, where element fullscreen is unsupported);
+   * native Fullscreen API is ALSO requested where available so browser
+   * chrome disappears on desktop/Android. Esc / the chip exits both. */
+  const [immersive, setImmersive] = useState(false);
+  const immersiveRef = useRef(false);
+  useEffect(() => {
+    immersiveRef.current = immersive;
+  }, [immersive]);
+  const portalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!immersive) return;
+    // portal is mounted now — request real fullscreen (best-effort)
+    const el = portalRef.current;
+    if (el && document.fullscreenEnabled && !document.fullscreenElement) {
+      void el.requestFullscreen?.().catch(() => undefined);
+    }
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      if (document.fullscreenElement) {
+        void document.exitFullscreen?.().catch(() => undefined);
+      }
+    };
+  }, [immersive]);
+
+  // Esc (or anything that drops native fullscreen) also leaves immersive.
+  useEffect(() => {
+    const onFsChange = () => {
+      if (immersiveRef.current && !document.fullscreenElement) setImmersive(false);
+    };
+    document.addEventListener("fullscreenchange", onFsChange);
+    return () => document.removeEventListener("fullscreenchange", onFsChange);
+  }, []);
+
+  // Esc fallback for contexts where the native API is unavailable (preview
+  // iframes without allow="fullscreen", iOS): the keydown itself exits.
+  useEffect(() => {
+    if (!immersive) return;
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setImmersive(false);
+    };
+    document.addEventListener("keydown", onEsc);
+    return () => document.removeEventListener("keydown", onEsc);
+  }, [immersive]);
+
+  /* ── Task 18: which video fills the big slot in stack mode ────────── */
+  const [pinnedPeerId, setPinnedPeerId] = useState<string | null>(null);
+  const [selfInMain, setSelfInMain] = useState(false);
+  // No reset effect needed: the derivation below already falls back to the
+  // default spotlight when a pinned peer leaves (find → first remote → self).
+  const mainPeer =
+    remotePeers.find((p) => p.id === pinnedPeerId) ?? remotePeers[0] ?? null;
+  const mainIsSelf = selfInMain || !mainPeer;
+  const sideTiles: {
+    key: string;
+    name: string;
+    stream: MediaStream | null;
+    isSelf: boolean;
+    peerId?: string;
+    connectionState?: string;
+  }[] =
+    mainIsSelf
+      ? remotePeers.map((p) => ({
+          key: p.id,
+          name: p.name,
+          stream: p.stream,
+          isSelf: false,
+          peerId: p.id,
+          connectionState: p.connectionState,
+        }))
+      : [
+          { key: "self", name: displayName, stream: localStream, isSelf: true },
+          ...remotePeers
+            .filter((p) => p.id !== mainPeer?.id)
+            .map((p) => ({
+              key: p.id,
+              name: p.name,
+              stream: p.stream,
+              isSelf: false,
+              peerId: p.id,
+              connectionState: p.connectionState,
+            })),
+        ];
+  const focusSideTile = (tile: (typeof sideTiles)[number]) => {
+    if (tile.isSelf) {
+      setSelfInMain(true);
+    } else {
+      setSelfInMain(false);
+      setPinnedPeerId(tile.peerId ?? null);
+    }
+  };
+
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages.length, chatOpen]);
@@ -466,7 +610,7 @@ export default function CallRoom({
 
   const captionsButtonLabel = captionsOpen ? t("captionsHide") : t("captionsShow");
 
-  return (
+  const roomContent = (
     <div
       className={cn(
         "space-y-3",
@@ -561,10 +705,25 @@ export default function CallRoom({
                 <VideoOff className="h-3 w-3" /> {t("audioOnlyNote")}
               </span>
             )}
+            {/* Zoom-style: while full-screen, this chip is the visible way out
+                besides the controls button and the Esc key (Task 18) */}
+            {immersive && (
+              <button
+                type="button"
+                onClick={() => setImmersive(false)}
+                className="call-glass ml-auto inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white sm:ml-0"
+                title={t("immersiveHint")}
+                aria-label={t("fullscreenExit")}
+              >
+                <Minimize className="h-3 w-3" />
+                <span className="hidden sm:inline">{t("fullscreenExit")}</span>
+              </button>
+            )}
           </div>
 
-          {/* video grid + caption overlays */}
+          {/* video grid/stack + caption overlays */}
           <div className="relative z-10">
+            {layout === "grid" ? (
             <div className={cn("grid min-h-0 gap-3", gridCols)}>
               {remotePeers.map((p) => (
                 <div key={p.id} className="min-h-0">
@@ -600,6 +759,102 @@ export default function CallRoom({
                 />
               </div>
             </div>
+            ) : (
+            /* WhatsApp-style stack (Task 18): ONE big video with every other
+               participant floating on top as small tiles — tap a small tile
+               (or the big self view) to swap it into the spotlight. */
+            <div
+              className={cn(
+                "relative min-h-[320px] overflow-hidden rounded-2xl border border-white/12 bg-black/85",
+                immersive ? "h-[72svh]" : "h-[62svh] max-h-[620px] sm:h-[66svh]"
+              )}
+            >
+              {/* spotlight tile */}
+              <div className="absolute inset-0">
+                {mainIsSelf ? (
+                  <button
+                    type="button"
+                    onClick={() => remotePeers.length > 0 && setSelfInMain(false)}
+                    disabled={remotePeers.length === 0}
+                    className="block h-full w-full rounded-2xl text-left focus-visible:outline-2 focus-visible:outline-emerald-300 disabled:cursor-default"
+                    title={remotePeers.length > 0 ? t("swapViews") : undefined}
+                    aria-label={remotePeers.length > 0 ? t("swapViews") : undefined}
+                  >
+                    <VideoTile
+                      stream={localStream}
+                      name={displayName}
+                      muted
+                      mirrored
+                      isSelf
+                      selfSuffix={t("selfSuffix")}
+                      connectingLabel={t("connecting")}
+                      videoOff={!camOn || audioOnly}
+                      micOff={!micOn}
+                    />
+                  </button>
+                ) : (
+                  <VideoTile
+                    stream={mainPeer.stream}
+                    name={mainPeer.name}
+                    selfSuffix={t("selfSuffix")}
+                    connectingLabel={
+                      mainPeer.connectionState === "new" || mainPeer.connectionState === "connecting"
+                        ? t("connecting")
+                        : t("reconnecting")
+                    }
+                    isConnecting={mainPeer.connectionState !== "connected"}
+                    speaking={talking.has(mainPeer.id)}
+                    speakingLabel={t("speakingNow")}
+                    contain
+                    videoOff={!mainPeer.stream || mainPeer.stream.getVideoTracks().length === 0}
+                    quality={mainPeer.quality}
+                    badgeLeft
+                  />
+                )}
+              </div>
+              {/* floating PiP / film-strip column (top-right, WhatsApp style) */}
+              {sideTiles.length > 0 && (
+                <div className="nice-scroll absolute right-2 top-2 z-10 flex max-h-[calc(100%-1rem)] w-[88px] flex-col gap-2 overflow-y-auto sm:w-28">
+                  {sideTiles.map((tile) => (
+                    <button
+                      key={tile.key}
+                      type="button"
+                      onClick={() => focusSideTile(tile)}
+                      className="relative aspect-[3/4] w-full shrink-0 overflow-hidden rounded-xl border border-white/20 shadow-lg transition-transform hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-emerald-300"
+                      title={t("swapViews")}
+                      aria-label={`${tile.name} · ${t("swapViews")}`}
+                    >
+                      <VideoTile
+                        stream={tile.stream}
+                        name={tile.name}
+                        muted={tile.isSelf || undefined}
+                        mirrored={tile.isSelf}
+                        isSelf={tile.isSelf}
+                        selfSuffix={t("selfSuffix")}
+                        connectingLabel={
+                          tile.connectionState === "new" || tile.connectionState === "connecting"
+                            ? t("connecting")
+                            : t("reconnecting")
+                        }
+                        isConnecting={tile.peerId ? tile.connectionState !== "connected" : undefined}
+                        videoOff={
+                          tile.isSelf
+                            ? !camOn || audioOnly
+                            : !tile.stream || tile.stream.getVideoTracks().length === 0
+                        }
+                        micOff={tile.isSelf ? !micOn : undefined}
+                        avatarSize={44}
+                      />
+                      {/* swap affordance */}
+                      <span className="pointer-events-none absolute bottom-1 right-1 grid h-5 w-5 place-items-center rounded-full bg-black/55 text-white ring-1 ring-white/20">
+                        <ArrowLeftRight className="h-3 w-3" aria-hidden />
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            )}
             {/* live caption overlay (text-shadow via .caption-text) — final line
                 plus my in-progress sentence, responsive and clamped so it can
                 never cover the call on small screens */}
@@ -651,6 +906,21 @@ export default function CallRoom({
             >
               {camOn ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
             </button>
+            {/* layout switch — grid ⇄ WhatsApp-style stack (Task 18) */}
+            <button
+              type="button"
+              className={cn("call-btn h-12 w-12", layout === "stack" && "call-btn-on")}
+              onClick={toggleLayout}
+              aria-pressed={layout === "stack"}
+              aria-label={layout === "grid" ? t("layoutStack") : t("layoutGrid")}
+              title={layout === "grid" ? t("layoutStack") : t("layoutGrid")}
+            >
+              {layout === "grid" ? (
+                <PictureInPicture2 className="h-5 w-5" />
+              ) : (
+                <LayoutGrid className="h-5 w-5" />
+              )}
+            </button>
             <button
               type="button"
               className={cn("call-btn h-12 w-12", captionsOpen && "call-btn-on")}
@@ -662,6 +932,17 @@ export default function CallRoom({
               <Captions className="h-5 w-5" />
             </button>
             {children}
+            {/* Zoom-style full screen (Task 18) */}
+            <button
+              type="button"
+              className="call-btn h-12 w-12"
+              onClick={() => setImmersive((v) => !v)}
+              aria-pressed={immersive}
+              aria-label={immersive ? t("fullscreenExit") : t("fullscreenEnter")}
+              title={immersive ? t("fullscreenExit") : t("fullscreenEnter")}
+            >
+              {immersive ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+            </button>
             <div className="relative">
               <button
                 type="button"
@@ -752,4 +1033,22 @@ export default function CallRoom({
       )}
     </div>
   );
+
+  /* Zoom-style full screen (Task 18): portal the whole room to <body> as a
+   * fixed full-viewport overlay — covers everything on any device, including
+   * iOS Safari where the native Fullscreen API is unavailable. On desktop /
+   * Android the native API is requested on top (hides the browser chrome);
+   * Esc drops both via the fullscreenchange listener. */
+  if (immersive && typeof document !== "undefined") {
+    return createPortal(
+      <div
+        ref={portalRef}
+        className="call-backdrop fixed inset-0 z-[70] flex flex-col overflow-y-auto overscroll-contain p-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] sm:p-4"
+      >
+        <div className="m-auto w-full">{roomContent}</div>
+      </div>,
+      document.body
+    );
+  }
+  return roomContent;
 }

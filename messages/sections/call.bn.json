@@ -78,6 +78,12 @@
     "vocabGapsTitle": "শেখার মতো শব্দ",
     "suggestionsTitle": "পরবর্তী পরামর্শ",
     "transcriptTitle": "সম্পূর্ণ ডায়ালগ",
-    "improved": "উন্নত"
+    "improved": "উন্নত",
+    "layoutStack": "হোয়াটসঅ্যাপ-স্টাইল ভিউ",
+    "layoutGrid": "গ্রিড ভিউ",
+    "fullscreenEnter": "ফুল স্ক্রিন",
+    "fullscreenExit": "ফুল স্ক্রিন থেকে বের হন",
+    "swapViews": "দুই ভিউ অদল-বদল করুন",
+    "immersiveHint": "ফুল-স্ক্রিন কল — বের হতে Esc চাপুন"
   }
 }

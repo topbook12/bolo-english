@@ -78,6 +78,12 @@
     "vocabGapsTitle": "Words worth learning",
     "suggestionsTitle": "Suggestions for next time",
     "transcriptTitle": "Full dialogue",
-    "improved": "Improved"
+    "improved": "Improved",
+    "layoutStack": "WhatsApp-style view",
+    "layoutGrid": "Grid view",
+    "fullscreenEnter": "Full screen",
+    "fullscreenExit": "Exit full screen",
+    "swapViews": "Swap between the two views",
+    "immersiveHint": "Full-screen call — press Esc to exit"
   }
 }

@@ -2628,3 +2628,58 @@ Stage Summary:
 - 1:1 calls recover from network death via one-shot rejoin; simultaneous waiters converge via re-roll
 - Audit of WebRTC layer found it already strong (watchdog, ICE-restart ladder, glare rollback,
   quality sampler, pendingPC dedup) — no changes needed there
+
+---
+Task ID: 18 (main)
+Agent: main (Z.ai Code)
+Task: Video-call layout upgrade — mobile WhatsApp-style stacked/PiP view + Zoom-style full screen on laptop/other devices; verify all call APIs still correct, fix anything broken
+
+Work Log:
+- User directive: mobile needs WhatsApp-style "one display on top of another" option; laptop/other devices need Zoom-like full-screen video; also re-verify the call APIs/process and fix any problems.
+- CallRoom.tsx rebuilt as a two-layout call stage (props unchanged — CallFlow/AiPartner untouched):
+  • LAYOUT SYSTEM: "grid" (classic tiled grid, as before) ⇄ "stack" (WhatsApp-style: ONE big
+    spotlight video + every other participant floating on top as small tiles). Phones default to
+    stack (matchMedia ≤639px), larger screens to grid; explicit user choice persists in
+    localStorage (bolo_call_layout). New controls-bar toggle button (PictureInPicture2 ⇄ LayoutGrid
+    icons, call-btn-on engaged state).
+  • STACK MODE details: spotlight = first/pinned remote peer (WhatsApp behavior — the other person
+    big, you small); tapping the floating self PiP swaps self into the spotlight; tapping a floating
+    remote tile pins it to the spotlight; pinned-peer-leave falls back automatically (derivation, no
+    reset effect → satisfies react-hooks/set-state-in-effect). Group calls: right-edge scrollable
+    film-strip column (w-88px/112px, aspect-[3/4] tiles, ArrowLeftRight swap affordance, smaller
+    avatar fallback size 44). Spotlight remote shows link-quality badge moved to top-LEFT
+    (badgeLeft prop) so the floating column can't cover it.
+  • FULLSCREEN (immersive): Zoom-style — the whole room createPortal()s to document.body as a
+    fixed inset-0 call-backdrop overlay (works in iOS Safari / preview iframes where the native
+    API is unavailable); native requestFullscreen() additionally requested where supported (hides
+    browser chrome on desktop/Android); body scroll locked while immersive; exit via controls
+    Minimize button, a status-row exit chip (ml-auto sm:ml-0), or Esc — fullscreenchange listener
+    AND a document keydown Esc fallback (covers iframes without allow="fullscreen").
+  • VideoTile: root now h-full w-full (fills grid rows, absolute-fill spotlight, small PiP boxes);
+    new badgeLeft + avatarSize props.
+- i18n: 6 new call-namespace keys in bn/en/hi (layoutStack হোয়াটসঅ্যাপ-স্টাইল ভিউ, layoutGrid গ্রিড ভিউ,
+  fullscreenEnter ফুল স্ক্রিন, fullscreenExit ফুল স্ক্রিন থেকে বের হন, swapViews দুই ভিউ অদল-বদল করুন,
+  immersiveHint ফুল-স্ক্রিন কল — বের হতে Esc চাপুন) — i18n-check ALL-PARITY-OK.
+- API/process audit (user asked to verify): call stress test re-run → 15/15 PASS (concurrent-join
+  CAS, staggered pairing, join-vs-poll race, signal ordering + seq cursor, ghost rejoin,
+  leave-vs-poll, empty-room cleanup). /api/call/ice verified end-to-end with a real room: member
+  gets servers (STUN locally — no TURN keys configured in dev, correct chain fallback), a
+  non-member peerId is denied TURN credentials; /api/turn admin guard behaves correctly (403 for
+  anonymous); /api/config responds. No API changes were needed — Task 17's CAS signaling is intact.
+- Verification (Playwright + fake camera, 25/25 PASS): MOBILE 390×844 — stack is default (1
+  spotlight video), self spotlight disabled-swap with 0 remotes, toggle→grid, fullscreen portal +
+  body scroll lock + native fullscreenElement true, exit chip closes, ghost peer via API → remote
+  fills spotlight + self becomes floating PiP, tap-swap both directions, end call, zero page
+  errors. DESKTOP 1440×900 — grid default (2 plain tiles with ghost), stack toggle renders
+  floating column, fullscreen portal + native true, Esc exits, end call, zero page errors.
+  Screenshots eyeballed: mobile PiP column top-right w/ swap affordance; desktop immersive covers
+  viewport with exit chip.
+- react-hooks compliance: ref-write-during-render moved into an effect; setState-in-effect removed
+  by deriving spotlight fallback. tsc clean, eslint clean, dev.log clean.
+
+Stage Summary:
+- Call stage now has two user-selectable layouts with device-appropriate defaults: WhatsApp-style
+  stack (mobile default: remote big + self PiP, tap-to-swap, group film-strip) and the original
+  grid, plus a Zoom-style full-screen mode on every device (portal overlay + native fullscreen
+  where available, three ways out). Preference persists. Signaling/WebRTC APIs re-verified green
+  (15/15 stress + ICE membership proof); no backend changes required.
