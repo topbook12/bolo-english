@@ -96,6 +96,16 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
   const [ttsSpeaking, setTtsSpeaking] = useState(false);
   const { toast } = useToast();
   const endRef = useRef<HTMLDivElement>(null);
+  /* Progress fix (user report: মিনিট/প্রগ্রেস আপডেট হচ্ছে না):
+   * sessionStartRef — when the FIRST message went out, so the saved duration
+   * is the real elapsed talk time (was a fake msgs.length * 20 estimate).
+   * savedSessionRef — id of the session saved BEFORE the AI analysis runs,
+   * so minutes/progress land even when the AI call fails or the user has no
+   * key. finishAndAnalyze() PATCHes the analysis onto this record. */
+  const sessionStartRef = useRef<number | null>(null);
+  const savedSessionRef = useRef<string | null>(null);
+  const deviceIdRef = useRef(deviceId);
+  deviceIdRef.current = deviceId;
 
   // Voice input: recognized final text is appended into the message input.
   const {
@@ -129,9 +139,44 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [msgs, busy]);
 
+  /* progress fix: leaving the tab after a real chat (≥2 user messages)
+   * WITHOUT pressing Finish used to lose the whole conversation. The
+   * unmount save records it; savedSessionRef keeps it a no-op when
+   * finishAndAnalyze() already saved. */
+  const msgsRef = useRef(msgs);
+  msgsRef.current = msgs;
+  const myNameRef = useRef(myName);
+  myNameRef.current = myName;
+  useEffect(() => {
+    return () => {
+      if (savedSessionRef.current) return; // already saved via Finish
+      if (!deviceIdRef.current) return;
+      const lines = msgsRef.current
+        .filter((m) => m.role === "user")
+        .map((m) => ({ speaker: myNameRef.current, text: m.text, at: Date.now() }));
+      if (lines.length < 2) return;
+      const durationSec = sessionStartRef.current
+        ? Math.max(1, Math.round((Date.now() - sessionStartRef.current) / 1000))
+        : lines.length * 20;
+      void fetch("/api/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          deviceId: deviceIdRef.current,
+          type: "ai-partner",
+          partnerCount: 1,
+          durationSec,
+          transcript: lines,
+          analysis: {},
+        }),
+      }).catch(() => null);
+    };
+  }, []);
+
   const send = async (override?: string) => {
     const text = (override ?? input).trim();
     if (!text || busy || !deviceId) return;
+    if (sessionStartRef.current === null) sessionStartRef.current = Date.now();
     setInput("");
     setMsgs((m) => [...m, { role: "user", text }]);
     setBusy(true);
@@ -192,28 +237,76 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
       return;
     }
     setAnalyzing(true);
+    // real elapsed talk time (was msgs.length * 20 — a fiction)
+    const durationSec = sessionStartRef.current
+      ? Math.max(1, Math.round((Date.now() - sessionStartRef.current) / 1000))
+      : msgs.length * 20;
+    /* 1) SAVE THE SESSION FIRST — progress fix. Minutes used to depend on
+     *    the AI call below: no key / API error / quota meant the whole chat
+     *    was never recorded. Now the record exists before analysis starts. */
+    let sessionId = savedSessionRef.current;
+    if (!sessionId) {
+      try {
+        const res = await fetch("/api/sessions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            deviceId,
+            type: "ai-partner",
+            partnerCount: 1,
+            durationSec,
+            transcript: userLines,
+            analysis: {},
+          }),
+        });
+        const j = await res.json().catch(() => null);
+        if (j?.ok && j.data?.id) {
+          sessionId = String(j.data.id);
+          savedSessionRef.current = sessionId;
+        }
+      } catch {
+        /* save failed — the analysis path below re-POSTs as fallback */
+      }
+    }
+    // progress data can refresh now, even if the AI analysis fails below
+    onSessionDone?.();
+    /* 2) AI analysis — an enhancement, never a gate on the saved minutes. */
     try {
       const result = await callAi<CallAnalysis>(deviceId, "call-analysis", {
         transcript: userLines,
-        durationSec: msgs.length * 20,
+        durationSec,
         partnerCount: 1,
       });
       setAnalysis(result);
-      // save session
-      await fetch("/api/sessions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          deviceId,
-          type: "ai-partner",
-          partnerCount: 1,
-          durationSec: msgs.length * 20,
-          transcript: userLines,
-          analysis: result,
-        }),
-      });
-      onSessionDone?.();
+      let attached = false;
+      if (sessionId) {
+        try {
+          const patch = await fetch(`/api/sessions/${sessionId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ deviceId, analysis: result, durationSec }),
+          });
+          if (patch.ok) attached = true;
+        } catch {
+          /* fall through to the POST below */
+        }
+      }
+      if (!attached) {
+        await fetch("/api/sessions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            deviceId,
+            type: "ai-partner",
+            partnerCount: 1,
+            durationSec,
+            transcript: userLines,
+            analysis: result,
+          }),
+        });
+      }
     } catch (e) {
+      // the session is already saved — only the analysis is missing
       toast({ title: t("partner.analysisError"), description: (e as Error).message, variant: "destructive" });
     } finally {
       setAnalyzing(false);
@@ -224,6 +317,8 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
     cancelSpeech();
     setMsgs([]);
     setAnalysis(null);
+    sessionStartRef.current = null; // new conversation → new clock + record
+    savedSessionRef.current = null;
   };
 
   if (analysis) {

@@ -83,6 +83,7 @@ interface SessionRow {
 
 interface ProgressData {
   totalSessions: number;
+  totalSeconds: number;
   totalMinutes: number;
   avgScore: number;
   streak: number;
@@ -290,7 +291,17 @@ export default function ProgressSection() {
         {/* ── stats row ── */}
         <div className="stagger-grid grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatCard icon={MessagesSquare} value={data?.totalSessions ?? 0} label={t("stats.sessions")} tint="teal" />
-          <StatCard icon={Clock3} value={t("stats.minutesValue", { n: data?.totalMinutes ?? 0 })} label={t("stats.minutes")} tint="teal" />
+          {/* short sessions (<60s) show seconds — a 40s call is not "0 min" */}
+          <StatCard
+            icon={Clock3}
+            value={
+              (data?.totalSeconds ?? 0) < 60
+                ? t("stats.secondsValue", { n: data?.totalSeconds ?? 0 })
+                : t("stats.minutesValue", { n: data?.totalMinutes ?? 0 })
+            }
+            label={t("stats.minutes")}
+            tint="teal"
+          />
           <StatCard icon={Trophy} value={data?.avgScore ?? 0} label={t("stats.avgScore")} tint="amber" />
           <StatCard icon={Library} value={data?.wordCount ?? 0} label={t("stats.words")} tint="emerald" />
         </div>

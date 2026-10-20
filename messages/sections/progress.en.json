@@ -6,6 +6,7 @@
       "sessions": "Speaking sessions",
       "minutes": "Total time",
       "minutesValue": "{n} min",
+      "secondsValue": "{n} sec",
       "avgScore": "Avg. score",
       "words": "Words",
       "reviewDue": "Due for review",

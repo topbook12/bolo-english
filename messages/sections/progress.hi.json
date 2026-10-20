@@ -6,6 +6,7 @@
       "sessions": "स्पीकिंग सेशन",
       "minutes": "कुल समय",
       "minutesValue": "{n} मिनट",
+      "secondsValue": "{n} सेकंड",
       "avgScore": "औसत स्कोर",
       "words": "शब्द",
       "reviewDue": "आज रिव्यू बाकी",

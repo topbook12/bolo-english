@@ -40,6 +40,7 @@ import { isNoName } from "@/lib/no-name";
 
 interface ProgressData {
   totalSessions: number;
+  totalSeconds: number;
   totalMinutes: number;
   avgScore: number;
   streak: number;
@@ -287,7 +288,14 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
           icon={Clock3}
           tint="emerald"
           label={t("stats.spoken")}
-          value={progress ? `${progress.totalMinutes} ${t("stats.minutes")}` : "—"}
+          // short sessions (<60s) show seconds — a 40s call is not "0 min"
+          value={
+            progress
+              ? (progress.totalSeconds ?? 0) < 60
+                ? `${progress.totalSeconds ?? 0} ${t("stats.seconds")}`
+                : `${progress.totalMinutes} ${t("stats.minutes")}`
+              : "—"
+          }
         />
         <StatCard
           icon={Trophy}

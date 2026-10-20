@@ -24,6 +24,7 @@ export async function GET(req: NextRequest) {
     db.wordBookItem.count({ where: { deviceId } }),
   ]);
 
+  const totalSeconds = Math.round(sessions.reduce((a, s) => a + s.durationSec, 0));
   const totalMinutes = Math.round(sessions.reduce((a, s) => a + s.durationSec, 0) / 60);
   const avgScore = sessions.length
     ? Math.round(sessions.reduce((a, s) => a + s.score, 0) / sessions.length)
@@ -62,6 +63,9 @@ export async function GET(req: NextRequest) {
     ok: true,
     data: {
       totalSessions: sessions.length,
+      // totalSeconds lets the UI show short sessions honestly (a 40s call is
+      // not "0 min" — that used to look like progress never updating)
+      totalSeconds,
       totalMinutes,
       avgScore,
       streak,

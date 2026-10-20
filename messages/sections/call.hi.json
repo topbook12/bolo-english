@@ -62,6 +62,7 @@
     "joinFailedTitle": "रूम में जुड़ नहीं पाए",
     "callEnded": "कॉल खत्म हुआ",
     "endedSummary": "{minutes} मिनट बात हुई · {count} वाक्य रिकॉर्ड हुए",
+    "endedSummarySec": "{seconds} सेकंड बात हुई · {count} वाक्य रिकॉर्ड हुए",
     "analyzeCta": "AI से पूरा संवाद विश्लेषण कराएँ",
     "analyzing": "AI विश्लेषण कर रहा है…",
     "analysisSaved": "विश्लेषण प्रोग्रेस में सेव हुआ ✅",

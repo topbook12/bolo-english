@@ -21,6 +21,7 @@
       "days": "days",
       "spoken": "Speaking time",
       "minutes": "min",
+      "seconds": "sec",
       "avgScore": "Avg. score",
       "words": "Words saved",
       "tipTitle": "Tip of the day"

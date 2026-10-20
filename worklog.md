@@ -2683,3 +2683,51 @@ Stage Summary:
   grid, plus a Zoom-style full-screen mode on every device (portal overlay + native fullscreen
   where available, three ways out). Preference persists. Signaling/WebRTC APIs re-verified green
   (15/15 stress + ICE membership proof); no backend changes required.
+
+---
+Task ID: 19 (main)
+Agent: main (Z.ai Code)
+Task: Fix "কল শেষে কত মিনিট কথা বলেছে / প্রগ্রেস ডেটা আপডেট হচ্ছে না" — call duration & progress records never updating after talking with someone
+
+Work Log:
+- ROOT CAUSE: the POST /api/sessions (the ONLY writer of speaking minutes/score/progress) lived
+  inside runAnalysis()/finishAndAnalyze() and ran ONLY after a successful AI analysis. No API
+  key → no save; AI error/quota → no save; user exiting the ended screen without analysis → no
+  save; tab switch mid-call → no save. CallFlow AND AiPartner were both affected.
+- NEW ENDPOINT src/app/api/sessions/[id]/route.ts — PATCH { deviceId, analysis?, durationSec? }
+  attaches the post-call AI analysis + overallScore to the already-saved session. Owner-guarded
+  (deviceId must match the creator; wrong device → 404, verified).
+- CallFlow.tsx: new saveCallSession(partnerCount) fire-and-forget POST at the MOMENT the call
+  ends — wired into leaveCall(), the 1:1 partner-left auto-end timer, and the unmount cleanup
+  (tab switch / page close mid-call now also records the minutes; savedSessionRef makes every
+  path idempotent, no duplicates). Junk gate: duration <5s AND empty transcript is skipped.
+  runAnalysis() now PATCHes its result onto the auto-saved record (falls back to a full POST
+  only if the auto-save never landed) → analysis no longer creates a duplicate session.
+- partnerCount accuracy: the "ever seen" roster map accumulates my OWN past peerIds (quick-match
+  re-rolls + recovery rejoins assign fresh ids), so a 1:1 call used to record 3 partners. New
+  myPeerIdsRef + partnersEverRef track only REAL partners; verified 1 in every path now.
+- AiPartner.tsx: session is saved BEFORE the AI call (analysis then PATCHes on, with POST
+  fallback); durationSec is now real elapsed time from the first message (was msgs.length*20
+  fiction); unmount save for chats with ≥2 user messages left without pressing Finish;
+  onSessionDone fires after the save so the parent refreshes even if AI fails. reset() clears
+  the new refs.
+- Display honesty (the "0 min" trap): /api/progress now also returns totalSeconds; Progress +
+  Home StatCards show seconds for <60s totals (new i18n keys progress.stats.secondsValue +
+  home.stats.seconds in bn/en/hi); the call-ended screen shows "{n} sec" under a minute (new
+  call.endedSummarySec key bn/en/hi) — a 20s call no longer reads "Talked for 0 min".
+  i18n-check ALL-PARITY-OK.
+- Verification (two headless browsers + fake camera/mic, real 1:1 quick-match calls):
+  POST→PATCH→progress curl suite green incl. 404 on foreign deviceId; live UI rounds —
+  leaveCall → saved 20-23s / partnerCount 1; partner-left auto-end → 27s / 1; mid-call page
+  reload (unmount path) → 91s / 1; AI-analysis PATCH attached score 77 to the SAME record
+  (5 sessions not 6) and trend/avgScore updated; Progress tab showed "4 Speaking sessions /
+  1 min"; ended screen read "Talked for 20 sec"; no-key AI-partner chat still saved its
+  session (15s, 2 lines). Zero console/page errors on fresh loads; tsc + eslint clean;
+  dev.log all 200s.
+
+Stage Summary:
+- Speaking minutes + progress now update on EVERY path: normal end, partner leaves first,
+  mid-call navigation, AI success, AI failure, and no API key at all. The AI analysis became
+  an enhancement PATCHed onto the record instead of the gate that decided whether the call
+  ever existed. partnerCount counts real partners only; sub-minute sessions render in seconds
+  so the UI never shows a misleading "0 min".

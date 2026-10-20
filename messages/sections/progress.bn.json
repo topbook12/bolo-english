@@ -6,6 +6,7 @@
       "sessions": "স্পিকিং সেশন",
       "minutes": "মোট সময়",
       "minutesValue": "{n} মিনিট",
+      "secondsValue": "{n} সেকেন্ড",
       "avgScore": "গড় স্কোর",
       "words": "শব্দ",
       "reviewDue": "আজ রিভিউ বাকি",

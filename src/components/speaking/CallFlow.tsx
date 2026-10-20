@@ -167,12 +167,23 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
   // "{name} left the call" toast. This cache never prunes, so the goodbye
   // always knows who left.
   const peerNamesEverRef = useRef<Map<string, string>>(new Map());
+  // Every peerId that was ever MINE — quick-match re-rolls and recovery
+  // rejoins each get a fresh server-assigned id, so the "ever seen" roster
+  // above accumulates my own past identities. partnerCount must only count
+  // REAL partners (progress fix: a 1:1 call used to record 3 partners).
+  const myPeerIdsRef = useRef<Set<string>>(new Set());
+  const partnersEverRef = useRef<Set<string>>(new Set());
   const enteredRef = useRef(false);
 
   // ended / analysis
   const [endedInfo, setEndedInfo] = useState<{ durationSec: number; partnerCount: number; type: "one-to-one" | "group" } | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<CallAnalysis | null>(null);
+  /* Progress fix (user report: কলের মিনিট/প্রগ্রেস আপডেট হচ্ছে না):
+   * the session is now auto-saved the MOMENT the call ends, so minutes and
+   * progress never depend on the optional AI analysis. This ref holds the id
+   * of that auto-saved record; runAnalysis() PATCHes its analysis onto it. */
+  const savedSessionRef = useRef<string | null>(null);
 
   const { toast } = useToast();
   const nameRef = useRef<string>(myName);
@@ -246,6 +257,7 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
     lastCorrectedCountRef.current = 0;
     setTranscriptCount(0);
     setAnalysis(null);
+    savedSessionRef.current = null; // fresh call → fresh session record
     setMode("call");
     recStartRef.current();
     void acquireWakeLock();
@@ -317,10 +329,14 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
       // remember my signaling identity — captions/transcript lines carry it
       myPeerIdRef.current = result.peerId;
       setMyPeerId(result.peerId);
+      myPeerIdsRef.current.add(result.peerId); // every id that was ever me
       // build the current-roster name map AND remember every name forever
       const buildNames = (peers: { peerId: string; name: string }[]) => {
         const m = new Map(peers.map((p) => [p.peerId, peerDisplayName(p.peerId, p.name)]));
-        for (const [k, v] of m) peerNamesEverRef.current.set(k, v);
+        for (const [k, v] of m) {
+          peerNamesEverRef.current.set(k, v);
+          if (!myPeerIdsRef.current.has(k)) partnersEverRef.current.add(k);
+        }
         return m;
       };
       peerNamesRef.current = buildNames(result.peers);
@@ -505,10 +521,48 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
     onExit();
   };
 
+  /* ── auto-save the call session the moment it ends ──
+   * Fire-and-forget: duration/transcript/partners land in the DB right here,
+   * so “কত মিনিট কথা বলেছে” + progress ALWAYS update — even with no API key,
+   * a failed AI analysis, or a user who skips the analysis screen. Used to
+   * be coupled to runAnalysis(): no key / AI error / early exit meant the
+   * entire call was never recorded. runAnalysis() PATCHes the analysis onto
+   * this record afterwards. */
+  const saveCallSession = useCallback((partnerCount: number) => {
+    const deviceId = deviceIdRef.current;
+    if (!deviceId || savedSessionRef.current) return;
+    const durationSec = durationRef.current;
+    const transcript = transcriptRef.current;
+    // a <5s silent call carries nothing worth recording — skip junk rows
+    if (durationSec < 5 && transcript.length === 0) return;
+    const body = JSON.stringify({
+      deviceId,
+      type: callTypeRef.current,
+      // everyone who EVER joined the room counts — a partner who spoke and
+      // left before I hung up still talked with me (my own past ids from
+      // re-rolls/rejoins are excluded via partnersEverRef)
+      partnerCount: Math.max(partnerCount, partnersEverRef.current.size, 0),
+      durationSec,
+      transcript,
+      analysis: {},
+    });
+    void fetch("/api/sessions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body,
+    })
+      .then((r) => r.json().catch(() => null))
+      .then((j) => {
+        if (j?.ok && j.data?.id) savedSessionRef.current = String(j.data.id);
+      })
+      .catch(() => null);
+  }, []);
+
   const leaveCall = () => {
     recStopRef.current();
     releaseWakeLock();
     const partnerCount = webrtc.remotePeers.length;
+    saveCallSession(partnerCount); // progress fix: save BEFORE anything else
     clientRef.current?.leave();
     clientRef.current = null;
     webrtc.cleanup();
@@ -516,10 +570,19 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
     setMode("ended");
   };
 
-  /* ── unmount cleanup: leave + media teardown ── */
+  /* ── unmount cleanup: leave + media teardown ──
+   * Progress fix: switching tabs / closing the page MID-call used to tear
+   * everything down silently — the minutes vanished. The save fires only
+   * while a call is actually live, and the savedSessionRef guard makes it
+   * a no-op when the call already ended normally. */
+  const saveCallRef = useRef(saveCallSession);
+  saveCallRef.current = saveCallSession;
   useEffect(() => {
     return () => {
       disposedRef.current = true;
+      if (modeRef.current === "call") {
+        saveCallRef.current(partnersEverRef.current.size);
+      }
       clientRef.current?.leave();
       clientRef.current = null;
       cleanupRef.current();
@@ -588,18 +651,21 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
       if (modeRef.current !== "call") return;
       if (rejoiningRef.current) return;
       recStopRef.current();
+      // progress fix: the partner spoke with us and left — record the call
+      // with the number of real partners who were ever here
+      saveCallSession(partnersEverRef.current.size);
       clientRef.current?.leave();
       clientRef.current = null;
       cleanupRef.current();
       setEndedInfo({
         durationSec: durationRef.current,
-        partnerCount: 0,
+        partnerCount: partnersEverRef.current.size,
         type: callTypeRef.current,
       });
       setMode("ended");
     }, 3_000);
     return () => clearTimeout(timer);
-  }, [mode, webrtc.remotePeers.length, rejoining]);
+  }, [mode, webrtc.remotePeers.length, rejoining, saveCallSession]);
 
   /* ── live AI correction loop (first check @12s, then every 60s) ──
    * Checkpoint-based: each tick analyzes only the lines spoken SINCE the last
@@ -677,18 +743,36 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
         myPeerId: myPeerIdRef.current || undefined,
       });
       setAnalysis(result);
-      await fetch("/api/sessions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          deviceId,
-          type: endedInfo?.type ?? "one-to-one",
-          partnerCount: endedInfo?.partnerCount ?? 1,
-          durationSec: endedInfo?.durationSec ?? duration,
-          transcript: transcriptRef.current,
-          analysis: result,
-        }),
-      });
+      // progress fix: the call is already auto-saved at end — attach the
+      // analysis to THAT record instead of creating a duplicate. If the
+      // auto-save never completed (404), fall back to a full POST.
+      let attached = false;
+      if (savedSessionRef.current) {
+        try {
+          const patch = await fetch(`/api/sessions/${savedSessionRef.current}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ deviceId, analysis: result }),
+          });
+          if (patch.ok) attached = true;
+        } catch {
+          /* fall through to the POST below */
+        }
+      }
+      if (!attached) {
+        await fetch("/api/sessions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            deviceId,
+            type: endedInfo?.type ?? "one-to-one",
+            partnerCount: endedInfo?.partnerCount ?? 1,
+            durationSec: endedInfo?.durationSec ?? duration,
+            transcript: transcriptRef.current,
+            analysis: result,
+          }),
+        });
+      }
       toast({ title: t("analysisSaved") });
     } catch (e) {
       toast({ title: t("analysisFailed"), description: (e as Error).message, variant: "destructive" });
@@ -949,10 +1033,16 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
           </span>
           <CardTitle>{t("callEnded")}</CardTitle>
           <CardDescription>
-            {t("endedSummary", {
-              minutes: Math.round((endedInfo?.durationSec ?? 0) / 60),
-              count: transcriptCount,
-            })}
+            {/* progress fix: a 23s call is not "0 min" — short calls show seconds */}
+            {(endedInfo?.durationSec ?? 0) < 60
+              ? t("endedSummarySec", {
+                  seconds: endedInfo?.durationSec ?? 0,
+                  count: transcriptCount,
+                })
+              : t("endedSummary", {
+                  minutes: Math.round((endedInfo?.durationSec ?? 0) / 60),
+                  count: transcriptCount,
+                })}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">

@@ -62,6 +62,7 @@
     "joinFailedTitle": "Couldn't join the room",
     "callEnded": "Call ended",
     "endedSummary": "Talked for {minutes} min · {count} sentences recorded",
+    "endedSummarySec": "Talked for {seconds} sec · {count} sentences recorded",
     "analyzeCta": "Analyze the whole dialogue with AI",
     "analyzing": "AI is analyzing…",
     "analysisSaved": "Analysis saved to Progress ✅",

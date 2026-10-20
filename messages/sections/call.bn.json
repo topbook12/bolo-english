@@ -62,6 +62,7 @@
     "joinFailedTitle": "রুমে যুক্ত হওয়া যায়নি",
     "callEnded": "কল শেষ হয়েছে",
     "endedSummary": "{minutes} মিনিট কথা বলেছেন · {count} বাক্য রেকর্ড হয়েছে",
+    "endedSummarySec": "{seconds} সেকেন্ড কথা বলেছেন · {count} বাক্য রেকর্ড হয়েছে",
     "analyzeCta": "AI দিয়ে পুরো ডায়ালগ বিশ্লেষণ করুন",
     "analyzing": "AI বিশ্লেষণ করছে…",
     "analysisSaved": "বিশ্লেষণ প্রোগ্রেসে সেভ হয়েছে ✅",
