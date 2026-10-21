@@ -97,6 +97,8 @@
       "levelAria": "Choose level",
       "pickHint": "Pick a word from the list to see details, examples and practice tools.",
       "closeAria": "Close word details",
+      "wordFamily": "Word family",
+      "collocations": "Often used with",
       "error": {
         "title": "Couldn’t load the library words"
       },
@@ -120,6 +122,13 @@
       "saveWordbook": "Save to wordbook",
       "saved": "Saved to your wordbook",
       "speakAria": "Hear the pronunciation"
+    },
+    "journey": {
+      "title": "Your word journey",
+      "subtitle": "From seed to summit — grow your vocabulary step by step",
+      "aria": "Choose a stage of the journey",
+      "mastered": "{learned}/{total} words learned",
+      "complete": "Done!"
     }
   }
 }

@@ -4,6 +4,12 @@ import { SEED_LISTENING } from "../../scripts/seed-data/listening-data";
 import { SEED_VOCAB_V2_BEGINNER } from "../../scripts/seed-data/vocab-v2-beginner";
 import { SEED_VOCAB_V2_INTERMEDIATE } from "../../scripts/seed-data/vocab-v2-intermediate";
 import { SEED_VOCAB_V2_ADVANCED } from "../../scripts/seed-data/vocab-v2-advanced";
+// v3 — the VOCABULARY JOURNEY wave (owner mandate): 60 richer trilingual words
+// (4 per unit × 15 units) that carry the new `collocations` + `wordFamily`
+// fields and complete each unit's complexity arc (simple → rich in order).
+import { SEED_VOCAB_V3_BEGINNER } from "../../scripts/seed-data/vocab-v3-beginner";
+import { SEED_VOCAB_V3_INTERMEDIATE } from "../../scripts/seed-data/vocab-v3-intermediate";
+import { SEED_VOCAB_V3_ADVANCED } from "../../scripts/seed-data/vocab-v3-advanced";
 // v4 — the point-form ROADMAP upgrade (Task 10, owner mandate): every one of
 // the 50 grammar lessons rebuilt as scannable bullet points with a visible
 // lesson roadmap, emoji step headings, formula boxes and comparison tables.
@@ -74,7 +80,9 @@ const MARKERS: Record<LibraryKind, string> = {
   // v5 = owner-mandated LANGUAGE-IMPROVEMENT sweep (Task 16): polished
   // bn/en/hi copy across all seed content. New marker values force one
   // reseed on every existing DB (local + production) after deploy.
-  vocab: "vocab_v5_lang",
+  // v6 journey — the 60-word v3 wave (collocations + wordFamily). Bumping
+  // forces one sweep: v1/v2 rows refresh identically, v3 rows get created.
+  vocab: "vocab_v6_journey",
   grammar: "grammar_v5_lang",
   listening: "listening_v5_lang",
   reading: "reading_v5_lang",
@@ -315,6 +323,14 @@ const V2_VOCAB: VocabSeedEntry[] = [
   ...SEED_VOCAB_V2_ADVANCED,
 ];
 
+// v3 journey wave — same shape as v2 entries; sortOrder is assigned in
+// seedVocab() as (per-level index + 60) so they sort AFTER v1+v2 within a unit.
+const V3_VOCAB: VocabSeedEntry[] = [
+  ...SEED_VOCAB_V3_BEGINNER,
+  ...SEED_VOCAB_V3_INTERMEDIATE,
+  ...SEED_VOCAB_V3_ADVANCED,
+];
+
 interface GrammarSeedEntry {
   topic: string;
   level: LibraryLevel;
@@ -428,6 +444,30 @@ async function seedVocab(): Promise<number> {
   for (let i = 0; i < V2_VOCAB.length; i++) {
     const e = V2_VOCAB[i];
     const levelIdx = V2_VOCAB.filter((x, j) => j < i && x.level === e.level).length + 12;
+    try {
+      await db.libraryVocab.upsert({
+        where: { word_level: { word: e.word, level: e.level } },
+        create: {
+          word: e.word,
+          level: e.level,
+          category: e.category || "general",
+          data: JSON.stringify(e.data),
+          unit: e.unit,
+          sortOrder: levelIdx,
+        },
+        update: { data: JSON.stringify(e.data), unit: e.unit, sortOrder: levelIdx },
+      });
+    } catch {
+      fails++;
+    }
+  }
+
+  // v3 journey wave — CREATE the new richer words (sortOrder 60+ per level so
+  // each unit still reads simple → rich). Existing rows are refreshed too, so
+  // editing the seed files reaches every deployment via the marker bump.
+  for (let i = 0; i < V3_VOCAB.length; i++) {
+    const e = V3_VOCAB[i];
+    const levelIdx = V3_VOCAB.filter((x, j) => j < i && x.level === e.level).length + 60;
     try {
       await db.libraryVocab.upsert({
         where: { word_level: { word: e.word, level: e.level } },

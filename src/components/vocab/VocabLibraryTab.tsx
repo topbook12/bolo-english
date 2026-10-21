@@ -1,10 +1,12 @@
 "use client";
 
-// VocabLibraryTab — the owner-authored Vocabulary Library, organized as the
-// learning-path units. Words are grouped by thematic unit (Unit 1..5) so a
-// student learns in small, sequential, meaningful chunks. Learners mark
-// words "learned" (testing effect — the marker feeds the Learning Path's
-// mastery rings) and can save any word to their wordbook for quizzes.
+// VocabLibraryTab — the owner-authored Vocabulary LIBRARY redesigned as a
+// WORD JOURNEY. Three journey stations (Beginner 🌱 → Intermediate 🚀 →
+// Advanced 🏔) each carry five themed units, and every unit's words run from
+// simple to rich in seed order — so the path a learner walks IS the path the
+// data is arranged in. All 240 words load once (instant stage switching);
+// learners mark words "learned" (testing effect — it feeds the Learning
+// Path's mastery rings) and can save any word to their wordbook for quizzes.
 // Everything is free; AI (the learner's own Gemini key) is only used when
 // they check a sentence or ask a question about a word.
 
@@ -33,7 +35,6 @@ import { useDevice, useDeviceValue } from "@/hooks/use-device";
 import { useToast } from "@/hooks/use-toast";
 import { apiGet } from "@/lib/client-api";
 import {
-  LIBRARY_LEVELS,
   pickTri,
   type LibraryLevel,
   type LibraryVocabData,
@@ -49,20 +50,14 @@ import { takeNavIntent } from "@/lib/nav-intent";
 import { speakEnglish } from "@/components/vocab/speech";
 import SentenceCheckCard from "@/components/library/SentenceCheckCard";
 import LibraryAskBox from "@/components/library/AskBox";
-
-const LEVEL_TINT: Record<LibraryLevel, string> = {
-  beginner: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
-  intermediate: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
-  advanced: "bg-rose-500/10 text-rose-700 dark:text-rose-300",
-};
-
-const UNIT_TINT = [
-  "from-emerald-500 to-teal-500",
-  "from-amber-500 to-orange-500",
-  "from-rose-500 to-pink-500",
-  "from-teal-500 to-emerald-600",
-  "from-orange-500 to-amber-600",
-];
+import {
+  EXTRA_UNIT_VISUAL,
+  JOURNEY_ORDER,
+  categoryMeta,
+  posChip,
+  unitVisual,
+  type UnitVisual,
+} from "@/components/vocab/vocab-visuals";
 
 /** i18n unit key for a level+unit pair (path.units.<key>.theme). */
 function unitKey(level: LibraryLevel, unit: number): string {
@@ -83,6 +78,279 @@ function wordbookPayload(entry: LibraryVocabEntry) {
   };
 }
 
+/* ───────────────────────── Progress ring ───────────────────────── */
+
+function ProgressRing({
+  pct,
+  stroke,
+  size = 52,
+  width = 5,
+  children,
+}: {
+  pct: number;
+  stroke: string;
+  size?: number;
+  width?: number;
+  children?: React.ReactNode;
+}) {
+  const r = (size - width - 2) / 2;
+  const c = 2 * Math.PI * r;
+  const clamped = Math.max(0, Math.min(100, pct));
+  return (
+    <span className="relative inline-flex shrink-0" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90" aria-hidden>
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          strokeWidth={width}
+          className="stroke-border/60"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          strokeWidth={width}
+          stroke={stroke}
+          strokeLinecap="round"
+          strokeDasharray={c}
+          strokeDashoffset={c * (1 - clamped / 100)}
+          className="transition-[stroke-dashoffset] duration-700 ease-out"
+        />
+      </svg>
+      <span className="absolute inset-0 flex items-center justify-center">{children}</span>
+    </span>
+  );
+}
+
+/* ───────────────────────── Journey header ───────────────────────── */
+
+function JourneyHeader({
+  activeLevel,
+  stats,
+  onSelect,
+  levelLabel,
+}: {
+  activeLevel: LibraryLevel;
+  stats: Map<LibraryLevel, { total: number; learned: number }> | null;
+  onSelect: (lv: LibraryLevel) => void;
+  levelLabel: (lv: LibraryLevel) => string;
+}) {
+  const t = useTranslations("vocab");
+  const tCommon = useTranslations("common");
+
+  const overall = useMemo(() => {
+    if (!stats) return null;
+    let learned = 0;
+    let total = 0;
+    for (const s of stats.values()) {
+      learned += s.learned;
+      total += s.total;
+    }
+    return { learned, total };
+  }, [stats]);
+
+  return (
+    <Card className="premium-card overflow-hidden rounded-3xl border-border/70 bg-card shadow-sm">
+      <CardContent className="p-4 sm:p-5">
+        {/* Title + overall progress */}
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <div className="min-w-0">
+            <h3 className="flex items-center gap-1.5 text-sm font-bold tracking-tight sm:text-base">
+              <span aria-hidden>🧭</span>
+              {t("journey.title")}
+            </h3>
+            <p className="mt-0.5 text-xs text-muted-foreground">{t("journey.subtitle")}</p>
+          </div>
+          {overall && overall.total > 0 && (
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-[11px] font-bold text-primary">
+              {t("journey.mastered", { learned: overall.learned, total: overall.total })}
+            </span>
+          )}
+        </div>
+
+        {/* Stations */}
+        <div role="radiogroup" aria-label={t("journey.aria")} className="flex items-stretch gap-1.5">
+          {JOURNEY_ORDER.map((lv, i) => {
+            const s = stats?.get(lv);
+            const pct = s && s.total > 0 ? Math.round((s.learned / s.total) * 100) : 0;
+            const active = activeLevel === lv;
+            const done = pct >= 100;
+            const vis = { beginner: "#10b981", intermediate: "#f59e0b", advanced: "#8b5cf6" }[lv];
+            const visual = LEVEL_EMOJI[lv];
+            return (
+              <div key={lv} className="flex min-w-0 flex-1 items-center">
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={active}
+                  onClick={() => onSelect(lv)}
+                  className={cn(
+                    "group flex min-w-0 flex-1 flex-col items-center gap-1.5 rounded-2xl border px-2 py-3 transition-all duration-200",
+                    active
+                      ? "border-primary/40 bg-primary/5 shadow-sm"
+                      : "border-transparent hover:border-border/60 hover:bg-muted/40"
+                  )}
+                >
+                  <ProgressRing pct={pct} stroke={vis} size={active ? 58 : 50}>
+                    <span
+                      className={cn(
+                        "text-xl transition-transform duration-200 group-hover:scale-110 sm:text-2xl",
+                        !active && "opacity-90"
+                      )}
+                      aria-hidden
+                    >
+                      {done ? "✅" : visual}
+                    </span>
+                  </ProgressRing>
+                  <span
+                    className={cn(
+                      "max-w-full truncate text-[11px] font-bold sm:text-xs",
+                      active ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+                    )}
+                  >
+                    {levelLabel(lv)}
+                  </span>
+                  {s && s.total > 0 && (
+                    <span
+                      className={cn(
+                        "text-[10px] font-semibold tabular-nums",
+                        done ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"
+                      )}
+                    >
+                      {done ? t("journey.complete") : `${s.learned}/${s.total}`}
+                    </span>
+                  )}
+                  {!s && <Skeleton className="h-3 w-10" />}
+                </button>
+                {i < JOURNEY_ORDER.length - 1 && (
+                  <span
+                    aria-hidden
+                    className={cn(
+                      "mt-[-22px] h-0.5 w-4 shrink-0 border-t-2 border-dashed sm:w-6",
+                      pct >= 100 ? "border-emerald-400" : "border-border"
+                    )}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Hidden i18n interpolation (level labels reuse common keys) */}
+        <span className="sr-only">{tCommon("level.beginner")} · {tCommon("level.intermediate")} · {tCommon("level.advanced")}</span>
+      </CardContent>
+    </Card>
+  );
+}
+
+const LEVEL_EMOJI: Record<LibraryLevel, string> = {
+  beginner: "🌱",
+  intermediate: "🚀",
+  advanced: "🏔",
+};
+
+/* ───────────────────────── Unit banner strip ───────────────────────── */
+
+function UnitBannerStrip({
+  level,
+  units,
+  unitCounts,
+  unitFilter,
+  onPick,
+  themeLabel,
+}: {
+  level: LibraryLevel;
+  units: number[];
+  unitCounts: Map<number, { total: number; learned: number }>;
+  unitFilter: number | null;
+  onPick: (u: number | null) => void;
+  themeLabel: (unit: number) => string;
+}) {
+  const t = useTranslations("vocab");
+  return (
+    <div
+      role="group"
+      aria-label={t("lib.unitsAria")}
+      className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1.5 nice-scroll"
+    >
+      <button
+        type="button"
+        onClick={() => onPick(null)}
+        aria-pressed={unitFilter === null}
+        className={cn(
+          "group flex min-h-24 w-28 shrink-0 flex-col justify-between rounded-2xl border p-2.5 text-left transition-all duration-200 sm:w-32",
+          unitFilter === null
+            ? "border-primary/50 bg-primary/5 shadow-sm ring-1 ring-primary/25"
+            : "border-border/60 bg-card hover:border-primary/30 hover:shadow-sm"
+        )}
+      >
+        <span
+          className="flex h-7 w-7 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-xs font-bold text-white shadow-sm"
+          aria-hidden
+        >
+          ✦
+        </span>
+        <span className="mt-auto">
+          <span className="block truncate text-[11px] font-bold">{t("lib.allUnits")}</span>
+        </span>
+      </button>
+      {units.map((u) => {
+        const vis = u === 0 ? EXTRA_UNIT_VISUAL : unitVisual(level, u);
+        const c = unitCounts.get(u);
+        const pct = c && c.total > 0 ? Math.round((c.learned / c.total) * 100) : 0;
+        const active = unitFilter === u;
+        return (
+          <button
+            key={u}
+            type="button"
+            onClick={() => onPick(active ? null : u)}
+            aria-pressed={active}
+            className={cn(
+              "group flex min-h-24 w-28 shrink-0 flex-col justify-between rounded-2xl border p-2.5 text-left transition-all duration-200 sm:w-36",
+              active
+                ? "border-primary/50 bg-primary/5 shadow-sm ring-1 ring-primary/25"
+                : "border-border/60 bg-card hover:border-primary/30 hover:shadow-sm"
+            )}
+          >
+            <span
+              className={cn(
+                "flex h-7 w-7 items-center justify-center rounded-xl bg-gradient-to-br text-xs shadow-sm",
+                vis.gradient
+              )}
+              aria-hidden
+            >
+              {u === 0 ? "★" : vis.emoji}
+            </span>
+            <span className="mt-1.5 block">
+              <span className="block truncate text-[11px] font-bold leading-tight">
+                {themeLabel(u)}
+              </span>
+              {c && u > 0 && (
+                <span className="mt-1.5 flex items-center gap-1.5">
+                  <span className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-muted">
+                    <span
+                      className={cn("block h-full rounded-full bg-gradient-to-r transition-all duration-500", vis.gradient)}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </span>
+                  <span className="shrink-0 text-[9px] font-bold tabular-nums text-muted-foreground">
+                    {c.learned}/{c.total}
+                  </span>
+                </span>
+              )}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ───────────────────────── Main tab ───────────────────────── */
+
 export default function VocabLibraryTab() {
   const t = useTranslations("vocab");
   const tp = useTranslations("path");
@@ -96,7 +364,7 @@ export default function VocabLibraryTab() {
   const [level, setLevel] = useState<LibraryLevel | null>(null);
   const activeLevel: LibraryLevel = level ?? deviceLevel;
 
-  const [entries, setEntries] = useState<LibraryVocabEntry[] | null>(null);
+  const [all, setAll] = useState<LibraryVocabEntry[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [unitFilter, setUnitFilter] = useState<number | null>(null);
@@ -111,16 +379,14 @@ export default function VocabLibraryTab() {
     getLearnedWordsServerSnapshot
   );
 
-  const load = useCallback((lv: LibraryLevel) => {
+  const load = useCallback(() => {
     const reqId = ++reqRef.current;
-    setEntries(null);
+    setAll(null);
     setError(null);
-    apiGet<{ items: LibraryVocabEntry[] }>(
-      `/api/library?kind=vocab&level=${lv}`
-    )
+    apiGet<{ items: LibraryVocabEntry[] }>("/api/library?kind=vocab")
       .then((d) => {
         if (reqRef.current !== reqId) return;
-        setEntries(d.items);
+        setAll(d.items);
       })
       .catch((e) => {
         if (reqRef.current !== reqId) return;
@@ -130,8 +396,8 @@ export default function VocabLibraryTab() {
 
   useEffect(() => {
     // Microtask keeps setState out of the effect body (no cascading renders).
-    queueMicrotask(() => load(activeLevel));
-  }, [activeLevel, load]);
+    queueMicrotask(() => load());
+  }, [load]);
 
   // Deep link from the Learning Path: jump to the exact unit.
   useEffect(() => {
@@ -144,6 +410,34 @@ export default function VocabLibraryTab() {
       setSelectedId(null);
     });
   }, []);
+
+  // All entries of the ACTIVE level (client-side — stage switching is instant).
+  const entries = useMemo(
+    () => all?.filter((e) => e.level === activeLevel) ?? null,
+    [all, activeLevel]
+  );
+
+  // Journey stats: per-level totals + learned counts (a word maps to its level).
+  const journeyStats = useMemo(() => {
+    if (!all) return null;
+    const map = new Map<LibraryLevel, { total: number; learned: number }>();
+    for (const lv of JOURNEY_ORDER) map.set(lv, { total: 0, learned: 0 });
+    const wordLevel = new Map<string, LibraryLevel>();
+    for (const e of all) {
+      const st = map.get(e.level);
+      if (!st) continue;
+      st.total += 1;
+      wordLevel.set(e.word, e.level);
+    }
+    for (const w of learned) {
+      const lv = wordLevel.get(w);
+      if (lv) {
+        const st = map.get(lv);
+        if (st) st.learned += 1;
+      }
+    }
+    return map;
+  }, [all, learned]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -260,80 +554,39 @@ export default function VocabLibraryTab() {
     [deviceId, learned]
   );
 
+  const unitTheme = useCallback(
+    (u: number) =>
+      u === 0 ? t("lib.extraGroup") : tp(`units.${unitKey(activeLevel, u)}.theme`),
+    [t, tp, activeLevel]
+  );
+
   return (
     <div className="animate-fade-in-up space-y-4">
-      {/* Level filter */}
-      <div
-        role="radiogroup"
-        aria-label={t("lib.levelAria")}
-        className="flex gap-1 rounded-2xl border border-border/70 bg-muted/60 p-1"
-      >
-        {LIBRARY_LEVELS.map((lv) => (
-          <button
-            key={lv}
-            type="button"
-            role="radio"
-            aria-checked={activeLevel === lv}
-            onClick={() => {
-              setLevel(lv);
-              setSelectedId(null);
-            }}
-            className={cn(
-              "min-h-11 flex-1 rounded-xl px-2 text-sm font-semibold transition-all duration-200",
-              activeLevel === lv
-                ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/25"
-                : "text-muted-foreground hover:bg-background/60 hover:text-foreground"
-            )}
-          >
-            {tc(`level.${lv}`)}
-          </button>
-        ))}
-      </div>
+      {/* Word journey — three stations with live mastery rings */}
+      <JourneyHeader
+        activeLevel={activeLevel}
+        stats={journeyStats}
+        onSelect={(lv) => {
+          setLevel(lv);
+          setSelectedId(null);
+          setUnitFilter(null);
+        }}
+        levelLabel={(lv) => tc(`level.${lv}`)}
+      />
 
-      {/* Unit chips — the path steps inside the library */}
-      {units.length > 0 && !query.trim() && (
-        <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label={t("lib.unitsAria")}>
-          <button
-            type="button"
-            onClick={() => setUnitFilter(null)}
-            className={cn(
-              "min-h-9 rounded-full border px-3 text-xs font-semibold transition-colors",
-              unitFilter === null
-                ? "border-transparent bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/25"
-                : "border-border/70 bg-card text-muted-foreground hover:text-foreground"
-            )}
-          >
-            {t("lib.allUnits")}
-          </button>
-          {units.map((u) => {
-            const c = unitCounts.get(u);
-            const active = unitFilter === u;
-            return (
-              <button
-                key={u}
-                type="button"
-                onClick={() => {
-                  setUnitFilter(active ? null : u);
-                  setSelectedId(null);
-                }}
-                aria-pressed={active}
-                className={cn(
-                  "min-h-9 rounded-full border px-3 text-xs font-semibold transition-colors",
-                  active
-                    ? "border-transparent bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/25"
-                    : "border-border/70 bg-card text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {u === 0 ? t("lib.extraGroup") : tp(`units.${unitKey(activeLevel, u)}.theme`)}
-                {c && u > 0 && (
-                  <span className={cn("ml-1.5", active ? "text-white/80" : "text-primary/70")}>
-                    {c.learned}/{c.total}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
+      {/* Unit banners — the five themed stops of the active stage */}
+      {entries && units.length > 0 && !query.trim() && (
+        <UnitBannerStrip
+          level={activeLevel}
+          units={units}
+          unitCounts={unitCounts}
+          unitFilter={unitFilter}
+          onPick={(u) => {
+            setUnitFilter(u);
+            setSelectedId(null);
+          }}
+          themeLabel={unitTheme}
+        />
       )}
 
       {/* Free note */}
@@ -372,7 +625,7 @@ export default function VocabLibraryTab() {
           {!filtered && !error && (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3" aria-busy="true">
               {Array.from({ length: 9 }).map((_, i) => (
-                <Skeleton key={i} className="h-28 rounded-2xl" />
+                <Skeleton key={i} className="h-32 rounded-2xl" />
               ))}
             </div>
           )}
@@ -388,10 +641,10 @@ export default function VocabLibraryTab() {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => void load(activeLevel)}
+                    onClick={() => void load()}
                     className="mt-2 min-h-9 gap-1.5 bg-transparent px-3 text-xs"
                   >
-                    {error ? <RefreshCw className="h-3.5 w-3.5" aria-hidden /> : null}
+                    <RefreshCw className="h-3.5 w-3.5" aria-hidden />
                     {tc("retry")}
                   </Button>
                 </div>
@@ -414,46 +667,55 @@ export default function VocabLibraryTab() {
 
           {/* Grouped-by-unit grid (no search) */}
           {grouped && grouped.length > 0 &&
-            grouped.map((g, gi) => (
-              <section key={g.unit} className="space-y-2.5" aria-label={g.unit === 0 ? t("lib.extraGroup") : tp(`units.${unitKey(activeLevel, g.unit)}.theme`)}>
-                {/* Unit header */}
-                <div className="flex items-center gap-2.5">
-                  <span
-                    className={cn(
-                      "flex h-7 min-w-7 items-center justify-center rounded-lg bg-gradient-to-br px-1.5 text-xs font-bold text-white shadow-sm",
-                      g.unit === 0 ? "from-slate-500 to-slate-600" : UNIT_TINT[(g.unit - 1) % UNIT_TINT.length]
-                    )}
-                    aria-hidden
-                  >
-                    {g.unit === 0 ? "★" : g.unit}
-                  </span>
-                  <h3 className="min-w-0 truncate text-sm font-bold tracking-tight">
-                    {g.unit === 0 ? t("lib.extraGroup") : tp(`units.${unitKey(activeLevel, g.unit)}.theme`)}
-                  </h3>
-                  {g.unit > 0 && unitCounts.get(g.unit) && (
-                    <span className="shrink-0 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:text-emerald-300">
-                      {t("lib.learnedCount", {
-                        learned: unitCounts.get(g.unit)!.learned,
-                        total: unitCounts.get(g.unit)!.total,
-                      })}
+            grouped.map((g) => {
+              const vis = g.unit === 0 ? EXTRA_UNIT_VISUAL : unitVisual(activeLevel, g.unit);
+              return (
+                <section
+                  key={g.unit}
+                  className="space-y-2.5"
+                  aria-label={g.unit === 0 ? t("lib.extraGroup") : tp(`units.${unitKey(activeLevel, g.unit)}.theme`)}
+                >
+                  {/* Unit header */}
+                  <div className="flex items-center gap-2.5">
+                    <span
+                      className={cn(
+                        "flex h-8 min-w-8 items-center justify-center rounded-xl bg-gradient-to-br text-sm shadow-sm",
+                        vis.gradient
+                      )}
+                      aria-hidden
+                    >
+                      {g.unit === 0 ? "★" : vis.emoji}
                     </span>
-                  )}
-                </div>
-                <WordGrid
-                  items={g.items}
-                  learned={learned}
-                  selectedId={selectedId}
-                  onSelect={select}
-                  locale={locale}
-                  levelLabel={tc(`level.${activeLevel}`)}
-                />
-              </section>
-            ))}
+                    <h3 className="min-w-0 truncate text-sm font-bold tracking-tight">
+                      {g.unit === 0 ? t("lib.extraGroup") : tp(`units.${unitKey(activeLevel, g.unit)}.theme`)}
+                    </h3>
+                    {g.unit > 0 && unitCounts.get(g.unit) && (
+                      <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold", vis.soft)}>
+                        {t("lib.learnedCount", {
+                          learned: unitCounts.get(g.unit)!.learned,
+                          total: unitCounts.get(g.unit)!.total,
+                        })}
+                      </span>
+                    )}
+                  </div>
+                  <WordGrid
+                    items={g.items}
+                    level={activeLevel}
+                    learned={learned}
+                    selectedId={selectedId}
+                    onSelect={select}
+                    locale={locale}
+                    levelLabel={tc(`level.${activeLevel}`)}
+                  />
+                </section>
+              );
+            })}
 
           {/* Flat grid (searching) */}
           {filtered && query.trim() && filtered.length > 0 && (
             <WordGrid
               items={filtered}
+              level={activeLevel}
               learned={learned}
               selectedId={selectedId}
               onSelect={select}
@@ -479,6 +741,7 @@ export default function VocabLibraryTab() {
             <WordDetail
               key={selected.id}
               entry={selected}
+              level={activeLevel}
               locale={locale}
               learned={learned.includes(selected.word)}
               onToggleLearned={() => handleToggleLearned(selected)}
@@ -497,6 +760,8 @@ export default function VocabLibraryTab() {
                 tip: t("lib.tipLabel"),
                 synonyms: t("lib.synonymsLabel"),
                 antonyms: t("lib.antonymsLabel"),
+                wordFamily: t("lib.wordFamily"),
+                collocations: t("lib.collocations"),
                 markLearned: t("lib.markLearned"),
                 learned: t("lib.learned"),
                 saveWordbook: t("lib.saveWordbook"),
@@ -513,6 +778,7 @@ export default function VocabLibraryTab() {
 
 function WordGrid({
   items,
+  level,
   learned,
   selectedId,
   onSelect,
@@ -520,6 +786,7 @@ function WordGrid({
   levelLabel,
 }: {
   items: LibraryVocabEntry[];
+  level: LibraryLevel;
   learned: string[];
   selectedId: string | null;
   onSelect: (id: string) => void;
@@ -531,43 +798,65 @@ function WordGrid({
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
       {items.map((e) => {
         const isLearned = learned.includes(e.word);
+        const vis = unitVisual(level, e.unit ?? 0);
+        const cat = categoryMeta(e.category);
         return (
           <button
             key={e.id}
             type="button"
             onClick={() => onSelect(e.id)}
-            className="group text-left"
+            className="group text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:rounded-2xl"
             aria-label={e.word}
             aria-pressed={selectedId === e.id}
           >
             <Card
               className={cn(
-                "h-full rounded-2xl border-border/70 bg-card shadow-sm transition-all group-hover:-translate-y-1 group-hover:border-primary/40 group-hover:shadow-md group-active:translate-y-0",
+                "relative h-full overflow-hidden rounded-2xl border-border/70 bg-card shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:border-primary/40 group-hover:shadow-md group-active:translate-y-0",
                 selectedId === e.id && "border-primary/60 ring-2 ring-primary/25",
                 isLearned && "border-emerald-500/40 bg-emerald-500/5"
               )}
             >
-              <CardContent className="flex h-full flex-col gap-1.5 p-3.5">
+              {/* Unit-coloured accent edge */}
+              <span
+                aria-hidden
+                className={cn(
+                  "absolute inset-y-0 left-0 w-1 bg-gradient-to-b opacity-80 transition-opacity group-hover:opacity-100",
+                  vis.gradient
+                )}
+              />
+              <CardContent className="flex h-full flex-col gap-1.5 p-3.5 pl-4">
                 <div className="flex items-start justify-between gap-1.5">
-                  <p className="min-w-0 break-words text-sm font-bold leading-snug">
-                    {e.word}
-                  </p>
+                  <span
+                    className={cn(
+                      "flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-[11px]",
+                      cat.chip
+                    )}
+                    aria-hidden
+                    title={e.category}
+                  >
+                    {cat.emoji}
+                  </span>
                   {isLearned ? (
                     <span
-                      className="flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white"
+                      className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm"
                       title={levelLabel}
                     >
-                      <Check className="h-2.5 w-2.5" strokeWidth={3.5} aria-hidden />
+                      <Check className="h-3 w-3" strokeWidth={3.5} aria-hidden />
                     </span>
                   ) : (
-                    <Badge
-                      variant="secondary"
-                      className={cn("shrink-0 border-transparent px-1.5 text-[9px]", LEVEL_TINT[e.level])}
+                    <span
+                      className={cn(
+                        "shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold",
+                        vis.soft
+                      )}
                     >
-                      {levelLabel}
-                    </Badge>
+                      U{e.unit || "★"}
+                    </span>
                   )}
                 </div>
+                <p className="break-words text-[15px] font-bold leading-snug tracking-tight">
+                  {e.word}
+                </p>
                 {e.data.pronunciation && (
                   <span
                     role="button"
@@ -592,14 +881,12 @@ function WordGrid({
                     <span className="truncate">{e.data.pronunciation}</span>
                   </span>
                 )}
-                <p className="mt-auto line-clamp-2 text-xs leading-relaxed text-muted-foreground" dir="auto">
+                <p
+                  className="mt-auto line-clamp-2 text-xs leading-relaxed text-muted-foreground"
+                  dir="auto"
+                >
                   {pickTri(e.data.meaning, locale)}
                 </p>
-                {e.data.partOfSpeech && (
-                  <span className="text-[10px] font-medium uppercase tracking-wide text-primary/80">
-                    {e.data.partOfSpeech}
-                  </span>
-                )}
               </CardContent>
             </Card>
           </button>
@@ -613,6 +900,7 @@ function WordGrid({
 
 function WordDetail({
   entry,
+  level,
   locale,
   learned,
   onToggleLearned,
@@ -623,6 +911,7 @@ function WordDetail({
   labels,
 }: {
   entry: LibraryVocabEntry;
+  level: LibraryLevel;
   locale: string;
   learned: boolean;
   onToggleLearned: () => void;
@@ -637,6 +926,8 @@ function WordDetail({
     tip: string;
     synonyms: string;
     antonyms: string;
+    wordFamily: string;
+    collocations: string;
     markLearned: string;
     learned: string;
     saveWordbook: string;
@@ -646,6 +937,8 @@ function WordDetail({
   const d: LibraryVocabData = entry.data;
   const meaning = pickTri(d.meaning, locale);
   const tip = pickTri(d.tip, locale);
+  const vis = unitVisual(level, entry.unit ?? 0);
+  const cat = categoryMeta(entry.category);
 
   const askContext = useMemo(() => {
     const ex = d.examples.map((x) => x.en).join(" / ");
@@ -664,23 +957,27 @@ function WordDetail({
 
   return (
     <div className="animate-fade-in-up space-y-4">
-      {/* Hero */}
-      <Card className="premium-card relative overflow-hidden rounded-2xl border-border/70 bg-gradient-to-br from-emerald-500/10 via-card to-teal-500/10 shadow-sm">
-        <CardContent className="space-y-3 p-4 sm:p-5">
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex flex-wrap gap-1.5">
+      {/* Hero — gradient band carrying the unit's colour identity */}
+      <Card className="premium-card overflow-hidden rounded-2xl border-border/70 bg-card shadow-sm">
+        <div className={cn("relative bg-gradient-to-br px-4 pb-5 pt-4 sm:px-5", vis.gradient)}>
+          {/* Soft decorative rings */}
+          <span aria-hidden className="pointer-events-none absolute -right-6 -top-8 h-24 w-24 rounded-full bg-white/10" />
+          <span aria-hidden className="pointer-events-none absolute -right-12 top-8 h-20 w-20 rounded-full bg-white/5" />
+          <div className="relative flex items-start justify-between gap-2">
+            <div className="flex min-w-0 flex-wrap gap-1.5">
               {unitLabel && (
-                <Badge className="border-transparent bg-gradient-to-br from-teal-500 to-emerald-600 text-[11px] text-white">
+                <Badge className="border-transparent bg-white/20 text-[11px] text-white backdrop-blur-sm">
                   {unitLabel}
                 </Badge>
               )}
               {d.partOfSpeech && (
-                <Badge variant="outline" className="text-[11px]">
+                <Badge className="border-transparent bg-white/20 text-[11px] capitalize text-white backdrop-blur-sm">
                   {d.partOfSpeech}
                 </Badge>
               )}
               {entry.category && entry.category !== "general" && (
-                <Badge variant="secondary" className="text-[11px]">
+                <Badge className="border-transparent bg-white/20 text-[11px] text-white backdrop-blur-sm">
+                  <span aria-hidden className="mr-0.5">{cat.emoji}</span>
                   {entry.category}
                 </Badge>
               )}
@@ -690,29 +987,35 @@ function WordDetail({
               variant="ghost"
               onClick={onClose}
               aria-label={closeLabel}
-              className="min-h-9 px-2 lg:hidden"
+              className="min-h-9 px-2 text-white/90 hover:bg-white/20 hover:text-white lg:hidden"
             >
               <X className="h-4 w-4" aria-hidden />
             </Button>
           </div>
-          <h2 className="break-words text-2xl font-bold tracking-tight">{entry.word}</h2>
+          <h2 className="relative mt-2 break-words text-3xl font-extrabold tracking-tight text-white drop-shadow-sm">
+            {entry.word}
+          </h2>
           {d.pronunciation && (
             <button
               type="button"
               onClick={() => speakEnglish(entry.word)}
-              className="flex min-h-9 items-center gap-1.5 rounded-lg px-2 py-1 -ml-2 text-sm text-muted-foreground transition-colors hover:bg-emerald-500/10 hover:text-emerald-700 dark:hover:text-emerald-300"
+              className="relative mt-1.5 flex min-h-9 items-center gap-1.5 rounded-lg px-2 py-1 -ml-2 text-sm font-medium text-white/90 transition-colors hover:bg-white/20 hover:text-white"
               aria-label={t("lib.speakAria")}
               title={t("lib.speakAria")}
             >
-              <Volume2 className="h-4 w-4 shrink-0 text-emerald-600" aria-hidden />
+              <Volume2 className="h-4 w-4 shrink-0" aria-hidden />
               {d.pronunciation}
             </button>
           )}
+        </div>
+
+        <CardContent className="space-y-3 p-4 sm:p-5">
+          {/* Meaning */}
           <div>
             <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
               {labels.meaning}
             </p>
-            <p className="mt-0.5 break-words text-[15px] font-medium leading-relaxed" dir="auto">
+            <p className="mt-0.5 break-words text-[15px] font-semibold leading-relaxed" dir="auto">
               {meaning}
             </p>
           </div>
@@ -720,6 +1023,59 @@ function WordDetail({
             <div className="flex items-start gap-1.5 text-xs leading-relaxed text-muted-foreground">
               <Languages className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
               <span dir="auto">{d.englishMeaning}</span>
+            </div>
+          )}
+
+          {/* Word family — morphological strip */}
+          {(d.wordFamily ?? []).length > 0 && (
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+                {labels.wordFamily}
+              </p>
+              <div className="mt-1.5 flex flex-wrap items-center gap-1">
+                {(d.wordFamily ?? []).map((f, i) => (
+                  <span key={f} className="flex items-center gap-1">
+                    {i > 0 && (
+                      <span aria-hidden className="text-[10px] text-muted-foreground/60">
+                        →
+                      </span>
+                    )}
+                    <span
+                      dir="auto"
+                      className={cn(
+                        "rounded-full border border-border/60 px-2 py-0.5 text-[11px] font-semibold",
+                        vis.soft
+                      )}
+                    >
+                      {f}
+                    </span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Collocations — natural word partnerships */}
+          {(d.collocations ?? []).length > 0 && (
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+                {labels.collocations}
+              </p>
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                {(d.collocations ?? []).map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => speakEnglish(c)}
+                    className="flex min-h-8 items-center gap-1 rounded-full border border-border/60 bg-muted/40 px-2.5 text-[11px] font-medium transition-colors hover:bg-emerald-500/10 hover:text-emerald-700 dark:hover:text-emerald-300"
+                    dir="auto"
+                    aria-label={t("lib.speakAria")}
+                  >
+                    <Volume2 className="h-3 w-3 shrink-0 text-emerald-600" aria-hidden />
+                    {c}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 
@@ -743,12 +1099,7 @@ function WordDetail({
               )}
               {learned ? labels.learned : labels.markLearned}
             </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={onSave}
-              className="min-h-10 gap-1.5"
-            >
+            <Button size="sm" variant="outline" onClick={onSave} className="min-h-10 gap-1.5">
               <BookmarkPlus className="h-4 w-4 text-teal-600" aria-hidden />
               {labels.saveWordbook}
             </Button>
@@ -766,9 +1117,19 @@ function WordDetail({
             <div className="max-h-72 space-y-2.5 overflow-y-auto nice-scroll pr-1">
               {d.examples.map((ex, i) => (
                 <div key={i} className="rounded-xl border border-border/60 bg-muted/30 p-3">
-                  <p className="break-words text-sm font-medium leading-relaxed text-foreground/95">
-                    {ex.en}
-                  </p>
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="min-w-0 break-words text-sm font-medium leading-relaxed text-foreground/95">
+                      {ex.en}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => speakEnglish(ex.en)}
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-emerald-500/10 hover:text-emerald-700 dark:hover:text-emerald-300"
+                      aria-label={t("lib.speakAria")}
+                    >
+                      <Volume2 className="h-3.5 w-3.5" aria-hidden />
+                    </button>
+                  </div>
                   {ex.bn && (
                     <p className="mt-1 break-words text-xs leading-relaxed text-muted-foreground" dir="auto">
                       {ex.bn}

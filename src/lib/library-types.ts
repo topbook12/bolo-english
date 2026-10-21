@@ -46,6 +46,12 @@ export interface LibraryVocabData {
   tip: TriText; // real-life usage tip
   synonyms: string[];
   antonyms: string[];
+  /** Natural word partnerships (v3 journey wave) — e.g. "heavy rain",
+   *  "take a shower". Optional: v1/v2 rows predate it and the UI hides it. */
+  collocations?: string[];
+  /** Word-family forms (v3 journey wave) — e.g. beauty → beautiful →
+   *  beautifully. Optional; rendered as a morphological strip when present. */
+  wordFamily?: string[];
 }
 
 export interface LibraryVocabEntry {
