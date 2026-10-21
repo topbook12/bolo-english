@@ -226,6 +226,12 @@ export async function POST(req: NextRequest) {
         // was never proven invalid → SAVE it and surface the situation. The
         // key starts working the moment Google's side activates it.
         warning = apiMsg(reqLocale(req), "authKeyPending");
+      } else if (gerr?.code === "modelIneligible") {
+        // Google refused the MODELS for this key ("not eligible to use Gemini
+        // 2.5 Flash — use Gemini 2.0 Flash" and the fallback was refused too).
+        // The key itself was never proven invalid → SAVE it with a clear,
+        // localized explanation instead of Google's raw English text.
+        warning = apiMsg(reqLocale(req), "modelFallbackWarning");
       } else if (status === 401) {
         // Google rejected the key string itself → refuse to save (localized),
         // plus the raw Google message as `detail` for self-diagnosis.

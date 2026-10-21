@@ -74,6 +74,16 @@ const M = {
     bn: "Key সেভ হয়েছে ✅ — কিন্তু Google আপনার নতুন ফরম্যাটের (AQ.) auth key-কে এখন একটি পরিচিত রোলআউট সমস্যায় (ACCESS_TOKEN_TYPE_UNSUPPORTED) ফিরিয়ে দিচ্ছে। Google সক্রিয় না করা পর্যন্ত AI ফিচার কাজ নাও করতে পারে। বেশিরভাগ ইউজারের কাজের সমাধান: AI Studio-তে নতুন একটি প্রজেক্টের অধীনে API key বানান (aistudio.google.com/apikey → প্রজেক্ট সিলেক্টর → create new project), তারপর এখানে সেভ করুন।",
     hi: "Key सेव हो गई ✅ — लेकिन Google आपकी नए फॉर्मैट (AQ.) की auth key को अभी एक ज्ञात rollout समस्या (ACCESS_TOKEN_TYPE_UNSUPPORTED) में रिफ्यूज़ कर रहा है। Google के सक्रिय होने तक AI फ़ीचर काम नहीं कर सकते। ज़्यादातर यूज़र्स के लिए कारगर समाधान: AI Studio में एक नए प्रोजेक्ट के तहत API key बनाएँ (aistudio.google.com/apikey → प्रोजेक्ट पिकर → create new project), फिर उसे यहाँ सेव करें।",
   },
+  modelIneligible: {
+    en: "This API key isn't allowed to use any of the Gemini models right now (model access refused). Create a key under a new project in AI Studio and try again — the app automatically uses whichever model your key supports.",
+    bn: "এই API key দিয়ে এখন কোনো Gemini মডেলই ব্যবহার করা যাচ্ছে না (মডেল অ্যাক্সেস ফিরিয়ে দেওয়া হচ্ছে)। AI Studio-তে নতুন প্রজেক্টে কী বানিয়ে আবার চেষ্টা করুন — অ্যাপ স্বয়ংক্রিয়ভাবে আপনার কী যে মডেল সাপোর্ট করে সেটিই চালায়।",
+    hi: "इस API key से अभी कोई Gemini मॉडल इस्तेमाल नहीं हो पा रहा (मॉडल एक्सेस रिफ्यूज़)। AI Studio में नए प्रोजेक्ट के तहत की बनाकर फिर कोशिश करें — ऐप अपने-आप आपकी की सपोर्टेड मॉडल इस्तेमाल करता है।",
+  },
+  modelFallbackWarning: {
+    en: "Key saved ✅ — but this key isn't allowed to use the Gemini models yet (Google refused both Gemini 2.5 Flash and Gemini 2.0 Flash). AI features will start working the moment Google activates model access for your key; if that doesn't happen, create a key under a NEW project in AI Studio.",
+    bn: "Key সেভ হয়েছে ✅ — কিন্তু এই কী দিয়ে এখনো Gemini মডেল ব্যবহারের অনুমতি মিলেনি (Google Gemini 2.5 Flash ও Gemini 2.0 Flash দুটোই ফিরিয়ে দিচ্ছে)। Google আপনার কী-তে মডেল অ্যাক্সেস চালু করলেই AI ফিচারগুলো কাজ করা শুরু করবে; না হলে AI Studio-তে নতুন প্রজেক্টে নতুন কী বানান।",
+    hi: "Key सेव हो गई ✅ — लेकिन इस key से अभी Gemini मॉडल इस्तेमाल की अनुमति नहीं मिली (Google ने Gemini 2.5 Flash और Gemini 2.0 Flash दोनों रिफ्यूज़ किए)। Google के आपकी key के लिए मॉडल एक्सेस चालू करते ही AI फ़ीचर काम करने लगेंगे; नहीं हुआ तो AI Studio में नए प्रोजेक्ट के तहत नई key बनाएँ।",
+  },
   keyUnverified: {
     en: "Key saved, but it couldn't be verified — {reason}",
     bn: "কী সেভ হয়েছে, তবে যাচাই করা যায়নি — {reason}",

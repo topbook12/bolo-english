@@ -1,3 +1,4 @@
+import { createHash } from "crypto";
 import { decryptKey } from "./crypto";
 import { db } from "./db";
 import { isNoName } from "@/lib/no-name";
@@ -62,7 +63,8 @@ export type GeminiErrCode =
   | "badKey"
   | "quota"
   | "geminiServer"
-  | "authKeyPending";
+  | "authKeyPending"
+  | "modelIneligible";
 
 export class GeminiError extends Error {
   status: number;
@@ -111,6 +113,56 @@ export async function getUserName(deviceId: string): Promise<string> {
   // "" / the legacy no-name marker → AI conversations are in English, so
   // fall back to the international default instead (src/lib/no-name.ts).
   return isNoName(n) ? "Student" : (n as string).slice(0, 24);
+}
+
+/* ── Model eligibility (free-tier keys that can't use a specific model) ────
+ * Google refuses some models per-key ("not eligible to use Gemini 2.5 Flash —
+ * use Gemini 2.0 Flash", "model not supported for this project", per-model
+ * free-tier quota…). These are MODEL-level problems: another model in the
+ * fallback chain usually works, so they must SKIP to the next model instead
+ * of aborting the whole call. Only KEY-level failures (401 invalid key,
+ * geo/permission blocks) abort. Verified live: an eligible-blocked key
+ * previously surfaced Google's raw English eligibility text in the save
+ * toast and broke every AI feature — because 403/429 aborted the loop
+ * before the 2.0-flash fallback ever ran. */
+
+const MODEL_INELIGIBLE_RE =
+  /(not\s+eligible|\bmodel\b[^\n]{0,80}?(not\s+supported|not\s+available|does\s+not\s+exist|not\s+found|is\s+unavailable)|models?\s+not\s+found|not\s+found\s+for\s+api\s+version|requires?\s+billing|billing\s+is\s+not\s+enabled|free\s+tier)/i;
+
+/** True when Google's message says THIS MODEL isn't available to this key. */
+export function isModelIneligibleMsg(msg: string): boolean {
+  if (!msg) return false;
+  // A key-invalid message also contains the word "key" — it must never be
+  // treated as model-level, otherwise a bad key would burn fallback calls.
+  if (/api key not valid|api_key_invalid/i.test(msg)) return false;
+  return MODEL_INELIGIBLE_RE.test(msg);
+}
+
+// Warm-instance memory: sha256(key)[0..16] → models proven ineligible for it.
+// After the first detection, later calls skip straight to a working model.
+const ineligibleModels = new Map<string, Set<string>>();
+
+function keyHash(apiKey: string): string {
+  return createHash("sha256").update(apiKey).digest("hex").slice(0, 16);
+}
+
+function markIneligible(apiKey: string, model: string): void {
+  const h = keyHash(apiKey);
+  const set = ineligibleModels.get(h) ?? new Set<string>();
+  set.add(model);
+  ineligibleModels.set(h, set);
+  console.log(`[ai] model ${model} not eligible for key ${h} → skipping`);
+}
+
+function eligibleModels(apiKey: string): string[] {
+  const skip = ineligibleModels.get(keyHash(apiKey));
+  return skip ? MODELS.filter((m) => !skip.has(m)) : [...MODELS];
+}
+
+export class NoEligibleModelError extends GeminiError {
+  constructor() {
+    super("No Gemini model is eligible for this key.", 403, "modelIneligible");
+  }
 }
 
 /* ── JSON extraction & repair ─────────────────────────────────────────────
@@ -236,10 +288,14 @@ export async function geminiJson<T>(
   opts: GeminiOptions = {}
 ): Promise<T> {
   let lastErr: GeminiError | null = null;
-  for (const model of MODELS) {
+  const models = eligibleModels(apiKey);
+  if (models.length === 0) throw new NoEligibleModelError();
+  for (const model of models) {
     // 2 attempts per model: attempt 2 appends a strict JSON-only nudge
     // (fixes prose-wrapped answers); a transient/truncated reply is usually
-    // fine on the next try. Auth/quota errors abort immediately.
+    // fine on the next try. Model-ineligible/quota errors skip the nudge
+    // retry — the same model will refuse again — and fall through to the
+    // next model instead.
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
         const text = await callModel(
@@ -258,9 +314,19 @@ export async function geminiJson<T>(
           e instanceof GeminiError
             ? e
             : new GeminiError("AI কল ব্যর্থ হয়েছে — ইন্টারনেট সংযোগ চেক করুন।", 502, "aiNetwork");
-        if (lastErr.status === 401 || lastErr.status === 403 || lastErr.status === 429) {
+        if (lastErr.code === "modelIneligible") {
+          markIneligible(apiKey, model);
+          break; // → next model immediately
+        }
+        // Only KEY-level failures abort the whole chain: an invalid key
+        // fails identically on every model. 403 is kept as an abort EXCEPT
+        // for model-eligibility refusals (handled above). 429 (quota) often
+        // applies to ONE model's free-tier limit — the fallback model has a
+        // separate bucket, so it gets its chance too.
+        if (lastErr.status === 401 || (lastErr.status === 403 && lastErr.code !== "quota")) {
           throw lastErr;
         }
+        if (lastErr.code === "quota") break;
         // Safety blocks are content-based — the same prompt on the same or an
         // OLDER model will not pass either. Retrying used to cost up to 4×
         // the input tokens for a guaranteed-miss (BYOK = the user's money).
@@ -283,7 +349,9 @@ export async function geminiText(
   opts: GeminiOptions = {}
 ): Promise<string> {
   let lastErr: GeminiError | null = null;
-  for (const model of MODELS) {
+  const models = eligibleModels(apiKey);
+  if (models.length === 0) throw new NoEligibleModelError();
+  for (const model of models) {
     try {
       return await callModel(apiKey, model, prompt, opts);
     } catch (e) {
@@ -291,8 +359,12 @@ export async function geminiText(
         e instanceof GeminiError
           ? e
           : new GeminiError("AI কল ব্যর্থ হয়েছে — ইন্টারনেট সংযোগ চেক করুন।", 502, "aiNetwork");
-      // If auth/quota error, don't try other models with the same key
-      if (lastErr.status === 401 || lastErr.status === 403 || lastErr.status === 429) {
+      if (lastErr.code === "modelIneligible") {
+        markIneligible(apiKey, model);
+        continue; // → next model
+      }
+      // Key-level failures abort; model-level quota gets the next model.
+      if (lastErr.status === 401 || (lastErr.status === 403 && lastErr.code !== "quota")) {
         throw lastErr;
       }
     }
@@ -356,6 +428,13 @@ async function callModel(
         "authKeyPending",
         msg.slice(0, 200)
       );
+    }
+    // Model-level refusal ("not eligible to use Gemini 2.5 Flash…",
+    // "model not supported for this project", per-model free-tier limit) →
+    // code modelIneligible so the callers fall back to the next model
+    // instead of surfacing Google's raw text to the user.
+    if (isModelIneligibleMsg(msg)) {
+      throw new GeminiError(msg.slice(0, 160), res.status, "modelIneligible", msg.slice(0, 200));
     }
     const status =
       res.status === 400 && /api key/i.test(msg)
