@@ -36,6 +36,9 @@ interface GeminiCandidate {
   content?: { parts?: GeminiPart[] };
   finishReason?: string;
 }
+interface GeminiErrorDetail {
+  reason?: string;
+}
 interface GeminiResponse {
   candidates?: GeminiCandidate[];
   usageMetadata?: {
@@ -43,7 +46,7 @@ interface GeminiResponse {
     candidatesTokenCount?: number;
     totalTokenCount?: number;
   };
-  error?: { message?: string };
+  error?: { message?: string; details?: GeminiErrorDetail[] };
 }
 
 // Machine-readable error codes — routes translate these into the user's UI
@@ -58,7 +61,8 @@ export type GeminiErrCode =
   | "safety"
   | "badKey"
   | "quota"
-  | "geminiServer";
+  | "geminiServer"
+  | "authKeyPending";
 
 export class GeminiError extends Error {
   status: number;
@@ -338,6 +342,21 @@ async function callModel(
 
   if (!res.ok) {
     const msg = json?.error?.message ?? `Gemini HTTP ${res.status}`;
+    // The `reason` in error.details distinguishes failures that share the
+    // same message: API_KEY_INVALID (the key string is bogus) vs
+    // ACCESS_TOKEN_TYPE_UNSUPPORTED (Google's new AQ. auth key recognized
+    // but currently refused — a known rollout issue, the key itself was
+    // never proven invalid).
+    const reason =
+      json?.error?.details?.find((d) => typeof d?.reason === "string")?.reason ?? "";
+    if (reason === "ACCESS_TOKEN_TYPE_UNSUPPORTED") {
+      throw new GeminiError(
+        "Google refused this new-format (AQ.) auth key — known rollout issue.",
+        401,
+        "authKeyPending",
+        msg.slice(0, 200)
+      );
+    }
     const status =
       res.status === 400 && /api key/i.test(msg)
         ? 401

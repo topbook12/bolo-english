@@ -61,12 +61,15 @@ export default function SettingsSection() {
   const { canInstall, promptInstall } = usePwaInstall();
   useAuthInit(); // keep the account card in sync even without the header button
 
-  // Live paste check — a complete Gemini key is exactly "AIza" + 35 key
-  // characters (39 total). Anything else (junk around it, a truncated copy,
-  // the wrong string) shows an inline hint BEFORE save, so the user sees
-  // what arrived instead of a generic failure after the round-trip.
+  // Live paste check — a complete Gemini key is either a legacy standard key
+  // ("AIza" + 35 chars = 39) or Google's new auth key ("AQ." + ~50-char
+  // token, AI Studio default since May 2026). Anything else (junk around it,
+  // a truncated copy, the wrong string) shows an inline hint BEFORE save, so
+  // the user sees what arrived instead of a generic failure after the trip.
   const cleanedKey = apiKey ? sanitizeApiKey(apiKey) : "";
-  const keyComplete = /^AIza[0-9A-Za-z_\-]{35}$/.test(cleanedKey);
+  const keyComplete =
+    /^AIza[0-9A-Za-z_\-]{35}$/.test(cleanedKey) ||
+    /^AQ\.[A-Za-z0-9_\-]{20,}$/.test(cleanedKey);
   const showKeyHint = !!cleanedKey && !keyComplete && saving !== "key";
 
   const saveKey = async () => {
@@ -338,7 +341,7 @@ export default function SettingsSection() {
                   <Input
                     id="apikey"
                     type={showKey ? "text" : "password"}
-                    placeholder="AIza..."
+                    placeholder="AIza… / AQ.…"
                     value={apiKey}
                     onChange={(e) => setApiKey(e.target.value)}
                     autoComplete="off"

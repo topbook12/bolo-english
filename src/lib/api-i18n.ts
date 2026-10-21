@@ -65,9 +65,14 @@ const M = {
 
   /* ── settings / config / storage ── */
   keyDiag: {
-    en: "That doesn't look like a complete Gemini key — received {len} characters starting with “{prefix}”. A Gemini key is exactly 39 characters and starts with AIza. Open the key in AI Studio, press the COPY icon and paste it again.",
-    bn: "এটি সম্পূর্ণ Gemini Key-এর মতো দেখাচ্ছে না — {len} অক্ষর এসেছে, শুরুটা “{prefix}”। Gemini Key ঠিক ৩৯ অক্ষরের হয় এবং AIza দিয়ে শুরু হয়। AI Studio-তে কী-টি খুলে COPY আইকনে চাপ দিয়ে আবার পেস্ট করুন।",
-    hi: "यह पूरी Gemini Key जैसी नहीं लग रही — {len} अक्षर मिले, शुरुआत “{prefix}”। Gemini Key ठीक 39 अक्षर की होती है और AIza से शुरू होती है। AI Studio में की खोलें, COPY आइकन दबाकर दोबारा पेस्ट करें।",
+    en: "That doesn't look like a complete Gemini key — received {len} characters starting with “{prefix}”. A Gemini key starts with AIza (39 characters) or with the new AQ. format. Open the key in AI Studio, press the COPY icon and paste it again.",
+    bn: "এটি সম্পূর্ণ Gemini Key-এর মতো দেখাচ্ছে না — {len} অক্ষর এসেছে, শুরুটা “{prefix}”। বৈধ Gemini Key AIza দিয়ে শুরু হয় (৩৯ অক্ষর) অথবা নতুন AQ. ফরম্যাটে হয়। AI Studio-তে কী-টি খুলে COPY আইকনে চাপ দিয়ে আবার পেস্ট করুন।",
+    hi: "यह पूरी Gemini Key जैसी नहीं लग रही — {len} अक्षर मिले, शुरुआत “{prefix}”। वैध Gemini Key AIza से शुरू होती है (39 अक्षर) या नए AQ. फॉर्मैट में होती है। AI Studio में की खोलें, COPY आइकन दबाकर दोबारा पेस्ट करें।",
+  },
+  authKeyPending: {
+    en: "Key saved ✅ — but Google is currently refusing your new-format (AQ.) auth key with a known rollout error (ACCESS_TOKEN_TYPE_UNSUPPORTED). AI features may fail until Google activates it. Fix that works for most users: in AI Studio, create an API key under a NEW project (aistudio.google.com/apikey → project picker → create new project), then save it here.",
+    bn: "Key সেভ হয়েছে ✅ — কিন্তু Google আপনার নতুন ফরম্যাটের (AQ.) auth key-কে এখন একটি পরিচিত রোলআউট সমস্যায় (ACCESS_TOKEN_TYPE_UNSUPPORTED) ফিরিয়ে দিচ্ছে। Google সক্রিয় না করা পর্যন্ত AI ফিচার কাজ নাও করতে পারে। বেশিরভাগ ইউজারের কাজের সমাধান: AI Studio-তে নতুন একটি প্রজেক্টের অধীনে API key বানান (aistudio.google.com/apikey → প্রজেক্ট সিলেক্টর → create new project), তারপর এখানে সেভ করুন।",
+    hi: "Key सेव हो गई ✅ — लेकिन Google आपकी नए फॉर्मैट (AQ.) की auth key को अभी एक ज्ञात rollout समस्या (ACCESS_TOKEN_TYPE_UNSUPPORTED) में रिफ्यूज़ कर रहा है। Google के सक्रिय होने तक AI फ़ीचर काम नहीं कर सकते। ज़्यादातर यूज़र्स के लिए कारगर समाधान: AI Studio में एक नए प्रोजेक्ट के तहत API key बनाएँ (aistudio.google.com/apikey → प्रोजेक्ट पिकर → create new project), फिर उसे यहाँ सेव करें।",
   },
   keyUnverified: {
     en: "Key saved, but it couldn't be verified — {reason}",

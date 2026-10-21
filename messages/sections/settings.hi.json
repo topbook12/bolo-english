@@ -29,7 +29,7 @@
       "savedTitle": "API Key सेव हो गई ✅",
       "savedDesc": "एन्क्रिप्ट करके सुरक्षित रख ली गई है।",
       "pasteFirst": "पहले API Key पेस्ट करें",
-      "keyLooksOff": "यह अभी एक पूरी Gemini Key जैसी नहीं लग रही — {len} अक्षर मिले, शुरुआत “{prefix}”। Gemini Key ठीक 39 अक्षर की होती है और AIza से शुरू होती है।",
+      "keyLooksOff": "यह अभी एक पूरी Gemini Key जैसी नहीं लग रही — {len} अक्षर मिले, शुरुआत “{prefix}”। वैध Gemini Key AIza से शुरू होती है (39 अक्षर) या नए AQ. फॉर्मैट में होती है।",
       "unexpectedResponse": "सर्वर से अप्रत्याशित उत्तर आया — कृपया फिर से कोशिश करें।",
       "storageDown": "⚠️ सर्वर स्टोरेज बंद है — Key सेव नहीं रहेगी",
       "freeKey": "फ्री Key लें:",

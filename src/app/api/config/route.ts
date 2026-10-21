@@ -218,10 +218,18 @@ export async function POST(req: NextRequest) {
       });
     } catch (e) {
       const status = e instanceof GeminiError ? e.status : 0;
-      if (status === 401) {
-        // Google rejected the key itself → refuse to save (localized), plus
-        // the raw Google message as `detail` for self-diagnosis.
-        const ge = e as GeminiError;
+      const gerr = e instanceof GeminiError ? e : null;
+      if (status === 401 && gerr?.code === "authKeyPending") {
+        // Google's new AQ. auth key: the credential TYPE was recognized but
+        // Google currently refuses it (known rollout issue — forum-documented,
+        // Google support suggests creating a key under a NEW project). The key
+        // was never proven invalid → SAVE it and surface the situation. The
+        // key starts working the moment Google's side activates it.
+        warning = apiMsg(reqLocale(req), "authKeyPending");
+      } else if (status === 401) {
+        // Google rejected the key string itself → refuse to save (localized),
+        // plus the raw Google message as `detail` for self-diagnosis.
+        const ge = gerr ?? (e as GeminiError);
         return NextResponse.json(
           {
             ok: false,
@@ -230,10 +238,11 @@ export async function POST(req: NextRequest) {
           },
           { status: 400 }
         );
+      } else {
+        warning = apiMsg(reqLocale(req), "keyUnverified", {
+          reason: (e as Error).message.slice(0, 120),
+        });
       }
-      warning = apiMsg(reqLocale(req), "keyUnverified", {
-        reason: (e as Error).message.slice(0, 120),
-      });
     }
     update.apiKeyEnc = encryptKey(key);
     update.keyPreview = maskKey(key);
