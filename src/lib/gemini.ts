@@ -1,5 +1,5 @@
 import { createHash } from "crypto";
-import { decryptKey } from "./crypto";
+import { encryptKey, tryDecryptKey } from "./crypto";
 import { db } from "./db";
 import { isNoName } from "@/lib/no-name";
 import { resolveConfigRow } from "./user-config";
@@ -91,15 +91,42 @@ export async function getUserApiKey(deviceId: string): Promise<string> {
       "noKey"
     );
   }
-  try {
-    return decryptKey(cfg.apiKeyEnc);
-  } catch {
-    throw new GeminiError(
-      "আপনার API Key পড়া যায়নি — Settings-এ গিয়ে আবার সেভ করুন।",
-      400,
-      "keyUnreadable"
-    );
+  // Self-healing read. tryDecryptKey tries EVERY secret the app can derive
+  // (current env resolution + older derivations + the constant local-dev
+  // fallback), so a ciphertext written before an env change / by another
+  // environment still opens — previously it died as keyUnreadable forever
+  // while Settings kept claiming the key was saved.
+  const att = tryDecryptKey(cfg.apiKeyEnc);
+  if (att.key) {
+    if (!att.primary) {
+      // Opened with a legacy/secondary secret → re-encrypt under the CURRENT
+      // secret and persist, so every later call takes the fast primary path.
+      const reenc = encryptKey(att.key);
+      await db.userConfig
+        .update({ where: { id: cfg.id }, data: { apiKeyEnc: reenc } })
+        .catch(() => null);
+      console.log(
+        `[ai] key row ${cfg.id} re-encrypted under current secret (legacy secret matched)`
+      );
+    }
+    return att.key;
   }
+  // Nothing could open it — the ciphertext is unrecoverable (env rotated
+  // without a matching candidate, or the row was corrupted). WIPE it so
+  // Settings stops showing "key saved ✓" (that lie stranded users: the UI
+  // said saved, every AI call said unreadable). The user re-pastes the key
+  // once and everything heals.
+  console.error(
+    `[ai] key row ${cfg.id} UNREADABLE (${att.reason}) — wiping broken ciphertext, user must re-save`
+  );
+  await db.userConfig
+    .update({ where: { id: cfg.id }, data: { apiKeyEnc: "", keyPreview: "" } })
+    .catch(() => null);
+  throw new GeminiError(
+    "আপনার API Key পড়া যায়নি — Settings-এ গিয়ে আবার সেভ করুন।",
+    400,
+    "keyUnreadable"
+  );
 }
 
 export async function getAiLevel(deviceId: string): Promise<string> {
