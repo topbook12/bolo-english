@@ -2910,3 +2910,35 @@ Work Log:
 Stage Summary:
 - বাংলাভাষী ইউজার এখন যেকোনো জায়গার তথ্য পেস্ট করে AI দিয়ে সিভি বানাতে পারে, ৬টি টেমপ্লেট × ১১ accent রঙ × স্যান্স/সেরিফ × সেকশন reorder/hide/custom-title — সব সেভ হয় ডিভাইস-স্কোপড DB-তে, A4 PDF ডাউনলোড প্রিন্ট-নির্ভুল
 - ছবি ক্লায়েন্ট-সাইডে 480px JPEG-এ রিসাইজ হয় (৪০০KB গার্ড); সিভির কনটেন্ট-ভাষা (bn/en/hi) UI লোকেল থেকে স্বাধীন
+---
+Task ID: 25
+Agent: main (Z.ai Code)
+Task: Whole-site AI outage — "AI couldn't reply / Your API key couldn't be read" even though Settings said the key was saved
+
+Work Log:
+- Diagnosis: sandbox reset had wiped the local db/ dir (preview DB gone; recreated db/ + prisma db push, fresh empty DB).
+  The reported keyUnreadable toast comes from decryptKey() throwing on the USER's saved ciphertext — i.e. the row exists
+  (Vercel/Turso) but the CURRENT server secret cannot open it (env secret added/rotated after the key was saved, or the
+  ciphertext was written by a deployment with a different secret). Settings kept showing "key saved ✓" (keyPreview
+  survives independently) while every AI feature failed — a lying UI that stranded the user.
+- src/lib/crypto.ts: added secretCandidates() + tryDecryptKey() — tries EVERY derivable secret (ENCRYPTION_SECRET hex,
+  sha256(bolo-enc:AUTH_SECRET), sha256(bolo-enc:TURSO_AUTH_TOKEN), current getSecret() resolution, constant
+  "bolo-english-local-dev" fallback); AES-GCM auth tag is the match proof; returns {key, primary, reason} — never throws.
+- src/lib/gemini.ts getUserApiKey(): self-healing read — legacy-secret match → auto re-encrypt under current secret and
+  persist (one-time migration, logged); no candidate matches → WIPE apiKeyEnc+keyPreview on that row and throw
+  keyUnreadable with the existing localized message. Settings now honestly shows "no key" so the user re-pastes once.
+- QA (all verified live): bun TS check 10/10 (no-env save primary; env-added-later legacy open + primary=false;
+  foreign-secret → no-secret-matched; malformed/non-hex → bad-payload); E2E via HTTP — seeded foreign-secret row →
+  POST /api/ai → 400 keyUnreadable + "[ai] key row … UNREADABLE (no-secret-matched) — wiping" log + row wiped → second
+  call → honest noKey; GET /api/config → hasKey:false; 35/36-char paste → keyDiag format message; 39-char fake key →
+  Google live verification 401 → friendly refusal with detail, DB untouched; QA row deleted after tests.
+- NOTE (env behavior change): this sandbox now REAPS background processes between tool calls — dev server must be
+  started and tested within the same tool call for HTTP QA.
+- Chain: node scripts/i18n-check.mjs ALL-PARITY-OK → bunx tsc --noEmit clean → bun run lint clean.
+
+Stage Summary:
+- Commit 46daecf pushed to main (auto-deploys to Vercel): self-healing API key vault; whole-site AI outage root-caused
+  and fixed; broken-ciphertext rows self-wipe + migrate instead of dead-ending the user.
+- Local preview DB restored (fresh). User action: on the deployed site, open Settings once, paste the Gemini key again
+  (or nothing at all — if the old ciphertext opens under any legacy secret, the app migrates it automatically on the
+  first AI call).
