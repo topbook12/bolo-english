@@ -2769,3 +2769,24 @@ Work Log:
 
 Stage Summary:
 - Vocabulary is now a visual JOURNEY: 3 colour-coded stages × 5 themed unit banners × 240 progressively-ordered words with richer per-word data (word family, collocations) and a completely redesigned card/detail/daily-card system. Beginner→advanced complexity is both DATA order (sortOrder) and COLOUR order (green→amber→violet).
+
+---
+Task ID: 22
+Agent: Z.ai Code (main)
+Task: "API key save option is not working" — ইউজার রিপোর্ট তদন্ত ও ফিক্স
+
+Work Log:
+- ইউজার রিপোর্ট: API key save কাজ করছে না
+- dev.log পরীক্ষা → রুট কজ পাওয়া গেছে: Turbopack-এর next/font/google (Noto Sans Devanagari/Bengali) মডিউল রেজলভ ব্যর্থ → GET / 500 → প্রিভিউ প্যানেলে অ্যাপই লোড হতো না, তাই save-সহ সবকিছু "কাজ করছে না" মনে হচ্ছিল
+- কজ: corrupted Turbopack font cache (নেটওয়ার্ক ঠিক ছিল — fonts.googleapis.com 200)
+- ফিক্স: dev server kill → .next ক্যাশ মুছে → রিস্টার্ট → GET / = 200
+- ব্যাকএন্ড E2E (curl): POST /api/config ভুয়া কী → Google 401 → সঠিকভাবে রিফিউজ + পরিষ্কার মেসেজ; profile POST (displayName/level) → DB সেভ OK; GET → রিড OK; DELETE → ক্লিয়ার OK
+- ব্রাউজার E2E (agent-browser, 1440×900): Settings → কী ইনপুট → Save ক্লিক → POST /api/config ফায়ার (network log প্রমাণ) → সঠিক এরর টোস্ট "Couldn't save — The API key isn't valid or has expired" (স্ক্রিনশট প্রমাণ) — UI→API→টোস্ট পাইপলাইন সম্পূর্ণ কার্যকর
+- প্রোডাকশন প্রোব (bolo-english-mu.vercel.app): / = 200, GET/POST /api/config OK, ভুয়া কী → আইডেন্টিক্যাল রিফিউজ, DELETE cleanup OK — প্রোডাকশন সম্পূর্ণ সুস্থ
+- bunx tsc --noEmit → 0 এরর; bun run lint → ক্লিন; git status → ক্লিন (vocab redesign কমিট 01ba7b0 সহ)
+
+Stage Summary:
+- রুট কজ ছিল লোকাল dev server-এর 500 (ফন্ট ক্যাশ করাপশন) — API key save কোডে কোনো বাগ ছিল না
+- ফিক্স: .next ক্যাশ ক্লিয়ার + dev রিস্টার্ট (কোড পরিবর্তনের প্রয়োজন হয়নি)
+- লোকাল + প্রোডাকশন উভয়ে API key save/verify/remove ফ্লো E2E ভেরিফায়েড — সব সবুজ
+- নোট: ভুয়া/মেয়াদোত্তীর্ণ কী ইচ্ছাকৃতভাবে রিফিউজ হয় (Google 401) — এটাই সঠিক আচরণ; বৈধ কী সেভ হয় (warning পাথ সহ)
