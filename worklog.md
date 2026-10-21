@@ -2750,3 +2750,22 @@ Work Log:
 
 Stage Summary:
 - NO ERRORS FOUND anywhere: types, lint, i18n, runtime logs, live UI (9 sections), APIs, Task 19 persistence pipeline, 3-language rendering, mobile responsiveness all green. Initial curl "failures" were my own wrong test params (type= vs kind=), not app bugs. Project ships clean.
+
+---
+Task ID: 21 (main)
+Agent: main (Z.ai Code)
+Task: Vocabulary module special-focus — beautiful card design/graphics/colour + progressive beginner→advanced arrangement (owner: "সারাদিন ধরে ডেভেলপমেন্ট, ভোকাবুলারি বেস্ট হতে হবে")
+
+Work Log:
+- DATA: LibraryVocabData gains optional `collocations` + `wordFamily` fields (backward-compatible; v1/v2 rows render fine without them).
+- DATA: new vocab-v3 journey wave — 60 hand-authored trilingual words (4 per unit × 15 units: scared/excited/lonely/strong… → persuade/interrupt/encourage → coherent/compelling/undermine…), each with pronunciation, tri-lang meaning, 2 examples, tip, synonyms/antonyms + collocations + wordFamily. Seeded at sortOrder 60+ per level so every unit reads simple → rich (verified: beginner#1 hungry→…→weak→scared→excited→lonely→strong).
+- SEED: db-bootstrap seedVocab() v3 loop; MARKER bumped vocab_v5_lang → vocab_v6_journey so production DBs self-propagate on next /api/library hit. Local DB verified: 80 words/level × 3 = 240 total, 60 with wordFamily, marker row present.
+- DESIGN: new src/components/vocab/vocab-visuals.ts — coherent colour walk: beginner units = fresh greens/teals, intermediate = warm ambers/oranges, advanced = deep violets/roses; category emoji+tint map, level station visuals, deterministic POS chips.
+- DESIGN: VocabLibraryTab fully rebuilt — (1) JOURNEY HEADER: 3 stations with SVG mastery rings (learned/total per level, live from localStorage learned-store + word→level map), dashed connectors, overall badge "n/240 শব্দ"; instant stage switching (single /api/library?kind=vocab load, client-side level filter). (2) UNIT BANNER STRIP: gradient emoji banner per unit with progress bar (learned/total) + all-units chip. (3) WORD CARDS: unit-coloured gradient accent edge, category emoji tile, U-badge, learned gradient check-ring, bigger bold word, pronunciation speak-chip. (4) DETAIL RAIL: unit-gradient hero band (word + POS/category/unit badges + speak), meaning block, word-family arrow-chain chips (scare → scared → scary → scarily), tappable collocation audio chips, examples with per-row speak buttons, tip card, syn/ant pills, learned+save CTAs, AI tools unchanged.
+- DESIGN: Daily WordCard rebuilt — per-word deterministic pastel gradient hero band, pronunciation chip button, POS chip via posChip(); examples/tips/actions preserved.
+- i18n: new vocab.journey.{title,subtitle,aria,mastered,complete} + vocab.lib.{wordFamily,collocations} in bn/en/hi — ALL-PARITY-OK.
+- VERIFIED live (agent-browser, bn locale): journey stations render + switch instantly; unit banners with progress; scared/persuade detail shows family chain + collocations; mark-learned updates ring 0/80→1/80 AND overall 1/240 AND auto-saves to wordbook (quiz tab counts 1); Learning-Path deep link lands on library tab with unit-1 filter; daily cards show per-word gradients; mobile 390×844 journey/units/cards all clean; zero console/page errors; tsc + eslint clean; dev.log all 200s.
+- Commit 01ba7b0 pushed to main → Vercel auto-deploy; production DB seeds the 60 new words on first library hit.
+
+Stage Summary:
+- Vocabulary is now a visual JOURNEY: 3 colour-coded stages × 5 themed unit banners × 240 progressively-ordered words with richer per-word data (word family, collocations) and a completely redesigned card/detail/daily-card system. Beginner→advanced complexity is both DATA order (sortOrder) and COLOUR order (green→amber→violet).
