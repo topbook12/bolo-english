@@ -2731,3 +2731,22 @@ Stage Summary:
   an enhancement PATCHed onto the record instead of the gate that decided whether the call
   ever existed. partnerCount counts real partners only; sub-minute sessions render in seconds
   so the UI never shows a misleading "0 min".
+
+---
+Task ID: 20 (main)
+Agent: main (Z.ai Code)
+Task: "find and fix all error" — full-project error audit (types, lint, i18n, runtime, API, live UI)
+
+Work Log:
+- bunx tsc --noEmit → zero errors; bun run lint → zero errors
+- node scripts/i18n-check.mjs → ALL-PARITY-OK (17 namespaces × bn/en/hi)
+- dev.log scanned → clean (no errors/warnings, all GET 200)
+- agent-browser live walkthrough: Home, Learning Path, Speak, Grammar, Listening, Reading, Vocabulary, Progress, Settings in one session → zero page errors, zero console errors
+- API smoke tests: /api/library (kind=grammar/vocab/listening/reading) 200; /api/vocab/daily 200; /api/config 200 with deviceId (guard works); /api/call/ice 200 stun-only; /api/progress 200; /api/sessions POST+PATCH 200; PATCH with foreign deviceId → 404 (owner guard holds)
+- Task 19 pipeline re-verified end-to-end: POST session(75s) → PATCH score 82 + 90s → progress {totalSessions:1, totalSeconds:90, totalMinutes:2, avgScore:82, trend:[{score:82}]}
+- Language switching verified live: bn default → en → hi all render fully
+- Mobile 390×844: home + Speak pages render correctly; bottom-nav "কথা বলুন" hit-test passed (elementFromPoint lands inside button)
+- Investigated agent-browser "element covered" warning → root cause: tool located the hidden desktop-sidebar nav button (0×0 rect) with the same label; NOT a real UX bug
+
+Stage Summary:
+- NO ERRORS FOUND anywhere: types, lint, i18n, runtime logs, live UI (9 sections), APIs, Task 19 persistence pipeline, 3-language rendering, mobile responsiveness all green. Initial curl "failures" were my own wrong test params (type= vs kind=), not app bugs. Project ships clean.
