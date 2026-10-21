@@ -60,7 +60,9 @@
     "mainMenu": "প্রধান মেনু",
     "aiActive": "AI সক্রিয়",
     "addKey": "API Key দিন",
-    "addKeyShort": "Key"
+    "addKeyShort": "Key",
+    "cv": "সিভি স্টুডিও",
+    "cvDesc": "তথ্য দিলেই সিভি তৈরি"
   },
   "locale": {
     "switch": "ভাষা বদলান",

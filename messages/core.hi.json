@@ -60,7 +60,9 @@
     "mainMenu": "मुख्य मेनू",
     "aiActive": "AI सक्रिय",
     "addKey": "API Key दें",
-    "addKeyShort": "Key"
+    "addKeyShort": "Key",
+    "cv": "CV स्टूडियो",
+    "cvDesc": "जानकारी से CV बनाएं"
   },
   "locale": {
     "switch": "भाषा बदलें",

@@ -172,6 +172,28 @@ const M = {
     hi: "Google Gemini सर्वर में समस्या — कुछ देर बाद कोशिश करें।",
   },
 
+  /* ── CV Studio ── */
+  cvDataInvalid: {
+    en: "The CV data is too large or malformed — please try again.",
+    bn: "সিভির তথ্য খুব বড় বা ভুল ফরম্যাটে — আবার চেষ্টা করুন।",
+    hi: "CV का डेटा बहुत बड़ा या गलत फॉर्मैट में है — फिर कोशिश करें।",
+  },
+  cvNotFound: {
+    en: "This CV doesn't exist (anymore).",
+    bn: "এই সিভিটি নেই (বা আর নেই)।",
+    hi: "यह CV मौजूद नहीं है (अब नहीं)।",
+  },
+  cvLimitReached: {
+    en: "You've reached the maximum of 20 saved CVs — delete one first.",
+    bn: "সর্বোচ্চ ২০টি সিভি সেভ করা যায় — আগে একটি মুছে ফেলুন।",
+    hi: "अधिकतम २० CV सेव किए जा सकते हैं — पहले एक डिलीट करें।",
+  },
+  cvTextRequired: {
+    en: "Paste your information first.",
+    bn: "আগে আপনার তথ্য পেস্ট করুন।",
+    hi: "पहले अपनी जानकारी पेस्ट करें।",
+  },
+
   /* ── generic params / validation ── */
   deviceIdRequired: {
     en: "Device id required — please refresh the page and try again.",

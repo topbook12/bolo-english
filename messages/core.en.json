@@ -60,7 +60,9 @@
     "mainMenu": "Main menu",
     "aiActive": "AI active",
     "addKey": "Add API Key",
-    "addKeyShort": "Key"
+    "addKeyShort": "Key",
+    "cv": "CV Studio",
+    "cvDesc": "Auto-build your CV"
   },
   "locale": {
     "switch": "Change language",

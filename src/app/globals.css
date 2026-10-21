@@ -613,3 +613,29 @@
     animation: none;
   }
 }
+
+/* ─── CV Studio print pipeline (A4 PDF export) ────────────────────────────
+ * The editor renders the chosen template a second time into a body-level
+ * portal (#cv-print-root). On screen it stays hidden; while the body has
+ * the .cv-printing class (set around window.print()), EVERYTHING except the
+ * portal is hidden so the print output is exactly the A4 page — no dark
+ * mode, no app chrome, natural multi-page flow. */
+#cv-print-root {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  body.cv-printing > *:not(#cv-print-root) {
+    display: none !important;
+  }
+  body.cv-printing #cv-print-root {
+    display: block !important;
+  }
+  body.cv-printing {
+    background: #ffffff !important;
+  }
+}

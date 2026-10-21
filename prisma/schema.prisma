@@ -239,3 +239,18 @@ model LibraryReading {
 
   @@index([level])
 }
+
+// ─── CV Studio ───
+// Auto-generated, fully customizable CVs. One row = one CV; the entire
+// content + design (template, accent, section order) lives in `data` as JSON
+// (src/lib/cv/types.ts). Device-scoped like the rest of the guest data.
+model CvDocument {
+  id        String   @id @default(cuid())
+  deviceId  String
+  title     String   @default("আমার সিভি")
+  data      String // JSON: CvData
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([deviceId])
+}

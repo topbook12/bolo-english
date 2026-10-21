@@ -10,7 +10,7 @@ interface SectionHeaderProps {
   icon: LucideIcon;
   title: string;
   subtitle?: string;
-  tint?: "emerald" | "amber" | "rose" | "teal" | "orange" | "violet";
+  tint?: "emerald" | "amber" | "rose" | "teal" | "orange" | "violet" | "fuchsia";
   children?: React.ReactNode; // right-side actions
 }
 
@@ -47,6 +47,11 @@ const TINTS: Record<
     chip: "from-violet-500/90 to-purple-600/90 text-white",
     glow: "from-violet-500/20 to-purple-600/12",
     shadow: "shadow-lg shadow-violet-500/30 dark:shadow-violet-500/20",
+  },
+  fuchsia: {
+    chip: "from-fuchsia-500/90 to-pink-600/90 text-white",
+    glow: "from-fuchsia-500/20 to-pink-600/12",
+    shadow: "shadow-lg shadow-fuchsia-500/30 dark:shadow-fuchsia-500/20",
   },
 };
 

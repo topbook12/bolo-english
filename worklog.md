@@ -2831,3 +2831,82 @@ Stage Summary:
 - আসল বাগ: অ্যাপ পুরনো AIza ফরম্যাটের জন্য লেখা; Google-এর নতুন AQ. auth key রিজেক্ট হচ্ছিল
 - এখন দুই ফরম্যাটই সাপোর্টেড; Google সাময়িকভাবে AQ. কী রিফিউজ করলেও কী সেভ হয় এবং ব্যবহারকারী পরিষ্কার বাংলা ব্যাখ্যা + কার্যকর সমাধান (নতুন প্রজেক্টে কী) দেখে
 - সিকিউরিটি নোট: ইউজারের কী স্ক্রিনশটে পাবলিক হয়েছে — AI Studio থেকে "Gemini API Key 4" ডিলিট করে নতুন কী বানানো উচিত
+
+---
+Task ID: 3-a
+Agent: frontend-styling-expert
+Task: CV templates A — classic, minimal, elegant
+
+Work Log:
+- Read worklog.md (prior tasks) + src/lib/cv/types.ts fully (binding contract: CvRenderProps, orderedSections, sectionHasContent, personalRows, experienceRange, pageShellStyle, CvAccent palette).
+- Created ONE new file src/lib/cv/templates-a.tsx (no other files touched) with three exports:
+  - CvTemplateClassic: formal single column — centered 28px bold name, one-line "email • phone • address" contact (11.5px muted), optional 96×120 top-right photo (objectFit cover, 6px radius, accent.line border, header minHeight guard), 13px uppercase section titles with 1px accent.line underline + 4px bottom padding, education flex rows (degree bold 13 / institution 12.5 / group·result muted / year right nowrap), experience (role bold + org italic, range right, "• " bullets indented), skills/languages as 5px bars (fill (level/5)*100% accent.base on accent.line track; level 0 = name only), 2-col personal grid (label bold 11.5 / value 12), 48px page padding.
+  - CvTemplateMinimal: airy — left-aligned 27px weight-600 name, 12.5px headline, 11.5px contact, thin 2px accent.base rule under header, 11.5px/2px-tracking uppercase accent.base titles with NO borders (24px section rhythm, lineHeight 1.55), skills/languages as rounded chips (4px 12px, radius 999, accent.soft bg, #1f2430, 11.5px — no bars), clean two-column education/experience rows, muted personal grid.
+  - CvTemplateElegant: premium centered — full-width accent.soft header band (34px padding) with optional 104px circular photo (3px #fff border + soft shadow), 30px accent.dark name, 13px accent.base headline, 11.5px #444 contact; body padding 40; centered section titles flanked by 1px accent.line rules (12.5px, ls 1.8, accent.dark); entries in centered 620px column (text left), centered chip wrap (max-width 560) for skills/languages, personal block centered 2-col grid max-width 560 with accent.dark labels; hobbies as centered "· "-joined line.
+- Hard rules honored: inline styles ONLY (zero className); imports = CSSProperties type + ./types helpers; sections iterate orderedSections → skip !sectionHasContent; photo gated by showPhoto && photo; empty name renders no name element; pageShellStyle(fontStack) base; empty arrays/strings safe (clean/cleanList guards, bullets ?? [] fallback); all sizes px, body lineHeight ≥1.45; colors #1f2430/#555b66/#444 + accent tokens only (no blue/indigo).
+- Verify: bunx tsc --noEmit → 0 errors; bun run lint → clean (no output).
+
+Stage Summary:
+- Template set A shipped as src/lib/cv/templates-a.tsx (CvTemplateClassic, CvTemplateMinimal, CvTemplateElegant), print-portal-safe (inline styles only), data-driven per the ./types contract, empty-data crash-proof, tsc + ESLint green.
+- Minor judgment calls (spec silent/ambiguous): minimal name weight 600 ("normal-weight-bold mix"), minimal gets a 78×96 rounded top-right photo so all templates honor showPhoto, elegant uses centered chips (bars live only in classic), classic muted uses the contract's #555b66 rather than literal #555.
+
+---
+Task ID: 3-b
+Agent: frontend-styling-expert
+Task: CV templates B — sidebar, executive, timeline
+
+Work Log:
+- Created src/lib/cv/templates-b.tsx (ONLY file touched) with three A4 renderers taking CvRenderProps, inline styles ONLY (zero className / Tailwind / color classes), imports limited to React types (CSSProperties, ReactNode) + ./types.
+- CvTemplateSidebar (modern two-column): 262px accent.soft sidebar (padding 28/24) with optional 140px circular photo (4px #fff border + soft shadow, centered), stacked contact list (11px bold uppercase accent.dark labels + 12px values; phone/email/address/website/linkedin, non-empty only), skills + languages with 5px level bars (accent.base fill on accent.line track, level 0 → no bar), personalRows() as compact stacked rows, hobbies as accent.line chips (radius 999); main column (flex:1, 32/36 padding) with 27px name (accent.dark) + 13px headline + 13.5px titles (accent.dark, 1px accent.line underline) and left-accent-border entries (borderLeft 3px accent.base, paddingLeft 14, paddingBottom 14).
+- ZONE RULE implemented exactly: orderedSections(data) computed ONCE, split into sidebar-zone (skills/languages/personal/hobbies) vs main-zone; each zone renders in that custom order, skipping !sectionHasContent — custom ordering + hidden sections honored in BOTH zones.
+- CvTemplateExecutive (bold executive): full-width accent.deep header band (36/46 padding, white text — 30px name, 13.5px headline rgba(255,255,255,.85), contact line " | "-joined rgba(255,255,255,.8)), optional 104px rounded photo (8px radius, rgba(255,255,255,.35) border, flex marginLeft auto); body 40/46; titles 14px bold accent.base with 3×18px accent bar (verticalAlign middle); skills/languages 2-col grids with 3px bars; personal 3-col grid (10.5px uppercase muted label + 12px value); entries paddingBottom 34.
+- CvTemplateTimeline: header (40/46/24) flex — optional 92px circle photo (3px accent.soft border) + 27px name / 13px headline / 11.5px muted "email • phone • address"; full-width 2px accent.base rule; experience AND education render as a rail (borderLeft 2px accent.line, paddingLeft 22) with 11px dot per entry (accent.base, 2px #fff ring, 0 0 0 1px accent.line shadow, absolute left -28 top 4, boxSizing border-box for exact centering on the rule); all other sections use 12.5px uppercase letterSpacing-1.5 accent.base titles + 26×2px underline; skills single column max-width 420px; personal 2-col grid.
+- Hard rules honored: photo gated by showPhoto && personal.photo via plain <img>; empty name → no name element; pageShellStyle(props.fontStack) outer base; experienceRange for ranges; personalRows for personal; text #1f2430 / muted #555b66; px sizing, body lineHeight ≥1.45; bar fill = (level/5)*100% with clamping; empty arrays/strings guarded (clean/joinNonEmpty/filter); no `any`, no unused imports, no other files touched, no test files.
+- Runtime smoke (bun -e, no files): sample bn data × 3 templates (photo/no-photo) OK; emptyCvData × 3 OK (no crash, no name node); custom sectionOrder + hiddenSections zone-split verified; level clamp 99→100%, 3→60%, 0→no bar; empty bullets/hobbies filtered; experienceRange falls back to localized "Present".
+- Verify: bunx tsc --noEmit → 0 errors; bun run lint → exit 0, clean.
+
+Stage Summary:
+- Template set B shipped as src/lib/cv/templates-b.tsx (CvTemplateSidebar, CvTemplateExecutive, CvTemplateTimeline) — print-portal-safe inline-style renderers bound to the ./types contract, zone-aware sidebar ordering, dot-rail timeline for experience/education, crash-proof on empty/malformed-ish data, tsc + ESLint green.
+- Judgment calls (spec silent/ambiguous): localized contact labels (bn/en/hi) added inside the file (types.ts has none for phone/email/etc.); sidebar-zone titles styled 11.5px uppercase accent.dark with accent.line underline (spec only pinned main-zone titles); timeline dot uses boxSizing border-box so the 11px dot centers exactly on the 2px rule at left -28; summary renders as a plain paragraph (no entry border) in sidebar/executive.
+---
+Task ID: 25
+Agent: Z.ai Code (main)
+Task: "এখন কি সেভ হচ্ছে কিন্তু বলতেছে... Gemini 2.5 Flash ... Gemini 2.0 Flash ... যোগ্য নয়" — model-eligibility ডায়াগনোসিস ও ফিক্স
+
+Work Log:
+- ইউজার রিপোর্ট: কী সেভ হচ্ছে কিন্তু Google-এর "not eligible to use Gemini 2.5 Flash / use Gemini 2.0 Flash"-জাতীয় raw মেসেজ warning-এ দেখাচ্ছে
+- রুট কজ: সেভ-প্রোব ও সব AI কল geminiText/geminiJson দিয়ে যায়, যা 403/429 হলে সাথে সাথে abort করত — ফলে 2.5-flash মডেল-লেভেল রিফিউজালে 2.0 ফলব্যাক কখনোই চলত না, raw Google টেক্সটই ইউজারের কাছে যেত
+- ফিক্স (gemini.ts): (১) isModelIneligibleMsg() — eligibility/model-not-found/billing/free-tier মেসেজ শনাক্তকারী রেজেক্স; "API key not valid" কখনো model-level ধরা হয় না (২) নতুন কোড modelIneligible — এলিজিবিলিটি/কোটা এরর এখন abort নয়, next-model-এ স্কিপ (৩) warm-instance per-key ক্যাশ (sha256 slice) — প্রমাণিত ineligible মডেল পরের কলে এড়িয়ে যায় (৪) 401/geo-403 আগের মতো abort (key-level)
+- config route: modelIneligible হলে key সেভ হয় + পরিষ্কার localized modelFallbackWarning (raw টেক্সট নয়)
+- api-i18n: + modelIneligible, + modelFallbackWarning (bn/en/hi)
+- ভেরিফায়ে: mocked-Google হার্নেসে আসল gemini.ts টেস্ট — 403 এলিজিবিলিটি→2.0 ফলব্যাক ✓, ক্যাশ-স্কিপ ✓, ভুয়া কী ১ কলে abort ✓, সব-মডেল- ineligible → modelIneligible ✓, 429/500 ফলব্যাক ✓; geo-block মেসেজ false-positive ধরা পড়ে রেজেক্স টাইট করা হয়েছে
+- লাইভ curl E2E: AQ. কী → authKeyPending পাথ অপরিবর্তিত; tsc+lint ক্লিন
+- কমিট f261189 → push main
+
+Stage Summary:
+- Google যে কী-তে 2.5 Flash নিষেধ করে, সেখানে অ্যাপ এখন নিঃশব্দে Gemini 2.0 Flash-এ চলে; ইউজার আর raw English eligibility মেসেজ দেখে না
+- সেভ ফ্লো: 2.5 ineligible → 2.0 probe → সফল সেভ, কোনো warning ছাড়াই (দুটোই ফিরিলে পরিষ্কার ব্যাখ্যাসহ warning)
+- নোট: আসল "not eligible" কী হাতে না থাকায় সেই পাথ মকড-সার্ভারে ভেরিফায়েড; লাইভ AQ. 401 পাথ কার্লে যাচাই
+
+---
+Task ID: 26
+Agent: Z.ai Code (main) + frontend-styling-expert ×2 (3-a, 3-b)
+Task: CV স্টুডিও — অটোমেটিক সিভি জেনারেটর (ইউজার রিকোয়েস্ট: "সব তথ্য দিয়ে সিভি অটো তৈরি, অনেক টেমপ্লেট, পরে সম্পূর্ণ এডিট/কাস্টমাইজ")
+
+Work Log:
+- DATA: src/lib/cv/types.ts — CvData মডেল (personal/education/experience/projects/skills/languages/training/awards/hobbies/references/personalExtra + design block), ট্রাই-লিঙ্গুয়াল ডিফল্ট হেডিং + পার্সোনাল-ফিল্ড লেবেল (bn/en/hi), deriveAccent/shade, fontStackFor, orderedSections/sectionHasContent/resolveTitles/personalRows, normalizeCvData, sampleCvData
+- DB: Prisma CvDocument (deviceId, title, data JSON) + db:push
+- API: GET/POST /api/cv (20/doc cap, 2MB data cap), PUT/DELETE /api/cv/[id] (owner check), POST /api/cv/ai (mode=extract: যেকোনো লেআউটের বায়োডাটা→structured CvData, targetLang auto/bn/en/hi translate; mode=polish: summary/bullet rewrite) — সম্পূর্ণ স্যানিটাইজার, rate-limit, api-i18n (cvDataInvalid/cvNotFound/cvLimitReached/cvTextRequired)
+- TEMPLATES (subagent 3-a): templates-a.tsx — Classic (ফরমাল সিঙ্গেল-কলাম), Minimal (এয়ারি চিপস), Elegant (সেন্টারড সারিফ ব্যান্ড)
+- TEMPLATES (subagent 3-b): templates-b.tsx — Sidebar (২-কলাম জোন-রুল), Executive (dark band), Timeline (ডট-রেল)
+- UI: CvStudio.tsx (লিস্ট+CTA+কার্ড গ্রিড, এডিটর টুলবার, লাইভ A4 প্রিভিউ zoom-fit, প্রিন্ট পোর্টাল, AI ডায়ালগ, dirty-guard, duplicate/delete) + CvEditorForms.tsx (১৩টি accordion সেকশন, ছবি আপলোড+ক্যানভাস-রিসাইজ, level slider, reorder) — fuchsia মডিউল-আইডেন্টিটি
+- NAV: AppShell-এ "cv" ট্যাব (FileUser, fuchsia tint, ডেস্কটপ+মোর-শিট), SectionHeader fuchsia tint, core.{bn,en,hi}.json nav.cv
+- PRINT: globals.css @media print — body.cv-printing এ শুধু #cv-print-root (body-level portal) দৃশ্যমান, @page A4 margin 0; PDF বাটন = class + window.print + afterprint ক্লিনআপ
+- i18n: messages/sections/cv.{bn,en,hi}.json (~১২০ কী × ৩) — ALL-PARITY-OK
+- E2E (agent-browser): ট্যাব নেভ ✓, লিস্ট/ইম্পটি/কার্ড ✓, নমুনা→এডিটর ✓, ১৩ সেকশন ফর্ম ✓, লাইভ এডিট→প্রিভিউ তাৎক্ষণিক ✓, Executive টেমপ্লেট সুইচ ✓, সেভ→টোস্ট→লিস্ট কার্ড ✓, মোবাইল 390×844 এডিট/প্রিভিউ ট্যাব ✓, bn লোকেল পূর্ণ ✓, AI ডায়ালগ noKey→400 localized ✓ (curl), কনসোল/পেজ এরর জিরো ✓, ফুটার আচরণ ✓
+- PRINT E2E: বাস্তব CDP PDF — A4 ২-পেজ, সাইডবার+স্কিল-বার+সব সেকশন রঙসহ (cv-real.pdf); খালি CV = সাদা পেজ (সঠিক); টেস্ট-ডেটা ক্লিনআপ
+- tsc 0, lint ক্লিন, i18n-check ALL-PARITY-OK
+
+Stage Summary:
+- বাংলাভাষী ইউজার এখন যেকোনো জায়গার তথ্য পেস্ট করে AI দিয়ে সিভি বানাতে পারে, ৬টি টেমপ্লেট × ১১ accent রঙ × স্যান্স/সেরিফ × সেকশন reorder/hide/custom-title — সব সেভ হয় ডিভাইস-স্কোপড DB-তে, A4 PDF ডাউনলোড প্রিন্ট-নির্ভুল
+- ছবি ক্লায়েন্ট-সাইডে 480px JPEG-এ রিসাইজ হয় (৪০০KB গার্ড); সিভির কনটেন্ট-ভাষা (bn/en/hi) UI লোকেল থেকে স্বাধীন
