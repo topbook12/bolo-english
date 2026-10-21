@@ -61,6 +61,14 @@ export default function SettingsSection() {
   const { canInstall, promptInstall } = usePwaInstall();
   useAuthInit(); // keep the account card in sync even without the header button
 
+  // Live paste check — a complete Gemini key is exactly "AIza" + 35 key
+  // characters (39 total). Anything else (junk around it, a truncated copy,
+  // the wrong string) shows an inline hint BEFORE save, so the user sees
+  // what arrived instead of a generic failure after the round-trip.
+  const cleanedKey = apiKey ? sanitizeApiKey(apiKey) : "";
+  const keyComplete = /^AIza[0-9A-Za-z_\-]{35}$/.test(cleanedKey);
+  const showKeyHint = !!cleanedKey && !keyComplete && saving !== "key";
+
   const saveKey = async () => {
     // Sanitize on the client too: strip invisible chars picked up while
     // copying (zero-width spaces, BOM, quotes, wrapped newlines).
@@ -83,7 +91,10 @@ export default function SettingsSection() {
       });
       const json = await res.json().catch(() => null);
       if (!json) throw new Error(t("apiKey.unexpectedResponse"));
-      if (!json.ok) throw new Error(json.error);
+      if (!json.ok)
+        throw new Error(
+          json.detail ? `${json.error} (${json.detail})` : json.error
+        );
       setConfig({
         hasKey: json.data.hasKey,
         keyPreview: json.data.keyPreview,
@@ -351,6 +362,17 @@ export default function SettingsSection() {
                   {saving === "key" ? t("apiKey.verifying") : t("apiKey.save")}
                 </Button>
               </div>
+              {showKeyHint && (
+                <p
+                  className="rounded-lg border border-amber-300/70 bg-amber-50 px-2.5 py-1.5 text-xs text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
+                  role="status"
+                >
+                  {t("apiKey.keyLooksOff", {
+                    len: cleanedKey.length,
+                    prefix: cleanedKey.slice(0, 4) || "—",
+                  })}
+                </p>
+              )}
               <p className="text-xs text-muted-foreground">
                 {t("apiKey.freeKey")}{" "}
                 <a

@@ -29,6 +29,7 @@
       "savedTitle": "API key saved ✅",
       "savedDesc": "Encrypted and stored securely.",
       "pasteFirst": "Paste your API key first",
+      "keyLooksOff": "This doesn't look like a complete Gemini key yet — received {len} characters starting with “{prefix}”. A Gemini key is exactly 39 characters and starts with AIza.",
       "unexpectedResponse": "The server returned an unexpected response — please try again.",
       "storageDown": "⚠️ Server storage is down — keys won't persist",
       "freeKey": "Get a free key:",

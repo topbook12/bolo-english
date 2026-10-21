@@ -63,10 +63,13 @@ export type GeminiErrCode =
 export class GeminiError extends Error {
   status: number;
   code?: GeminiErrCode;
-  constructor(message: string, status = 500, code?: GeminiErrCode) {
+  /** Raw provider message (English) — surfaced in diagnostics, never shown alone. */
+  raw?: string;
+  constructor(message: string, status = 500, code?: GeminiErrCode, raw?: string) {
     super(message);
     this.status = status;
     this.code = code;
+    this.raw = raw;
   }
 }
 
@@ -342,7 +345,7 @@ async function callModel(
           ? 429
           : res.status;
     const fe = friendlyError(msg, status);
-    throw new GeminiError(fe.message, status, fe.code);
+    throw new GeminiError(fe.message, status, fe.code, msg.slice(0, 200));
   }
 
   const candidate = json.candidates?.[0];

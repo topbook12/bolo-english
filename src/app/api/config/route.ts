@@ -186,12 +186,23 @@ export async function POST(req: NextRequest) {
 
   if (typeof body.apiKey === "string" && body.apiKey.trim()) {
     // Strip zero-width chars / quotes / stray whitespace that sneaks in when
-    // copying the key on mobile — a perfectly valid key used to be rejected
-    // with a confusing "format" error because of invisible characters.
+    // copying the key on mobile, then auto-extract a complete 39-char Gemini
+    // key from copied-with-junk text ("Key: AIza…", trailing dari, etc.).
     const key = sanitizeApiKey(String(body.apiKey));
     if (!key || !isValidGeminiKeyFormat(key)) {
+      // Diagnostic, not a dead end: show exactly what arrived (length + the
+      // first characters) so the user can see WHAT went wrong with the copy.
+      console.warn(
+        `[config] key rejected: len=${key.length} prefix=${JSON.stringify(key.slice(0, 6))}`
+      );
       return NextResponse.json(
-        { ok: false, error: apiMsg(reqLocale(req), "keyBadFormat") },
+        {
+          ok: false,
+          error: apiMsg(reqLocale(req), "keyDiag", {
+            len: key.length,
+            prefix: key.slice(0, 4) || "—",
+          }),
+        },
         { status: 400 }
       );
     }
@@ -208,10 +219,15 @@ export async function POST(req: NextRequest) {
     } catch (e) {
       const status = e instanceof GeminiError ? e.status : 0;
       if (status === 401) {
-        // Google rejected the key itself → refuse to save (localized)
+        // Google rejected the key itself → refuse to save (localized), plus
+        // the raw Google message as `detail` for self-diagnosis.
         const ge = e as GeminiError;
         return NextResponse.json(
-          { ok: false, error: ge.code ? apiMsg(reqLocale(req), ge.code) : ge.message },
+          {
+            ok: false,
+            error: ge.code ? apiMsg(reqLocale(req), ge.code) : ge.message,
+            detail: ge.raw || ge.message,
+          },
           { status: 400 }
         );
       }

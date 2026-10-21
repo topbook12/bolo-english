@@ -64,10 +64,10 @@ const M = {
   },
 
   /* ── settings / config / storage ── */
-  keyBadFormat: {
-    en: "The key wasn't copied fully or is wrong — open the key in AI Studio, press the COPY icon and paste it again.",
-    bn: "কীটি সম্পূর্ণ কপি হয়নি বা ভুল — AI Studio-তে কী-টি খুলে COPY আইকনে চাপ দিয়ে আবার পেস্ট করুন।",
-    hi: "की पूरी कॉपी नहीं हुई या गलत है — AI Studio में की खोलें, COPY आइकन दबाकर दोबारा पेस्ट करें।",
+  keyDiag: {
+    en: "That doesn't look like a complete Gemini key — received {len} characters starting with “{prefix}”. A Gemini key is exactly 39 characters and starts with AIza. Open the key in AI Studio, press the COPY icon and paste it again.",
+    bn: "এটি সম্পূর্ণ Gemini Key-এর মতো দেখাচ্ছে না — {len} অক্ষর এসেছে, শুরুটা “{prefix}”। Gemini Key ঠিক ৩৯ অক্ষরের হয় এবং AIza দিয়ে শুরু হয়। AI Studio-তে কী-টি খুলে COPY আইকনে চাপ দিয়ে আবার পেস্ট করুন।",
+    hi: "यह पूरी Gemini Key जैसी नहीं लग रही — {len} अक्षर मिले, शुरुआत “{prefix}”। Gemini Key ठीक 39 अक्षर की होती है और AIza से शुरू होती है। AI Studio में की खोलें, COPY आइकन दबाकर दोबारा पेस्ट करें।",
   },
   keyUnverified: {
     en: "Key saved, but it couldn't be verified — {reason}",
