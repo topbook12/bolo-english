@@ -2812,3 +2812,22 @@ Stage Summary:
 - ইউজারের "সঠিক কী-ও কাজ করছে না"-এর আসল কজ: পেস্টের সাথে জাংক/অসম্পূর্ণ কপি — ফরম্যাট-চেক Google-এর আগেই আটকাত
 - এখন: (১) জাংকের ভেতরের বৈধ কী অটো-রিকভার, (২) না হলে ইউজার দেখে ঠিক কী এসেছে (len+prefix), (৩) সেভের আগেই লাইভ হিন্ট, (৪) Google রিজেক্টে raw মেসেজ টোস্টে
 - বৈধ কী = AIza দিয়ে শুরু, ঠিক ৩৯ অক্ষর — এটাই এখন UI/এরর সবখানে শেখানো হয়
+
+---
+Task ID: 24
+Agent: Z.ai Code (main)
+Task: ইউজারের স্ক্রিনশট-নির্দেশিত রুট কজ — Google-এর নতুন AQ. auth key ফরম্যাট সাপোর্ট
+
+Work Log:
+- ইউজারের ২টি স্ক্রিনশট: AI Studio-তে কী = "AQ.Ab8RN6…q4FA" (৫৩ অক্ষর, ডটসহ) কিন্তু অ্যাপের হিন্ট বলছে "must start with AIza (39 chars)"
+- রুট কজ নিশ্চিত: Google মে ২৮, ২০২৬ থেকে AI Studio-তে সব নতুন কী "authorization key" (AQ. prefix, service-account-bound) হিসেবে দেয় — অ্যাপ শুধু পুরনো AIza×৩৯ ফরম্যাট চিনত → বৈধ নতুন কী ফরম্যাট-চেকে ব্যর্থ
+- Google raw API ডায়াগনস্টিক (ইউজারের আসল কী দিয়ে): generativelanguage (v1beta/v1alpha, x-goog-api-key/?key=/Bearer) + aiplatform + নতুন Interactions API — সবখানে 401 ACCESS_TOKEN_TYPE_UNSUPPORTED (message একই কিন্তু details.reason আলাদা: API_KEY_INVALID নয়)
+- web_search + page_reader দিয়ে অফিসিয়াল ডক (ai.google.dev) ও ফোরাম যাচাই: AQ. = বৈধ নতুন ফরম্যাট; ACCESS_TOKEN_TYPE_UNSUPPORTED = পরিচিত rollout বাগ, Google সাপোর্টের পরামর্শ = নতুন প্রজেক্টে কী বানানো
+- ফিক্স: (১) key-format.ts — AQ. extraction (ডট সংরক্ষণ) + দ্বৈত-ফরম্যাট validation + isAuthKeyFormat() (২) gemini.ts — error.details.reason parse → ACCESS_TOKEN_TYPE_UNSUPPORTED → নতুন কোড authKeyPending (৩) config route — authKeyPending হলে সেভ+সতর্কতা (কী কখনো invalid প্রমাণিত হয়নি), API_KEY_INVALID হলে রিফিউজ (৪) i18n: keyDiag/keyLooksOff দ্বৈত-ফরম্যাট বর্ণনা + authKeyPending ব্যাখ্যাসহ সমাধান-মেসেজ (bn/en/hi) (৫) Settings placeholder "AIza… / AQ.…"
+- E2E (ইউজারের আসল কী): POST /api/config → 200, সেভ সফল, keyPreview "AQ.A...q4FA", UI "✓ Active" ব্যাজ + "AI active"; জাংক-মোড়ানো AQ. কী এক্সট্রাক্ট হয়ে সেভ হয়; সম্পূর্ণ AQ. কী-তে হিন্ট সঠিকভাবে লুকায়
+- tsc 0, lint ক্লিন, i18n ALL-PARITY-OK; টেস্ট-ডিভাইস ক্লিনআপ; কমিট f1704eb → push main
+
+Stage Summary:
+- আসল বাগ: অ্যাপ পুরনো AIza ফরম্যাটের জন্য লেখা; Google-এর নতুন AQ. auth key রিজেক্ট হচ্ছিল
+- এখন দুই ফরম্যাটই সাপোর্টেড; Google সাময়িকভাবে AQ. কী রিফিউজ করলেও কী সেভ হয় এবং ব্যবহারকারী পরিষ্কার বাংলা ব্যাখ্যা + কার্যকর সমাধান (নতুন প্রজেক্টে কী) দেখে
+- সিকিউরিটি নোট: ইউজারের কী স্ক্রিনশটে পাবলিক হয়েছে — AI Studio থেকে "Gemini API Key 4" ডিলিট করে নতুন কী বানানো উচিত
