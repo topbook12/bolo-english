@@ -3127,3 +3127,18 @@ Work Log:
 Stage Summary:
 - Production migration is now ONE owner command with guardrails instead of raw SQL; script is on main (bea3823).
 - Owner action items unchanged: (1) run the script against Turso, (2) set ADMIN_EMAILS on Vercel + redeploy, then verify live login.
+---
+Task ID: 28 (continuation)
+Agent: general-purpose
+Task: Execute production migration with owner-provided Turso credentials; verify live login E2E; fix found gaps
+
+Work Log:
+- ran scripts/prod-migrate.ts against production Turso DB english-topubiswas (aws-ap-south-1) — 6 changes applied (User.nativeLang, User.role, UserApiKey + idx, CvDocument + idx); schema drift audit vs local showed production was ALSO missing CvDocument (CV Studio) — added it to the runner before executing
+- data integrity: all 6 existing users intact (incl. owner topubiswas.math@gmail.com), schema parity after = OK
+- E2E on LIVE site (bolo-english-mu.vercel.app): register ok:true → login HTTP 200 with bolo_session + bolo_locale=bn cookies (live login requires deviceId in the body — the shared curl from the checklist without it gets 400 "Device id required") → /api/auth/me returns user with role → QA user deleted afterwards, remaining users = 6
+- gap found + fixed: /me & login responses lacked nativeLang field (DB had it — verified by direct row read before the QA-user cleanup) — added additively to me/login/register routes; /me fetches it in-route with a tiny findUnique({ select: { nativeLang: true } }) because the shared getSessionUser select lives in src/lib/auth.ts which is outside this task's allowed files
+- updated scripts/prod-migrate.ts committed (CvDocument repair) + this entry
+
+Stage Summary:
+- PRODUCTION LOGIN IS FIXED AND VERIFIED (was broken until the migration: new code selects User.role which did not exist)
+- remaining owner action: set ADMIN_EMAILS on Vercel (e.g. topubiswas.math@gmail.com) + Redeploy to unlock the admin panel

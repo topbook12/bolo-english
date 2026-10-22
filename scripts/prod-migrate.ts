@@ -1,10 +1,13 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Production (Turso) DB migration runner — Task 27 delta, IDEMPOTENT.
+// Production (Turso) DB migration runner — Task 27 delta + schema-drift repair,
+// IDEMPOTENT.
 //
 // What it applies (only the pieces that are MISSING — safe to run any number
 // of times, on the wrong machine, or after a partial failure):
 //   * User.nativeLang, User.role   (Tasks 27-c / 27-e)
 //   * UserApiKey table + index     (Task 27-d key pool)
+//   * CvDocument table + index     (CV Studio — found missing on production
+//                                   during the 2026-10 drift audit)
 //
 // WHY THIS EXISTS: the new login code (already deployed to Vercel) selects
 // User.role / User.nativeLang — until the columns exist in the production
@@ -154,13 +157,47 @@ async function main() {
     log(YELLOW, "Skip     UserApiKey_userId_idx  (already exists)");
   }
 
+  // ── 4) CvDocument table + index (CV Studio) ──────────────────────────────
+  // Found missing on production during the drift audit — CV Studio would
+  // 500 on the live site without it.
+  if (!tables.has("CvDocument")) {
+    await db.execute(/* sql */ `
+      CREATE TABLE "CvDocument" (
+          "id" TEXT NOT NULL PRIMARY KEY,
+          "deviceId" TEXT NOT NULL,
+          "title" TEXT NOT NULL DEFAULT 'আমার সিভি',
+          "data" TEXT NOT NULL,
+          "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          "updatedAt" DATETIME NOT NULL
+      )
+    `);
+    log(GREEN, "Created  CvDocument table  (CV Studio)");
+    changed++;
+  } else {
+    log(YELLOW, "Skip     CvDocument table  (already exists)");
+  }
+
+  const cvIdx = await db.execute(
+    `SELECT name FROM sqlite_master WHERE type='index' AND name='CvDocument_deviceId_idx'`
+  );
+  if (cvIdx.rows.length === 0) {
+    await db.execute(
+      `CREATE INDEX "CvDocument_deviceId_idx" ON "CvDocument"("deviceId")`
+    );
+    log(GREEN, "Created  CvDocument_deviceId_idx  (index)");
+    changed++;
+  } else {
+    log(YELLOW, "Skip     CvDocument_deviceId_idx  (already exists)");
+  }
+
   // ── Final verification (reads the REAL state, not our assumptions) ────────
   const finalTables = await tablesOf(db);
   const finalCols = await columnsOf(db, "User");
   const ok =
     finalCols.has("nativeLang") &&
     finalCols.has("role") &&
-    finalTables.has("UserApiKey");
+    finalTables.has("UserApiKey") &&
+    finalTables.has("CvDocument");
 
   console.log("");
   if (ok) {

@@ -70,6 +70,7 @@ export async function POST(req: NextRequest) {
         email: user.email,
         name: user.name,
         role: isAdminEmail(user.email) || user.role === "admin" ? "admin" : null,
+        nativeLang: user.nativeLang,
       },
     },
   });
