@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { reqLocale, apiMsg } from "@/lib/api-i18n";
+import { LOCALE_COOKIE } from "@/i18n/config";
 import {
   db,
   verifyPassword,
@@ -46,8 +47,22 @@ export async function POST(req: NextRequest) {
   await setSessionCookie(user.id);
   await mergeDeviceData(user.id, deviceId);
 
-  return NextResponse.json({
+  // Task 27-c: the account's language rules every device. Re-point the
+  // bolo_locale cookie to User.nativeLang on login; accounts without a
+  // saved language keep the current cookie value (no language change).
+  const accountLang = user.nativeLang;
+  const localeToSet = accountLang === "bn" || accountLang === "en" || accountLang === "hi"
+    ? accountLang
+    : locale; // reqLocale(): existing cookie value (or the app default)
+  const res = NextResponse.json({
     ok: true,
     data: { user: { id: user.id, email: user.email, name: user.name } },
   });
+  res.cookies.set(LOCALE_COOKIE, localeToSet, {
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+  return res;
 }

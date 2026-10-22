@@ -22,7 +22,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Badge } from "@/components/ui/badge";
 import PwaRegister from "@/components/pwa/PwaRegister";
 import InstallPrompt from "@/components/pwa/InstallPrompt";
-import LocaleSwitcher from "@/i18n/LocaleSwitcher";
 import AuthButton from "@/components/auth/AuthButton";
 import { useMounted } from "@/hooks/use-mounted";
 import { useDeviceInit, useDeviceValue } from "@/hooks/use-device";
@@ -259,7 +258,8 @@ export default function AppShell() {
                 <KeyRound className="h-3 w-3" /> {t("nav.aiActive")}
               </Badge>
             )}
-            <LocaleSwitcher compact />
+            {/* Locale switcher retired (Task 27-c): language is locked to the
+                account — User.nativeLang chosen at signup drives the locale. */}
             <AuthButton onOpenSettings={() => setTab("settings")} />
             {/* mobile "more" trigger */}
             <div className="md:hidden">

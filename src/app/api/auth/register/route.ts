@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { reqLocale, apiMsg } from "@/lib/api-i18n";
+import { LOCALE_COOKIE } from "@/i18n/config";
 import {
   db,
   hashPassword,
@@ -11,7 +12,10 @@ import {
   mergeDeviceData,
 } from "@/lib/auth";
 
-// POST /api/auth/register  { deviceId, email, password, name? }
+// POST /api/auth/register  { deviceId, email, password, name?, nativeLang? }
+// Task 27-c: nativeLang ("bn"|"en"|"hi", default "bn") is saved on the User
+// at creation and the bolo_locale cookie is set to it — the account's
+// language is LOCKED from the very first render (no switcher in the app).
 export async function POST(req: NextRequest) {
   const locale = reqLocale(req);
   const body = await req.json().catch(() => null);
@@ -52,8 +56,12 @@ export async function POST(req: NextRequest) {
   }
 
   const passwordHash = await hashPassword(password);
+  const nativeLang =
+    body?.nativeLang === "bn" || body?.nativeLang === "en" || body?.nativeLang === "hi"
+      ? body.nativeLang
+      : "bn"; // absent/invalid → Bangla (the primary audience)
   const user = await db.user.create({
-    data: { email, passwordHash, name },
+    data: { email, passwordHash, name, nativeLang },
   });
 
   // Adopt this device's guest config (key/name/level) into the new account —
@@ -68,8 +76,17 @@ export async function POST(req: NextRequest) {
   await setSessionCookie(user.id);
   await mergeDeviceData(user.id, deviceId);
 
-  return NextResponse.json({
+  const res = NextResponse.json({
     ok: true,
     data: { user: { id: user.id, email: user.email, name: user.name } },
   });
+  // Lock the UI language to the account's choice (1 year, JS-readable —
+  // same attributes as the client helper in src/i18n/locale-cookie.ts).
+  res.cookies.set(LOCALE_COOKIE, nativeLang, {
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+  return res;
 }
