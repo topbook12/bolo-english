@@ -3111,3 +3111,19 @@ Stage Summary:
 - Owner action items: (1) apply scripts/prod-migrate-user-keys.sql to Turso, (2) set ADMIN_EMAILS env on Vercel.
 - Mobile subtitles: Android auto-restarts now; iPhone gets push-to-talk STT; analysis works everywhere.
 - Token/cost: realtime corrections removed (biggest saving); model chain future-proofed earlier in 26-a.
+---
+Task ID: 28
+Agent: main (Z.ai Code)
+Task: Owner asked HOW to run the mandatory production (Turso) DB migration — build a safe runner + step-by-step guide
+
+Work Log:
+- Context: Task 27 code (login selects User.role/nativeLang) is live on Vercel; production Turso DB still lacks those columns + UserApiKey table → live login breaks until migrated. The SQL delta file (scripts/prod-migrate-user-keys.sql, commit fe47b1e) existed but was unpushed and raw-SQL-only.
+- Built scripts/prod-migrate.ts (bun + @libsql/client, already in node_modules): idempotent — checks PRAGMA table_info(User) / sqlite_master, applies ONLY what is missing (User.nativeLang, User.role, UserApiKey + userId idx), aborts if the target DB has no User table (wrong-DB guard), never prints the auth token (host only), re-verifies final state before printing COMPLETE.
+- Safety bug caught in self-test: the first draft fell back to DATABASE_URL, but Bun auto-loads the project .env → it silently migrated the LOCAL dev db and printed "COMPLETE ✅" — owner would think production was migrated. Removed the fallback; only an explicit TURSO_DATABASE_URL is accepted (missing → clear exit-1 error).
+- Self-tests (all pass): fresh pre-27 scratch DB → 4 changes applied + data intact (user row preserved, new cols NULL); immediate re-run → 0 changes; copy of current local schema → 0 changes; no env (with .env present) → exit 1 with instructions; empty DB without User table → "MIGRATION ABORTED", exit 1, nothing changed. bunx tsc --noEmit → 0 errors; bun run lint → exit 0.
+- Pushed 231210d..bea3823 (fe47b1e SQL+worklog + bea3823 runner) to main → auto-deploy (repo files only, no runtime impact).
+- Replied to owner with the full Bengali step-by-step guide (Vercel env copy → bun scripts/prod-migrate.ts → verify login → ADMIN_EMAILS + redeploy).
+
+Stage Summary:
+- Production migration is now ONE owner command with guardrails instead of raw SQL; script is on main (bea3823).
+- Owner action items unchanged: (1) run the script against Turso, (2) set ADMIN_EMAILS on Vercel + redeploy, then verify live login.
