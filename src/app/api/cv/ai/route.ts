@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { reqLocale, apiMsg } from "@/lib/api-i18n";
 import { cleanDeviceId, cleanStr } from "@/lib/validate";
 import { checkIpLimit, hitLimit } from "@/lib/rate-limit";
-import { GeminiError, geminiJson, geminiText, getUserApiKey } from "@/lib/gemini";
+import { GeminiError, geminiJson, geminiText, getUserApiKeyWithMeta } from "@/lib/gemini";
 
 // ─── CV Studio AI assist (BYOK) ─────────────────────────────────────────────
 // POST { deviceId, mode, ... }
@@ -146,7 +146,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: apiMsg(locale, "deviceIdRequired") }, { status: 400 });
 
   try {
-    const apiKey = await getUserApiKey(deviceId);
+    const apiKey = (await getUserApiKeyWithMeta(deviceId)).apiKey;
 
     if (body?.mode === "extract") {
       const text = cleanStr(body?.text, 12_000);

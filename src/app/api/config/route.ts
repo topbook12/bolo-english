@@ -5,7 +5,8 @@ import { sanitizeApiKey, isValidGeminiKeyFormat } from "@/lib/key-format";
 import { geminiText, GeminiError } from "@/lib/gemini";
 import { getSessionUser } from "@/lib/auth";
 import { resolveConfigRow } from "@/lib/user-config";
-import { reqLocale, apiMsg } from "@/lib/api-i18n";
+import { MAX_POOL_KEYS } from "@/lib/key-pool";
+import { reqLocale, apiMsg, type ApiLocale } from "@/lib/api-i18n";
 import { checkIpLimit } from "@/lib/rate-limit";
 import { cleanDeviceId } from "@/lib/validate";
 import { isNoName } from "@/lib/no-name";
@@ -121,6 +122,138 @@ async function writeConfig(
   });
 }
 
+/* ── Key pool (owner requirement: several Gemini keys per account) ──────────
+ * Logged-in users save keys into the UserApiKey pool (max MAX_POOL_KEYS);
+ * when the active key hits its quota the AI layer rotates to the next one
+ * automatically (src/lib/key-pool.ts + src/lib/gemini.ts). The legacy
+ * single-key UserConfig row stays in sync for the FIRST pool key only, so
+ * old code paths (and the guest-style legacy resolution) keep working.
+ * Guests keep the exact pre-pool single-key behavior. */
+
+/** Masked pool row for the browser — NEVER the plaintext key. */
+type PoolEntry = {
+  id: string;
+  keyPreview: string;
+  active: boolean;
+  inCooldown: boolean;
+  failures: number;
+};
+
+/** Load + shape the caller's pool rows; undefined when unavailable (guest,
+ * pre-migration DB, storage error) so callers can omit the field. */
+async function loadPool(
+  userId: string
+): Promise<PoolEntry[] | undefined> {
+  try {
+    const rows = await db.userApiKey.findMany({
+      where: { userId },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+    });
+    const now = Date.now();
+    const firstHealthy = rows.findIndex(
+      (r) => !r.cooldownUntil || r.cooldownUntil.getTime() <= now
+    );
+    return rows.map((r, i) => ({
+      id: r.id,
+      keyPreview: r.keyPreview,
+      active: i === firstHealthy,
+      inCooldown: !!r.cooldownUntil && r.cooldownUntil.getTime() > now,
+      failures: r.failures,
+    }));
+  } catch (e) {
+    // Table missing on a not-yet-migrated production DB etc. — degrade
+    // silently, the response stays valid without the pool field.
+    console.warn("[/api/config] pool read failed — omitting pool:", (e as Error)?.message ?? e);
+    return undefined;
+  }
+}
+
+/* ── Shared save-gate: sanitize + format check + live Google verification ──
+ * Both the pool path and the legacy single-key path run the SAME checks:
+ *   - 401 (Google rejected the key itself) → refuse to save, tell the user
+ *   - anything else (quota 429, region/permission 403, Google 5xx, network
+ *     timeout) → the key was never proven invalid, so SAVE it and surface
+ *     a warning. A valid key failing to save was the top user complaint. */
+type VerifyResult =
+  | { ok: true; key: string; warning: string | null }
+  | { ok: false; res: NextResponse };
+
+async function verifyApiKey(raw: string, locale: ApiLocale): Promise<VerifyResult> {
+  // Strip zero-width chars / quotes / stray whitespace that sneaks in when
+  // copying the key on mobile, then auto-extract a complete 39-char Gemini
+  // key from copied-with-junk text ("Key: AIza…", trailing dari, etc.).
+  const key = sanitizeApiKey(String(raw));
+  if (!key || !isValidGeminiKeyFormat(key)) {
+    // Diagnostic, not a dead end: show exactly what arrived (length + the
+    // first characters) so the user can see WHAT went wrong with the copy.
+    console.warn(
+      `[/api/config] key rejected: len=${key.length} prefix=${JSON.stringify(key.slice(0, 6))}`
+    );
+    return {
+      ok: false,
+      res: NextResponse.json(
+        {
+          ok: false,
+          error: apiMsg(locale, "keyDiag", {
+            len: key.length,
+            prefix: key.slice(0, 4) || "—",
+          }),
+        },
+        { status: 400 }
+      ),
+    };
+  }
+  // Verify the key with a tiny request before storing it.
+  try {
+    await geminiText(key, "Reply with exactly: OK", {
+      temperature: 0,
+      maxOutputTokens: 512,
+    });
+    return { ok: true, key, warning: null };
+  } catch (e) {
+    const status = e instanceof GeminiError ? e.status : 0;
+    const gerr = e instanceof GeminiError ? e : null;
+    if (status === 401 && gerr?.code === "authKeyPending") {
+      // Google's new AQ. auth key: the credential TYPE was recognized but
+      // Google currently refuses it (known rollout issue — forum-documented,
+      // Google support suggests creating a key under a NEW project). The key
+      // was never proven invalid → SAVE it and surface the situation. The
+      // key starts working the moment Google's side activates it.
+      return { ok: true, key, warning: apiMsg(locale, "authKeyPending") };
+    }
+    if (gerr?.code === "modelIneligible") {
+      // Google refused the MODELS for this key ("not eligible to use Gemini
+      // 2.5 Flash — use Gemini 2.0 Flash" and the fallback was refused too).
+      // The key itself was never proven invalid → SAVE it with a clear,
+      // localized explanation instead of Google's raw English text.
+      return { ok: true, key, warning: apiMsg(locale, "modelFallbackWarning") };
+    }
+    if (status === 401) {
+      // Google rejected the key string itself → refuse to save (localized),
+      // plus the raw Google message as `detail` for self-diagnosis.
+      const ge = gerr ?? (e as GeminiError);
+      return {
+        ok: false,
+        res: NextResponse.json(
+          {
+            ok: false,
+            error: ge.code ? apiMsg(locale, ge.code) : ge.message,
+            detail: ge.raw || ge.message,
+          },
+          { status: 400 }
+        ),
+      };
+    }
+    return {
+      ok: true,
+      key,
+      warning: apiMsg(locale, "keyUnverified", {
+        reason: (e as Error).message.slice(0, 120),
+      }),
+    };
+  }
+}
+
 // GET /api/config?deviceId=...  → masked profile (key never returned raw)
 export async function GET(req: NextRequest) {
   const locale = reqLocale(req);
@@ -134,6 +267,8 @@ export async function GET(req: NextRequest) {
       getSessionUser(),
     ]);
     const name = resolveName(user?.name, cfg?.displayName);
+    // Pool previews for logged-in users only (never plaintext keys).
+    const pool = user ? await loadPool(user.id) : undefined;
     if (!cfg || !cfg.keyPreview) {
       return NextResponse.json({
         ok: true,
@@ -142,6 +277,7 @@ export async function GET(req: NextRequest) {
           keyPreview: null,
           displayName: name,
           level: cfg?.level ?? "beginner",
+          ...(pool ? { pool } : {}),
         },
       });
     }
@@ -152,6 +288,7 @@ export async function GET(req: NextRequest) {
         keyPreview: cfg.keyPreview,
         displayName: name,
         level: cfg.level,
+        ...(pool ? { pool } : {}),
       },
     });
   } catch (e) {
@@ -172,6 +309,7 @@ export async function POST(req: NextRequest) {
   if (!deviceId) {
     return NextResponse.json({ ok: false, error: apiMsg(locale, "deviceIdRequired") }, { status: 400 });
   }
+  const user = await getSessionUser();
   const { displayName, level } = body;
 
   const update: ConfigUpdate = {};
@@ -183,87 +321,72 @@ export async function POST(req: NextRequest) {
   }
 
   let warning: string | null = null;
+  let poolAdded = false;
 
   if (typeof body.apiKey === "string" && body.apiKey.trim()) {
-    // Strip zero-width chars / quotes / stray whitespace that sneaks in when
-    // copying the key on mobile, then auto-extract a complete 39-char Gemini
-    // key from copied-with-junk text ("Key: AIza…", trailing dari, etc.).
-    const key = sanitizeApiKey(String(body.apiKey));
-    if (!key || !isValidGeminiKeyFormat(key)) {
-      // Diagnostic, not a dead end: show exactly what arrived (length + the
-      // first characters) so the user can see WHAT went wrong with the copy.
-      console.warn(
-        `[config] key rejected: len=${key.length} prefix=${JSON.stringify(key.slice(0, 6))}`
-      );
-      return NextResponse.json(
-        {
-          ok: false,
-          error: apiMsg(reqLocale(req), "keyDiag", {
-            len: key.length,
-            prefix: key.slice(0, 4) || "—",
-          }),
-        },
-        { status: 400 }
-      );
-    }
-    // Verify the key with a tiny request before storing it. Semantics matter:
-    //  - 401 (Google rejected the key itself) → refuse to save, tell the user
-    //  - anything else (quota 429, region/permission 403, Google 5xx, network
-    //    timeout) → the key was never proven invalid, so SAVE it and surface
-    //    a warning. A valid key failing to save was the top user complaint.
-    try {
-      await geminiText(key, "Reply with exactly: OK", {
-        temperature: 0,
-        maxOutputTokens: 512,
-      });
-    } catch (e) {
-      const status = e instanceof GeminiError ? e.status : 0;
-      const gerr = e instanceof GeminiError ? e : null;
-      if (status === 401 && gerr?.code === "authKeyPending") {
-        // Google's new AQ. auth key: the credential TYPE was recognized but
-        // Google currently refuses it (known rollout issue — forum-documented,
-        // Google support suggests creating a key under a NEW project). The key
-        // was never proven invalid → SAVE it and surface the situation. The
-        // key starts working the moment Google's side activates it.
-        warning = apiMsg(reqLocale(req), "authKeyPending");
-      } else if (gerr?.code === "modelIneligible") {
-        // Google refused the MODELS for this key ("not eligible to use Gemini
-        // 2.5 Flash — use Gemini 2.0 Flash" and the fallback was refused too).
-        // The key itself was never proven invalid → SAVE it with a clear,
-        // localized explanation instead of Google's raw English text.
-        warning = apiMsg(reqLocale(req), "modelFallbackWarning");
-      } else if (status === 401) {
-        // Google rejected the key string itself → refuse to save (localized),
-        // plus the raw Google message as `detail` for self-diagnosis.
-        const ge = gerr ?? (e as GeminiError);
-        return NextResponse.json(
-          {
-            ok: false,
-            error: ge.code ? apiMsg(reqLocale(req), ge.code) : ge.message,
-            detail: ge.raw || ge.message,
-          },
-          { status: 400 }
-        );
-      } else {
-        warning = apiMsg(reqLocale(req), "keyUnverified", {
-          reason: (e as Error).message.slice(0, 120),
+    const v = await verifyApiKey(body.apiKey, locale);
+    if (!v.ok) return v.res;
+    warning = v.warning;
+    const enc = encryptKey(v.key);
+    const preview = maskKey(v.key);
+
+    if (user) {
+      // Logged in → append to the key POOL (previews only ever leave here).
+      try {
+        const existing = await db.userApiKey.findMany({
+          where: { userId: user.id },
+          orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
         });
+        if (existing.length >= MAX_POOL_KEYS) {
+          return NextResponse.json(
+            { ok: false, error: apiMsg(locale, "poolFull") },
+            { status: 400 }
+          );
+        }
+        const maxSort = existing.reduce((m, r) => Math.max(m, r.sortOrder), 0);
+        await db.userApiKey.create({
+          data: {
+            userId: user.id,
+            apiKeyEnc: enc,
+            keyPreview: preview,
+            sortOrder: maxSort + 1,
+          },
+        });
+        poolAdded = true;
+        // Legacy mirror for the FIRST key only, so the legacy single-key
+        // path (old devices / pre-pool code) keeps working.
+        if (existing.length === 0) {
+          update.apiKeyEnc = enc;
+          update.keyPreview = preview;
+        }
+      } catch (e) {
+        // Pool table missing on a not-yet-migrated production DB etc. →
+        // fall back to the legacy single-key save so the key still lands.
+        console.warn(
+          "[/api/config] pool write failed — legacy single-key save:",
+          (e as Error)?.message ?? e
+        );
+        update.apiKeyEnc = enc;
+        update.keyPreview = preview;
       }
+    } else {
+      // Guest → exact pre-pool single-key behavior.
+      update.apiKeyEnc = enc;
+      update.keyPreview = preview;
     }
-    update.apiKeyEnc = encryptKey(key);
-    update.keyPreview = maskKey(key);
   }
 
-  if (Object.keys(update).length === 0) {
+  if (Object.keys(update).length === 0 && !poolAdded) {
     return NextResponse.json({ ok: false, error: apiMsg(locale, "nothingToUpdate") }, { status: 400 });
   }
 
   try {
-    await writeConfig(deviceId, update);
+    if (Object.keys(update).length > 0) {
+      await writeConfig(deviceId, update);
+    }
 
     // Keep the account in sync: a logged-in user's display-name edit updates
     // their User.name too, so greeting + AI personalization stay consistent.
-    const user = await getSessionUser();
     const savedName = typeof update.displayName === "string" ? update.displayName : null;
     if (user && savedName) {
       await db.user.update({ where: { id: user.id }, data: { name: savedName } }).catch(() => null);
@@ -273,6 +396,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       ok: true,
       warning,
+      ...(poolAdded ? { message: apiMsg(locale, "keyPoolAdded") } : {}),
       data: {
         hasKey: !!cfg?.keyPreview,
         keyPreview: cfg?.keyPreview || null,
@@ -285,15 +409,57 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// DELETE /api/config?deviceId=... → remove saved key (account + this device)
+// DELETE /api/config?deviceId=...[&keyId=...]
+//   keyId + logged in → remove that one POOL row (only if it belongs to the
+//   caller); without keyId → legacy wipe of the saved single key.
 export async function DELETE(req: NextRequest) {
   const locale = reqLocale(req);
   const deviceId = cleanDeviceId(req.nextUrl.searchParams.get("deviceId"));
   if (!deviceId) {
     return NextResponse.json({ ok: false, error: apiMsg(locale, "deviceIdRequired") }, { status: 400 });
   }
+  const keyId = cleanDeviceId(req.nextUrl.searchParams.get("keyId"));
   try {
     const user = await getSessionUser();
+    if (user && keyId) {
+      try {
+        const row = await db.userApiKey.findUnique({ where: { id: keyId } });
+        if (!row || row.userId !== user.id) {
+          // Not found, or belongs to someone else — never leak which.
+          return NextResponse.json(
+            { ok: false, error: apiMsg(locale, "nothingToUpdate") },
+            { status: 404 }
+          );
+        }
+        await db.userApiKey.delete({ where: { id: keyId } });
+        // Keep the legacy FIRST-key mirror consistent: if the removed key was
+        // the mirrored one, point the mirror at the next pool key (or wipe).
+        const rest = await db.userApiKey.findMany({
+          where: { userId: user.id },
+          orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+        });
+        const legacyRow = await db.userConfig.findFirst({ where: { userId: user.id } });
+        if (legacyRow && legacyRow.keyPreview === row.keyPreview) {
+          const first = rest[0];
+          await db.userConfig
+            .updateMany({
+              where: { userId: user.id },
+              data: first
+                ? { apiKeyEnc: first.apiKeyEnc, keyPreview: first.keyPreview }
+                : { apiKeyEnc: "", keyPreview: "" },
+            })
+            .catch(() => null);
+        }
+        return NextResponse.json({ ok: true, message: apiMsg(locale, "keyPoolRemoved") });
+      } catch (e) {
+        // Pool unavailable (pre-migration DB etc.) → fall through to the
+        // legacy wipe so the caller still gets a working delete.
+        console.warn(
+          "[/api/config] pool delete failed — legacy wipe:",
+          (e as Error)?.message ?? e
+        );
+      }
+    }
     if (user) {
       await db.userConfig.updateMany({
         where: { userId: user.id },

@@ -1,8 +1,13 @@
 import { createHash } from "crypto";
-import { encryptKey, tryDecryptKey } from "./crypto";
-import { db } from "./db";
 import { isNoName } from "@/lib/no-name";
 import { resolveConfigRow } from "./user-config";
+import {
+  DEFAULT_COOLDOWN_HOURS,
+  cooldownKey,
+  getActiveKey,
+  legacyActiveKey,
+  type KeySource,
+} from "./key-pool";
 
 // Server-side Gemini client. The user's own API key is fetched from DB
 // (decrypted here only), and every call is proxied through our backend so the
@@ -98,51 +103,137 @@ export class GeminiError extends Error {
 // All three getters resolve ACCOUNT-first (session cookie → the user's own
 // config row) so the same email works on every device; guests fall back to
 // the device-local row. See src/lib/user-config.ts.
+// getUserApiKey keeps the LEGACY single-key path on purpose (routes that
+// haven't switched to the pool yet behave exactly as before, including the
+// self-healing re-encrypt/wipe); the shared implementation lives in
+// src/lib/key-pool.ts so the pool fallback reuses the identical logic.
 export async function getUserApiKey(deviceId: string): Promise<string> {
-  const cfg = await resolveConfigRow(deviceId);
-  if (!cfg || !cfg.apiKeyEnc) {
+  const legacy = await legacyActiveKey(deviceId);
+  if (!legacy.key) {
     throw new GeminiError(
-      "আপনার Gemini API Key সেট করা নেই। Settings-এ গিয়ে কী যোগ করুন।",
+      legacy.unreadable
+        ? "আপনার API Key পড়া যায়নি — Settings-এ গিয়ে আবার সেভ করুন।"
+        : "আপনার Gemini API Key সেট করা নেই। Settings-এ গিয়ে কী যোগ করুন।",
       400,
-      "noKey"
+      legacy.unreadable ? "keyUnreadable" : "noKey"
     );
   }
-  // Self-healing read. tryDecryptKey tries EVERY secret the app can derive
-  // (current env resolution + older derivations + the constant local-dev
-  // fallback), so a ciphertext written before an env change / by another
-  // environment still opens — previously it died as keyUnreadable forever
-  // while Settings kept claiming the key was saved.
-  const att = tryDecryptKey(cfg.apiKeyEnc);
-  if (att.key) {
-    if (!att.primary) {
-      // Opened with a legacy/secondary secret → re-encrypt under the CURRENT
-      // secret and persist, so every later call takes the fast primary path.
-      const reenc = encryptKey(att.key);
-      await db.userConfig
-        .update({ where: { id: cfg.id }, data: { apiKeyEnc: reenc } })
-        .catch(() => null);
-      console.log(
-        `[ai] key row ${cfg.id} re-encrypted under current secret (legacy secret matched)`
-      );
+  return legacy.key;
+}
+
+/* ── Key-pool resolution + in-memory key metadata ─────────────────────────
+ * getUserApiKeyWithMeta is the pool-aware resolver: logged-in users get
+ * their first healthy pool key (with cooldown-aware skipping), everyone
+ * else the legacy single key. geminiJson/geminiText only receive the raw
+ * key string, so the pool metadata (source/rowId/deviceId) is remembered
+ * here, keyed by key hash, letting them rotate pool keys on a terminal
+ * quota failure WITHOUT any signature change for existing callers. */
+export interface UserKeyWithMeta {
+  apiKey: string;
+  source: KeySource;
+  rowId?: string;
+}
+
+interface KeyMeta {
+  source: KeySource;
+  rowId?: string;
+  deviceId: string;
+  at: number;
+}
+
+const keyMeta = new Map<string, KeyMeta>();
+const KEY_META_MAX = 512;
+const KEY_META_TTL_MS = 60 * 60 * 1000;
+
+function rememberKeyMeta(apiKey: string, meta: KeyMeta): void {
+  if (keyMeta.size >= KEY_META_MAX) {
+    // Drop the oldest quarter — keys re-register on every resolve, so this
+    // never evicts the hot set of an active burst of requests.
+    let n = Math.ceil(KEY_META_MAX / 4);
+    for (const h of keyMeta.keys()) {
+      keyMeta.delete(h);
+      if (--n === 0) break;
     }
-    return att.key;
   }
-  // Nothing could open it — the ciphertext is unrecoverable (env rotated
-  // without a matching candidate, or the row was corrupted). WIPE it so
-  // Settings stops showing "key saved ✓" (that lie stranded users: the UI
-  // said saved, every AI call said unreadable). The user re-pastes the key
-  // once and everything heals.
-  console.error(
-    `[ai] key row ${cfg.id} UNREADABLE (${att.reason}) — wiping broken ciphertext, user must re-save`
-  );
-  await db.userConfig
-    .update({ where: { id: cfg.id }, data: { apiKeyEnc: "", keyPreview: "" } })
-    .catch(() => null);
-  throw new GeminiError(
-    "আপনার API Key পড়া যায়নি — Settings-এ গিয়ে আবার সেভ করুন।",
-    400,
-    "keyUnreadable"
-  );
+  keyMeta.set(keyHash(apiKey), meta);
+}
+
+function metaFor(apiKey: string): KeyMeta | null {
+  const h = keyHash(apiKey);
+  const m = keyMeta.get(h);
+  if (!m) return null;
+  if (Date.now() - m.at > KEY_META_TTL_MS) {
+    keyMeta.delete(h);
+    return null;
+  }
+  return m;
+}
+
+export async function getUserApiKeyWithMeta(deviceId: string): Promise<UserKeyWithMeta> {
+  const active = await getActiveKey(deviceId);
+  if (!active.key) {
+    // Pool produced nothing and the legacy fallback failed too — keep the
+    // legacy distinction (key never saved vs ciphertext unreadable).
+    throw new GeminiError(
+      active.unreadable
+        ? "আপনার API Key পড়া যায়নি — Settings-এ গিয়ে আবার সেভ করুন।"
+        : "আপনার Gemini API Key সেট করা নেই। Settings-এ গিয়ে কী যোগ করুন।",
+      400,
+      active.unreadable ? "keyUnreadable" : "noKey"
+    );
+  }
+  rememberKeyMeta(active.key, {
+    source: active.source,
+    rowId: active.rowId,
+    deviceId,
+    at: Date.now(),
+  });
+  return { apiKey: active.key, source: active.source, rowId: active.rowId };
+}
+
+/* ── Automatic pool rotation (owner requirement) ───────────────────────────
+ * A TERMINAL "quota" failure means every model in the fallback chain 429'd
+ * on this key. If that key came from the user's pool, cool the row down
+ * (2h) and transparently retry the whole call with the next healthy key —
+ * the resolver skips cooled-down rows, so the retry uses a different key
+ * and the user never sees the quota error. Legacy keys have no pool row →
+ * the error is rethrown unchanged. Max 2 pool retries per call guards
+ * against loops. */
+const POOL_RETRIES_MAX = 2;
+
+async function withPoolRotation<R>(
+  apiKey: string,
+  run: (key: string) => Promise<R>
+): Promise<R> {
+  let key = apiKey;
+  const triedKeys = new Set<string>([apiKey]);
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await run(key);
+    } catch (e) {
+      const meta =
+        e instanceof GeminiError && e.code === "quota" ? metaFor(key) : null;
+      if (!meta || meta.source !== "pool" || !meta.rowId || attempt >= POOL_RETRIES_MAX) {
+        throw e;
+      }
+      console.warn(
+        `[ai] pool row ${meta.rowId} exhausted its quota → cooldown ${DEFAULT_COOLDOWN_HOURS}h, rotating to the next key`
+      );
+      // Awaited (the promise never rejects) so the resolver below is
+      // guaranteed to see the cooldown — otherwise the very same key could
+      // be re-picked before the UPDATE lands.
+      await cooldownKey(meta.rowId);
+      let nextKey: string;
+      try {
+        nextKey = (await getUserApiKeyWithMeta(meta.deviceId)).apiKey;
+      } catch {
+        throw e; // no other key obtainable — surface the original quota error
+      }
+      if (triedKeys.has(nextKey)) throw e; // nothing untried left (pool degraded)
+      triedKeys.add(nextKey);
+      key = nextKey;
+    }
+  }
 }
 
 export async function getAiLevel(deviceId: string): Promise<string> {
@@ -424,7 +515,7 @@ function escapeControlCharsInStrings(s: string): string {
 const JSON_ONLY_NUDGE =
   "\n\nCRITICAL: Respond with ONLY the raw JSON value. No markdown, no code fences, no explanation — nothing before or after the JSON.";
 
-export async function geminiJson<T>(
+async function geminiJsonWithKey<T>(
   apiKey: string,
   prompt: string,
   opts: GeminiOptions = {}
@@ -494,7 +585,17 @@ export async function geminiJson<T>(
   throw lastErr ?? new GeminiError("AI কল ব্যর্থ হয়েছে।", 500, "aiFailed");
 }
 
-export async function geminiText(
+/** Pool-aware JSON call: identical to geminiJsonWithKey, plus automatic
+ * rotation to the next pool key after a terminal quota failure. */
+export async function geminiJson<T>(
+  apiKey: string,
+  prompt: string,
+  opts: GeminiOptions = {}
+): Promise<T> {
+  return withPoolRotation(apiKey, (key) => geminiJsonWithKey<T>(key, prompt, opts));
+}
+
+async function geminiTextWithKey(
   apiKey: string,
   prompt: string,
   opts: GeminiOptions = {}
@@ -530,6 +631,16 @@ export async function geminiText(
     }
   }
   throw lastErr ?? new GeminiError("AI কল ব্যর্থ হয়েছে।", 500, "aiFailed");
+}
+
+/** Pool-aware text call: identical to geminiTextWithKey, plus automatic
+ * rotation to the next pool key after a terminal quota failure. */
+export async function geminiText(
+  apiKey: string,
+  prompt: string,
+  opts: GeminiOptions = {}
+): Promise<string> {
+  return withPoolRotation(apiKey, (key) => geminiTextWithKey(key, prompt, opts));
 }
 
 async function callModel(

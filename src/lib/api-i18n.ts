@@ -278,6 +278,33 @@ const M = {
     hi: "पूल में कोई दूसरी TURN key नहीं — पहले एक जोड़ें।",
   },
 
+  /* ── Gemini key pool (per-user) ── */
+  poolFull: {
+    en: "Your key pool already has 6 keys — remove one before adding another.",
+    bn: "আপনার কী পুলে ইতিমধ্যে ৬টি কী আছে — নতুনটি যোগ করার আগে একটি মুছে ফেলুন।",
+    hi: "आपकी की पूल में पहले से 6 कीज़ हैं — नई जोड़ने से पहले एक हटाएँ।",
+  },
+  keyPoolAdded: {
+    en: "Key added to the pool ✅",
+    bn: "কী পুলে যোগ হয়েছে ✅",
+    hi: "की पूल में जुड़ गई ✅",
+  },
+  keyPoolRemoved: {
+    en: "Key removed from the pool.",
+    bn: "কী পুল থেকে মুছে ফেলা হয়েছে।",
+    hi: "की पूल से हटा दी गई।",
+  },
+  keyPoolCooldown: {
+    en: "This key hit its quota — it automatically rejoins the pool when the cooldown ends.",
+    bn: "এই কী-এর কোটা শেষ — কুলডাউন শেষ হলে এটি স্বয়ংক্রিয়ভাবে আবার পুলে ফিরে যাবে।",
+    hi: "इस की का कोटा खत्म हो गया — कूलडाउन खत्म होने पर यह अपने-आप पूल में वापस आ जाएगी।",
+  },
+  keyPoolLimitInfo: {
+    en: "Up to 6 keys per account — when one runs out, AI automatically continues with the next healthy key.",
+    bn: "প্রতি অ্যাকাউন্টে সর্বোচ্চ ৬টি কী — একটির কোটা শেষ হলে AI স্বয়ংক্রিয়ভাবে পরের সুস্থ কী দিয়ে চলতে থাকে।",
+    hi: "प्रति अकाउंट अधिकतम 6 कीज़ — एक का कोटा खत्म होने पर AI अपने-आप अगली सही की से काम करना जारी रखता है।",
+  },
+
   /* ── video call ── */
   roomCodeRequired: {
     en: "Enter the room code.",

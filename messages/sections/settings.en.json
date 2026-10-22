@@ -39,6 +39,21 @@
       "safety2": "Only usable with your device ID; all AI calls are rate-limited",
       "safety3": "The key never returns to your browser — you only see a masked preview (AIza…9f2)"
     },
+    "keyPool": {
+      "title": "Gemini key pool",
+      "desc": "Save several keys — when one hits its quota, AI calls automatically continue with the next healthy key.",
+      "loginNote": "Log in to use the key pool — guests use the single key saved above.",
+      "empty": "No pool keys yet — add your first key below.",
+      "newKey": "Add a Gemini API key",
+      "add": "Add key",
+      "adding": "Verifying & adding…",
+      "added": "Key added to the pool ✅",
+      "removed": "Key removed from the pool",
+      "confirmDelete": "Remove this key from the pool?",
+      "cooldownBadge": "Retrying later",
+      "failures": "{n} quota failure(s)",
+      "maxNote": "Up to 6 keys per account. The first healthy key does the work; the rest join in automatically."
+    },
     "profile": {
       "title": "Profile",
       "desc": "AI generates content to match your level.",

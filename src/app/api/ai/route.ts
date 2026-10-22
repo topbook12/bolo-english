@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { checkRateLimit, checkIpLimit } from "@/lib/rate-limit";
 import { cleanStr } from "@/lib/validate";
 import { reqLocale, apiMsg, type ApiLocale } from "@/lib/api-i18n";
-import { GeminiError, geminiJson, getAiLevel, getUserName, getUserApiKey } from "@/lib/gemini";
+import { GeminiError, geminiJson, getAiLevel, getUserName, getUserApiKeyWithMeta } from "@/lib/gemini";
 import { pruneAiCache } from "@/lib/ai-cache-prune";
 import type {
   AnalysisMistake,
@@ -408,7 +408,7 @@ export async function POST(req: NextRequest) {
 
   let apiKey: string;
   try {
-    apiKey = await getUserApiKey(deviceId);
+    apiKey = (await getUserApiKeyWithMeta(deviceId)).apiKey;
   } catch (e) {
     return jsonErr(geminiErrMsg(locale, e), (e as GeminiError).status ?? 400);
   }
