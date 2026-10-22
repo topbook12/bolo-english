@@ -85,6 +85,16 @@
     "screenShareBadge": "You are sharing your screen",
     "screenShareUnsupported": "Screen sharing isn't supported in this browser — try Chrome or Edge on a computer.",
     "screenShareDenied": "Screen share permission was denied — allow it in your browser and try again.",
-    "screenShareFailed": "Screen sharing couldn't start — the call continues as usual."
+    "screenShareFailed": "Screen sharing couldn't start — the call continues as usual.",
+    "pttHint": "Press and hold to speak — release to add subtitles",
+    "pttRecording": "Recording… release to transcribe",
+    "pttProcessing": "Writing your words…",
+    "pttTooLong": "Hold limit reached (20 seconds) — transcribing what was captured.",
+    "sttNoSpeech": "No speech was caught — hold the mic button and try again.",
+    "sttMicDenied": "Microphone permission is needed — allow it in the browser.",
+    "sttRateLimited": "Too many attempts — wait a moment and try again.",
+    "sttFailed": "Couldn't turn your speech into text — please try again.",
+    "captionsUnsupportedNotice": "No live subtitles in this browser — press and hold the mic button while you speak.",
+    "captionsWatchdogFailed": "Live subtitles stopped responding and were switched off — the call continues as usual."
   }
 }

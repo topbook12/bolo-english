@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import {
@@ -35,9 +35,40 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import CallAvatar, { VoiceEq } from "@/components/speaking/CallAvatar";
 import type { RemotePeer } from "@/hooks/use-webrtc";
+import { isSpeechRecognitionSupported } from "@/hooks/use-speech-recognition";
+import { useToast } from "@/hooks/use-toast";
 
 /* Layout preference persistence (Task 18) — WhatsApp-style stack vs grid */
 const LAYOUT_STORAGE_KEY = "bolo_call_layout";
+
+/* ── push-to-talk (Task 27-m) constants ──
+ * For browsers WITHOUT the Web Speech API (iPhone Safari): press-and-hold
+ * records the mic via MediaRecorder, release transcribes through /api/stt. */
+const PTT_MIN_HOLD_MS = 400; // shorter holds are accidental taps → ignore
+const PTT_MAX_HOLD_MS = 20_000; // hard cap per hold — auto-stop and transcribe
+// Recording mime preference: webm/opus everywhere it exists, else let the
+// browser pick its default (iOS Safari → audio/mp4). The server sniffs the
+// container itself, so the label is informational only.
+const PTT_MIME_CANDIDATES = [
+  "audio/webm;codecs=opus",
+  "audio/webm",
+  "audio/ogg;codecs=opus",
+  "audio/mp4",
+];
+
+/** Blob → raw base64 (no data: prefix) via FileReader. */
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("ptt-read-failed"));
+    reader.onload = () => {
+      const url = String(reader.result ?? "");
+      const comma = url.indexOf(",");
+      resolve(comma >= 0 ? url.slice(comma + 1) : url);
+    };
+    reader.readAsDataURL(blob);
+  });
+}
 
 /* ── talking indicator (Web Audio, best-effort) ──
  * Per remote stream: AudioContext → AnalyserNode, RMS sampled every ~200ms.
@@ -469,6 +500,11 @@ interface CallRoomProps {
   onToggleChat: () => void;
   onLeave: () => void;
   onSendChat: (text: string) => void;
+  /** Task 27-m: result of a push-to-talk hold (browsers without the Web
+   *  Speech API). Routed by the parent into the SAME final-line plumbing as
+   *  recognition finals — transcript + captions + peer broadcast — so the
+   *  end-of-call analysis keeps working on mobile. */
+  onPushToTalkFinal?: (text: string) => void;
   children?: React.ReactNode; // controls row extras (correction toggle etc.)
 }
 
@@ -502,12 +538,207 @@ export default function CallRoom({
   onToggleChat,
   onLeave,
   onSendChat,
+  onPushToTalkFinal,
   children,
 }: CallRoomProps) {
   const t = useTranslations("call");
+  const { toast } = useToast();
   const chatInputRef = useRef<HTMLInputElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const talking = useTalkingPeers(remotePeers);
+
+  /* ── Task 27-m: push-to-talk fallback (browsers WITHOUT the Web Speech API) ──
+   * iPhone Safari has no SpeechRecognition at all → no captions → the
+   * end-of-call analysis refuses (needs learner lines). Instead of live
+   * recognition this records press-and-hold mic audio, and on release sends
+   * it to /api/stt; the returned text goes through onPushToTalkFinal — the
+   * parent's exact recognition-final path (transcript + captions + peer
+   * broadcast). Every failure path is a localized toast; the call itself
+   * never breaks. */
+  const [pttRecording, setPttRecording] = useState(false);
+  const [pttBusy, setPttBusy] = useState(false); // transcribing after release
+  const pttRecorderRef = useRef<MediaRecorder | null>(null);
+  const pttChunksRef = useRef<Blob[]>([]);
+  const pttStartRef = useRef(0);
+  const pttMaxTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pttIgnoreRef = useRef(false); // tap-too-short / aborted hold
+  const onPttFinalRef = useRef(onPushToTalkFinal);
+  useEffect(() => {
+    onPttFinalRef.current = onPushToTalkFinal;
+  }, [onPushToTalkFinal]);
+
+  // Hydration-safe capability probe (server render says "supported" so the
+  // fallback UI only appears after mount, on the browsers that need it).
+  const [recogSupported, setRecogSupported] = useState(false);
+  useEffect(() => {
+    setRecogSupported(isSpeechRecognitionSupported());
+  }, []);
+
+  const hasPttAudio = !!localStream && localStream.getAudioTracks().length > 0;
+
+  const clearPttTimer = useCallback(() => {
+    if (pttMaxTimerRef.current) {
+      clearTimeout(pttMaxTimerRef.current);
+      pttMaxTimerRef.current = null;
+    }
+  }, []);
+
+  /* release → encode → POST /api/stt → parent's final-line plumbing */
+  const finishPtt = useCallback(async () => {
+    const recorder = pttRecorderRef.current;
+    pttRecorderRef.current = null;
+    clearPttTimer();
+    setPttRecording(false);
+    const chunks = pttChunksRef.current;
+    pttChunksRef.current = [];
+    if (!recorder || pttIgnoreRef.current || chunks.length === 0) {
+      pttIgnoreRef.current = false;
+      return;
+    }
+    const mime = recorder.mimeType || "audio/webm";
+    setPttBusy(true);
+    try {
+      const blob = new Blob(chunks, { type: mime });
+      if (blob.size === 0) {
+        toast({ title: t("sttNoSpeech") });
+        return;
+      }
+      const audio = await blobToBase64(blob);
+      const res = await fetch("/api/stt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ audio, mime }),
+      });
+      if (res.status === 429) {
+        toast({ title: t("sttRateLimited") });
+        return;
+      }
+      const json = (await res.json().catch(() => null)) as {
+        ok?: boolean;
+        data?: { text?: unknown };
+      } | null;
+      if (!res.ok || !json?.ok) {
+        toast({ title: t("sttFailed") });
+        return;
+      }
+      const text = typeof json.data?.text === "string" ? json.data.text.trim() : "";
+      if (!text) {
+        toast({ title: t("sttNoSpeech") });
+        return;
+      }
+      onPttFinalRef.current?.(text);
+    } catch {
+      toast({ title: t("sttFailed") });
+    } finally {
+      setPttBusy(false);
+    }
+  }, [clearPttTimer, t, toast]);
+
+  /* press-and-hold start */
+  const startPtt = useCallback(() => {
+    if (pttRecorderRef.current || pttBusy || !micOn) return;
+    if (!localStream || localStream.getAudioTracks().length === 0) return;
+    if (typeof MediaRecorder === "undefined") {
+      toast({ title: t("sttFailed") });
+      return;
+    }
+    pttIgnoreRef.current = false;
+    pttChunksRef.current = [];
+    pttStartRef.current = Date.now();
+    let recorder: MediaRecorder;
+    try {
+      const mimeType = PTT_MIME_CANDIDATES.find((m) => {
+        try {
+          return MediaRecorder.isTypeSupported(m);
+        } catch {
+          return false;
+        }
+      });
+      recorder = mimeType
+        ? new MediaRecorder(localStream, { mimeType })
+        : new MediaRecorder(localStream);
+    } catch {
+      // construction failure is virtually always a permission/capture problem
+      toast({ title: t("sttMicDenied") });
+      return;
+    }
+    pttRecorderRef.current = recorder;
+    recorder.ondataavailable = (e) => {
+      if (e.data && e.data.size > 0) pttChunksRef.current.push(e.data);
+    };
+    recorder.onerror = () => {
+      pttIgnoreRef.current = true;
+      try {
+        recorder.stop();
+      } catch {
+        /* noop */
+      }
+    };
+    recorder.onstop = () => {
+      void finishPtt();
+    };
+    try {
+      recorder.start(250); // timeslice — chunks flow during long holds
+    } catch {
+      pttRecorderRef.current = null;
+      toast({ title: t("sttFailed") });
+      return;
+    }
+    setPttRecording(true);
+    clearPttTimer();
+    pttMaxTimerRef.current = setTimeout(() => {
+      pttMaxTimerRef.current = null;
+      if (!pttRecorderRef.current) return;
+      toast({ title: t("pttTooLong") }); // still transcribes what was captured
+      try {
+        pttRecorderRef.current.stop();
+      } catch {
+        /* noop */
+      }
+    }, PTT_MAX_HOLD_MS);
+  }, [clearPttTimer, finishPtt, localStream, micOn, pttBusy, t, toast]);
+
+  /* release (or cancel) — <400ms holds are ignored entirely */
+  const stopPtt = useCallback(() => {
+    if (!pttRecorderRef.current) return;
+    if (Date.now() - pttStartRef.current < PTT_MIN_HOLD_MS) pttIgnoreRef.current = true;
+    clearPttTimer();
+    try {
+      pttRecorderRef.current.stop();
+    } catch {
+      /* noop */
+    }
+  }, [clearPttTimer]);
+
+  // Release-anywhere safety net: if pointer capture fails (some mobile
+  // browsers), a pointerup/pointercancel ANYWHERE still ends the hold.
+  useEffect(() => {
+    if (!pttRecording) return;
+    const onUp = () => stopPtt();
+    document.addEventListener("pointerup", onUp);
+    document.addEventListener("pointercancel", onUp);
+    return () => {
+      document.removeEventListener("pointerup", onUp);
+      document.removeEventListener("pointercancel", onUp);
+    };
+  }, [pttRecording, stopPtt]);
+
+  // Unmount mid-hold: stop recording, never POST.
+  useEffect(() => {
+    return () => {
+      pttIgnoreRef.current = true;
+      if (pttMaxTimerRef.current) {
+        clearTimeout(pttMaxTimerRef.current);
+        pttMaxTimerRef.current = null;
+      }
+      try {
+        pttRecorderRef.current?.stop();
+      } catch {
+        /* noop */
+      }
+      pttRecorderRef.current = null;
+    };
+  }, []);
 
   /* ── Task 18: call layout system ─────────────────────────────────────
    * "grid"  → classic tiled grid (every participant side-by-side)
@@ -950,8 +1181,29 @@ export default function CallRoom({
             )}
           </div>
 
+          {/* Task 27-m: small non-blaming hint when THIS browser can't do live
+              subtitles — the hold-to-talk button below is the workaround. */}
+          {!recogSupported && (
+            <p className="relative z-10 mt-1.5 flex items-center justify-center gap-1.5 text-center text-[11px] font-medium text-white/70">
+              <Captions className="h-3.5 w-3.5 shrink-0" aria-hidden />
+              {t("captionsUnsupportedNotice")}
+            </p>
+          )}
+
           {/* controls — floating frosted-glass bar, native dialer layout */}
           <div className="call-glass relative z-10 mt-3 flex flex-wrap items-center justify-center gap-2.5 rounded-2xl p-2.5">
+            {/* push-to-talk live status chip (Task 27-m) */}
+            {(pttRecording || pttBusy) && (
+              <div className="pointer-events-none absolute -top-10 left-1/2 z-20 -translate-x-1/2">
+                <span className="flex items-center gap-1.5 rounded-full bg-rose-600/90 px-3 py-1 text-[11px] font-semibold text-white shadow-lg ring-1 ring-white/25 backdrop-blur-md">
+                  <span
+                    className="h-2 w-2 animate-pulse rounded-full bg-rose-200"
+                    aria-hidden
+                  />
+                  {pttRecording ? t("pttRecording") : t("pttProcessing")}
+                </span>
+              </div>
+            )}
             <button
               type="button"
               className={cn("call-btn h-12 w-12", !micOn && "call-btn-off")}
@@ -961,6 +1213,39 @@ export default function CallRoom({
             >
               {micOn ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
             </button>
+            {/* push-to-talk (Task 27-m) — ONLY for browsers without the Web
+                Speech API (iPhone Safari etc.): hold to record, release →
+                /api/stt → the text lands as a final caption line. Recording
+                taps the call's own mic stream (no second permission prompt);
+                muted mic disables it (a muted track would record silence). */}
+            {!recogSupported && hasPttAudio && (
+              <button
+                type="button"
+                className={cn(
+                  "call-btn h-12 w-12 select-none touch-none",
+                  (pttRecording || pttBusy) &&
+                    "border-rose-400/80 bg-rose-600/85 text-white ring-2 ring-rose-400/70",
+                  pttRecording && "animate-pulse",
+                  !micOn && "opacity-40"
+                )}
+                disabled={!micOn || pttBusy}
+                onPointerDown={startPtt}
+                onPointerUp={stopPtt}
+                onPointerCancel={stopPtt}
+                onLostPointerCapture={stopPtt}
+                onContextMenu={(e) => e.preventDefault()}
+                aria-label={t("pttHint")}
+                title={t("pttHint")}
+              >
+                {pttBusy ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : pttRecording ? (
+                  <span className="h-3.5 w-3.5 rounded-full bg-rose-300" aria-hidden />
+                ) : (
+                  <Mic className="h-5 w-5" />
+                )}
+              </button>
+            )}
             <button
               type="button"
               className={cn("call-btn h-12 w-12", !camOn && "call-btn-off")}

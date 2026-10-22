@@ -890,6 +890,11 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
           onToggleChat={toggleChat}
           onLeave={leaveCall}
           onSendChat={sendChat}
+          // Task 27-m: push-to-talk results (browsers without speech
+          // recognition) flow through the SAME final-line path as recognition
+          // finals — transcript + captions + peer broadcast — so end-of-call
+          // analysis keeps working on mobile.
+          onPushToTalkFinal={(text) => onFinalLine({ text, at: Date.now() })}
         />
 
         {/* speech problems — visible amber warnings, never a whisper of text */}
@@ -908,9 +913,9 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
             </CardContent>
           </Card>
         ) : (
-          rec.error && (
+          (rec.error || rec.failed) && (
             <p className="rounded-xl border border-amber-200 bg-amber-50/70 px-3 py-2 text-center text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300">
-              {rec.error}
+              {rec.error ?? t("captionsWatchdogFailed")}
             </p>
           )
         )}

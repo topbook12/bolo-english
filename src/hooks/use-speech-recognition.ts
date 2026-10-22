@@ -5,6 +5,15 @@ import { clientMsg } from "@/lib/api-i18n";
 
 // Browser-native speech recognition (Web Speech API) — 100% free, runs on-device.
 // Produces live interim text + final transcripts for captions and AI analysis.
+//
+// Task 27-m (mobile captions): Android Chrome fires `onend` after the FIRST
+// utterance even with continuous=true and never resumes by itself, so live
+// captions silently died mid-call on phones. The watchdog below restarts the
+// recognizer ~250ms after every UNEXPECTED end while the user is still in
+// listening mode. A rolling-window loop guard (max 5 auto-restarts inside 10s)
+// gives up on pathological thrash and surfaces `failed` instead of hot-looping.
+// Deliberate stop() / fatal permission errors / unmount are respected — the
+// watchdog never restarts against them.
 
 type SpeechRecognitionLike = {
   lang: string;
@@ -41,6 +50,13 @@ function getRecognitionCtor(): (new () => SpeechRecognitionLike) | null {
   return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
 }
 
+/** Standalone capability probe for consumers that only need a boolean
+ *  (CallRoom's push-to-talk fallback). Always `false` on the server — call it
+ *  after mount, exactly like the hook's `supported`. */
+export function isSpeechRecognitionSupported(): boolean {
+  return !!getRecognitionCtor();
+}
+
 export interface FinalLine {
   text: string;
   at: number;
@@ -48,24 +64,10 @@ export interface FinalLine {
 
 const subscribeNoop = () => () => undefined;
 
-/* ── auto-restart backoff (iOS / flaky engines loop risk) ──
- * Chrome stops the recognizer periodically and we restart silently. But when
- * the engine dies within <2s of starting, something is wrong (iOS Safari
- * permission glitch, recognizer thrash) — restarting instantly turns into a
- * hot loop that drains battery and can hard-crash WebKit. So: count
- * consecutive rapid restarts; from the 3rd one onward wait 5s → 10s → 20s
- * (capped). A healthy session (>5s of listening) resets the counter. */
-const RAPID_RESTART_MS = 2_000; // session shorter than this counts as "rapid"
-const HEALTHY_SESSION_MS = 5_000; // session longer than this resets the counter
-const BACKOFF_BASE_MS = 5_000;
-const BACKOFF_CAP_MS = 20_000;
-const RAPID_RESTARTS_BEFORE_BACKOFF = 3;
-
-function backoffDelayMs(rapidCount: number): number {
-  if (rapidCount < RAPID_RESTARTS_BEFORE_BACKOFF) return 0;
-  const step = rapidCount - RAPID_RESTARTS_BEFORE_BACKOFF; // 0,1,2…
-  return Math.min(BACKOFF_CAP_MS, BACKOFF_BASE_MS * 2 ** step);
-}
+/* ── auto-restart watchdog constants (Task 27-m) ── */
+const RESTART_DELAY_MS = 250; // small settle delay before each auto-restart
+const RESTART_WINDOW_MS = 10_000; // rolling window for the loop guard
+const MAX_RESTARTS_PER_WINDOW = 5; // more restarts than this ⇒ engine thrash ⇒ give up
 
 export function useSpeechRecognition(onFinal?: (line: FinalLine) => void) {
   // Hydration-safe capability probe: server snapshot is always `false`, the
@@ -79,17 +81,22 @@ export function useSpeechRecognition(onFinal?: (line: FinalLine) => void) {
   const [listening, setListening] = useState(false);
   const [interim, setInterim] = useState("");
   const [error, setError] = useState<string | null>(null);
+  // Watchdog gave up (rapid restart loop) — captions are dead until the user
+  // explicitly starts listening again (start() clears it).
+  const [failed, setFailed] = useState(false);
 
   const recRef = useRef<SpeechRecognitionLike | null>(null);
+  // `want` = the user is deliberately in listening mode. Every deliberate
+  // stop path (stop(), fatal errors) clears it FIRST so the onend watchdog
+  // can tell "engine died unexpectedly" from "user stopped it".
   const wantRef = useRef(false);
   const finalCbRef = useRef(onFinal);
   useEffect(() => {
     finalCbRef.current = onFinal;
   }, [onFinal]);
 
-  // backoff bookkeeping
-  const startedAtRef = useRef(0); // when the current session began
-  const rapidRestartsRef = useRef(0);
+  // watchdog bookkeeping: timestamps of the most recent AUTO restarts
+  const restartTimesRef = useRef<number[]>([]);
   const restartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearRestartTimer = useCallback(() => {
@@ -129,41 +136,50 @@ export function useSpeechRecognition(onFinal?: (line: FinalLine) => void) {
     rec.onerror = (e) => {
       if (e.error === "no-speech" || e.error === "aborted") return;
       if (e.error === "not-allowed" || e.error === "service-not-allowed") {
-        wantRef.current = false;
+        wantRef.current = false; // fatal — the watchdog must not restart
         setListening(false);
         setError(clientMsg("micPermission"));
       } else if (e.error === "audio-capture") {
-        wantRef.current = false;
+        wantRef.current = false; // fatal — the watchdog must not restart
         setListening(false);
         setError(clientMsg("micNotFound"));
       }
     };
 
     rec.onend = () => {
-      // auto-restart while user wants to listen (Chrome stops periodically)
+      // Deliberate stop (stop() / fatal error / unmount already cleared want).
       if (!wantRef.current) {
         setListening(false);
         return;
       }
-      // classify the session that just ended
-      const uptime = Date.now() - startedAtRef.current;
-      if (uptime >= HEALTHY_SESSION_MS) {
-        rapidRestartsRef.current = 0; // healthy run — backoff resets
-      } else if (uptime < RAPID_RESTART_MS) {
-        rapidRestartsRef.current += 1; // rapid death — escalate backoff
+      // Unexpected end — Android Chrome ends after the FIRST utterance even
+      // with continuous=true; Chrome desktop also stops periodically. Guard
+      // against thrash: only auto-restart while the rolling restart rate is
+      // sane, otherwise give up and surface `failed`.
+      const now = Date.now();
+      restartTimesRef.current = restartTimesRef.current.filter(
+        (t) => now - t < RESTART_WINDOW_MS
+      );
+      if (restartTimesRef.current.length >= MAX_RESTARTS_PER_WINDOW) {
+        wantRef.current = false;
+        restartTimesRef.current = [];
+        restartTimerRef.current = null;
+        setListening(false);
+        setInterim("");
+        setFailed(true);
+        return;
       }
-      const delay = backoffDelayMs(rapidRestartsRef.current);
+      restartTimesRef.current.push(now);
       clearRestartTimer();
       restartTimerRef.current = setTimeout(() => {
         restartTimerRef.current = null;
-        if (!wantRef.current) return;
+        if (!wantRef.current) return; // stopped while the delay was running
         try {
-          startedAtRef.current = Date.now();
           rec.start();
         } catch {
           /* already started */
         }
-      }, delay);
+      }, RESTART_DELAY_MS);
     };
 
     return rec;
@@ -171,16 +187,16 @@ export function useSpeechRecognition(onFinal?: (line: FinalLine) => void) {
 
   const start = useCallback(() => {
     setError(null);
+    setFailed(false);
+    restartTimesRef.current = []; // an explicit user start resets the loop guard
     if (!getRecognitionCtor()) {
       setError(clientMsg("speechUnsupported"));
       return;
     }
     clearRestartTimer();
     wantRef.current = true;
-    rapidRestartsRef.current = 0; // an explicit user start resets the loop guard
     if (!recRef.current) recRef.current = create();
     try {
-      startedAtRef.current = Date.now();
       recRef.current!.start();
       setListening(true);
     } catch {
@@ -189,11 +205,12 @@ export function useSpeechRecognition(onFinal?: (line: FinalLine) => void) {
   }, [create, clearRestartTimer]);
 
   const stop = useCallback(() => {
-    wantRef.current = false;
+    wantRef.current = false; // deliberate — the watchdog must not fight this
     clearRestartTimer();
-    rapidRestartsRef.current = 0;
+    restartTimesRef.current = [];
     setListening(false);
     setInterim("");
+    setFailed(false);
     try {
       recRef.current?.stop();
     } catch {
@@ -216,5 +233,5 @@ export function useSpeechRecognition(onFinal?: (line: FinalLine) => void) {
     };
   }, []);
 
-  return { supported, listening, interim, error, start, stop };
+  return { supported, listening, interim, error, failed, start, stop };
 }
