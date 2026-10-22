@@ -85,6 +85,14 @@
     "fullscreenEnter": "फ़ुल स्क्रीन",
     "fullscreenExit": "फ़ुल स्क्रीन से बाहर निकलें",
     "swapViews": "दोनों व्यू बदलें",
-    "immersiveHint": "फ़ुल-स्क्रीन कॉल — बाहर निकलने के लिए Esc दबाएँ"
+    "immersiveHint": "फ़ुल-स्क्रीन कॉल — बाहर निकलने के लिए Esc दबाएँ",
+    "screenShareStart": "स्क्रीन शेयर करें",
+    "screenShareStop": "शेयर बंद करें",
+    "screenShareStartAria": "कॉल में अपनी स्क्रीन शेयर करें",
+    "screenShareStopAria": "स्क्रीन शेयर बंद करें",
+    "screenShareBadge": "आपकी स्क्रीन शेयर हो रही है",
+    "screenShareUnsupported": "इस ब्राउज़र में स्क्रीन शेयर नहीं चलता — कंप्यूटर पर Chrome या Edge इस्तेमाल करें।",
+    "screenShareDenied": "स्क्रीन शेयर की अनुमति नहीं मिली — ब्राउज़र में अनुमति देकर फिर कोशिश करें।",
+    "screenShareFailed": "स्क्रीन शेयर शुरू नहीं हो सका — कॉल पहले जैसी चलती रहेगी।"
   }
 }

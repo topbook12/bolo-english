@@ -85,6 +85,14 @@
     "fullscreenEnter": "Full screen",
     "fullscreenExit": "Exit full screen",
     "swapViews": "Swap between the two views",
-    "immersiveHint": "Full-screen call — press Esc to exit"
+    "immersiveHint": "Full-screen call — press Esc to exit",
+    "screenShareStart": "Share screen",
+    "screenShareStop": "Stop sharing",
+    "screenShareStartAria": "Share your screen in the call",
+    "screenShareStopAria": "Stop sharing your screen",
+    "screenShareBadge": "You are sharing your screen",
+    "screenShareUnsupported": "Screen sharing isn't supported in this browser — try Chrome or Edge on a computer.",
+    "screenShareDenied": "Screen share permission was denied — allow it in your browser and try again.",
+    "screenShareFailed": "Screen sharing couldn't start — the call continues as usual."
   }
 }

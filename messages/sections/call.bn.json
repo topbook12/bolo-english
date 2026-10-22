@@ -85,6 +85,14 @@
     "fullscreenEnter": "ফুল স্ক্রিন",
     "fullscreenExit": "ফুল স্ক্রিন থেকে বের হন",
     "swapViews": "দুই ভিউ অদল-বদল করুন",
-    "immersiveHint": "ফুল-স্ক্রিন কল — বের হতে Esc চাপুন"
+    "immersiveHint": "ফুল-স্ক্রিন কল — বের হতে Esc চাপুন",
+    "screenShareStart": "স্ক্রিন শেয়ার করুন",
+    "screenShareStop": "শেয়ার বন্ধ করুন",
+    "screenShareStartAria": "কলে আপনার স্ক্রিন শেয়ার করুন",
+    "screenShareStopAria": "স্ক্রিন শেয়ার বন্ধ করুন",
+    "screenShareBadge": "আপনার স্ক্রিন শেয়ার হচ্ছে",
+    "screenShareUnsupported": "এই ব্রাউজারে স্ক্রিন শেয়ার কাজ করে না — কম্পিউটারে Chrome বা Edge ব্যবহার করুন।",
+    "screenShareDenied": "স্ক্রিন শেয়ারের অনুমতি দেওয়া হয়নি — ব্রাউজারে অনুমতি দিয়ে আবার চেষ্টা করুন।",
+    "screenShareFailed": "স্ক্রিন শেয়ার শুরু করা যায়নি — কল আগের মতোই চলবে।"
   }
 }

@@ -34,6 +34,10 @@ export interface UseWebRTCOpts {
   /** Current room context — lets /api/call/ice prove we are inside the room
    *  before it mints TURN credentials (server-side anti-harvest check). */
   getIceContext?: () => { roomId: string; peerId: string } | null;
+  /** Fires when a live screen share ends by ANY path (our stop button, the
+   *  browser's native "Stop sharing" bar, call teardown). Carries the restored
+   *  camera enabled-state so the UI camera toggle stays in sync. */
+  onScreenShareStopped?: (cameraOn: boolean) => void;
 }
 
 const ICE_SERVERS: RTCIceServer[] = [
@@ -99,7 +103,12 @@ interface QualitySample {
   hasData: boolean;
 }
 
-export function useWebRTC({ onSendSignal, getMyId, getIceContext }: UseWebRTCOpts) {
+export function useWebRTC({
+  onSendSignal,
+  getMyId,
+  getIceContext,
+  onScreenShareStopped,
+}: UseWebRTCOpts) {
   const t = useTranslations("call");
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remotePeers, setRemotePeers] = useState<RemotePeer[]>([]);
@@ -109,6 +118,27 @@ export function useWebRTC({ onSendSignal, getMyId, getIceContext }: UseWebRTCOpt
   const [audioOnly, setAudioOnly] = useState(false);
   /** My own link health — drives the amber "your network is slow" chip. */
   const [selfNet, setSelfNet] = useState<SelfNetState>("good");
+
+  /* ── screen share (Task 26-c) ──
+   * While sharing, the OUTGOING camera track is REPLACED by the screen track
+   * on every peer connection via sender.replaceTrack — the same transceiver
+   * stays in place, so NO renegotiation ever happens and the call never
+   * glitches. The camera track itself is never stopped (only its pre-share
+   * enabled flag remembered), so stopping is one replaceTrack back. */
+  const [screenStream, setScreenStream] = useState<MediaStream | null>(null);
+  const [sharingScreen, setSharingScreen] = useState(false);
+  const screenStreamRef = useRef<MediaStream | null>(null);
+  const screenTrackRef = useRef<MediaStreamTrack | null>(null);
+  // Synchronous mirror of sharingScreen — the 'ended' event handler must not
+  // race React state when deciding whether a restore is needed.
+  const sharingActiveRef = useRef(false);
+  // Camera enabled-state before the share started; restored EXACTLY on stop
+  // (a camera that was OFF before sharing must not silently switch back on).
+  const camPriorOnRef = useRef(true);
+  // Cancels the screen track 'ended' listener (browser "Stop sharing" bar).
+  const screenEndedOffRef = useRef<(() => void) | null>(null);
+  // Double-tap guard — never two getDisplayMedia pickers racing.
+  const screenStartingRef = useRef(false);
 
   const localStreamRef = useRef<MediaStream | null>(null);
   // In-flight getUserMedia promise — initLocal is safe to call concurrently
@@ -136,10 +166,12 @@ export function useWebRTC({ onSendSignal, getMyId, getIceContext }: UseWebRTCOpt
   const sendRef = useRef(onSendSignal);
   const getMyIdRef = useRef(getMyId);
   const getIceContextRef = useRef(getIceContext);
+  const onScreenShareStoppedRef = useRef<((cameraOn: boolean) => void) | null>(null);
   useEffect(() => {
     sendRef.current = onSendSignal;
     getMyIdRef.current = getMyId;
     getIceContextRef.current = getIceContext;
+    onScreenShareStoppedRef.current = onScreenShareStopped ?? null;
   });
 
   /* ── my own link health (NetworkInformation API, best-effort) ──
@@ -390,6 +422,17 @@ export function useWebRTC({ onSendSignal, getMyId, getIceContext }: UseWebRTCOpt
             void sender.setParameters(p).catch(() => undefined);
           } catch {
             /* engine without encodings — auto bitrate stays */
+          }
+        }
+
+        // Screen share went live while this PC was being built (a peer joined
+        // mid-share)? Swap its fresh video sender to the screen track right
+        // away — replaceTrack keeps the same transceiver, no renegotiation.
+        if (sharingActiveRef.current && screenTrackRef.current) {
+          for (const sender of pc.getSenders()) {
+            if (sender.track?.kind === "video") {
+              void sender.replaceTrack(screenTrackRef.current).catch(() => undefined);
+            }
           }
         }
 
@@ -701,7 +744,125 @@ export function useWebRTC({ onSendSignal, getMyId, getIceContext }: UseWebRTCOpt
     localStreamRef.current?.getVideoTracks().forEach((t) => (t.enabled = on));
   }, []);
 
+  /* ── screen share (Task 26-c) ───────────────────────────────────────
+   * Start  → getDisplayMedia (720p/15fps ideal), replaceTrack onto every
+   *          peer's video sender, arm the track 'ended' listener.
+   * Stop   → restore the camera track via replaceTrack, restore its exact
+   *          pre-share enabled state, stop ALL screen tracks, unlisten.
+   * Every stop path funnels through teardownScreenShare, whose
+   * sharingActiveRef guard makes double-restore impossible. */
+  const replaceOutgoingVideo = useCallback((track: MediaStreamTrack | null) => {
+    for (const pc of Array.from(pcsRef.current.values())) {
+      for (const sender of pc.getSenders()) {
+        if (sender.track?.kind === "video") {
+          void sender.replaceTrack(track).catch(() => undefined);
+        }
+      }
+    }
+  }, []);
+
+  /** Shared teardown for every stop path (button, browser bar, cleanup).
+   *  restoreCamera=false on call leave/unmount — the PCs are dying anyway. */
+  const teardownScreenShare = useCallback(
+    (restoreCamera: boolean) => {
+      if (!sharingActiveRef.current) return; // double-restore guard
+      sharingActiveRef.current = false;
+      // cancel the 'ended' listener FIRST — no re-entry from below
+      screenEndedOffRef.current?.();
+      screenEndedOffRef.current = null;
+      // stop every screen stream track (display capture must not leak)
+      screenStreamRef.current?.getTracks().forEach((t) => t.stop());
+      screenStreamRef.current = null;
+      screenTrackRef.current = null;
+      const camTrack = localStreamRef.current?.getVideoTracks()[0] ?? null;
+      if (restoreCamera && camTrack) {
+        camTrack.enabled = camPriorOnRef.current; // exact prior camera state
+        replaceOutgoingVideo(camTrack);
+      }
+      setScreenStream(null);
+      setSharingScreen(false);
+      onScreenShareStoppedRef.current?.(camPriorOnRef.current);
+    },
+    [replaceOutgoingVideo]
+  );
+
+  const stopScreenShare = useCallback(() => teardownScreenShare(true), [teardownScreenShare]);
+
+  const startScreenShare = useCallback(async (): Promise<
+    { ok: true } | { ok: false; reason: "unsupported" | "denied" | "failed" }
+  > => {
+    // already sharing / a picker is already open — a second tap is a no-op
+    if (sharingActiveRef.current || screenStartingRef.current) return { ok: true };
+    const md = typeof navigator !== "undefined" ? navigator.mediaDevices : undefined;
+    if (!md || typeof md.getDisplayMedia !== "function") {
+      return { ok: false, reason: "unsupported" }; // mobile Safari etc.
+    }
+    const camTrack = localStreamRef.current?.getVideoTracks()[0] ?? null;
+    if (!camTrack) {
+      // Audio-only call (the camera never opened): peers have no video
+      // transceiver to swap and renegotiation is off-limits — refuse cleanly
+      // instead of showing a screen only the local user can see.
+      return { ok: false, reason: "failed" };
+    }
+    screenStartingRef.current = true;
+    try {
+      let screen: MediaStream;
+      try {
+        screen = await md.getDisplayMedia({
+          video: {
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            frameRate: { ideal: 15, max: 15 },
+          },
+          audio: false,
+        });
+      } catch (e) {
+        if ((e as Error).name === "OverconstrainedError") {
+          // picky display source — retry with the plainest ask
+          screen = await md.getDisplayMedia({ video: true, audio: false });
+        } else {
+          throw e;
+        }
+      }
+      const screenTrack = screen.getVideoTracks()[0];
+      if (!screenTrack) {
+        screen.getTracks().forEach((t) => t.stop());
+        return { ok: false, reason: "failed" };
+      }
+      try {
+        screenTrack.contentHint = "detail"; // encoder hint: static, text-heavy
+      } catch {
+        /* engine without contentHint — harmless */
+      }
+      camPriorOnRef.current = camTrack.enabled; // remember the exact prior camera state
+      screenStreamRef.current = screen;
+      screenTrackRef.current = screenTrack;
+      sharingActiveRef.current = true;
+      setScreenStream(screen);
+      setSharingScreen(true);
+
+      // swap the camera for the screen on every live peer connection
+      replaceOutgoingVideo(screenTrack);
+
+      // The browser's native "Stop sharing" bar (or display unplug) ends the
+      // track → restore camera + UI state exactly like the button does.
+      const onEnded = () => teardownScreenShare(true);
+      screenTrack.addEventListener("ended", onEnded);
+      screenEndedOffRef.current = () => screenTrack.removeEventListener("ended", onEnded);
+      return { ok: true };
+    } catch (e) {
+      const name = (e as Error).name;
+      return {
+        ok: false,
+        reason: name === "NotAllowedError" || name === "SecurityError" ? "denied" : "failed",
+      };
+    } finally {
+      screenStartingRef.current = false;
+    }
+  }, [replaceOutgoingVideo, teardownScreenShare]);
+
   const cleanup = useCallback(() => {
+    teardownScreenShare(false); // stop screen tracks + 'ended' listener; PCs die below
     for (const id of Array.from(pcsRef.current.keys())) closePC(id);
     localStreamRef.current?.getTracks().forEach((t) => t.stop());
     localStreamRef.current = null;
@@ -710,7 +871,7 @@ export function useWebRTC({ onSendSignal, getMyId, getIceContext }: UseWebRTCOpt
     setLocalStream(null);
     setRemotePeers([]);
     setAudioOnly(false);
-  }, [closePC]);
+  }, [closePC, teardownScreenShare]);
 
   useEffect(() => cleanup, [cleanup]);
 
@@ -720,6 +881,10 @@ export function useWebRTC({ onSendSignal, getMyId, getIceContext }: UseWebRTCOpt
     mediaError,
     audioOnly,
     selfNet,
+    screenStream,
+    sharingScreen,
+    startScreenShare,
+    stopScreenShare,
     initLocal,
     handleRoomState,
     handleSignal,

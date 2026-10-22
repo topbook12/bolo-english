@@ -28,6 +28,8 @@ import {
   Maximize,
   Minimize,
   ArrowLeftRight,
+  MonitorUp,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -154,6 +156,8 @@ function VideoTile({
   quality,
   badgeLeft,
   avatarSize,
+  sharing,
+  onStopShare,
 }: {
   stream: MediaStream | null;
   name: string;
@@ -179,9 +183,18 @@ function VideoTile({
   badgeLeft?: boolean;
   /** Avatar diameter for the no-video fallback — smaller inside PiP tiles. */
   avatarSize?: number;
+  /** THIS user is sharing their screen — the tile shows the screen preview
+   *  and gets the localized "sharing" pill (Task 26-c). */
+  sharing?: boolean;
+  /** Stops the live screen share from the pill's ✕ control. */
+  onStopShare?: () => void;
 }) {
   const ref = useRef<HTMLVideoElement>(null);
   const t = useTranslations("call");
+
+  // While screen sharing the tile shows the SCREEN: never mirror it and never
+  // hide it behind the avatar fallback — even when the camera toggle is off.
+  const showAvatar = videoOff && !sharing;
 
   useEffect(() => {
     const el = ref.current;
@@ -301,12 +314,12 @@ function VideoTile({
         className={cn(
           "aspect-video h-full w-full",
           contain ? "object-contain" : "object-cover",
-          mirrored && "scale-x-[-1]",
-          videoOff && "opacity-0"
+          mirrored && !sharing && "scale-x-[-1]",
+          showAvatar && "opacity-0"
         )}
       />
       {/* native-dialer avatar when there is no picture to show */}
-      {videoOff && (
+      {showAvatar && (
         <div className="absolute inset-0 grid place-items-center bg-[radial-gradient(ellipse_at_center,rgba(16,68,72,0.55),rgba(4,12,16,0.98))]">
           <div className="flex flex-col items-center gap-2.5">
             <CallAvatar name={name} size={avatarSize ?? 84} />
@@ -344,6 +357,40 @@ function VideoTile({
               : quality === "fair"
                 ? t("netFair")
                 : t("netPoor")}
+          </span>
+        </span>
+      )}
+      {/* screen-share badge (Task 26-c) — lives while THIS user shares; the ✕ stops it.
+          A span-with-role (not a <button>) so it stays valid inside the stack mode's
+          tile-as-<button> wrapper; clicks are stopped from reaching the swap action. */}
+      {sharing && (
+        <span className="absolute left-1/2 top-2 z-10 -translate-x-1/2">
+          <span className="flex max-w-[calc(100%-0.5rem)] items-center gap-1.5 rounded-full bg-emerald-600/90 px-2.5 py-1 text-[10px] font-semibold text-white shadow-md ring-1 ring-white/25 backdrop-blur-md">
+            <MonitorUp className="h-3 w-3 shrink-0" aria-hidden />
+            <span className="truncate">{t("screenShareBadge")}</span>
+            {onStopShare && (
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onStopShare();
+                }}
+                onPointerDown={(e) => e.stopPropagation()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    onStopShare();
+                  }
+                }}
+                className="relative -mr-1 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/15 transition-colors after:absolute after:-inset-1.5 after:content-[''] hover:bg-white/30"
+                aria-label={t("screenShareStop")}
+                title={t("screenShareStop")}
+              >
+                <X className="h-3 w-3" aria-hidden />
+              </span>
+            )}
           </span>
         </span>
       )}
@@ -410,8 +457,14 @@ interface CallRoomProps {
   /** My own in-progress sentence — shown inside the caption overlay so it
    *  never shifts the call layout (replaces the old in-flow paragraph). */
   interimText?: string;
+  /** Live screen-capture stream (Task 26-c) — while sharing, the self tile
+   *  previews THIS stream instead of the camera feed. */
+  screenStream?: MediaStream | null;
+  /** Screen share is live — self tile shows the screen, sharing pill on, control lit. */
+  sharingScreen?: boolean;
   onToggleMic: () => void;
   onToggleCam: () => void;
+  onToggleScreenShare?: () => void;
   onToggleCaptions: () => void;
   onToggleChat: () => void;
   onLeave: () => void;
@@ -440,8 +493,11 @@ export default function CallRoom({
   captions,
   captionsOpen,
   interimText = "",
+  screenStream = null,
+  sharingScreen = false,
   onToggleMic,
   onToggleCam,
+  onToggleScreenShare,
   onToggleCaptions,
   onToggleChat,
   onLeave,
@@ -747,14 +803,16 @@ export default function CallRoom({
               ))}
               <div className="min-h-0">
                 <VideoTile
-                  stream={localStream}
+                  stream={sharingScreen && screenStream ? screenStream : localStream}
                   name={displayName}
                   muted
                   mirrored
                   isSelf
                   selfSuffix={t("selfSuffix")}
                   connectingLabel={t("connecting")}
-                  videoOff={!camOn || audioOnly}
+                  sharing={sharingScreen}
+                  onStopShare={onToggleScreenShare}
+                  videoOff={(!camOn || audioOnly) && !sharingScreen}
                   micOff={!micOn}
                 />
               </div>
@@ -781,14 +839,16 @@ export default function CallRoom({
                     aria-label={remotePeers.length > 0 ? t("swapViews") : undefined}
                   >
                     <VideoTile
-                      stream={localStream}
+                      stream={sharingScreen && screenStream ? screenStream : localStream}
                       name={displayName}
                       muted
                       mirrored
                       isSelf
                       selfSuffix={t("selfSuffix")}
                       connectingLabel={t("connecting")}
-                      videoOff={!camOn || audioOnly}
+                      sharing={sharingScreen}
+                      onStopShare={onToggleScreenShare}
+                      videoOff={(!camOn || audioOnly) && !sharingScreen}
                       micOff={!micOn}
                     />
                   </button>
@@ -825,7 +885,9 @@ export default function CallRoom({
                       aria-label={`${tile.name} · ${t("swapViews")}`}
                     >
                       <VideoTile
-                        stream={tile.stream}
+                        stream={
+                          tile.isSelf && sharingScreen && screenStream ? screenStream : tile.stream
+                        }
                         name={tile.name}
                         muted={tile.isSelf || undefined}
                         mirrored={tile.isSelf}
@@ -837,9 +899,11 @@ export default function CallRoom({
                             : t("reconnecting")
                         }
                         isConnecting={tile.peerId ? tile.connectionState !== "connected" : undefined}
+                        sharing={tile.isSelf ? sharingScreen : undefined}
+                        onStopShare={tile.isSelf ? onToggleScreenShare : undefined}
                         videoOff={
                           tile.isSelf
-                            ? !camOn || audioOnly
+                            ? (!camOn || audioOnly) && !sharingScreen
                             : !tile.stream || tile.stream.getVideoTracks().length === 0
                         }
                         micOff={tile.isSelf ? !micOn : undefined}
@@ -905,6 +969,18 @@ export default function CallRoom({
               aria-pressed={!camOn}
             >
               {camOn ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
+            </button>
+            {/* screen share (Task 26-c) — swaps the outgoing camera track for
+                the screen; same WebRTC transceivers, the call never renegotiates */}
+            <button
+              type="button"
+              className={cn("call-btn h-12 w-12", sharingScreen && "call-btn-on")}
+              onClick={onToggleScreenShare}
+              aria-pressed={sharingScreen}
+              aria-label={sharingScreen ? t("screenShareStopAria") : t("screenShareStartAria")}
+              title={sharingScreen ? t("screenShareStop") : t("screenShareStart")}
+            >
+              <MonitorUp className="h-5 w-5" />
             </button>
             {/* layout switch — grid ⇄ WhatsApp-style stack (Task 18) */}
             <button

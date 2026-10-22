@@ -130,6 +130,10 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
       const c = clientRef.current;
       return c ? { roomId: c.roomId, peerId: c.peerId } : null;
     },
+    // Task 26-c: when a screen share ends by ANY path (button, the browser's
+    // native "Stop sharing" bar, teardown), the hook restores the camera
+    // track's exact pre-share state — mirror it into the UI toggle.
+    onScreenShareStopped: (cameraOn) => setCamOn(cameraOn),
   });
 
   // captions + transcript
@@ -797,6 +801,30 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
     if (next) setUnreadChat(0);
   };
 
+  /* ── screen share toggle (Task 26-c) ──
+   * The hook owns tracks/senders (replaceTrack, 'ended' listener, cleanup);
+   * here we only surface failures as friendly localized toasts — a share
+   * failure never disturbs the ongoing call. */
+  const toggleScreenShare = async () => {
+    if (webrtc.sharingScreen) {
+      webrtc.stopScreenShare();
+      return;
+    }
+    const res = await webrtc.startScreenShare();
+    if (!res.ok) {
+      toast({
+        title: t(
+          res.reason === "unsupported"
+            ? "screenShareUnsupported"
+            : res.reason === "denied"
+              ? "screenShareDenied"
+              : "screenShareFailed"
+        ),
+        variant: "destructive",
+      });
+    }
+  };
+
   const mmss = `${String(Math.floor(duration / 60)).padStart(2, "0")}:${String(duration % 60).padStart(2, "0")}`;
 
   /* ────────────────── RENDER ────────────────── */
@@ -934,6 +962,9 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
             setCamOn(next);
             webrtc.toggleCam(next);
           }}
+          onToggleScreenShare={toggleScreenShare}
+          screenStream={webrtc.screenStream}
+          sharingScreen={webrtc.sharingScreen}
           onToggleCaptions={() => setCaptionsOpen((v) => !v)}
           onToggleChat={toggleChat}
           onLeave={leaveCall}
