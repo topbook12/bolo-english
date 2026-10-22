@@ -36,6 +36,7 @@ import { cn } from "@/lib/utils";
 import CallAvatar, { VoiceEq } from "@/components/speaking/CallAvatar";
 import type { RemotePeer } from "@/hooks/use-webrtc";
 import { isSpeechRecognitionSupported } from "@/hooks/use-speech-recognition";
+import { useDevice } from "@/hooks/use-device";
 import { useToast } from "@/hooks/use-toast";
 
 /* Layout preference persistence (Task 18) — WhatsApp-style stack vs grid */
@@ -68,6 +69,93 @@ function blobToBase64(blob: Blob): Promise<string> {
     };
     reader.readAsDataURL(blob);
   });
+}
+
+/* ── Task 29: client-side WAV transcode for the push-to-talk pipeline ──
+ * Gemini accepts wav/mp3/ogg/aac/flac but NOT audio/webm (what Chrome's
+ * MediaRecorder produces). decodeAudioData can always decode a container the
+ * same browser just recorded, so: decode → mono downmix → resample to 16kHz
+ * (OfflineAudioContext, full-rate fallback) → 16-bit PCM WAV. Returns null
+ * when transcoding is impossible — the caller then sends the original blob
+ * and lets the server surface Google's error. */
+function encodeWav16(samples: Float32Array, sampleRate: number): ArrayBuffer {
+  const bytes = new ArrayBuffer(44 + samples.length * 2);
+  const view = new DataView(bytes);
+  const str = (off: number, s: string) => {
+    for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i));
+  };
+  str(0, "RIFF");
+  view.setUint32(4, 36 + samples.length * 2, true);
+  str(8, "WAVE");
+  str(12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true); // PCM
+  view.setUint16(22, 1, true); // mono
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * 2, true);
+  view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true);
+  str(36, "data");
+  view.setUint32(40, samples.length * 2, true);
+  let off = 44;
+  for (let i = 0; i < samples.length; i++, off += 2) {
+    const s = Math.max(-1, Math.min(1, samples[i]));
+    view.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+  }
+  return bytes;
+}
+
+async function transcodeToWavBlob(blob: Blob): Promise<Blob | null> {
+  try {
+    const w = window as unknown as {
+      AudioContext?: typeof AudioContext;
+      webkitAudioContext?: typeof AudioContext;
+      OfflineAudioContext?: typeof OfflineAudioContext;
+      webkitOfflineAudioContext?: typeof OfflineAudioContext;
+    };
+    const Ctx = w.AudioContext || w.webkitAudioContext;
+    if (!Ctx) return null;
+    const ctx = new Ctx();
+    let rendered: AudioBuffer;
+    try {
+      const decoded = await ctx.decodeAudioData(await blob.arrayBuffer());
+      // mono downmix
+      const len = decoded.length;
+      const mono = new Float32Array(len);
+      for (let c = 0; c < decoded.numberOfChannels; c++) {
+        const ch = decoded.getChannelData(c);
+        for (let i = 0; i < len; i++) mono[i] += ch[i] / decoded.numberOfChannels;
+      }
+      const targetRate = 16000;
+      const OCtx = w.OfflineAudioContext || w.webkitOfflineAudioContext;
+      if (OCtx) {
+        // resample mono → 16 kHz
+        const offline = new OCtx(
+          1,
+          Math.max(1, Math.ceil((len * targetRate) / decoded.sampleRate)),
+          targetRate
+        );
+        const src = offline.createBufferSource();
+        const monoBuf = offline.createBuffer(1, len, decoded.sampleRate);
+        monoBuf.copyToChannel(mono, 0);
+        src.buffer = monoBuf;
+        src.connect(offline.destination);
+        src.start();
+        rendered = await offline.startRendering();
+      } else {
+        const full = ctx.createBuffer(1, len, decoded.sampleRate);
+        full.copyToChannel(mono, 0);
+        rendered = full;
+      }
+    } finally {
+      void ctx.close();
+    }
+    return new Blob([encodeWav16(rendered.getChannelData(0), rendered.sampleRate)], {
+      type: "audio/wav",
+    });
+  } catch {
+    return null;
+  }
 }
 
 /* ── talking indicator (Web Audio, best-effort) ──
@@ -583,7 +671,7 @@ export default function CallRoom({
     }
   }, []);
 
-  /* release → encode → POST /api/stt → parent's final-line plumbing */
+  /* release → transcode to WAV → POST /api/stt (BYOK Gemini) → parent's final-line plumbing */
   const finishPtt = useCallback(async () => {
     const recorder = pttRecorderRef.current;
     pttRecorderRef.current = null;
@@ -595,19 +683,31 @@ export default function CallRoom({
       pttIgnoreRef.current = false;
       return;
     }
-    const mime = recorder.mimeType || "audio/webm";
+    const deviceId = useDevice.getState().deviceId;
+    if (!deviceId) {
+      toast({ title: t("sttFailed") });
+      return;
+    }
     setPttBusy(true);
     try {
-      const blob = new Blob(chunks, { type: mime });
-      if (blob.size === 0) {
+      const original = new Blob(chunks, {
+        type: recorder.mimeType || "audio/webm",
+      });
+      if (original.size === 0) {
         toast({ title: t("sttNoSpeech") });
         return;
       }
-      const audio = await blobToBase64(blob);
+      // Gemini rejects audio/webm → transcode to 16kHz mono WAV when the
+      // browser can decode its own recording (it always can); otherwise send
+      // the original container and let the server surface Google's error.
+      const wav = await transcodeToWavBlob(original);
+      const send = wav ?? original;
+      const audio = await blobToBase64(send);
+      const mime = wav ? "audio/wav" : (recorder.mimeType || "audio/webm");
       const res = await fetch("/api/stt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ audio, mime }),
+        body: JSON.stringify({ deviceId, audio, mime }),
       });
       if (res.status === 429) {
         toast({ title: t("sttRateLimited") });
@@ -616,9 +716,13 @@ export default function CallRoom({
       const json = (await res.json().catch(() => null)) as {
         ok?: boolean;
         data?: { text?: unknown };
+        error?: unknown;
       } | null;
       if (!res.ok || !json?.ok) {
-        toast({ title: t("sttFailed") });
+        // The server sends localized guidance (missing key, quota, too-large…)
+        // — surface it directly instead of a generic failure.
+        const msg = typeof json?.error === "string" ? json.error : "";
+        toast({ title: msg || t("sttFailed") });
         return;
       }
       const text = typeof json.data?.text === "string" ? json.data.text.trim() : "";

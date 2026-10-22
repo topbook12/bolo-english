@@ -49,10 +49,15 @@ export interface GeminiOptions {
   maxOutputTokens?: number;
   /** Feature name for server-side token accounting (console observability). */
   label?: string;
+  /** Inline audio attached to the prompt (base64, no data: prefix) — used by
+   * the speech-to-text route. Gemini accepts wav/mp3/ogg/aac/flac; webm must
+   * be transcoded to wav CLIENT-side before it gets here. */
+  audio?: { data: string; mime: string };
 }
 
 interface GeminiPart {
   text: string;
+  inline_data?: { mime_type: string; data: string };
 }
 interface GeminiCandidate {
   content?: { parts?: GeminiPart[] };
@@ -662,8 +667,17 @@ async function callModel(
     generationConfig.thinkingConfig = { thinkingBudget: 0 };
   }
 
+  const parts: GeminiPart[] = [];
+  if (opts.audio) {
+    parts.push({
+      text: "",
+      inline_data: { mime_type: opts.audio.mime, data: opts.audio.data },
+    });
+  }
+  parts.push({ text: prompt });
+
   const body: Record<string, unknown> = {
-    contents: [{ role: "user", parts: [{ text: prompt }] }],
+    contents: [{ role: "user", parts }],
     generationConfig,
   };
   if (opts.systemPrompt) {

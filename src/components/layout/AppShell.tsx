@@ -245,7 +245,7 @@ export default function AppShell() {
               <Button
                 size="sm"
                 variant="outline"
-                className="gap-1.5 border-amber-500/60 text-amber-700 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-950"
+                className="h-11 gap-1.5 border-amber-500/60 text-amber-700 hover:bg-amber-50 sm:h-9 dark:text-amber-400 dark:hover:bg-amber-950"
                 onClick={() => setTab("settings")}
               >
                 <KeyRound className="h-3.5 w-3.5" />
@@ -266,7 +266,7 @@ export default function AppShell() {
               {mounted ? (
                 <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
                   <SheetTrigger asChild>
-                    <Button size="icon" variant="ghost" aria-label={t("nav.more")}>
+                    <Button size="icon" variant="ghost" aria-label={t("nav.more")} className="h-11 w-11">
                       <Menu className="h-5 w-5" />
                     </Button>
                   </SheetTrigger>
@@ -282,7 +282,7 @@ export default function AppShell() {
                   </SheetContent>
                 </Sheet>
               ) : (
-                <Button size="icon" variant="ghost" aria-label={t("nav.more")}>
+                <Button size="icon" variant="ghost" aria-label={t("nav.more")} className="h-11 w-11">
                   <Menu className="h-5 w-5" />
                 </Button>
               )}

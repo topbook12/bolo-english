@@ -208,7 +208,7 @@ export default function KeyPoolCard() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-8 gap-1 text-destructive hover:text-destructive"
+                        className="h-9 px-3 gap-1 text-destructive hover:text-destructive"
                         onClick={() => removeKey(k.id)}
                         disabled={deletingId === k.id}
                         aria-label={t("apiKey.remove")}
@@ -240,7 +240,7 @@ export default function KeyPoolCard() {
                     />
                     <button
                       type="button"
-                      className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                      className="absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                       onClick={() => setShowKey((s) => !s)}
                       aria-label={showKey ? t("apiKey.hide") : t("apiKey.show")}
                     >

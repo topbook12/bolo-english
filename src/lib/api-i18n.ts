@@ -350,6 +350,11 @@ const M = {
     bn: "সার্ভার সমস্যা ({status})",
     hi: "सर्वर समस्या ({status})",
   },
+  audioTooLarge: {
+    en: "The recording is too large — hold the mic for a shorter time.",
+    bn: "রেকর্ডিংটি খুব বড় — মাইক অল্প সময় ধরে রাখুন।",
+    hi: "रिकॉर्डिंग बहुत बड़ी है — माइक को कम समय के लिए दबाए रखें।",
+  },
   networkServer: {
     en: "Can't reach the server — check your internet connection.",
     bn: "সার্ভারে পৌঁছানো যাচ্ছে না — ইন্টারনেট সংযোগ চেক করুন।",

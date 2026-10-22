@@ -339,7 +339,11 @@ export default function ReadingSection() {
         </div>
         <Badge variant="outline" className="justify-center gap-1.5 px-3 py-2 text-xs">
           <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" aria-hidden />
-          {t("library.progress", { done: doneCount, total: all.length })}
+          {/* while the library list is still loading show an ellipsis instead
+              of a misleading "0/0" (Task 29-a QA finding) */}
+          {dbStories === null
+            ? "…"
+            : t("library.progress", { done: doneCount, total: all.length })}
         </Badge>
       </div>
 

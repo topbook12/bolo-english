@@ -58,11 +58,6 @@ export interface CorrectionItem {
   explanation: string; // Bangla
 }
 
-export interface RealtimeCorrections {
-  corrections: CorrectionItem[];
-  encouragement: string; // one line Bangla motivation
-}
-
 export interface ChatPartnerReply {
   reply: string; // English reply from AI partner
   banglaHint: string; // short Bangla hint about the reply
@@ -181,7 +176,6 @@ export type AiFeature =
   | "vocab-lookup"
   | "vocab-quiz"
   | "chat-partner"
-  | "realtime-correction"
   | "call-analysis"
   | "sentence-check"
   | "content-ask";
