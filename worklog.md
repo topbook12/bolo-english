@@ -3002,3 +3002,112 @@ Stage Summary:
 - Commits c7e8363 (model chain), eb2166a (prompts), 3a04cd4 (screen share) on main → auto-deploy.
 - The model chain can no longer rot: discovery + Google's own recommendations self-heal the chain per key.
 - Note: full WebRTC screen-share E2E impossible headless — verified by code review + tsc/lint + app-render checks.
+---
+Task ID: 27-b
+Agent: general-purpose
+Task: Remove the realtime-correction AI feature (2-3× more tokens than end-of-call analysis); keep call-analysis fully working
+
+Work Log:
+- Read worklog + full context of the 3 scoped file groups before touching anything (scope was strict: other agents editing auth/page/AppShell/gemini in parallel).
+- src/app/api/ai/route.ts: deleted the whole `case "realtime-correction":` block (prompt + geminiJson call + lines sanitize, ~22 lines incl. its SPEAKING: LIVE CORRECTION banner comment) and removed `RealtimeCorrections` from the type import (now unused there). No other case touched — chat-partner keeps its inline corrections field (free), call-analysis case untouched at its new line 641.
+- src/components/speaking/CallFlow.tsx: removed both client calls (60s loop effect @12s-first-tick and manualCheck), all their state (liveCorrection, corrections, checking, myLinesRef, lastCorrectedCountRef) incl. resets in enterCall + the append in onFinalLine, the live-correction toggle slot children of CallRoom (now self-closing; CallRoom.children is optional), and the whole "AI corrections feed" panel (empty-state card + amber correction cards). Now-unused imports dropped: Loader2, Wand2, Switch, RealtimeCorrections. Post-call analysis flow untouched: runAnalysis (call-analysis request + PATCH/POST session save) and the ended-screen CallAnalysisView render are byte-identical.
+- messages/sections/call.{bn,en,hi}.json: removed the 8 now-dead keys ×3 locales (liveCorrection, liveCorrectionHint, liveCorrectionOff, checkNow, keyNeeded, speakFirst, allGood, checkFailed) after rg-verifying none is referenced by CallRoom.tsx / use-webrtc.ts (they share the `call` namespace) — captions/screen-share/chat keys all preserved; parity kept.
+- Out of scope, left alone: src/lib/types.ts still exports `RealtimeCorrections` + `"realtime-correction"` union member (now dead but harmless — parallel-agent files untouchable); "Cloudflare Realtime" comments in turn/ice routes are an unrelated TURN product name. rg now shows zero live references outside types.ts.
+- Verify: rg -n "realtime" src/ → only TURN comments + dead types.ts exports; node scripts/i18n-check.mjs → ALL-PARITY-OK; bunx tsc --noEmit → exit 0, 0 errors; bun run lint → exit 0 clean. (Note: tool-output previews (sed/diff) dropped the first two characters of the 1:1 effect dependency array, briefly looking like corruption — verified byte-level with od; file is intact.)
+- Commit 7e238b3 (5 files, +3/−182; only the three scoped file groups staged — other agents' working-tree changes left unstaged). Not pushed.
+
+Stage Summary:
+- The call no longer burns a Gemini call per speech burst: realtime-correction is gone end-to-end (server case, client loop + manual check + toggle + feed UI, 8 i18n keys ×3). Everything the live panel used to catch is covered by the end-of-call analysis, which still works exactly as before (button → call-analysis → CallAnalysisView → saved to Progress). Live call experience is now captions + chat + screen share only.
+---
+Task ID: 27-c
+Agent: general-purpose
+Task: Login-first gate + native-language choice at signup, language locked to the account
+
+Work Log:
+- Login-first (owner requirement): src/app/page.tsx is now an async RSC — getSessionUser() (from @/lib/auth); no session → new LoginGate, session → <AppShell /> as before.
+- NEW src/components/auth/LoginGate.tsx ("use client"): full-screen pre-login screen in the current locale; brand wordmark (Sparkles gradient tile + "Bolo English") + localized tagline on a shell-bg + hero-aurora backdrop; premium-card panel with Radix Tabs (register default). LOGIN = email+password → POST /api/auth/login; REGISTER = name (optional) + email + password + NATIVE-LANGUAGE picker — three ≥96px tappable cards in own scripts (বাংলা 🇧🇩 / हिन्दी 🇮🇳 / English 🇬🇧) with small localized subtitles; current locale preselected; locked-language hint under the picker (Lock icon). Client validation (errEmail/errPassword/gateLangRequired), inline destructive Alert for server errors (arrive pre-localized), Loader2 submitting states, success toast, then router.refresh() → RSC re-render into the app in the account language. deviceId resolved via useDevice store (mergeDeviceData contract intact); inputs h-11/h-12 (44-48px targets), mobile-first, emerald/teal only (no blue/indigo), dark-mode tokens throughout.
+- register route: accepts nativeLang ("bn"|"en"|"hi"; absent/invalid → "bn"), saves it on User.nativeLang at creation, sets bolo_locale cookie (1y, lax, JS-readable, Secure in prod) on the response. login route: re-points bolo_locale to User.nativeLang on every login; accounts without a saved language keep the current cookie value (no language change otherwise). LocaleSwitcher usage+import REMOVED from AppShell (component file kept — SettingsSection still imports it, untouched); no change needed in src/i18n/messages.ts (loader auto-loads every messages/sections/*.json — auth namespace was already registered, deep-merged).
+- i18n: +11 keys ×3 locales in messages/sections/auth.{bn,en,hi}.json (gateTagline, gateLoginTitle, gateRegisterTitle, gateLangTitle, gateLangHint, gateLangRequired, gateLangBnSub, gateLangHiSub, gateLangEnSub, gateWelcome, gateLangChosen {lang}) — identical key sets.
+- QA (dev server + agent-browser, mobile 390×844): guest GET / → gate renders in register mode with the 3 language cards; registered qa27c@test.com / Test1234! / name QA / picked বাংলা → AppShell appeared fully in Bengali (শুভ সকাল, QA! 👋, হোম/কথা বলুন/গ্রামার/রিডিং nav), cookies bolo_locale=bn + bolo_session set, zero page errors, dev.log clean. curl contracts: login → Set-Cookie bolo_locale=<nativeLang>; register nativeLang:"en" → en; absent → bn; invalid "fr" → bn; all saved in User.nativeLang (DB checked). All 4 QA users (+ their UserConfig rows) deleted from db/custom.db afterwards.
+- Verify: node scripts/i18n-check.mjs → ALL-PARITY-OK; bunx tsc --noEmit → 0 errors; bun run lint → clean. Commit 57afd55 (8 files only; parallel agents' working-tree files — config route, gemini.ts, key-pool.ts, api-i18n.ts, settings.*.json, worklog 27-b entry — left unstaged). Not pushed.
+
+Stage Summary:
+- The site is now LOGIN-FIRST: first-time visitors see a trilingual login/register gate; at registration the learner's native language (বাংলা default pick suggested by current locale) is stored on the account and LOCKED — the locale switcher is gone from the shell and the bolo_locale cookie is re-pointed to User.nativeLang on every login, so the account language rules every device.
+---
+Task ID: 27-e
+Agent: general-purpose
+Task: Admin role via ADMIN_EMAILS — Storage & TURN pool cards/APIs become admin-only, KeyPoolCard wired into Settings, LocaleSwitcher deleted
+
+Work Log:
+- src/lib/auth.ts: SessionUser + getSessionUser() now carry role (select role:true); added adminEmails()/isAdminEmail() (ADMIN_EMAILS comma-split, trimmed, lowercased), promoteAdminsIfEnv(user) (no-op unless listed, try/catch, never throws) and isAdminUser() (session role check, any error → false).
+- login/register routes: await promoteAdminsIfEnv(user) right after setSessionCookie/mergeDeviceData (awaited — not just fire-and-forget — so /me already sees the role; pure string check for everyone else), and the response user now includes role (additive field) so the client store can gate the admin UI immediately without an extra /me roundtrip.
+- /api/auth/me: returns role automatically via the wider getSessionUser select (no file change needed).
+- src/app/api/storage/route.ts + src/app/api/turn/route.ts: new requireAdmin(locale) helper run at the TOP of EVERY exported handler — GET, POST, PATCH and DELETE (PATCH too: it's a mutating admin op; the task said GET/POST/DELETE but leaving PATCH open would be a hole). Non-admins/guests get 403 {ok:false, error: apiMsg(locale,"adminOnly")}; the pre-existing x-admin-token (STORAGE_ADMIN_TOKEN) checks stay untouched as a second layer for mutations.
+- src/hooks/use-auth.ts: store gains role: string | null (default null) — set in refresh() from /api/auth/me user.role, in login/register from the (now role-bearing) response user, cleared on logout; AuthUser.role optional.
+- src/components/sections/SettingsSection.tsx: StoragePoolCard + TurnPoolCard render ONLY when role === "admin" (no card/heading/skeleton for others); KeyPoolCard imported and rendered directly under the single-key card (self-contained: guests see its login note, empty state handled); LocaleSwitcher import+usage removed — the Language card is now a locked display (native-script pill + Lock icon + reused tAuth("gateLangChosen") hint, zero new keys); small gradient "Admin" badge (settings.admin.badge) next to the name for admins. Note: git rm'd src/i18n/LocaleSwitcher.tsx — the task text said src/components/layout/LocaleSwitcher.tsx but the actual (only) file was src/i18n/LocaleSwitcher.tsx; rg confirmed SettingsSection was its last importer before deletion, now zero hits.
+- i18n: api-i18n.ts += adminOnly (en/bn/hi); settings.{bn,en,hi}.json += admin.badge + language.desc re-worded to "locked to the account" (identical key sets, ALL-PARITY-OK; keyPool keys untouched).
+- QA (dev server + agent-browser, 390×844): curl — register qa27e@test.com → role:null; /api/storage & /api/turn GET/POST/PATCH/DELETE as normal user + guest → 403 localized (en "Admin access required.", bn "অ্যাডমিন অ্যাক্সেস প্রয়োজন।", hi "एडमिन एक्सेस आवश्यक है।"). Browser as normal user — Settings shows NO Storage/Quota/TURN content, KeyPoolCard present, no Admin badge (JS-checked: 0 badge elements). Set ADMIN_EMAILS=qa27e@test.com in .env, restart, logout+login → Admin badge appears, Storage & Quota + "Video call relay (TURN)" cards render, /api/storage GET 200 with session, /me returns role:"admin", DB User.role="admin". dev.log clean at every stage. Cleanup: ADMIN_EMAILS line removed from .env, QA user + all userId/deviceId rows (UserApiKey/UserConfig/WordBookItem/SpeakingSession/PracticeLog/DailyVocab/CvDocument) deleted via a @prisma/client script (verified gone).
+- Verify: node scripts/i18n-check.mjs → ALL-PARITY-OK; bunx tsc --noEmit → 0 errors; bun run lint → clean; rg "LocaleSwitcher" src/ → zero hits. Commit 0f36a63 (12 files only; parallel agents' working-tree files — call.*.json, CallFlow, CallRoom, use-speech-recognition, api/stt/, worklog — left unstaged). Not pushed.
+
+Stage Summary:
+- Admin detection end-to-end: ADMIN_EMAILS env (comma-separated) → promoteAdminsIfEnv at login/register sets User.role="admin" → /api/auth/me + login/register responses carry role → zustand store role → SettingsSection gates the two pool cards client-side; the storage/turn APIs independently re-verify with isAdminUser() server-side (fail-closed), so hiding the cards is UX, not the security boundary. Normal users/guests see neither the cards nor any pool data (403 localized). Existing admins keep their role if removed from ADMIN_EMAILS (no demotion logic specified).
+- KeyPoolCard is live in Settings below the single-key card; the LocaleSwitcher file is deleted and the Language card shows the account's locked language instead.
+---
+Task ID: 27-m
+Agent: general-purpose
+Task: Mobile captions dead in video calls — Android auto-restart watchdog + server STT push-to-talk fallback (iPhone Safari has no Web Speech API)
+
+Work Log:
+- Read worklog + scoped files first; ASR skill loaded for exact SDK usage (zai.audio.asr.create({ file_base64 }) → { text }).
+- Layer 1 src/hooks/use-speech-recognition.ts: replaced the old 5s→10s→20s backoff with the Task 27-m ANDROID WATCHDOG — rec.onend while wantRef (listening mode) ⇒ auto-restart after ~250ms; rolling-window loop guard (≥5 auto-restarts inside 10s) gives up: want=false, listening=false, interim cleared, new `failed` state surfaced; deliberate stop()/fatal onerror (not-allowed/audio-capture)/unmount clear want FIRST so the watchdog never fights them; start() resets guard+failed; exported API stays { supported, listening, interim, error, start, stop } + additive `failed` (CallFlow + AiPartner both still compile); added standalone export isSpeechRecognitionSupported() for CallRoom's capability probe.
+- Layer 2 NEW src/app/api/stt/route.ts (backend-only): POST { audio: base64, mime } → ZAI.create() + zai.audio.asr.create({ file_base64 }) → jsonOk({ text }) (same {ok,data} envelope as /api/ai); validation: base64 charset check (400 paramsRequired), decoded-size ≤ 8MB (413 audioTooLarge), mime sanitized via strict ^audio/[\w.+-]+(;codecs=…)?$ allow-list (informational only — ASR sniffs the container); checkIpLimit(req,"stt",30) per-IP; localized errors via reqLocale+apiMsg (rateLimited/serverProblem); text trimmed+≤4000 chars; export const maxDuration = 60.
+- Layer 3 src/components/speaking/CallRoom.tsx: PUSH-TO-TALK fallback shown ONLY when isSpeechRecognitionSupported() is false AND the call's own mic stream exists — press-and-hold MediaRecorder on localStream (no 2nd permission prompt; audio/webm;codecs=opus → audio/webm → audio/ogg → audio/mp4 → browser default), 250ms timeslice, 20s hard cap (auto-stop + pttTooLong toast, captured audio still transcribed), <400ms hold = ignored; release → blob → base64 → POST /api/stt → onPushToTalkFinal(text); visible states: pulsing red button + localized recording/processing chip above the controls; every failure (denied/failed/no-speech/429) is a localized destructive-path toast, the call never breaks; unmount mid-hold stops recording without POST; document-level pointerup/pointercancel safety net + contextmenu prevented + touch-none/select-none; muted mic (micOn=false) disables the button (muted track would record silence). ALSO: small non-blaming one-line notice under the video stage (captionsUnsupportedNotice) when unsupported.
+- PLUMBING NOTE: captions/transcript state lives in CallFlow (not CallRoom), so feeding the STT text "through the same path as recognition finals" required touching CallFlow.tsx — kept to the minimum: one new optional prop onPushToTalkFinal={(text) => onFinalLine({ text, at: Date.now() })} (+ surfacing rec.failed in the existing amber error line via captionsWatchdogFailed). onFinalLine = transcript + caption + peer broadcast ⇒ end-of-call analysis (needs ≥2 learner lines) keeps working on mobile. Everything else in CallRoom/CallFlow untouched.
+- i18n: +10 keys ×3 locales in messages/sections/call.{bn,en,hi}.json with identical sets: pttHint, pttRecording, pttProcessing, pttTooLong, sttNoSpeech, sttMicDenied, sttRateLimited, sttFailed, captionsUnsupportedNotice, captionsWatchdogFailed. Existing keys untouched.
+- VERIFY: node scripts/i18n-check.mjs → ALL-PARITY-OK; bunx tsc --noEmit → 0 errors; bun run lint → clean; dev server (fresh start, port 3000, dev.log clean) + agent-browser: / renders (login gate), register-gate → logged-in shell via API cookies, Speak section renders, AI Partner (renders the rewritten hook) mic-start exercised headless with ZERO page errors and clean console; curl contracts on /api/stt: {} → 400 localized, bad base64 → 400, 9MB → 413 audioTooLarge, garbage mime sanitized, real 1s WAV → 200 {"ok":true,"data":{"text":"#"}} (happy path proven; synthetic tone ⇒ junk text as expected). Full WebRTC E2E impossible headless (no camera/mic permission in headless Chromium — both quick-match sessions stopped at the media-permission gate); watchdog + PTT logic verified by line review + route/browser checks. QA users (qa27m-a/b@test.com) + their config rows deleted from db afterwards.
+- Commit 231210d (7 files, +458/−45; ONLY task files staged — parallel agents' working-tree files left unstaged). Not pushed.
+
+Stage Summary:
+- Mobile captions restored end-to-end: Android Chrome now auto-restarts recognition ~250ms after every silent onend (the "stops after first utterance" bug) with a 5-restarts/10s thrash guard that surfaces a visible "subtitles stopped" warning instead of dying quietly; iPhone Safari (no SpeechRecognition at all) gets a press-and-hold mic button that records ≤20s, transcribes through the new server /api/stt (z-ai SDK ASR) and injects the text through the exact recognition-final path — captions, peer broadcast and end-of-call AI analysis all work on mobile now; every failure path is a localized toast and can never break the call.
+---
+Task ID: 27 (lead) — 27-map/27-schema/27-final by main agent; 27-b/27-c/27-d/27-m/27-e by subagents
+Agent: main (Z.ai Code) + general-purpose subagents
+Task: Five owner requests — mobile subtitles/analysis dead, realtime token cost, login-first + language lock, security/token/cost hygiene + multi-key pool, admin role
+
+Work Log:
+- Root-caused mobile issue (owner asked: device problem or design?): DESIGN. Captions rely on Web Speech API —
+  iPhone Safari has no recognition at all; Android Chrome's continuous mode stops silently after the first utterance.
+  No transcript → captions AND end-of-call analysis (needs ≥2 learner lines) both die on mobile. Fixed in 27-m.
+- Token rule applied (owner's decision rule): realtime-correction = one Gemini call per speech burst (8-15 calls ≈
+  10-15k tokens per call vs 4-5k for the single end-of-call analysis) → 2-3x costlier → REMOVED (27-b); end-of-call
+  analysis untouched; chat-partner's free inline corrections kept.
+- Schema first (d88bb60): User.nativeLang + User.role + UserApiKey pool table, pushed locally, committed alone to
+  keep parallel agents off the schema file.
+- 27-c (57afd55): login-first gate (RSC session check → LoginGate), register with 3 native-script language cards,
+  User.nativeLang saved, bolo_locale cookie set from it at register/login, LocaleSwitcher removed from AppShell.
+  Language is LOCKED to the account (owner decision).
+- 27-d (bf63b40, agent died mid-task → main agent finished+verified): UserApiKey pool (max 6), healthy-first selection
+  with cooldown skip + all-cooldown graceful degradation + legacy fallback (missing-table tolerant); geminiJson/Text
+  rotate keys on terminal quota (2h cooldown, max 2 rotations); /api/config pool add/remove/list; KeyPoolCard;
+  fixed agent's type bug (LegacyKeyResult leak) + wired AI routes to getUserApiKeyWithMeta; 10/10 functional tests.
+- 27-m (231210d): Android auto-restart watchdog (250ms, 5-restart/10s guard, failed state); /api/stt via z-ai SDK ASR
+  (rate-limited, 8MB cap, mime allow-list); push-to-talk MediaRecorder fallback in CallRoom for unsupported browsers,
+  STT text feeds the same caption/transcript path so analysis works on mobile; declared deviation: minimal CallFlow
+  wiring (onPushToTalkFinal) — necessary.
+- 27-e (0f36a63): ADMIN_EMAILS env → role promotion at login/register; SessionUser/auth store carry role;
+  /api/storage + /api/turn admin-guarded (fail-closed, PATCH included); SettingsSection hides pool cards for
+  non-admins, wires KeyPoolCard, admin badge; LocaleSwitcher component deleted.
+- Final: combined-tree i18n ALL-PARITY-OK / tsc 0 / lint clean; browser E2E (single-session due to sandbox reaping):
+  gate renders → register QA27 with Bangla → app in Bengali (bolo_locale=bn) → Settings: admin cards hidden,
+  KeyPoolCard present ("Gemini কী পুল"), zero page errors; QA user + rows deleted.
+- Security spot-checks: storage/turn 403 fail-closed; /api/stt rate-limited + size-capped; keys previews-only to
+  client; pool encrypted AES-256-GCM; no plaintext key ever returns to browser.
+- Added scripts/prod-migrate-user-keys.sql (Turso delta: User.nativeLang/role + UserApiKey) — MUST be applied to
+  production before the new deploy is used (login selects the new columns; key-pool/admin degrade gracefully but
+  login would fail until columns exist).
+
+Stage Summary:
+- Pushed d88bb60..231210d (6 commits) to main → auto-deploy.
+- Owner action items: (1) apply scripts/prod-migrate-user-keys.sql to Turso, (2) set ADMIN_EMAILS env on Vercel.
+- Mobile subtitles: Android auto-restarts now; iPhone gets push-to-talk STT; analysis works everywhere.
+- Token/cost: realtime corrections removed (biggest saving); model chain future-proofed earlier in 26-a.
