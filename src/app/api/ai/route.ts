@@ -16,7 +16,6 @@ import type {
   ListeningStoryContent,
   MistakeCategory,
   QuizQuestion,
-  RealtimeCorrections,
   SentenceCheckResult,
 } from "@/lib/types";
 
@@ -634,27 +633,6 @@ Return STRICT JSON:
 Shape example (1 item, values are placeholders — hints/explanations must be written ${lang.short}): {"reply":"Cricket sounds fun! I watch it every weekend.","banglaHint":"hint ${lang.short}","corrections":[{"original":"I am play cricket","corrected":"I play cricket","type":"grammar","explanation":"why — ${lang.short}"}],"followUp":"Who do you usually play with?"}
 ${JSON_ONLY}`,
           { temperature: 0.7, maxOutputTokens: 2048, label: "chat-partner" }
-        );
-        return jsonOk(data);
-      }
-
-      /* ---------------- SPEAKING: LIVE CORRECTION ---------------- */
-      case "realtime-correction": {
-        const lines = (Array.isArray(payload.lines) ? payload.lines : [])
-          .slice(-14)
-          .map((l) => cleanStr(l, 300))
-          .filter(Boolean);
-        if (lines.length === 0) return jsonOk({ corrections: [], encouragement: "" });
-        const data = await geminiJson<RealtimeCorrections>(
-          apiKey,
-          `You are a kind live speech coach helping an English learner DURING a video call. ${lang.rule}
-TASK: From the learner's last spoken sentences (JSON array below), choose ONLY the mistakes worth fixing right now — max 4, and if most are minor keep just the 1-2 most useful.
-QUALITY: fix clear grammar, vocabulary or word-choice problems; ignore fillers, tiny punctuation, pronunciation spelling and half-finished thoughts; "corrected" keeps the learner's own meaning and simple style; "type" exactly one of "grammar" | "vocabulary" | "pronunciation-spelling" | "better-alternative"; "explanation" = ONE short encouraging line ${lang.short} telling them what to do next time (not just what is wrong); "encouragement" = ONE warm line ${lang.short} naming something they did well.
-Sentences: ${JSON.stringify(lines)}
-Return STRICT JSON:
-{ "corrections": [ { "original": "spoken sentence", "corrected": "better sentence", "type": "grammar", "explanation": "one line — why ${lang.short}" } ], "encouragement": "one-line encouragement ${lang.short}" }
-If there are no real mistakes, return { "corrections": [], "encouragement": "..." }. ${JSON_ONLY}`,
-          { temperature: 0.3, maxOutputTokens: 1536, label: "realtime-correction" }
         );
         return jsonOk(data);
       }

@@ -3,8 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
-  Loader2,
-  Wand2,
   Sparkles,
   Mic,
   PhoneMissed,
@@ -18,7 +16,6 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { useDevice } from "@/hooks/use-device";
 import { useWebRTC } from "@/hooks/use-webrtc";
 import { useSpeechRecognition, type FinalLine } from "@/hooks/use-speech-recognition";
@@ -28,10 +25,10 @@ import { CallClient } from "@/lib/call-client";
 import CallRoom from "@/components/speaking/CallRoom";
 import CallAvatar from "@/components/speaking/CallAvatar";
 import CallAnalysisView from "@/components/speaking/CallAnalysisView";
-import type { CallAnalysis, RealtimeCorrections, TranscriptLine } from "@/lib/types";
+import type { CallAnalysis, TranscriptLine } from "@/lib/types";
 
 // CallFlow owns the whole video-call experience:
-// quick match → waiting → live call (captions/chat/corrections) → ended → AI analysis.
+// quick match → waiting → live call (captions/chat) → ended → AI analysis.
 // Signaling rides on the HTTP-polling CallClient (Vercel-serverless friendly);
 // media flows peer-to-peer via useWebRTC. Parent (SpeakingSection) only picks the entry intent.
 
@@ -141,15 +138,6 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
   const [captionsOpen, setCaptionsOpen] = useState(true);
   const transcriptRef = useRef<TranscriptLine[]>([]);
   const [transcriptCount, setTranscriptCount] = useState(0);
-  const myLinesRef = useRef<string[]>([]);
-  // Lines already sent for live correction — each tick only analyzes the NEW
-  // lines, so the same sentence is never corrected twice in a row.
-  const lastCorrectedCountRef = useRef(0);
-
-  // live AI correction
-  const [liveCorrection, setLiveCorrection] = useState(true);
-  const [corrections, setCorrections] = useState<(RealtimeCorrections & { at: number })[]>([]);
-  const [checking, setChecking] = useState(false);
 
   // call meta
   const [duration, setDuration] = useState(0);
@@ -253,12 +241,9 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
     enteredRef.current = true;
     setDuration(0);
     setCaptions([]);
-    setCorrections([]);
     setChatMessages([]);
     setUnreadChat(0);
     transcriptRef.current = [];
-    myLinesRef.current = [];
-    lastCorrectedCountRef.current = 0;
     setTranscriptCount(0);
     setAnalysis(null);
     savedSessionRef.current = null; // fresh call → fresh session record
@@ -275,7 +260,6 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
         ...transcriptRef.current,
         { speaker, text: line.text, at: line.at, peerId: myPeerIdRef.current || undefined },
       ];
-      myLinesRef.current = [...myLinesRef.current, line.text];
       setTranscriptCount(transcriptRef.current.length);
       setCaptions((prev) =>
         [...prev, { speaker, text: line.text, mine: true, final: true, at: line.at }].slice(-60)
@@ -671,69 +655,6 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
     return () => clearTimeout(timer);
   }, [mode, webrtc.remotePeers.length, rejoining, saveCallSession]);
 
-  /* ── live AI correction loop (first check @12s, then every 60s) ──
-   * Checkpoint-based: each tick analyzes only the lines spoken SINCE the last
-   * successful check. Re-sending a sliding window used to duplicate the same
-   * corrections every 30 seconds. Cadence was raised 30s→60s and the fresh-line
-   * gate 2→3 (audit: live checks on an active call burned 8-12k tokens per
-   * 10 min — halving the frequency halves that without hurting quality). */
-  useEffect(() => {
-    if (!liveCorrection || mode !== "call" || !hasKey) return;
-    const run = async () => {
-      if (!deviceIdRef.current) return;
-      const all = myLinesRef.current;
-      const fresh = all.slice(lastCorrectedCountRef.current);
-      if (fresh.length < 3) return; // nothing new → skip the API call entirely
-      const lines = fresh.slice(-14);
-      setChecking(true);
-      try {
-        const res = await callAi<RealtimeCorrections>(deviceIdRef.current, "realtime-correction", {
-          lines,
-        });
-        lastCorrectedCountRef.current = all.length; // advance checkpoint on success
-        if (res.corrections?.length) {
-          setCorrections((prev) => [{ ...res, at: Date.now() }, ...prev].slice(0, 5));
-        }
-      } catch {
-        /* silent — best-effort; checkpoint stays so the tick retries */
-      } finally {
-        setChecking(false);
-      }
-    };
-    const iv = setInterval(run, 60_000);
-    const first = setTimeout(run, 12_000);
-    return () => {
-      clearInterval(iv);
-      clearTimeout(first);
-    };
-  }, [liveCorrection, mode, hasKey]);
-
-  /* ── manual AI check ── */
-  const manualCheck = async () => {
-    const lines = myLinesRef.current.slice(-14);
-    if (lines.length < 1) {
-      return toast({ title: t("speakFirst") });
-    }
-    setChecking(true);
-    try {
-      const res = await callAi<RealtimeCorrections>(deviceId, "realtime-correction", { lines });
-      // the manual check covered the recent window — advance the auto
-      // checkpoint so the loop doesn't re-analyze the same lines right after
-      lastCorrectedCountRef.current = Math.max(
-        lastCorrectedCountRef.current,
-        myLinesRef.current.length
-      );
-      setCorrections((prev) => [{ ...res, at: Date.now() }, ...prev].slice(0, 5));
-      if (!res.corrections?.length) {
-        toast({ title: res.encouragement || t("allGood") });
-      }
-    } catch (e) {
-      toast({ title: t("checkFailed"), description: (e as Error).message, variant: "destructive" });
-    } finally {
-      setChecking(false);
-    }
-  };
-
   /* ── post-call analysis ── */
   const runAnalysis = async () => {
     if (!deviceId) return;
@@ -969,19 +890,7 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
           onToggleChat={toggleChat}
           onLeave={leaveCall}
           onSendChat={sendChat}
-        >
-          {/* live correction toggle slot — glass pill on the call stage */}
-          <div className="call-glass flex h-12 items-center gap-2 rounded-full px-3.5">
-            <Wand2
-              className={`h-4 w-4 ${liveCorrection ? "text-emerald-300" : "text-white/60"}`}
-            />
-            <Switch
-              checked={liveCorrection}
-              onCheckedChange={setLiveCorrection}
-              aria-label={t("liveCorrection")}
-            />
-          </div>
-        </CallRoom>
+        />
 
         {/* speech problems — visible amber warnings, never a whisper of text */}
         {!rec.supported ? (
@@ -1005,48 +914,6 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
             </p>
           )
         )}
-
-        {/* AI corrections feed */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <h3 className="flex items-center gap-1.5 text-sm font-semibold">
-              <Wand2 className="h-4 w-4 text-primary" />
-              {t("liveCorrection")}
-              {checking && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
-            </h3>
-            <div className="flex items-center gap-2">
-              {!hasKey && <span className="text-[10px] text-muted-foreground">{t("keyNeeded")}</span>}
-              <Button size="sm" variant="outline" onClick={manualCheck} disabled={checking} className="min-h-9 gap-1">
-                <Sparkles className="h-3.5 w-3.5" /> {t("checkNow")}
-              </Button>
-            </div>
-          </div>
-
-          {corrections.length === 0 ? (
-            <Card className="border-dashed">
-              <CardContent className="p-3 text-center text-xs text-muted-foreground">
-                {liveCorrection ? t("liveCorrectionHint") : t("liveCorrectionOff")}
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="nice-scroll max-h-72 space-y-2 overflow-y-auto pr-1">
-              {corrections.map((c, ci) =>
-                c.corrections.map((item, i) => (
-                  <Card
-                    key={`${ci}-${i}`}
-                    className="border-amber-200 bg-amber-50/70 dark:border-amber-900 dark:bg-amber-950/30"
-                  >
-                    <CardContent className="p-3 text-sm">
-                      <p className="text-destructive line-through decoration-destructive/40">{item.original}</p>
-                      <p className="font-medium text-emerald-700 dark:text-emerald-400">✓ {item.corrected}</p>
-                      <p className="mt-1 text-xs text-muted-foreground">{item.explanation}</p>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </div>
-          )}
-        </div>
       </div>
     );
   }
