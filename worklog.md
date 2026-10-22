@@ -3142,3 +3142,22 @@ Work Log:
 Stage Summary:
 - PRODUCTION LOGIN IS FIXED AND VERIFIED (was broken until the migration: new code selects User.role which did not exist)
 - remaining owner action: set ADMIN_EMAILS on Vercel (e.g. topubiswas.math@gmail.com) + Redeploy to unlock the admin panel
+---
+Task ID: 28-health
+Agent: main (Z.ai Code)
+Task: Owner said "if have any problem fix" — full health sweep of the live production site + DB, fix anything broken
+
+Work Log:
+- Auth E2E on LIVE site with a fresh QA account (qa-health-28@test.local): home 200 → register ok:true → login 200 (bolo_session + bolo_locale=bn) → /me returns role + nativeLang (proves 0a24f09 deployed). QA account deleted afterwards.
+- Data endpoints with session: /api/config, /api/progress, /api/sessions, /api/vocab, /api/vocab/daily, /api/cv → all 200 with sane defaults (hasKey:false, pool:[], empty lists).
+- Library (zero-key browsing): kind=vocab/grammar/listening/reading → all 200 with seeded content.
+- Security guards: /api/storage + /api/turn → 403 localized for non-admin (fail-closed); /api/call/ice → 200 graceful STUN-only fallback (TURN pool empty by design).
+- AI: POST /api/ai without a key → 400 friendly localized "key সেট করা নেই" (no 500). STT with empty body → 400 localized.
+- Call signaling lifecycle on production: join → room+code created, send (chat) 200, poll 200 (own broadcasts correctly excluded), leave 200; room+messages deleted after test.
+- Investigated first-visit HTML lang="en": defaultLocale was deliberately switched bn→en in f1958d7 ("English default for international launch") — left as-is, flagged to owner as a one-line switch if he wants Bangla-first.
+- DB cleanup: QA user + DailyVocab row + call room deleted; verified both 28-era QA accounts gone. User count = 7: 6 pre-existing + ONE NEW REAL USER (ybro6600@gmail.com, registered 2026-10-22 after the migration) — organic proof live signup works. Legacy probe1791904272@test.local (Oct 13, from an older session) flagged to owner, not deleted unilaterally.
+- Local dev.log tail: all GET / 200, no errors.
+
+Stage Summary:
+- NO PROBLEMS FOUND anywhere: live auth, data APIs, library, AI error paths, admin guards, call signaling, STT validation all healthy on production; DB at full schema parity.
+- Owner decisions pending: ADMIN_EMAILS on Vercel (admin panel unlock); optional: delete legacy probe test account; optional: flip defaultLocale back to bn for Bangla-first first visit.
