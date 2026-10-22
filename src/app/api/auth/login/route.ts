@@ -8,6 +8,8 @@ import {
   normalizeEmail,
   setSessionCookie,
   mergeDeviceData,
+  promoteAdminsIfEnv,
+  isAdminEmail,
 } from "@/lib/auth";
 
 // POST /api/auth/login  { deviceId, email, password }
@@ -46,6 +48,10 @@ export async function POST(req: NextRequest) {
   // untagged guest rows, so a different email never inherits a key here.
   await setSessionCookie(user.id);
   await mergeDeviceData(user.id, deviceId);
+  // Site owner auto-promotion: email listed in ADMIN_EMAILS → role "admin"
+  // (awaited so /api/auth/me already sees it right after login; no-op for
+  // everyone else).
+  await promoteAdminsIfEnv(user);
 
   // Task 27-c: the account's language rules every device. Re-point the
   // bolo_locale cookie to User.nativeLang on login; accounts without a
@@ -56,7 +62,16 @@ export async function POST(req: NextRequest) {
     : locale; // reqLocale(): existing cookie value (or the app default)
   const res = NextResponse.json({
     ok: true,
-    data: { user: { id: user.id, email: user.email, name: user.name } },
+    // role lets the client store show/hide the admin cards immediately
+    // (additive field; /api/auth/me returns the same shape).
+    data: {
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: isAdminEmail(user.email) || user.role === "admin" ? "admin" : null,
+      },
+    },
   });
   res.cookies.set(LOCALE_COOKIE, localeToSet, {
     path: "/",

@@ -17,10 +17,15 @@ export interface AuthUser {
   id: string;
   email: string;
   name: string;
+  // "admin" = site operator (ADMIN_EMAILS match); undefined until hydrated
+  role?: string | null;
 }
 
 interface AuthStore {
   user: AuthUser | null;
+  // "admin" | null — hydrated from /api/auth/me (User.role). Gates the
+  // admin-only Settings cards (Storage & TURN pools).
+  role: string | null;
   loaded: boolean;
   busy: boolean; // logout in flight
   refresh: () => Promise<void>;
@@ -55,6 +60,7 @@ async function ensureDeviceId(): Promise<string> {
 
 export const useAuth = create<AuthStore>((set) => ({
   user: null,
+  role: null,
   loaded: false,
   busy: false,
 
@@ -62,16 +68,20 @@ export const useAuth = create<AuthStore>((set) => ({
     try {
       const res = await fetch("/api/auth/me");
       const json = await res.json();
-      set({ user: json?.data?.user ?? null, loaded: true });
+      set({
+        user: json?.data?.user ?? null,
+        role: json?.data?.user?.role ?? null,
+        loaded: true,
+      });
     } catch {
-      set({ user: null, loaded: true });
+      set({ user: null, role: null, loaded: true });
     }
   },
 
   login: async (email, password) => {
     const deviceId = await ensureDeviceId();
     const data = await authRequest("/api/auth/login", { deviceId, email, password });
-    set({ user: data.user, loaded: true });
+    set({ user: data.user, role: data.user.role ?? null, loaded: true });
     useDevice.getState().refresh(); // account data re-pointed to this device
     return data.user;
   },
@@ -84,7 +94,7 @@ export const useAuth = create<AuthStore>((set) => ({
       password,
       ...(name ? { name } : {}),
     });
-    set({ user: data.user, loaded: true });
+    set({ user: data.user, role: data.user.role ?? null, loaded: true });
     useDevice.getState().refresh();
     return data.user;
   },
@@ -93,7 +103,7 @@ export const useAuth = create<AuthStore>((set) => ({
     set({ busy: true });
     try {
       await fetch("/api/auth/logout", { method: "POST" });
-      set({ user: null });
+      set({ user: null, role: null });
       useDevice.getState().refresh();
     } finally {
       set({ busy: false });

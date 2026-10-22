@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { reqLocale, apiMsg, type ApiLocale, type ApiMsgKey } from "@/lib/api-i18n";
+import { isAdminUser } from "@/lib/auth";
 import { encryptKey } from "@/lib/crypto";
 import {
   listAccounts,
@@ -28,6 +29,19 @@ function jsonErr(locale: ApiLocale, key: ApiMsgKey, status: number) {
   return NextResponse.json({ error: apiMsg(locale, key) }, { status });
 }
 
+// Role gate (owner requirement): the whole storage-pool API is ADMIN-ONLY —
+// the session user must have User.role = "admin" (ADMIN_EMAILS match at
+// login). Normal users and guests get a localized 403 and never see any
+// pool data; the x-admin-token checks below stay as a second layer for
+// mutations.
+async function requireAdmin(locale: ApiLocale) {
+  if (await isAdminUser()) return null;
+  return NextResponse.json(
+    { ok: false, error: apiMsg(locale, "adminOnly") },
+    { status: 403 }
+  );
+}
+
 function maskUrl(u: string): string {
   try {
     const p = new URL(u);
@@ -39,6 +53,8 @@ function maskUrl(u: string): string {
 
 export async function GET(req: NextRequest) {
   const locale = reqLocale(req);
+  const denied = await requireAdmin(locale);
+  if (denied) return denied;
   // Self-heal the schema first — production DBs that predate a model get
   // their tables created here (see src/lib/db-bootstrap.ts).
   await ensureDbTables();
@@ -92,6 +108,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const locale = reqLocale(req) as ApiLocale;
+  const denied = await requireAdmin(locale);
+  if (denied) return denied;
   if (!authorized(req)) return jsonErr(locale, "storageAdminRequired", 403);
   await ensureDbTables(); // self-heal schema before mutating
   const body = await req.json().catch(() => null);
@@ -159,6 +177,8 @@ export async function POST(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   const locale = reqLocale(req) as ApiLocale;
+  const denied = await requireAdmin(locale);
+  if (denied) return denied;
   if (!authorized(req)) return jsonErr(locale, "storageAdminRequired", 403);
   await ensureDbTables(); // self-heal schema before mutating
   const body = await req.json().catch(() => null);
@@ -182,6 +202,8 @@ export async function PATCH(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   const locale = reqLocale(req) as ApiLocale;
+  const denied = await requireAdmin(locale);
+  if (denied) return denied;
   if (!authorized(req)) return jsonErr(locale, "storageAdminRequired", 403);
   await ensureDbTables(); // self-heal schema before mutating
   const id = new URL(req.url).searchParams.get("id");

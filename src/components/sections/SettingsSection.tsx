@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   KeyRound,
   Eye,
@@ -14,6 +14,7 @@ import {
   User as UserIcon,
   Settings2,
   Languages,
+  Lock,
   Sparkles,
   LogOut,
   Loader2,
@@ -28,13 +29,13 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useDevice } from "@/hooks/use-device";
 import { useAuth, useAuthInit } from "@/hooks/use-auth";
 import AuthDialog from "@/components/auth/AuthDialog";
-import LocaleSwitcher from "@/i18n/LocaleSwitcher";
 import { usePwaInstall } from "@/components/pwa/PwaRegister";
 import { useToast } from "@/hooks/use-toast";
 import { sanitizeApiKey } from "@/lib/key-format";
 import { displayNameOr } from "@/lib/no-name";
 import SectionHeader from "@/components/shared/SectionHeader";
 import PointList from "@/components/shared/PointList";
+import KeyPoolCard from "@/components/settings/KeyPoolCard";
 import StoragePoolCard from "@/components/settings/StoragePoolCard";
 import TurnPoolCard from "@/components/settings/TurnPoolCard";
 import LibraryStudioCard from "@/components/settings/LibraryStudioCard";
@@ -43,13 +44,24 @@ import type { UserConfig as ApiUserConfig } from "@/hooks/use-device";
 // Labels render via tCommon("level.*") — always in the user's UI language.
 const LEVELS = [{ value: "beginner" }, { value: "intermediate" }, { value: "advanced" }] as const;
 
+// Native-script labels for the locked account language (same wording as the
+// signup gate's language cards).
+const LANG_LABELS: Record<string, string> = {
+  bn: "বাংলা",
+  hi: "हिन्दी",
+  en: "English",
+};
+
 export default function SettingsSection() {
   const t = useTranslations("settings");
   const tCommon = useTranslations("common");
   const tAuth = useTranslations("auth");
+  const locale = useLocale();
   const { deviceId, hasKey, keyPreview, displayName, level, storageError, setConfig } =
     useDevice();
   const user = useAuth((s) => s.user);
+  const role = useAuth((s) => s.role);
+  const isAdmin = role === "admin";
   const authBusy = useAuth((s) => s.busy);
   const logout = useAuth((s) => s.logout);
   const [apiKey, setApiKey] = useState("");
@@ -199,9 +211,16 @@ export default function SettingsSection() {
                       {avatarInitial}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold">{shownName || tAuth("guest")}</p>
-                    <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+                  <div className="flex min-w-0 flex-1 items-center gap-2">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold">{shownName || tAuth("guest")}</p>
+                      <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+                    </div>
+                    {isAdmin && (
+                      <Badge className="shrink-0 bg-gradient-to-r from-emerald-500 to-teal-600 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm shadow-emerald-500/30">
+                        <ShieldCheck className="mr-1 h-3 w-3" /> {t("admin.badge")}
+                      </Badge>
+                    )}
                   </div>
                   <Button
                     variant="outline"
@@ -259,7 +278,7 @@ export default function SettingsSection() {
           </CardContent>
         </Card>
 
-        {/* ── Language ── */}
+        {/* ── Language (locked to the account — display only) ── */}
         <Card className="premium-card border-border/70 rounded-2xl bg-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2.5">
@@ -277,8 +296,14 @@ export default function SettingsSection() {
               aria-label={t("language.label")}
             >
               <span className="text-sm font-medium">{t("language.label")}</span>
-              <LocaleSwitcher />
+              <span className="flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                <Lock className="h-3 w-3" aria-hidden />
+                {LANG_LABELS[locale] ?? locale}
+              </span>
             </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {tAuth("gateLangChosen", { lang: LANG_LABELS[locale] ?? locale })}
+            </p>
           </CardContent>
         </Card>
 
@@ -406,14 +431,18 @@ export default function SettingsSection() {
           </CardContent>
         </Card>
 
-        {/* ── Storage & Quota (site-owner pool) ── */}
-        <StoragePoolCard />
+        {/* ── Gemini key pool (logged-in users add several keys; the card
+            handles the guest/empty states itself) ── */}
+        <KeyPoolCard />
+
+        {/* ── Storage & Quota + TURN relay pool — ADMIN-ONLY (User.role):
+            normal users never see these cards at all ── */}
+        {isAdmin && <StoragePoolCard />}
 
         {/* ── Content Studio (owner-authored library: vocab/grammar/listening) ── */}
         <LibraryStudioCard />
 
-        {/* ── Video call relay (TURN pool) ── */}
-        <TurnPoolCard />
+        {isAdmin && <TurnPoolCard />}
 
         {/* ── Profile ── */}
         <Card className="premium-card border-border/70 rounded-2xl bg-card">

@@ -236,6 +236,13 @@ const M = {
     hi: "शिक्षार्थी",
   },
 
+  /* ── admin role (site owner) ── */
+  adminOnly: {
+    en: "Admin access required.",
+    bn: "অ্যাডমিন অ্যাক্সেস প্রয়োজন।",
+    hi: "एडमिन एक्सेस आवश्यक है।",
+  },
+
   /* ── storage pool (site owner) ── */
   storageAdminRequired: {
     en: "Storage admin token missing or wrong — set STORAGE_ADMIN_TOKEN and try again.",

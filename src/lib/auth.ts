@@ -33,6 +33,10 @@ export interface SessionUser {
   id: string;
   email: string;
   name: string;
+  // null = student. "admin" = site operator (promoted at login/register
+  // when the email matches ADMIN_EMAILS) — gates the pool-management
+  // Settings cards and their APIs.
+  role: string | null;
 }
 
 /* ── password ── */
@@ -83,7 +87,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     if (!userId) return null;
     const user = await db.user.findUnique({
       where: { id: userId },
-      select: { id: true, email: true, name: true },
+      select: { id: true, email: true, name: true, role: true },
     });
     return user;
   } catch {
@@ -138,6 +142,52 @@ export async function mergeDeviceData(
     });
   } catch (e) {
     console.error("mergeDeviceData failed", e);
+  }
+}
+
+/* ── admin role (site owner) ──
+   ADMIN_EMAILS (comma-separated) lists the site operators. Any of them is
+   promoted to User.role = "admin" automatically at login/register — the
+   Storage & TURN pool cards in Settings and their APIs check this role. */
+export function adminEmails(): string[] {
+  return (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+export function isAdminEmail(email: string): boolean {
+  return adminEmails().includes(email.trim().toLowerCase());
+}
+
+/**
+ * Promote a just-authenticated user to "admin" when their email is listed
+ * in ADMIN_EMAILS. Fire-and-forget safe: never throws, and a no-op (pure
+ * string check) for everyone who isn't the site owner.
+ */
+export async function promoteAdminsIfEnv(user: {
+  id: string;
+  email: string;
+  role?: string | null;
+}): Promise<void> {
+  try {
+    if (user.role === "admin" || !isAdminEmail(user.email)) return;
+    await db.user.update({
+      where: { id: user.id },
+      data: { role: "admin" },
+    });
+  } catch (e) {
+    console.error("promoteAdminsIfEnv failed", e);
+  }
+}
+
+/** Is the current session's user an admin? Any error → false (fail closed). */
+export async function isAdminUser(): Promise<boolean> {
+  try {
+    const user = await getSessionUser();
+    return user?.role === "admin";
+  } catch {
+    return false;
   }
 }
 

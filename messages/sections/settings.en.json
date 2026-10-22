@@ -14,6 +14,9 @@
       "synced": "Data synced to this device",
       "syncedNote": "While signed in, all of your account data is available on this device."
     },
+    "admin": {
+      "badge": "Admin"
+    },
     "apiKey": {
       "title": "Gemini API Key",
       "active": "Active",
@@ -64,7 +67,7 @@
     },
     "language": {
       "title": "Language",
-      "desc": "Change the app language — বাংলা, English or हिन्दी.",
+      "desc": "Your account's language — it applies on every device and can't be changed.",
       "label": "App language"
     },
     "pwa": {
