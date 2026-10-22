@@ -2942,3 +2942,63 @@ Stage Summary:
 - Local preview DB restored (fresh). User action: on the deployed site, open Settings once, paste the Gemini key again
   (or nothing at all — if the old ciphertext opens under any legacy secret, the app migrates it automatically on the
   first AI call).
+
+---
+Task ID: 26-b
+Agent: general-purpose
+Task: AI prompt quality upgrade — rewrite every backend AI prompt (ROLE/TASK/LEVEL/QUALITY/FORMAT discipline) without touching JSON shapes or route logic
+
+Work Log:
+- Read worklog (last sections) + src/lib/types.ts (AI contracts) + src/lib/gemini.ts (call path, JSON nudge) before editing; scope = prompt strings ONLY.
+- src/app/api/ai/route.ts: added shared prompt-quality building blocks after LANG_POLICY — LEVEL_RULES (concrete CEFR anchors: beginner A1-A2 ≤10-word sentences + gloss rule, intermediate B1-B2, advanced C1 idiomatic) with levelRule() safe fallback to beginner for unknown levels, SCENARIOS (real-life student contexts: school/family/market/food/sports/phones/travel) and JSON_ONLY format-discipline ending; LangPolicy (lang.rule/short/pron) kept and reused everywhere — no hardcoded Bengali.
+- Upgraded all 10 feature prompts with the pattern ROLE → TASK → LEVEL → QUALITY-BAR (variety/no repeated sentences, correct grammar, encouraging tone, per-field lengths) → exact JSON spec with allowed values ("type" enum grammar|vocabulary|pronunciation-spelling|better-alternative for corrections, category/severity enums for call-analysis) → "Return ONLY raw JSON": grammar-lesson, grammar-quiz, listening-story, vocab-lookup, vocab-quiz, chat-partner, realtime-correction, call-analysis, sentence-check, content-ask.
+- Few-shot (1 tiny item each, language-neutral placeholders annotated ${lang.short}) added to the two confusion-prone features: chat-partner reply object and call-analysis mistake item.
+- chat-partner: removed the now-redundant levelInstruction map (levelRule subsumes it); persona consistency + "friend not lecture" rule added.
+- sentence-check: userLevel now informs the coach tone; kept the lowercase-"i" leniency rule. call-analysis: kept trend.hint, dialogue attribution, sanitizer and caps untouched; added anti-hallucination rule ("quote ONLY lines from the dialogue").
+- Note: the file contains pre-existing DUPLICATE (unreachable second) case blocks for grammar-lesson/grammar-quiz/listening-story — both copies were upgraded identically via replace_all so behavior is stable regardless of which runs; no logic restructure attempted (out of scope).
+- src/app/api/cv/ai/route.ts: extract prompt now a specialist persona for messy mixed bn/en/hi biodata (any layout), adds a Bengali-label mapping line (পিতা→fatherName, এসএসসি/এইচএসসি→education, স্থায়ী ঠিকানা→personalExtra, প্রশিক্ষণ→training…), stronger never-invent/ambiguous-fact rules, date-format rule, explicit "never rename or add keys" + raw-JSON ending — CvData contract unchanged. Polish prompt: senior CV writer for Bangladeshi job market, achievement-oriented action verbs, no invented numbers, no first person/emoji, length caps preserved.
+- Verify: node scripts/i18n-check.mjs → ALL-PARITY-OK (messages/ untouched, run as safety); bunx tsc --noEmit → 0 errors; bun run lint → clean; full git diff reviewed line-by-line — zero JSON field/shape, cache-key, rate-limit, LangPolicy or handler-logic changes; only prompt strings + the 3 helper consts + the unused-map removal.
+- Commit eb2166a (not pushed — main agent pushes).
+
+Stage Summary:
+- Every AI feature now sends a structured, level-aware, locale-respecting prompt with explicit quality bars and strict format discipline, so the model knows exactly what kind of answer to give; frontend JSON contracts 100% untouched. Pattern applied everywhere: ROLE → TASK → LEVEL(CEFR) → QUALITY-BAR(variety/scenarios/lengths/tone) → FIELD SPEC(allowed values) → "Return ONLY raw JSON", plus 1-item few-shots for chat-partner and call-analysis.
+
+---
+Task ID: 26-c
+Agent: general-purpose
+Task: Screen sharing in the video call — safe track replacement on the existing WebRTC mesh + trilingual UI
+
+Work Log:
+- src/hooks/use-webrtc.ts: added a screen-share block — startScreenShare() (getDisplayMedia {video: 720p ideal/15fps ideal, audio:false} + OverconstrainedError fallback to {video:true}; contentHint="detail"; double-tap guard via screenStartingRef; returns {ok}|{ok:false,reason:unsupported|denied|failed}), stopScreenShare()/teardownScreenShare(restoreCamera) shared by ALL stop paths, replaceOutgoingVideo() swaps the video sender on EVERY pc via sender.replaceTrack — same transceiver, ZERO renegotiation. Camera track is never stopped; its pre-share enabled flag is remembered (camPriorOnRef) and restored EXACTLY on stop (camera-off-before-share stays off after). Screen track 'ended' listener (native "Stop sharing" bar) auto-restores with a sharingActiveRef double-restore guard; listener removed FIRST in teardown. cleanup() now tears down the share (stops tracks, unlistens) before closing PCs — airtight. ensurePC swaps a NEW peer's fresh video sender to the live screen track so mid-share joins see the screen. Audio-only calls (no camera track → no video transceiver) refuse cleanly with reason:"failed". New opt onScreenShareStopped(cameraOn) keeps the UI toggle in sync after any stop; hook returns screenStream/sharingScreen/startScreenShare/stopScreenShare.
+- CallRoom.tsx: MonitorUp toggle button right after the camera toggle (call-btn h-12 w-12 = 48px target, aria-pressed, distinct aria-label keys, call-btn-on emerald glow while live — same engaged style as layout/captions). Localized "আপনার স্ক্রিন শেয়ার হচ্ছে" pill with a ✕ stop control over the self tile (span role=button + stopPropagation so it stays valid inside stack-mode tile-as-button wrappers); self tile previews the SCREEN (stream swap in all 3 tile spots: grid / stack spotlight / PiP side tile), never mirrored while sharing, never hidden behind the avatar fallback even with cam toggle off.
+- CallFlow.tsx: toggleScreenShare handler — stop path direct, start failures surface as localized destructive toasts (unsupported/denied/failed); onScreenShareStopped mirrors the restored camera state into camOn. Share failure never touches the ongoing call.
+- i18n: NOTE — the call UI's user-facing strings live in the `call` namespace (useTranslations("call")), i.e. messages/sections/call.{bn,en,hi}.json (the call section of the speaking feature), not speaking.*.json; added 8 keys ×3 locales in the existing naming style: screenShareStart/Stop, screenShareStartAria/StopAria, screenShareBadge, screenShareUnsupported/Denied/Failed. bn examples: "স্ক্রিন শেয়ার করুন", "শেয়ার বন্ধ করুন", "আপনার স্ক্রিন শেয়ার হচ্ছে", "স্ক্রিন শেয়ারের অনুমতি দেওয়া হয়নি…".
+- Verify: node scripts/i18n-check.mjs → ALL-PARITY-OK; bunx tsc --noEmit → 0 errors; bun run lint → clean; dev server + agent-browser: / renders, Speak tab → Speaking section renders (1:1 / Group / AI partner cards), zero page errors + clean console, dev.log reviewed. Full WebRTC/getDisplayMedia E2E not possible headless (no camera/picker); logic reviewed line-by-line for track/listener cleanup.
+
+Stage Summary:
+- Commit 3a04cd4: screen share ships as a pure replaceTrack swap on the existing mesh — no renegotiation, no SDP churn, mic/captions/chat/corrections untouched; every stop path (button, ✕ pill, browser bar, leave/unmount) funnels through one guarded teardown that restores the camera track + its exact pre-share enabled state and leaks neither tracks nor listeners.
+- Edge cases handled: mobile/unsupported browsers → localized toast; permission denied → toast, camera untouched; audio-only calls refuse instead of a local-only share; peers joining mid-share get the screen immediately; double-tap/double-restore guarded; camera-off-before-share restored exactly.
+- i18n decision: keys added to call.{bn,en,hi}.json (the namespace the call UI actually reads) — parity checker green across all 3 locales.
+---
+Task ID: 26-a
+Agent: main (Z.ai Code)
+Task: Mobile API-key verification failure — Google says "models/gemini-2.0-flash is no longer available, use models/gemini-3.8-flash"
+
+Work Log:
+- Root cause: the static model chain (2.5-flash → 2.0-flash) rotted — Google retired 2.0-flash, so the settings-save
+  verification probe failed on the mobile AQ. key with Google's raw English retirement text (saved with a scary warning).
+- src/lib/gemini.ts: static chain now leads gemini-3.8-flash → gemini-flash-latest → 2.5 → 2.0; ListModels discovery
+  once per key per 10min (ranked newest-first, flash preferred, lite demoted, non-generating models excluded, 6s timeout,
+  non-fatal on failure); refusal messages parsed for "use models/<name>" → recommended model adopted MID-CALL and
+  remembered per key; "no longer available"/"deprecated"/"update your code" classified model-level; unknown gemini-3+/4+
+  models get the 65_536 output cap via capFor().
+- Verified with a mock-fetch bun harness (11/11): real screenshot message classified + recommended model extracted;
+  ranking order; e2e discovery → refusal → adopt recommended → success with exact call order.
+- Parallel subagents: 26-b (prompts, commit eb2166a) and 26-c (screen share, commit 3a04cd4). Cross-checked combined
+  tree: i18n ALL-PARITY-OK, tsc clean, lint clean; browser: / renders, zero page errors, Speak section loads.
+- Pushed 46daecf..3a04cd4 to main.
+
+Stage Summary:
+- Commits c7e8363 (model chain), eb2166a (prompts), 3a04cd4 (screen share) on main → auto-deploy.
+- The model chain can no longer rot: discovery + Google's own recommendations self-heal the chain per key.
+- Note: full WebRTC screen-share E2E impossible headless — verified by code review + tsc/lint + app-render checks.
