@@ -153,24 +153,27 @@ export async function POST(req: NextRequest) {
       if (!text)
         return NextResponse.json({ ok: false, error: apiMsg(locale, "cvTextRequired") }, { status: 400 });
       const target = ["bn", "en", "hi"].includes(body?.targetLang) ? body.targetLang : "auto";
-      const prompt = `You are a professional CV data extractor. Below is a person's biodata / résumé / free-form career information. It may be in Bengali, English, Hindi or mixed, in any layout.
+      const prompt = `You are a meticulous CV/biodata data-extraction specialist for the Bangladeshi job market, expert at reading messy biodata in Bengali, English, Hindi or a mix of them, in any layout (tables, headings, dot lists, all-caps labels).
 
-TASK: return ONLY a JSON object with this exact shape:
+TASK: Convert the SOURCE TEXT below into structured JSON — extract facts only.
+Return ONLY a JSON object with this exact shape (never rename or add keys):
 {"lang":"bn|en|hi","personal":{"name","headline","email","phone","address","fatherName","motherName","dateOfBirth","nationality","religion","maritalStatus","bloodGroup","website","linkedin"},"summary","education":[{"degree","institution","group","result","year","details"}],"experience":[{"role","org","start","end","location","bullets":["…"]}],"projects":[{"name","description","link"}],"skills":[{"name","level":1-5}],"languages":[{"name","level":1-5}],"training":[{"name","issuer","year"}],"awards":[{"name","issuer","year"}],"hobbies":["…"],"references":[{"name","org","relation","phone","email"}],"personalExtra":[{"label","value"}]}
 
-RULES:
-- Copy facts EXACTLY as given — never invent employers, degrees, dates or numbers.
-- Omit a field entirely (empty string "" / empty array) when the source does not mention it.
+EXTRACTION RULES:
+- Copy facts EXACTLY as given — never invent, guess or "improve" employers, degrees, dates, results or numbers. Ambiguous text keeps its most literal reading.
+- Omit a field entirely ("" / empty array) when the source does not mention it.
 - "lang" = the language of the source text (bn/en/hi)${target === "auto" ? "" : ` — BUT rewrite every text value in ${target === "bn" ? "Bengali (বাংলা)" : target === "en" ? "clear professional English" : "Hindi"} and set lang to "${target}"`} .
+- Common Bengali biodata labels map to: পিতা/বাবা → fatherName, মাতা/মা → motherName, জন্ম তারিখ → dateOfBirth, স্থায়ী ঠিকানা → personalExtra, এসএসসি/এস.এস.সি/SSC ও এইচএসসি/HSC → education (group = science/humanities/business studies as given), প্রশিক্ষণ → training, পুরস্কার → awards, জাতীয়তা → nationality.
 - "summary": 2-3 sentence professional profile built ONLY from the given facts.
-- skill/language level: judge 1-5 from context (default 4 when unclear).
-- Use "personalExtra" for personal key-value facts that don't fit other fields (e.g. permanent address).
-- end="" inside experience means "currently working there".
+- skill/language "level": judge 1-5 from context (default 4 when unclear).
+- end="" inside experience means "currently working there"; keep dates in their original format.
 
 SOURCE TEXT:
 """
 ${text}
-"""`;
+"""
+
+Return ONLY raw JSON — no markdown fences, no commentary before or after.`;
 
       const parsed = await geminiJson<unknown>(apiKey, prompt, { temperature: 0.2, label: "cv-extract" });
       const clean = sanitizeAiContent(parsed);
@@ -187,7 +190,14 @@ ${text}
       const lang = ["bn", "en", "hi"].includes(body?.lang) ? body.lang : "bn";
       const out = await geminiText(
         apiKey,
-        `Rewrite this ${kind === "summary" ? "CV professional summary" : "CV experience bullet"} in ${lang === "bn" ? "Bengali" : lang === "en" ? "English" : "Hindi"}. Keep every fact exactly as given; improve wording, clarity and impact; keep it under ${kind === "summary" ? "3 sentences" : "1 line"}. Reply with ONLY the rewritten text — no quotes, no explanation.\n\nTEXT:\n${text}`,
+        `You are a senior CV writer for the Bangladeshi job market. Rewrite this ${kind === "summary" ? "CV professional summary" : "CV experience bullet"} in ${lang === "bn" ? "natural professional Bengali" : lang === "en" ? "clear professional English" : "natural professional Hindi"}.
+Keep EVERY fact exactly as given — never invent numbers, tools, employers or achievements; quantify only with facts already present.
+Style: concise and achievement-oriented — start with a strong action verb (led, managed, organized, improved), replace weak filler ("responsible for" → "managed"), no first-person pronouns, no emojis, no quotes.
+Length: ${kind === "summary" ? "max 3 sentences" : "ONE line, max ~20 words"}.
+Reply with ONLY the rewritten text — no explanation, no alternatives.
+
+TEXT:
+${text}`,
         { temperature: 0.4, maxOutputTokens: 1024, label: "cv-polish" }
       );
       return NextResponse.json({ ok: true, data: { text: out.trim().slice(0, 1_200) } });

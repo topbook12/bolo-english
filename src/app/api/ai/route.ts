@@ -67,6 +67,29 @@ const LANG_POLICY: Record<string, LangPolicy> = {
 // English is the international default; bn/hi opt in via the language switch.
 const DEFAULT_POLICY = LANG_POLICY.en;
 
+/* ── Prompt-quality building blocks (Task 26-b) ───────────────────────────
+ * Shared across every feature so each prompt carries the same
+ * ROLE → TASK → LEVEL → QUALITY-BAR → FORMAT discipline without bloating
+ * the strings. Level rules are concrete CEFR anchors the model can follow;
+ * unknown levels safely fall back to beginner (the app's default level). */
+const LEVEL_RULES: Record<string, string> = {
+  beginner:
+    "beginner (CEFR A1-A2): use ONLY high-frequency everyday words; sentences of 10 words or fewer; concrete familiar topics. If a harder word is unavoidable, add a very simple gloss right after it",
+  intermediate:
+    "intermediate (CEFR B1-B2): natural everyday English with common idioms; sentences up to ~18 words; concrete topics plus opinions with short reasons",
+  advanced:
+    "advanced (CEFR C1): idiomatic, nuanced English with natural collocations; varied sentence lengths; abstract topics and precise vocabulary",
+};
+const levelRule = (level: string): string => LEVEL_RULES[level] ?? LEVEL_RULES.beginner;
+
+/** Real-life scenario list — keeps generated content in the students' world
+ * instead of generic AI prose. */
+const SCENARIOS =
+  "real-life student scenarios (school, family, market shopping, food, sports, mobile phones, travel)";
+
+const JSON_ONLY =
+  "Return ONLY raw JSON — no markdown fences, no commentary before or after.";
+
 function jsonOk(data: unknown) {
   return NextResponse.json({ ok: true, data });
 }
@@ -403,23 +426,24 @@ export async function POST(req: NextRequest) {
           "grammar-lesson",
           `${topic}::${level}::${locale}`,
           apiKey,
-          `You are an expert English grammar teacher. The student reads explanations in ${locale === "bn" ? "Bengali" : locale === "hi" ? "Hindi" : "simple English"}.
-Teach the grammar topic "${topic}" at ${level} level. ${lang.rule}
-Return STRICT JSON with this shape:
+          `You are a patient, encouraging English grammar teacher for Bengali- and Hindi-speaking school students. ${levelRule(level)}.
+TASK: Teach the grammar topic "${topic}" as one structured lesson. ${lang.rule}
+QUALITY: explanations of 1-3 short sentences, grounded in ${SCENARIOS}; every example grammatically correct; each "wrong"/"right" pair differs ONLY by the grammar point being taught; never repeat an example sentence; warm tone, never condescending.
+Return STRICT JSON with this exact shape:
 {
   "title": "English topic title",
   "level": "${level}",
-  "intro": "2-3 sentence intro ${lang.short} — why this topic matters",
+  "intro": "2-3 sentence intro ${lang.short} — why this topic matters in daily life",
   "sections": [
     {
-      "heading": "sub-topic name (may mix English terms)",
-      "explanation": "clear explanation ${lang.short}, use a comparison to the student's everyday language if it helps",
-      "examples": [ { "wrong": "wrong English sentence", "right": "correct English sentence", "note": "why wrong/right ${lang.short}" } ]
+      "heading": "sub-topic name (English grammar terms are ok)",
+      "explanation": "clear explanation ${lang.short}, compare with the student's everyday language if it helps",
+      "examples": [ { "wrong": "incorrect English sentence", "right": "corrected English sentence", "note": "1 short sentence — why ${lang.short}" } ]
     }
   ],
-  "tips": ["5-6 practical tips ${lang.short}"]
+  "tips": ["5-6 practical memory/usage tips ${lang.short}, 1 line each"]
 }
-"sections" must have 3-4 sections, each with 2-3 examples. Return ONLY the JSON.`,
+Rules: 3-4 "sections" progressing easy → harder, each with 2-3 examples; examples and headings stay in English. ${JSON_ONLY}`,
           0.4
         );
         return jsonOk(data);
@@ -433,11 +457,12 @@ Return STRICT JSON with this shape:
           "grammar-quiz",
           `${topic}::${level}::${count}::${locale}`,
           apiKey,
-          `You are an English quiz master.
-Create ${count} multiple-choice questions to practice "${topic}" grammar at ${level} level.
-${lang.rule} Return STRICT JSON array:
-[ { "question": "English question with a blank or choice", "options": ["a","b","c","d"], "answer": 0, "explanation": "why this is correct ${lang.short}" } ]
-"answer" is the 0-based index of the correct option. Options must be plausible. Questions must be in English. Return ONLY the JSON array.`,
+          `You are an encouraging English quiz master for school students. ${levelRule(level)}.
+TASK: Write ${count} multiple-choice questions that each test the grammar topic "${topic}" from a different angle. ${lang.rule}
+QUALITY: questions, options and sentences in ENGLISH; exactly 4 options per question with ONE unambiguously correct answer; distractors are typical learner mistakes for "${topic}" — plausible but clearly wrong; contexts vary across ${SCENARIOS}; no two questions reuse the same sentence; "explanation" = 1-2 short sentences ${lang.short} on why the answer is correct (and why the tempting distractor is not).
+Return STRICT JSON array, exactly this shape per item:
+[ { "question": "English question with a blank ___ or a choice", "options": ["a","b","c","d"], "answer": 0, "explanation": "why this is correct ${lang.short}" } ]
+"answer" is the 0-based index of the correct option. ${JSON_ONLY}`,
           0.5
         );
         return jsonOk(data);
@@ -451,17 +476,18 @@ ${lang.rule} Return STRICT JSON array:
           "listening-story",
           `${topic}::${level}::${locale}`,
           apiKey,
-          `You write short English listening stories for English learners.
-Write a story about "${topic}" at ${level} English level. ${lang.rule}
+          `You are a warm storyteller-teacher writing English listening practice for Bengali- and Hindi-speaking students. ${levelRule(level)}.
+TASK: Write ONE original short English story about "${topic}" plus comprehension questions. ${lang.rule}
+QUALITY: 4-6 story paragraphs of 2-4 short natural sentences each with a clear beginning-middle-end; characters use everyday names; settings come from ${SCENARIOS}; vocabulary obeys the level rule — gloss any harder word inline in simpler words; no sentence appears twice; each question tests a DIFFERENT paragraph or detail; options plausible with exactly one correct.
 Return STRICT JSON:
 {
   "title": "English story title",
   "level": "${level}",
   "story": ["English paragraph 1 (2-3 short sentences)", "English paragraph 2", "... 4-6 paragraphs total"],
   "banglaSummary": "2-3 sentence story summary ${lang.short} (shown after listening)",
-  "questions": [ { "question": "English comprehension question", "options": ["a","b","c","d"], "answer": 0, "explanation": "where the answer comes from ${lang.short}" } ]
+  "questions": [ { "question": "English comprehension question", "options": ["a","b","c","d"], "answer": 0, "explanation": "where in the story the answer comes from ${lang.short}" } ]
 }
-5 comprehension questions. Sentences short & natural. Return ONLY the JSON.`,
+Exactly 5 comprehension questions; "answer" = 0-based index. ${JSON_ONLY}`,
           0.8
         );
         return jsonOk(data);
@@ -475,23 +501,24 @@ Return STRICT JSON:
           "grammar-lesson",
           `${topic}::${level}::${locale}`,
           apiKey,
-          `You are an expert English grammar teacher. The student reads explanations in ${locale === "bn" ? "Bengali" : locale === "hi" ? "Hindi" : "simple English"}.
-Teach the grammar topic "${topic}" at ${level} level. ${lang.rule}
-Return STRICT JSON with this shape:
+          `You are a patient, encouraging English grammar teacher for Bengali- and Hindi-speaking school students. ${levelRule(level)}.
+TASK: Teach the grammar topic "${topic}" as one structured lesson. ${lang.rule}
+QUALITY: explanations of 1-3 short sentences, grounded in ${SCENARIOS}; every example grammatically correct; each "wrong"/"right" pair differs ONLY by the grammar point being taught; never repeat an example sentence; warm tone, never condescending.
+Return STRICT JSON with this exact shape:
 {
   "title": "English topic title",
   "level": "${level}",
-  "intro": "2-3 sentence intro ${lang.short} — why this topic matters",
+  "intro": "2-3 sentence intro ${lang.short} — why this topic matters in daily life",
   "sections": [
     {
-      "heading": "sub-topic name (may mix English terms)",
-      "explanation": "clear explanation ${lang.short}, use a comparison to the student's everyday language if it helps",
-      "examples": [ { "wrong": "wrong English sentence", "right": "correct English sentence", "note": "why wrong/right ${lang.short}" } ]
+      "heading": "sub-topic name (English grammar terms are ok)",
+      "explanation": "clear explanation ${lang.short}, compare with the student's everyday language if it helps",
+      "examples": [ { "wrong": "incorrect English sentence", "right": "corrected English sentence", "note": "1 short sentence — why ${lang.short}" } ]
     }
   ],
-  "tips": ["5-6 practical tips ${lang.short}"]
+  "tips": ["5-6 practical memory/usage tips ${lang.short}, 1 line each"]
 }
-"sections" must have 3-4 sections, each with 2-3 examples. Return ONLY the JSON.`,
+Rules: 3-4 "sections" progressing easy → harder, each with 2-3 examples; examples and headings stay in English. ${JSON_ONLY}`,
           0.4,
           { maxOutputTokens: 8192 }
         );
@@ -506,11 +533,12 @@ Return STRICT JSON with this shape:
           "grammar-quiz",
           `${topic}::${level}::${count}::${locale}`,
           apiKey,
-          `You are an English quiz master.
-Create ${count} multiple-choice questions to practice "${topic}" grammar at ${level} level.
-${lang.rule} Return STRICT JSON array:
-[ { "question": "English question with a blank or choice", "options": ["a","b","c","d"], "answer": 0, "explanation": "why this is correct ${lang.short}" } ]
-"answer" is the 0-based index of the correct option. Options must be plausible. Questions must be in English. Return ONLY the JSON array.`,
+          `You are an encouraging English quiz master for school students. ${levelRule(level)}.
+TASK: Write ${count} multiple-choice questions that each test the grammar topic "${topic}" from a different angle. ${lang.rule}
+QUALITY: questions, options and sentences in ENGLISH; exactly 4 options per question with ONE unambiguously correct answer; distractors are typical learner mistakes for "${topic}" — plausible but clearly wrong; contexts vary across ${SCENARIOS}; no two questions reuse the same sentence; "explanation" = 1-2 short sentences ${lang.short} on why the answer is correct (and why the tempting distractor is not).
+Return STRICT JSON array, exactly this shape per item:
+[ { "question": "English question with a blank ___ or a choice", "options": ["a","b","c","d"], "answer": 0, "explanation": "why this is correct ${lang.short}" } ]
+"answer" is the 0-based index of the correct option. ${JSON_ONLY}`,
           0.5,
           { maxOutputTokens: 4096 }
         );
@@ -525,17 +553,18 @@ ${lang.rule} Return STRICT JSON array:
           "listening-story",
           `${topic}::${level}::${locale}`,
           apiKey,
-          `You write short English listening stories for English learners.
-Write a story about "${topic}" at ${level} English level. ${lang.rule}
+          `You are a warm storyteller-teacher writing English listening practice for Bengali- and Hindi-speaking students. ${levelRule(level)}.
+TASK: Write ONE original short English story about "${topic}" plus comprehension questions. ${lang.rule}
+QUALITY: 4-6 story paragraphs of 2-4 short natural sentences each with a clear beginning-middle-end; characters use everyday names; settings come from ${SCENARIOS}; vocabulary obeys the level rule — gloss any harder word inline in simpler words; no sentence appears twice; each question tests a DIFFERENT paragraph or detail; options plausible with exactly one correct.
 Return STRICT JSON:
 {
   "title": "English story title",
   "level": "${level}",
   "story": ["English paragraph 1 (2-3 short sentences)", "English paragraph 2", "... 4-6 paragraphs total"],
   "banglaSummary": "2-3 sentence story summary ${lang.short} (shown after listening)",
-  "questions": [ { "question": "English comprehension question", "options": ["a","b","c","d"], "answer": 0, "explanation": "where the answer comes from ${lang.short}" } ]
+  "questions": [ { "question": "English comprehension question", "options": ["a","b","c","d"], "answer": 0, "explanation": "where in the story the answer comes from ${lang.short}" } ]
 }
-5 comprehension questions. Sentences short & natural. Return ONLY the JSON.`,
+Exactly 5 comprehension questions; "answer" = 0-based index. ${JSON_ONLY}`,
           0.8,
           { maxOutputTokens: 8192 }
         );
@@ -553,9 +582,12 @@ Return STRICT JSON:
           "vocab-lookup",
           `${word.toLowerCase()}::${userLevel}::${locale}`,
           apiKey,
-          `Explain the English word "${word}" for a learner at ${userLevel} level. ${lang.rule}
-Return STRICT JSON: { "word": "${word}", "pronunciation": "${lang.pron}", "partOfSpeech": "...", "banglaMeaning": "meaning ${lang.short}", "englishMeaning": "...", "examples": ["sentence 1","sentence 2"], "usageTip": "real usage ${lang.short}" }
-If "${word}" is not a real English word, still return JSON but put "word": "" and explain in usageTip that it seems invalid. Return ONLY the JSON.`,
+          `You are a friendly vocabulary coach for Bengali- and Hindi-speaking English learners. ${levelRule(userLevel)}.
+TASK: Explain the English word "${word}" so a ${userLevel} learner understands it and can use it the same day. ${lang.rule}
+QUALITY: "partOfSpeech" = its most common use (noun/verb/adjective/adverb/phrase); "englishMeaning" = 1-2 simple sentences; "banglaMeaning" = the natural equivalent ${lang.short} (add a short sense note if the word has several meanings); the two example sentences are ORIGINAL everyday sentences from ${SCENARIOS} that obey the level rule — not dictionary clichés; "usageTip" = 1-2 short sentences ${lang.short} on when/how to use it and one common wrong use to avoid.
+Return STRICT JSON:
+{ "word": "${word}", "pronunciation": "${lang.pron}", "partOfSpeech": "...", "banglaMeaning": "meaning ${lang.short}", "englishMeaning": "...", "examples": ["sentence 1", "sentence 2"], "usageTip": "real usage ${lang.short}" }
+If "${word}" is not a real English word, still return the JSON but set "word": "" and explain in "usageTip" ${lang.short} that it looks invalid. ${JSON_ONLY}`,
           0.3,
           { maxOutputTokens: 1536 }
         );
@@ -574,11 +606,12 @@ If "${word}" is not a real English word, still return JSON but put "word": "" an
           "vocab-quiz",
           `${wordKey}::${locale}`,
           apiKey,
-          `Create a 6-question multiple-choice English vocabulary quiz testing these words: ${words.join(", ")}. ${lang.rule}
-Mix question types: fill-in-the-blank, meaning-match, correct-usage.
+          `You are a playful English vocabulary quiz master for school students.
+TASK: Write a 6-question multiple-choice quiz that tests EXACTLY these words: ${words.join(", ")}. ${lang.rule}
+QUALITY: mix the question types — 2 fill-in-the-blank, 2 meaning-match, 2 correct-usage-in-context; every listed word is tested at least once; questions, options and sentences in ENGLISH; exactly 4 options per question with ONE clearly correct answer; distractors are plausible but obviously wrong to anyone who knows the word; contexts come from ${SCENARIOS}; no two questions share a sentence pattern; "explanation" = 1-2 short sentences ${lang.short}.
 Return STRICT JSON array:
 [ { "question": "English question", "options": ["a","b","c","d"], "answer": 0, "explanation": "explanation ${lang.short}" } ]
-"answer" = 0-based index of the correct option. Return ONLY the JSON array.`,
+"answer" = 0-based index of the correct option. ${JSON_ONLY}`,
           0.5,
           { maxOutputTokens: 4096 }
         );
@@ -589,20 +622,17 @@ Return STRICT JSON array:
       case "chat-partner": {
         const history = Array.isArray(payload.history) ? payload.history.slice(-12) : [];
         const topic = cleanStr(payload.topic ?? "free conversation", 80);
-        const levelInstruction: Record<string, string> = {
-          beginner: "use very simple English, short sentences",
-          intermediate: "use natural everyday English",
-          advanced: "use rich natural native-level English",
-        };
         const data = await geminiJson<ChatPartnerReply>(
           apiKey,
-          `You are "Raha", a friendly English conversation partner for ${userName}, an English learner at ${userLevel} level.
-Topic: ${topic}. ${levelInstruction[userLevel] ?? levelInstruction.beginner}.
-Reply to the user's LAST message keeping a natural conversation going, gently correct their recent English mistakes, then ask ONE follow-up question to keep them talking. ${lang.rule}
+          `You are "Raha", a warm, encouraging English conversation partner for ${userName}, an English learner at ${userLevel} level. ${levelRule(userLevel)}.
+Topic: ${topic}. ${lang.rule}
+TASK: React to the user's LAST message so the conversation keeps flowing — acknowledge what they said, gently fix their recent English mistakes, then invite them to say more.
+QUALITY: "reply" = 1-3 natural spoken-English sentences obeying the level rule (a friend talking, never a lecture); "banglaHint" = ONE short line ${lang.short} suggesting what THEY could say next; "corrections" = only REAL grammar/vocabulary/word-choice problems in the user's last message, max 3, [] if none — "type" exactly one of "grammar" | "vocabulary" | "pronunciation-spelling" | "better-alternative", "explanation" = 1 short encouraging sentence ${lang.short}; "followUp" = ONE simple English question about their life that invites a longer answer. Keep the same friendly persona and energy across turns.
 Conversation history (JSON): ${JSON.stringify(history)}
 Return STRICT JSON:
 { "reply": "Your English reply (1-3 sentences)", "banglaHint": "one-line hint ${lang.short} about what to say", "corrections": [ { "original": "user's wrong sentence", "corrected": "corrected sentence", "type": "grammar", "explanation": "why ${lang.short}" } ], "followUp": "Your follow-up question in English" }
-corrections may be empty if user's English is fine. Return ONLY the JSON.`,
+Shape example (1 item, values are placeholders — hints/explanations must be written ${lang.short}): {"reply":"Cricket sounds fun! I watch it every weekend.","banglaHint":"hint ${lang.short}","corrections":[{"original":"I am play cricket","corrected":"I play cricket","type":"grammar","explanation":"why — ${lang.short}"}],"followUp":"Who do you usually play with?"}
+${JSON_ONLY}`,
           { temperature: 0.7, maxOutputTokens: 2048, label: "chat-partner" }
         );
         return jsonOk(data);
@@ -617,12 +647,13 @@ corrections may be empty if user's English is fine. Return ONLY the JSON.`,
         if (lines.length === 0) return jsonOk({ corrections: [], encouragement: "" });
         const data = await geminiJson<RealtimeCorrections>(
           apiKey,
-          `An English learner is practicing spoken English in a live video call. Below are their spoken sentences (JSON). ${lang.rule}
-Find ONLY clear grammar/vocabulary/word-choice mistakes worth fixing now (max 4). Ignore fillers, minor punctuation, and pronunciation spelling. Be encouraging, not harsh.
+          `You are a kind live speech coach helping an English learner DURING a video call. ${lang.rule}
+TASK: From the learner's last spoken sentences (JSON array below), choose ONLY the mistakes worth fixing right now — max 4, and if most are minor keep just the 1-2 most useful.
+QUALITY: fix clear grammar, vocabulary or word-choice problems; ignore fillers, tiny punctuation, pronunciation spelling and half-finished thoughts; "corrected" keeps the learner's own meaning and simple style; "type" exactly one of "grammar" | "vocabulary" | "pronunciation-spelling" | "better-alternative"; "explanation" = ONE short encouraging line ${lang.short} telling them what to do next time (not just what is wrong); "encouragement" = ONE warm line ${lang.short} naming something they did well.
 Sentences: ${JSON.stringify(lines)}
 Return STRICT JSON:
 { "corrections": [ { "original": "spoken sentence", "corrected": "better sentence", "type": "grammar", "explanation": "one line — why ${lang.short}" } ], "encouragement": "one-line encouragement ${lang.short}" }
-If no real mistakes: { "corrections": [], "encouragement": "..." } Return ONLY the JSON.`,
+If there are no real mistakes, return { "corrections": [], "encouragement": "..." }. ${JSON_ONLY}`,
           { temperature: 0.3, maxOutputTokens: 1536, label: "realtime-correction" }
         );
         return jsonOk(data);
@@ -666,7 +697,7 @@ If no real mistakes: { "corrections": [], "encouragement": "..." } Return ONLY t
         // information — the separate block is gone.
         const rawAnalysis = await geminiJson<unknown>(
           apiKey,
-          `You are an expert English communication coach doing a DEEP post-call analysis of a learner's real conversation (video call, ${Math.round(durationSec / 60)} min, ${partnerCount} participant(s), learner level: ${userLevel}).
+          `You are a senior, encouraging English communication coach for Bengali- and Hindi-speaking students, doing a DEEP post-call analysis of a real conversation (video call, ${Math.round(durationSec / 60)} min, ${partnerCount} participant(s)). ${levelRule(userLevel)}
 Learner: ${userName}.
 
 Full dialogue in speaking order — "who":"me" marks the LEARNER's lines (analyze THESE), "who":"partner" is the other person (context). Use it so every correction and improvement fits what was actually said:
@@ -675,6 +706,7 @@ ${JSON.stringify(dialogue)}
 ${trend.hint}
 ${lang.rule}
 
+QUALITY: quote ONLY sentences that actually appear in the dialogue — never invent errors; every explanation, strength, suggestion and plan item is 1-2 short sentences ${lang.short}; scores must reflect what was actually said (a short but clean call scores well); tone = honest, specific, motivating.
 Coach deeply — this is a real development plan, not a surface report:
 1) Scores: overallScore, fluencyScore, grammarScore, vocabularyScore (0-100 each — honest, encouraging but realistic).
 2) mistakes: max 10, DEDUPLICATED by the underlying grammar point (never explain the same rule twice). Each gets "category" EXACTLY one of "tense" | "article" | "preposition" | "word-choice" | "agreement" | "vocabulary" | "sentence-structure" | "other", and "severity": "major" (blocks understanding / repeated basic error) or "minor" (polish). Corrections keep the learner's meaning. If a partner line is needed to understand the mistake, mention it briefly inside "explanation".
@@ -682,6 +714,8 @@ Coach deeply — this is a real development plan, not a surface report:
 4) strengths: 2-4 SPECIFIC things the learner did well (good phrases, brave attempts, nice vocabulary) — motivation matters.
 5) focusPlan: 2-3 prioritized roadmap items for how to develop further: "title" (short), "why" (1-2 sentences), "drill" (a concrete 5-minute solo practice drill the learner can do today).
 6) grammarGaps: 3-6 grammar topics to study next. vocabularyGaps: 3-6 useful words worth learning (used wrongly or missing in the talk). suggestions: 4-5 actionable suggestions.
+
+Mistake-item shape example (1 item, values are placeholders — explanation must be written ${lang.short}): {"original":"I am go to school daily","corrected":"I go to school daily","category":"tense","severity":"minor","explanation":"why — 1-2 short sentences ${lang.short}"}
 
 Return STRICT JSON:
 {
@@ -728,10 +762,12 @@ Return ONLY the JSON.`,
         const meaning = cleanStr(payload.meaning, 200);
         const data = await geminiJson<SentenceCheckResult>(
           apiKey,
-          `You are a patient English teacher. An English learner wrote a sentence using the word "${word}"${meaning ? ` (word meaning: ${meaning})` : ""}.
+          `You are a patient, encouraging English teacher checking a ${userLevel} learner's sentence. ${levelRule(userLevel)}
+The learner wrote a sentence using the word "${word}"${meaning ? ` (word meaning: ${meaning})` : ""}.
 Their sentence: "${sentence}"
-${lang.rule}
-Check the sentence and return STRICT JSON:
+TASK: judge it, correct it, and coach them to use "${word}" better. ${lang.rule}
+QUALITY: "corrected" keeps the learner's meaning with the smallest honest fix; verdict "correct" when the sentence is understandable and natural — tiny style issues go in "suggestions" (a lowercase "i" alone never makes a sentence incorrect); if the sentence does not actually use the word "${word}", verdict is "incorrect" and "explanation" says so; "explanation" = 1-3 short sentences ${lang.short} noting what was right AND what was wrong; "suggestions" = 2-3 short tips ${lang.short} to use the word more naturally; "improved" = a more natural, slightly more advanced version of the same idea.
+Return STRICT JSON:
 {
   "verdict": "correct" or "incorrect",
   "corrected": "the corrected sentence (exactly the learner's sentence if it is already correct)",
@@ -739,7 +775,7 @@ Check the sentence and return STRICT JSON:
   "suggestions": ["2-3 short tips to use this word better ${lang.short}"],
   "improved": "a more natural, advanced version of their sentence"
 }
-Rules: ignore missing capitalization of "i" only if everything else is fine — still mark verdict correct but mention it in a suggestion. If the sentence does not actually use the word "${word}", set verdict "incorrect" and say so in the explanation. Be encouraging, never harsh. Return ONLY the JSON.`,
+Be encouraging, never harsh. ${JSON_ONLY}`,
           { temperature: 0.3, maxOutputTokens: 2048, label: "sentence-check" }
         );
         return jsonOk(data);
@@ -762,14 +798,16 @@ Rules: ignore missing capitalization of "i" only if everything else is fine — 
           "content-ask",
           `${title}::${ctxHash}::${question.toLowerCase()}::${locale}`,
           apiKey,
-          `You are a friendly English teacher on a learning site. A learner is reading this stored content:
+          `You are a friendly, knowledgeable English teacher on a learning site for Bengali- and Hindi-speaking students. ${lang.rule}
+A learner is reading this stored content:
 Title: ${title || "(library content)"}
 Content: ${context || "(no extra context)"}
-The learner asks: "${question}"
-${lang.rule}
-Answer their question clearly and simply (max ~120 words), based on the content above. If the answer is not in the content, still help — you are their teacher. If the learner asks in Bengali or Hindi, follow the language rule anyway. Return STRICT JSON:
+The learner asks: "${question}" (they may ask in Bengali or Hindi — the language rule above applies anyway).
+TASK: Answer that question directly and simply in max ~120 words, based on the content above; if the answer is not in the content, still help as their teacher from general knowledge.
+QUALITY: "answer" = 2-6 short sentences ${lang.short}, defining any English term you must use in one clause; "bullets" = 0-4 very short key points ${lang.short} (empty array when the answer is a simple yes/no or a definition); never invent facts about the content — if it does not cover the question, say so briefly in one clause, then answer generally.
+Return STRICT JSON:
 { "answer": "clear answer ${lang.short} (2-6 sentences)", "bullets": ["optional 2-4 very short key points ${lang.short}"] }
-"bullets" may be an empty array. Return ONLY the JSON.`,
+${JSON_ONLY}`,
           0.4,
           { maxOutputTokens: 1536 }
         );
