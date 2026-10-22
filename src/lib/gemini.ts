@@ -11,11 +11,27 @@ import { resolveConfigRow } from "./user-config";
 // Model fallback order + per-model output-token caps. Bangla text tokenizes
 // several times heavier than English — a small cap truncates long JSON
 // mid-string, which used to surface as "AI একটি ভুল ফরম্যাটে উত্তর দিয়েছে".
-const MODELS = ["gemini-2.5-flash", "gemini-2.0-flash"] as const;
+// NOTE: this list is only a STARTING point — Google retires models over time
+// (e.g. "models/gemini-2.0-flash is no longer available, use
+// models/gemini-3.8-flash"), so the chain below is combined with (1) live
+// discovery via ListModels and (2) the "use models/X" model Google itself
+// recommends in refusal messages. Statics keep NEWEST first.
+const MODELS = [
+  "gemini-3.8-flash",
+  "gemini-flash-latest",
+  "gemini-2.5-flash",
+  "gemini-2.0-flash",
+] as const;
 const OUTPUT_CAPS: Record<string, number> = {
+  "gemini-3.8-flash": 65_536,
   "gemini-2.5-flash": 65_536,
   "gemini-2.0-flash": 8_192,
 };
+function capFor(model: string): number {
+  if (OUTPUT_CAPS[model]) return OUTPUT_CAPS[model];
+  // Unknown NEW-generation models behave like 3.x (large outputs, Bangla-safe)
+  return /gemini-[3-9]/.test(model) ? 65_536 : 8_192;
+}
 // Default ceiling for JSON answers — generous headroom, still fast enough to
 // finish inside the route's maxDuration (60s) even with one retry.
 const JSON_TOKEN_BUDGET = 32_768;
@@ -154,7 +170,7 @@ export async function getUserName(deviceId: string): Promise<string> {
  * before the 2.0-flash fallback ever ran. */
 
 const MODEL_INELIGIBLE_RE =
-  /(not\s+eligible|\bmodel\b[^\n]{0,80}?(not\s+supported|not\s+available|does\s+not\s+exist|not\s+found|is\s+unavailable)|models?\s+not\s+found|not\s+found\s+for\s+api\s+version|requires?\s+billing|billing\s+is\s+not\s+enabled|free\s+tier)/i;
+  /(not\s+eligible|\bmodel\b[^\n]{0,80}?(not\s+supported|not\s+available|no\s+longer\s+available|deprecat|does\s+not\s+exist|not\s+found|is\s+unavailable)|models?\s+not\s+found|not\s+found\s+for\s+api\s+version|update\s+your\s+code\s+to\s+use|requires?\s+billing|billing\s+is\s+not\s+enabled|free\s+tier)/i;
 
 /** True when Google's message says THIS MODEL isn't available to this key. */
 export function isModelIneligibleMsg(msg: string): boolean {
@@ -165,9 +181,22 @@ export function isModelIneligibleMsg(msg: string): boolean {
   return MODEL_INELIGIBLE_RE.test(msg);
 }
 
+/* Google often tells us exactly WHICH model to use instead:
+ * "…is no longer available. Please update your code to use
+ *  models/gemini-3.8-flash …" → we adopt that model immediately. */
+export function recommendedFromMsg(msg: string): string | null {
+  const m = msg.match(/(?:use|switch\s+to|try)\s+models?\/([a-z0-9][a-z0-9._-]*)/i);
+  const name = m?.[1]?.toLowerCase();
+  // Guard against garbage captures (embedding/tts models would never answer)
+  if (!name || /embed|aqa|tts|image|veo|imagen/.test(name)) return null;
+  return name;
+}
+
 // Warm-instance memory: sha256(key)[0..16] → models proven ineligible for it.
 // After the first detection, later calls skip straight to a working model.
 const ineligibleModels = new Map<string, Set<string>>();
+// …and models Google itself recommended for this key (tried FIRST next time).
+const preferredModels = new Map<string, string[]>();
 
 function keyHash(apiKey: string): string {
   return createHash("sha256").update(apiKey).digest("hex").slice(0, 16);
@@ -181,9 +210,95 @@ function markIneligible(apiKey: string, model: string): void {
   console.log(`[ai] model ${model} not eligible for key ${h} → skipping`);
 }
 
-function eligibleModels(apiKey: string): string[] {
-  const skip = ineligibleModels.get(keyHash(apiKey));
-  return skip ? MODELS.filter((m) => !skip.has(m)) : [...MODELS];
+function markRecommended(apiKey: string, model: string): void {
+  const h = keyHash(apiKey);
+  const list = preferredModels.get(h) ?? [];
+  if (!list.includes(model)) {
+    list.unshift(model);
+    preferredModels.set(h, list.slice(0, 3));
+    console.log(`[ai] Google recommends ${model} for key ${h} → trying it next`);
+  }
+}
+
+/* ── Live model discovery (ListModels) ─────────────────────────────────────
+ * Google retires models regularly; a hardcoded chain eventually rots. Once
+ * per key per 10 min we ask Google which models THIS key can actually use
+ * and rank them (newest first, flash-family preferred for speed, lite
+ * demoted). Failure is always non-fatal — we fall back to the static chain. */
+interface ModelEntry {
+  name: string;
+  supportedGenerationMethods?: string[];
+}
+const discoveredCache = new Map<string, { models: string[]; at: number }>();
+const DISCOVERY_TTL_MS = 10 * 60 * 1000;
+
+export function rankDiscoveredModels(entries: ModelEntry[]): string[] {
+  const usable = entries
+    .map((e) => ({
+      name: (e.name ?? "").replace(/^models\//, ""),
+      methods: e.supportedGenerationMethods ?? ["generateContent"],
+    }))
+    .filter(
+      ({ name, methods }) =>
+        /^gemini-[0-9]/.test(name) &&
+        !/embed|aqa|tts|image|imagen|veo|native-audio|live|^-/.test(name) &&
+        methods.includes("generateContent")
+    )
+    .map((x) => x.name);
+  const versionOf = (n: string): number => {
+    const m = n.match(/gemini-(\d+)(?:\.(\d+))?/);
+    return m ? Number(m[1]) + Number(m[2] ?? 0) / 10 : 0;
+  };
+  const score = (n: string): number => {
+    const v = versionOf(n);
+    let s = v * 100;
+    if (/flash/.test(n)) s += 20; // fast tier fits interactive learning
+    if (/pro/.test(n)) s += 10; // capable but slower — still valid fallback
+    if (/lite/.test(n)) s -= 5; // weakest output quality — last resort
+    if (/exp|preview/.test(n)) s -= 8; // unstable
+    return s;
+  };
+  return usable.sort((a, b) => score(b) - score(a)).slice(0, 5);
+}
+
+async function discoverModels(apiKey: string): Promise<string[]> {
+  const h = keyHash(apiKey);
+  const hit = discoveredCache.get(h);
+  if (hit && Date.now() - hit.at < DISCOVERY_TTL_MS) return hit.models;
+  try {
+    const res = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models?pageSize=200",
+      {
+        headers: { "x-goog-api-key": apiKey },
+        signal: AbortSignal.timeout(6_000),
+      }
+    );
+    if (!res.ok) throw new Error(`ListModels HTTP ${res.status}`);
+    const json = (await res.json()) as { models?: ModelEntry[] };
+    const models = rankDiscoveredModels(json.models ?? []);
+    if (models.length === 0) throw new Error("no usable gemini models listed");
+    discoveredCache.set(h, { models, at: Date.now() });
+    console.log(`[ai] discovered ${models.length} models for key ${h}: ${models.join(", ")}`);
+    return models;
+  } catch (e) {
+    // Non-fatal: static chain + refusal-driven adoption still cover us
+    console.log(`[ai] model discovery unavailable (${(e as Error).message}) → static chain`);
+    return [];
+  }
+}
+
+async function buildModelChain(apiKey: string): Promise<string[]> {
+  const h = keyHash(apiKey);
+  const skip = ineligibleModels.get(h);
+  const preferred = preferredModels.get(h) ?? [];
+  const discovered = await discoverModels(apiKey);
+  const chain = discovered.length > 0 ? [...preferred, ...discovered] : [...preferred, ...MODELS];
+  const seen = new Set<string>();
+  return chain.filter((m) => {
+    if (seen.has(m) || skip?.has(m)) return false;
+    seen.add(m);
+    return true;
+  });
 }
 
 export class NoEligibleModelError extends GeminiError {
@@ -315,9 +430,13 @@ export async function geminiJson<T>(
   opts: GeminiOptions = {}
 ): Promise<T> {
   let lastErr: GeminiError | null = null;
-  const models = eligibleModels(apiKey);
-  if (models.length === 0) throw new NoEligibleModelError();
-  for (const model of models) {
+  const queue = await buildModelChain(apiKey);
+  const tried = new Set<string>();
+  if (queue.length === 0) throw new NoEligibleModelError();
+  while (queue.length > 0) {
+    const model = queue.shift() as string;
+    if (tried.has(model)) continue;
+    tried.add(model);
     // 2 attempts per model: attempt 2 appends a strict JSON-only nudge
     // (fixes prose-wrapped answers); a transient/truncated reply is usually
     // fine on the next try. Model-ineligible/quota errors skip the nudge
@@ -343,6 +462,11 @@ export async function geminiJson<T>(
             : new GeminiError("AI কল ব্যর্থ হয়েছে — ইন্টারনেট সংযোগ চেক করুন।", 502, "aiNetwork");
         if (lastErr.code === "modelIneligible") {
           markIneligible(apiKey, model);
+          const rec = recommendedFromMsg(lastErr.raw ?? lastErr.message);
+          if (rec && !tried.has(rec)) {
+            markRecommended(apiKey, rec);
+            queue.unshift(rec);
+          }
           break; // → next model immediately
         }
         // Only KEY-level failures abort the whole chain: an invalid key
@@ -376,9 +500,13 @@ export async function geminiText(
   opts: GeminiOptions = {}
 ): Promise<string> {
   let lastErr: GeminiError | null = null;
-  const models = eligibleModels(apiKey);
-  if (models.length === 0) throw new NoEligibleModelError();
-  for (const model of models) {
+  const queue = await buildModelChain(apiKey);
+  const tried = new Set<string>();
+  if (queue.length === 0) throw new NoEligibleModelError();
+  while (queue.length > 0) {
+    const model = queue.shift() as string;
+    if (tried.has(model)) continue;
+    tried.add(model);
     try {
       return await callModel(apiKey, model, prompt, opts);
     } catch (e) {
@@ -388,6 +516,11 @@ export async function geminiText(
           : new GeminiError("AI কল ব্যর্থ হয়েছে — ইন্টারনেট সংযোগ চেক করুন।", 502, "aiNetwork");
       if (lastErr.code === "modelIneligible") {
         markIneligible(apiKey, model);
+        const rec = recommendedFromMsg(lastErr.raw ?? lastErr.message);
+        if (rec && !tried.has(rec)) {
+          markRecommended(apiKey, rec);
+          queue.unshift(rec);
+        }
         continue; // → next model
       }
       // Key-level failures abort; model-level quota gets the next model.
@@ -407,7 +540,7 @@ async function callModel(
 ): Promise<string> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
-  const cap = OUTPUT_CAPS[model] ?? 8192;
+  const cap = capFor(model);
   const generationConfig: Record<string, unknown> = {
     temperature: opts.temperature ?? 0.7,
     maxOutputTokens: Math.min(opts.maxOutputTokens ?? cap, cap),
