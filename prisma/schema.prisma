@@ -13,8 +13,34 @@ model User {
   email        String   @unique
   passwordHash String
   name         String
+  // UI language chosen at signup — bn | en | hi. The account's language is
+  // LOCKED (owner decision): the locale switcher is gone, so this column is
+  // the single source of truth for the session locale on every device.
+  nativeLang   String?
+  // null = student. "admin" = site operator (ADMIN_EMAILS env match on
+  // login promotes). Admin-only Settings cards + APIs check this.
+  role         String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+// Key POOL (owner request: several Gemini keys per account; when one hits its
+// quota the AI layer automatically moves to the next healthy key).
+// Encrypted at rest (AES-256-GCM, same scheme as UserConfig.apiKeyEnc).
+model UserApiKey {
+  id            String    @id @default(cuid())
+  userId        String
+  apiKeyEnc     String // AES-256-GCM encrypted Gemini key
+  keyPreview    String // masked preview e.g. "AIza...9f2"
+  sortOrder     Int       @default(0) // lower = tried first
+  // Cooldown after a quota/rate-limit failure — the rotation skips keys in
+  // cooldown (hourly 429s) and returns them to the pool when it expires.
+  cooldownUntil DateTime?
+  failures      Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId])
 }
 
 // User's own Gemini API key (encrypted at rest) + profile.
