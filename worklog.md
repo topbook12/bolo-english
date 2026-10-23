@@ -3198,3 +3198,18 @@ Work Log:
 Stage Summary:
 - New GitHub token fully operational (fetch+push); repo local==remote==6a6a27c; latest fix live on Vercel.
 - Owner decisions still pending: ADMIN_EMAILS on Vercel (admin unlock); optional defaultLocale bn-first; optional deletion of legacy probe1791904272@test.local.
+---
+Task ID: 30
+Agent: main (Z.ai Code)
+Task: Owner wants the platform evolved into a full business platform over the next 60 days — one effective development per day, no gaps, deep-analysis + user-problem driven. Build the complete 60-day structure/plan (mental preparation) and set up the working system.
+
+Work Log:
+- Scanned the full codebase (all sections/components/API routes) to ground the plan in what actually exists (baseline: auth, speaking/calls, grammar, reading, listening, vocab x4, CV studio, progress/path, admin pools, PWA, trilingual i18n).
+- Identified business-critical GAPS: analytics, feedback loop, placement test, streaks/notifications, SRS, community/social, monetization, certificates, SEO, legal, monitoring.
+- Wrote ROADMAP-60.md (repo root, Bengali): 9 phases / 60 days (D1–D60), each day with objective+tasks; daily working rhythm (review→analyze→build→verify→deploy→log); gap-prevention rules (catch-up rule, weekly review/fix days absorbing slippage, external-dependency fallback); success metrics table; owner-dependency list; subagent delegation map.
+- Phase plan: 1 business foundation (analytics+feedback+monitoring), 2 onboarding/activation (placement test, path, streaks, push), 3 speaking engine (pronunciation, scenarios, IELTS sim, shadowing, room discovery), 4 learning depth (SRS, adaptive grammar, dictation, graded reading), 5 community (XP, leaderboard, matching, challenges, moderation, profiles), 6 business infra (entitlements, pricing, payment, certificates, referral — with owner model-decision flag), 7 content+SEO, 8 trust/scale/performance (security, perf, legal, a11y, DB, playbook), 9 launch + 60-day review.
+- Today = planning day; Day 1 (event-tracking infra) ready to execute on owner's go.
+
+Stage Summary:
+- Permanent 60-day business roadmap committed at ROADMAP-60.md — every future daily session must read it, execute that day's item, tick the checkbox, and log as Task ID: D01…D60.
+- Owner dependencies flagged early: ADMIN_EMAILS (urgent), payment-gateway account + monetization-model decision (needed by D35–D38).
