@@ -8,6 +8,10 @@
 //   * UserApiKey table + index     (Task 27-d key pool)
 //   * CvDocument table + index     (CV Studio — found missing on production
 //                                   during the 2026-10 drift audit)
+//   * AnalyticsEvent table + idx   (D1 product analytics — 60-day roadmap;
+//                                   /api/track degrades to console errors
+//                                   without it, so apply before the deploy
+//                                   that ships D1 reaches production)
 //
 // WHY THIS EXISTS: the new login code (already deployed to Vercel) selects
 // User.role / User.nativeLang — until the columns exist in the production
@@ -190,6 +194,52 @@ async function main() {
     log(YELLOW, "Skip     CvDocument_deviceId_idx  (already exists)");
   }
 
+  // ── 5) AnalyticsEvent table + indexes (D1 product analytics) ─────────────
+  // Privacy-first event log (see prisma/schema.prisma comment). All inserts
+  // are best-effort on the server, but applying the table keeps the data
+  // flowing from day one of the 60-day plan.
+  if (!tables.has("AnalyticsEvent")) {
+    await db.execute(/* sql */ `
+      CREATE TABLE "AnalyticsEvent" (
+          "id" TEXT NOT NULL PRIMARY KEY,
+          "name" TEXT NOT NULL,
+          "deviceId" TEXT NOT NULL,
+          "userId" TEXT,
+          "props" TEXT NOT NULL DEFAULT '{}',
+          "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    log(GREEN, "Created  AnalyticsEvent table  (product analytics)");
+    changed++;
+  } else {
+    log(YELLOW, "Skip     AnalyticsEvent table  (already exists)");
+  }
+
+  for (const idx of [
+    "AnalyticsEvent_name_createdAt_idx",
+    "AnalyticsEvent_deviceId_createdAt_idx",
+    "AnalyticsEvent_userId_createdAt_idx",
+  ] as const) {
+    const have = await db.execute(
+      `SELECT name FROM sqlite_master WHERE type='index' AND name='${idx}'`
+    );
+    if (have.rows.length === 0) {
+      const target =
+        idx === "AnalyticsEvent_name_createdAt_idx"
+          ? `("name","createdAt")`
+          : idx === "AnalyticsEvent_deviceId_createdAt_idx"
+            ? `("deviceId","createdAt")`
+            : `("userId","createdAt")`;
+      await db.execute(
+        `CREATE INDEX "${idx}" ON "AnalyticsEvent"${target}`
+      );
+      log(GREEN, `Created  ${idx}  (index)`);
+      changed++;
+    } else {
+      log(YELLOW, `Skip     ${idx}  (already exists)`);
+    }
+  }
+
   // ── Final verification (reads the REAL state, not our assumptions) ────────
   const finalTables = await tablesOf(db);
   const finalCols = await columnsOf(db, "User");
@@ -197,7 +247,8 @@ async function main() {
     finalCols.has("nativeLang") &&
     finalCols.has("role") &&
     finalTables.has("UserApiKey") &&
-    finalTables.has("CvDocument");
+    finalTables.has("CvDocument") &&
+    finalTables.has("AnalyticsEvent");
 
   console.log("");
   if (ok) {

@@ -22,7 +22,10 @@ interface DeviceStore extends UserConfig {
   refresh: () => Promise<void>;
 }
 
-function getDeviceId(): string {
+// Exported for the analytics client (src/lib/track.ts): tracking must use
+// the SAME device id as config — one synchronous generation, whoever calls
+// first writes localStorage, the other reads it. No cross-feature races.
+export function getDeviceId(): string {
   if (typeof window === "undefined") return "";
   let id = localStorage.getItem("bolo_device_id");
   if (!id) {

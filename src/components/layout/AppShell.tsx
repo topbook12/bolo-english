@@ -25,6 +25,7 @@ import InstallPrompt from "@/components/pwa/InstallPrompt";
 import AuthButton from "@/components/auth/AuthButton";
 import { useMounted } from "@/hooks/use-mounted";
 import { useDeviceInit, useDeviceValue } from "@/hooks/use-device";
+import { useSectionTracking, useSessionTracking } from "@/hooks/use-track";
 import HomeSection from "@/components/sections/HomeSection";
 import PathSection from "@/components/path/PathSection";
 import SpeakingSection from "@/components/sections/SpeakingSection";
@@ -121,6 +122,10 @@ export default function AppShell() {
   const [tab, setTab] = useState<TabId>("home");
   const [moreOpen, setMoreOpen] = useState(false);
   useDeviceInit();
+  // Product analytics (D1): session lifecycle + per-section visits —
+  // privacy-first, whitelist-only, never blocks the UI.
+  useSessionTracking();
+  useSectionTracking(tab);
   // Hydration-safe reads: during hydration these return the same values the
   // server rendered (false), so the header structure can never diverge from
   // the SSR HTML — even if the store already holds live state at hydration

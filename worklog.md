@@ -3213,3 +3213,24 @@ Work Log:
 Stage Summary:
 - Permanent 60-day business roadmap committed at ROADMAP-60.md — every future daily session must read it, execute that day's item, tick the checkbox, and log as Task ID: D01…D60.
 - Owner dependencies flagged early: ADMIN_EMAILS (urgent), payment-gateway account + monetization-model decision (needed by D35–D38).
+---
+Task ID: D01
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 1 — event-tracking infrastructure (privacy-first product analytics)
+
+Work Log:
+- Prisma: added AnalyticsEvent model (name/deviceId/userId/props JSON/createdAt + 3 composite indexes) → bun run db:push OK (Prisma Client v6.19.2 regenerated)
+- src/lib/analytics.ts (PURE, shared): TRACK_EVENTS closed whitelist (8 names), sanitizeProps (flat ≤6 keys, values ≤80 chars, drops anything containing "@"), parseTrackBatch (≤20/batch, bad entries silently dropped)
+- src/lib/analytics-server.ts: logAnalyticsEvent() fire-safe insert (never throws — analytics can't fail a user request)
+- POST /api/track: batch ingest, per-IP limiter 60/min, userId attached server-side from session cookie, no IP/UA stored, DB errors always quiet JSON
+- Client: src/lib/track.ts (queue → flush at 8 events/5s, sendBeacon→keepalive fetch fallback, 30-min-gap session model: session_start on load/long-return, session_end on hide + localStorage last-end, pagehide flush); exported getDeviceId from use-device.ts (same id as config — no races)
+- src/hooks/use-track.ts: useTrack()/useSessionTracking()/useSectionTracking() → wired in AppShell (initial tab skipped to avoid double-count)
+- Server-derived events (zero client invasion): /api/practice→quiz_complete, /api/sessions POST→speaking_session, /api/ai→ai_call (logged even for no-key attempts — demand signal)
+- scripts/prod-migrate.ts: section 5 = AnalyticsEvent table + 3 indexes, added to final verification (idempotent)
+- BUG CAUGHT during E2E: dev server had pre-regeneration Prisma client in memory → db.analyticsEvent undefined → all inserts failed (logAnalyticsEvent correctly contained it, practice/sessions still 200). Fixed by restarting dev server. Verified after: all 4 event kinds in DB with correct props; evil_event name + email prop rejected; QA rows cleaned.
+- Verification: tsc 0 / lint 0 / i18n ALL-PARITY-OK; ROADMAP-60.md D1 checkbox ticked.
+
+Stage Summary:
+- Analytics pipeline live end-to-end: client auto-tracks section_view + session lifecycle; server derives quiz_complete/speaking_session/ai_call; privacy guarantees enforced in code (closed whitelist, PII stripping, no IP/UA).
+- OWNER ACTION: run `bun scripts/prod-migrate.ts` with the Turso env vars (same as Task 28) so /api/track works on production; Vercel will pick up the rest automatically on push.
+- Next: D2 admin analytics dashboard (DAU/WAU, top features, retention panel) — the data from D1 feeds it directly.

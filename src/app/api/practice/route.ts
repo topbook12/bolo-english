@@ -4,6 +4,7 @@ import { getSessionUserId } from "@/lib/auth";
 import { reqLocale, apiMsg } from "@/lib/api-i18n";
 import { checkIpLimit } from "@/lib/rate-limit";
 import { cleanDeviceId, cleanStr } from "@/lib/validate";
+import { logAnalyticsEvent } from "@/lib/analytics-server";
 
 // POST /api/practice  { deviceId, kind, refId, score, total }
 // Hardened (audit P0-3): bounded fields + per-IP limiter.
@@ -28,6 +29,12 @@ export async function POST(req: NextRequest) {
       score: Math.min(Math.max(Number(body.score) || 0, 0), 1000),
       total: Math.min(Math.max(Number(body.total) || 0, 0), 1000),
     },
+  });
+  // Server-derived analytics (D1): every graded practice is a business signal.
+  await logAnalyticsEvent("quiz_complete", deviceId, userId, {
+    kind,
+    score: log.score,
+    total: log.total,
   });
   return NextResponse.json({ ok: true, data: { id: log.id } });
 }

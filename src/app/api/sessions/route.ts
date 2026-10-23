@@ -4,6 +4,7 @@ import { getSessionUserId } from "@/lib/auth";
 import { reqLocale, apiMsg } from "@/lib/api-i18n";
 import { checkIpLimit } from "@/lib/rate-limit";
 import { cleanDeviceId, cleanLine } from "@/lib/validate";
+import { logAnalyticsEvent } from "@/lib/analytics-server";
 
 // GET /api/sessions?deviceId=...&limit=30 → speaking sessions
 export async function GET(req: NextRequest) {
@@ -71,6 +72,12 @@ export async function POST(req: NextRequest) {
       analysis: analysisStr,
       score: Math.min(Math.max(Number(body.analysis?.overallScore ?? 0) || 0, 0), 100),
     },
+  });
+  // Server-derived analytics (D1): speaking is the core product — measure it.
+  await logAnalyticsEvent("speaking_session", deviceId, userId, {
+    type: s.type,
+    durationSec: s.durationSec,
+    partnerCount: s.partnerCount,
   });
   return NextResponse.json({ ok: true, data: { id: s.id } });
 }

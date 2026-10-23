@@ -266,6 +266,28 @@ model LibraryReading {
   @@index([level])
 }
 
+// ─── Product analytics (privacy-first, PII-free) ───
+// One row = one user action (section visit, quiz complete, session start…).
+// Day 1 of the 60-day business roadmap (ROADMAP-60.md). Privacy guarantees:
+//   • NO IP, NO user-agent, NO email, NO free-text — the event name must be
+//     in the server whitelist (src/lib/analytics.ts TRACK_EVENTS) and props
+//     are flat, bounded, enum-ish values only.
+//   • userId is attached server-side from the session cookie (never sent by
+//     the client), so logged-in funnels work without storing identifiers
+//     beyond the internal cuid.
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  name      String // whitelist: section_view | session_start | session_end | quiz_complete | speaking_session | ai_call | cv_export | app_install
+  deviceId  String // localStorage bolo_device_id (random UUID, not a person)
+  userId    String? // attached server-side from the session cookie
+  props     String   @default("{}") // JSON, sanitized flat object (≤6 keys, values ≤80 chars)
+  createdAt DateTime @default(now())
+
+  @@index([name, createdAt])
+  @@index([deviceId, createdAt])
+  @@index([userId, createdAt])
+}
+
 // ─── CV Studio ───
 // Auto-generated, fully customizable CVs. One row = one CV; the entire
 // content + design (template, accent, section order) lives in `data` as JSON

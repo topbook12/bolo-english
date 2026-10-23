@@ -1,8 +1,10 @@
 import { createHash } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getSessionUserId } from "@/lib/auth";
 import { checkRateLimit, checkIpLimit } from "@/lib/rate-limit";
 import { cleanStr } from "@/lib/validate";
+import { logAnalyticsEvent } from "@/lib/analytics-server";
 import { reqLocale, apiMsg, type ApiLocale } from "@/lib/api-i18n";
 import { GeminiError, geminiJson, getAiLevel, getUserName, getUserApiKeyWithMeta } from "@/lib/gemini";
 import { pruneAiCache } from "@/lib/ai-cache-prune";
@@ -402,6 +404,13 @@ export async function POST(req: NextRequest) {
   if (!checkIpLimit(req, "ai", 60)) {
     return jsonErr(apiMsg(locale, "rateLimited"), 429);
   }
+
+  // Server-derived analytics (D1): which AI features learners actually use.
+  // Logged for every ACCEPTED attempt — even no-key failures are a valuable
+  // signal (demand the UX isn't converting yet). Fire-safe: never throws.
+  await logAnalyticsEvent("ai_call", deviceId, await getSessionUserId(), {
+    feature: String(feature).slice(0, 40),
+  });
 
   // Explanation language follows the UI locale (en default, bn/hi optional)
   const lang = LANG_POLICY[locale] ?? DEFAULT_POLICY;
