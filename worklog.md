@@ -3183,3 +3183,18 @@ Stage Summary:
 - Platform-wide audit: EVERYTHING works per plan — auth/language-lock, all 10+ sections, library, CV, signaling, AI error paths, key pool, admin guards, mobile UX.
 - One real production bug found and fixed: mobile push-to-talk transcription (now BYOK Gemini, works wherever the other AI features work — zero platform credentials).
 - e1dee0c pushed to main → auto-deploy; owner still needs ADMIN_EMAILS on Vercel for the admin panel (positive path verified locally).
+---
+Task ID: 29-token
+Agent: main (Z.ai Code)
+Task: Owner provided a NEW GitHub token (old one presumably expired/revoked) — update remote credentials and confirm nothing is stranded
+
+Work Log:
+- git remote set-url origin with the new token (topbook12/bolo-english)
+- Verified read access: git ls-remote origin main → 6a6a27c (identical to local HEAD → ALL commits already pushed, nothing stranded)
+- Verified write access: git push --dry-run origin main → "Everything up-to-date" (push auth OK)
+- Live-deploy check on bolo-english-mu.vercel.app: GET / → 200; POST /api/stt {} → 400 "Missing required parameters" (proves e1dee0c STT-BYOK rebuild IS live — the old broken build 502'd); /api/library?kind=vocab → 200
+- Working tree clean; no code changes needed.
+
+Stage Summary:
+- New GitHub token fully operational (fetch+push); repo local==remote==6a6a27c; latest fix live on Vercel.
+- Owner decisions still pending: ADMIN_EMAILS on Vercel (admin unlock); optional defaultLocale bn-first; optional deletion of legacy probe1791904272@test.local.
