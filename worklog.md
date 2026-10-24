@@ -3234,3 +3234,17 @@ Stage Summary:
 - Analytics pipeline live end-to-end: client auto-tracks section_view + session lifecycle; server derives quiz_complete/speaking_session/ai_call; privacy guarantees enforced in code (closed whitelist, PII stripping, no IP/UA).
 - OWNER ACTION: run `bun scripts/prod-migrate.ts` with the Turso env vars (same as Task 28) so /api/track works on production; Vercel will pick up the rest automatically on push.
 - Next: D2 admin analytics dashboard (DAU/WAU, top features, retention panel) — the data from D1 feeds it directly.
+---
+Task ID: D01-prod
+Agent: main (Z.ai Code)
+Task: Owner provided fresh Turso credentials — run the production migration to create the AnalyticsEvent table (same idempotent runner as Task 28)
+
+Work Log:
+- Ran scripts/prod-migrate.ts against production english-topubiswas (aws-ap-south-1): 4 changes applied (AnalyticsEvent table + name/deviceId/userId composite indexes); everything else correctly skipped (idempotency proven again)
+- Live E2E: POST /api/track on bolo-english-mu.vercel.app → valid batch stored:2, whitelist-foreign name stored:0 — proves the D1 deploy is live AND the endpoint works end-to-end
+- Verified rows landed in production Turso (section_view + session_start with correct props), then deleted the QA device rows; production analytics now at 0 rows (clean slate for real data)
+- Prod user count is now 9 (was 7) — two more organic signups since the last sweep
+
+Stage Summary:
+- Production analytics pipeline FULLY LIVE: table + indexes + endpoint + deploy all verified; D2 dashboard can query real production data.
+- Reminder still open for owner: ADMIN_EMAILS on Vercel (needed to SEE the D2 dashboard when it ships).
