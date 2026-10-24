@@ -3248,3 +3248,21 @@ Work Log:
 Stage Summary:
 - Production analytics pipeline FULLY LIVE: table + indexes + endpoint + deploy all verified; D2 dashboard can query real production data.
 - Reminder still open for owner: ADMIN_EMAILS on Vercel (needed to SEE the D2 dashboard when it ships).
+---
+Task ID: D02
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 2 — admin analytics dashboard v1 + rate-limit hardening
+
+Work Log:
+- GET /api/analytics (admin-only, fail-closed 403): fully pre-aggregated feed — users(total/new7/new30), DAU/WAU/MAU (distinct devices), 14-day gap-filled trend, sessions today + avg duration 7d, top sections (7d), top AI features (7d), quiz breakdown with avg score %, speaking count+minutes (7d), device split (30d). Zero raw rows leave the server — privacy holds even inside the admin UI.
+- KEY BUG FOUND+FIXED: Prisma's libsql adapter stores DateTime as epoch-ms INTEGER, not text — the first draft's substr(createdAt,1,10) silently matched nothing (all counts 0). Fixed with substr(datetime(createdAt/1000,'unixepoch'),1,10) (10 call sites). Verified: seeded events then every aggregate returned exactly the seeded values.
+- AnalyticsCard (Settings, admin-only like pool cards): 6 StatCards, CSS-only 14-day trend chart (hover tooltips), 4 breakdown panels (scrollable max-h-56), refresh + updated-at; namespace analytics.{bn,en,hi}.json — ALL-PARITY-OK.
+- LAYOUT BUG FOUND+FIXED via browser DOM measurement: BarRow's flex row (label w-28 + number w-14 shrink-0) collapsed the track to 0px in narrow masonry columns (row 156px < children 188px) — bars invisible. Refactored to stacked label+value / bar-below layout that cannot collapse at any width; re-verified visually.
+- Device split data source: session_start now carries plat:"m"|"d" (pointer:coarse enum — no UA string), both session_start sites.
+- Hardening: login → checkIpLimitStrict 20/min/IP (brute-force axis; the per-email device bucket is client-rotatable), register → 10/min/IP. track/AI already had limits (D1/prior).
+- E2E (local, ADMIN_EMAILS env on dev server): API 403 without session; admin register → role:admin promoted; dashboard renders in Bengali with correct numbers (screenshot-verified: stats, trend, sections grammar2/speaking1/settings1, quiz 70%/90%, devices m2/d1); non-admin student → card hidden (dashboardVisible:false) consistent with other admin cards; console/page errors: none.
+- Fixtures kept intentionally (LOCAL dev DB only): admin account topubiswas.math@gmail.com (password admin123, ADMIN_EMAILS match) for daily admin-path testing; seed events (seed-d2-a/b) so the dashboard has demo data. QA student deleted after test.
+
+Stage Summary:
+- Owner can now SEE the platform: growth numbers, engagement trend, top features — the data D1 collects is finally visible. Production needs ADMIN_EMAILS on Vercel to unlock (the only owner action left).
+- Next: D3 in-app feedback widget + admin feedback queue.

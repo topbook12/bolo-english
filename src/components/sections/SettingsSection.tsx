@@ -39,6 +39,7 @@ import KeyPoolCard from "@/components/settings/KeyPoolCard";
 import StoragePoolCard from "@/components/settings/StoragePoolCard";
 import TurnPoolCard from "@/components/settings/TurnPoolCard";
 import LibraryStudioCard from "@/components/settings/LibraryStudioCard";
+import AnalyticsCard from "@/components/settings/AnalyticsCard";
 import type { UserConfig as ApiUserConfig } from "@/hooks/use-device";
 
 // Labels render via tCommon("level.*") — always in the user's UI language.
@@ -438,6 +439,10 @@ export default function SettingsSection() {
         {/* ── Storage & Quota + TURN relay pool — ADMIN-ONLY (User.role):
             normal users never see these cards at all ── */}
         {isAdmin && <StoragePoolCard />}
+
+        {/* ── Analytics dashboard (D2): platform growth & usage for the owner
+            — ADMIN-ONLY like the pool cards; the API is fail-closed 403 ── */}
+        {isAdmin && <AnalyticsCard />}
 
         {/* ── Content Studio (owner-authored library: vocab/grammar/listening)
             — ADMIN-ONLY like the pool cards: the API rejects non-admin tokens

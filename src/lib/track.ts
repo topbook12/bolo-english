@@ -81,6 +81,16 @@ function lastSessionEnd(): number {
   return Number.isFinite(raw) ? raw : 0;
 }
 
+function deviceClass(): string {
+  // Coarse pointer = touch-first device (phone/tablet) → "m"; fine pointer
+  // (mouse/trackpad) → "d". Enum-only, no UA string ever leaves the client.
+  try {
+    return window.matchMedia("(pointer: coarse)").matches ? "m" : "d";
+  } catch {
+    return "d";
+  }
+}
+
 function onVisibility(): void {
   if (document.visibilityState === "hidden") {
     lastHiddenAt = Date.now();
@@ -98,7 +108,7 @@ function onVisibility(): void {
   } else if (lastHiddenAt && Date.now() - lastHiddenAt > SESSION_GAP_MS) {
     // Returned after a long absence → this is a NEW session.
     sessionStartedAt = Date.now();
-    track("session_start", { locale: document.documentElement.lang || "" });
+    track("session_start", { locale: document.documentElement.lang || "", plat: deviceClass() });
   }
 }
 
@@ -117,7 +127,7 @@ export function initSessionTracking(): void {
   const end = lastSessionEnd();
   if (!end || Date.now() - end > SESSION_GAP_MS) {
     sessionStartedAt = Date.now();
-    track("session_start", { locale: document.documentElement.lang || "" });
+    track("session_start", { locale: document.documentElement.lang || "", plat: deviceClass() });
   } else {
     sessionStartedAt = Date.now(); // resumed within the same session window
   }

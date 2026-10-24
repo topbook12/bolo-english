@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit, checkIpLimitStrict } from "@/lib/rate-limit";
 import { reqLocale, apiMsg } from "@/lib/api-i18n";
 import { LOCALE_COOKIE } from "@/i18n/config";
 import {
@@ -15,6 +15,13 @@ import {
 // POST /api/auth/login  { deviceId, email, password }
 export async function POST(req: NextRequest) {
   const locale = reqLocale(req);
+  // Strong per-IP axis (D2 hardening): the per-email device bucket below is
+  // client-supplied and trivially rotated — 20/min/IP stops brute-force
+  // loops while a classroom behind one NAT (30 logins spread over minutes)
+  // still passes comfortably.
+  if (!checkIpLimitStrict(req, "auth-login", 20)) {
+    return NextResponse.json({ ok: false, error: apiMsg(locale, "rateLimited") }, { status: 429 });
+  }
   const body = await req.json().catch(() => null);
   const deviceId = typeof body?.deviceId === "string" ? body.deviceId.slice(0, 80) : "";
   if (!deviceId) {

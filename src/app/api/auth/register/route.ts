@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit, checkIpLimitStrict } from "@/lib/rate-limit";
 import { reqLocale, apiMsg } from "@/lib/api-i18n";
 import { LOCALE_COOKIE } from "@/i18n/config";
 import {
@@ -20,6 +20,11 @@ import {
 // language is LOCKED from the very first render (no switcher in the app).
 export async function POST(req: NextRequest) {
   const locale = reqLocale(req);
+  // Strong per-IP axis (D2 hardening): 10 signups/min/IP — an org onboarding
+  // a classroom passes, a scripted bulk-registration loop does not.
+  if (!checkIpLimitStrict(req, "auth-register", 10)) {
+    return NextResponse.json({ ok: false, error: apiMsg(locale, "rateLimited") }, { status: 429 });
+  }
   const body = await req.json().catch(() => null);
   const deviceId = typeof body?.deviceId === "string" ? body.deviceId.slice(0, 80) : "";
   if (!deviceId) {
