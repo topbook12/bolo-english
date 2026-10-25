@@ -12,6 +12,9 @@
 //                                   /api/track degrades to console errors
 //                                   without it, so apply before the deploy
 //                                   that ships D1 reaches production)
+//   * Feedback table + idx         (D3 in-app feedback widget — without it
+//                                   POST /api/feedback returns 500 on the
+//                                   live site, so apply before that deploy)
 //
 // WHY THIS EXISTS: the new login code (already deployed to Vercel) selects
 // User.role / User.nativeLang — until the columns exist in the production
@@ -240,6 +243,52 @@ async function main() {
     }
   }
 
+  // ── 6) Feedback table + indexes (D3 in-app feedback) ──────────────────────
+  // One row = one submission from the floating feedback widget. The admin
+  // queue (Settings → Feedback card) reads/writes these. Without the table
+  // the submit endpoint 500s on production.
+  if (!tables.has("Feedback")) {
+    await db.execute(/* sql */ `
+      CREATE TABLE "Feedback" (
+          "id" TEXT NOT NULL PRIMARY KEY,
+          "category" TEXT NOT NULL,
+          "message" TEXT NOT NULL,
+          "status" TEXT NOT NULL DEFAULT 'new',
+          "page" TEXT NOT NULL DEFAULT '',
+          "deviceId" TEXT NOT NULL,
+          "userId" TEXT,
+          "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          "updatedAt" DATETIME NOT NULL
+      )
+    `);
+    log(GREEN, "Created  Feedback table  (in-app feedback widget)");
+    changed++;
+  } else {
+    log(YELLOW, "Skip     Feedback table  (already exists)");
+  }
+
+  for (const idx of [
+    "Feedback_status_createdAt_idx",
+    "Feedback_deviceId_idx",
+  ] as const) {
+    const have = await db.execute(
+      `SELECT name FROM sqlite_master WHERE type='index' AND name='${idx}'`
+    );
+    if (have.rows.length === 0) {
+      const target =
+        idx === "Feedback_status_createdAt_idx"
+          ? `("status","createdAt")`
+          : `("deviceId")`;
+      await db.execute(
+        `CREATE INDEX "${idx}" ON "Feedback"${target}`
+      );
+      log(GREEN, `Created  ${idx}  (index)`);
+      changed++;
+    } else {
+      log(YELLOW, `Skip     ${idx}  (already exists)`);
+    }
+  }
+
   // ── Final verification (reads the REAL state, not our assumptions) ────────
   const finalTables = await tablesOf(db);
   const finalCols = await columnsOf(db, "User");
@@ -248,7 +297,8 @@ async function main() {
     finalCols.has("role") &&
     finalTables.has("UserApiKey") &&
     finalTables.has("CvDocument") &&
-    finalTables.has("AnalyticsEvent");
+    finalTables.has("AnalyticsEvent") &&
+    finalTables.has("Feedback");
 
   console.log("");
   if (ok) {

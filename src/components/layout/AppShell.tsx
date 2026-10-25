@@ -22,6 +22,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Badge } from "@/components/ui/badge";
 import PwaRegister from "@/components/pwa/PwaRegister";
 import InstallPrompt from "@/components/pwa/InstallPrompt";
+import FeedbackWidget from "@/components/feedback/FeedbackWidget";
 import AuthButton from "@/components/auth/AuthButton";
 import { useMounted } from "@/hooks/use-mounted";
 import { useDeviceInit, useDeviceValue } from "@/hooks/use-device";
@@ -222,6 +223,9 @@ export default function AppShell() {
     <div className="shell-bg flex min-h-screen flex-col">
       <PwaRegister />
       <InstallPrompt />
+      {/* Floating feedback widget (D3): present on every tab, works for
+          signed-out users too (deviceId-only, rate-limited server-side). */}
+      <FeedbackWidget />
 
       {/* Header */}
       <header

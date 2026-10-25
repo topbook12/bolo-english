@@ -3266,3 +3266,28 @@ Work Log:
 Stage Summary:
 - Owner can now SEE the platform: growth numbers, engagement trend, top features — the data D1 collects is finally visible. Production needs ADMIN_EMAILS on Vercel to unlock (the only owner action left).
 - Next: D3 in-app feedback widget + admin feedback queue.
+---
+Task ID: D03
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 3 — in-app feedback widget + admin feedback queue
+
+Work Log:
+- Prisma: Feedback model (category/message/status/page/deviceId/userId + status-createdAt & deviceId indexes) → db:push OK; dev server restarted (D1 lesson: stale client)
+- prod-migrate.ts section 6: Feedback table + 2 indexes, added to final verification (idempotent) — OWNER ACTION to run on Turso
+- src/lib/feedback.ts (PURE contract): FEEDBACK_CATEGORIES ["bug","idea","problem"], FEEDBACK_STATUSES ["new","seen","resolved"], cleanMessage (control-chars stripped, ≤1000), cleanPage (path-only: query+hash stripped, ≤120)
+- /api/feedback: POST (anyone, checkIpLimit 5/min IP+device, userId attached server-side, DB failure = honest 500 because the submission IS the request) / GET (admin-only, status filter + limit≤200, counts{new,seen,resolved,total}, rows shaped without raw userId → hasAccount boolean) / PATCH (admin triage status) / DELETE (admin, P2025→404)
+- Analytics: TRACK_EVENTS + "feedback_sent" {cat} — widget fires it on success (feeds D2 dashboard later)
+- FeedbackWidget (AppShell, all tabs): violet FAB bottom-right (mobile: bottom-24 clears nav+safe-area; h-12 w-12 touch target), controlled Dialog (plain button trigger → no Radix useId at closed state, hydration-safe), 3 category cards aria-pressed, textarea with live 1000-char counter, privacy note, rate-limit-aware error mapping
+- FeedbackAdminCard (Settings, admin-gated): filter pills doubling as live status counters, max-h-96 scrollable queue, per-item category+status badges, message (whitespace-pre-wrap), page + account/guest + timestamp, triage buttons (seen/resolve/back-to-new), two-step delete (মুছুন → নিশ্চিত? 3s timeout)
+- i18n: messages/sections/feedback.{bn,en,hi}.json — ALL-PARITY-OK
+- BUG CAUGHT via browser E2E: section JSON files must be WRAPPED in their namespace object ({"feedback":{...}}) — I initially wrote flat keys; deepMerge dumped them at root so t("feedback…") rendered raw keys (MISSING_MESSAGE console errors). Fixed by wrapping all 3 files; i18n-check passes either way (it only checks cross-locale parity), so browser render is the real gate for this class of bug.
+- E2E API (curl): valid POST stored; bad category 400; short message 400; unauth GET 403; 5/min then 429; page "/?foo=bar#top"→"/", "/vocab?x=1"→"/vocab" (sanitizer proven); PATCH new→seen→resolved; bad status 400; DELETE ok; logged-in POST → hasAccount:true (server-side userId attach proven)
+- E2E browser (agent-browser): register QA student (bn) → FAB "মতামত দিন" → dialog → বাগ + message → submit → toast "ধন্যবাদ!" → row in DB with userId attached; logout → login admin → Settings → queue card with live counts → mark seen (নতুন 4→3, দেখা 0→1) → seen-filter shows exactly 1 item → resolve → resolve-filter → two-step delete → counts সব 3/নতুন 3/সমাধান 0; mobile 390px: FAB clears bottom nav, no overlap; fresh-load console/page errors: ZERO
+- Cleanup: QA rows + QA student deleted; admin fixture (topubiswas.math@gmail.com/admin123) recreated in local DB (previous one was lost in a DB reset) for daily admin-path testing
+- Verification: tsc 0 / lint 0 / i18n ALL-PARITY-OK / dev.log clean; ROADMAP-60.md D3 ticked
+
+Stage Summary:
+- Feedback loop OPEN both directions: learners send bug/idea/problem from any tab (anonymous-safe: no email/IP auto-attached, page path-only), owner triages new→seen→resolved in Settings with live counters.
+- OWNER ACTION (blocks production submissions): run `bun scripts/prod-migrate.ts` with Turso env vars (creates Feedback table) — until then live submissions get a graceful error toast.
+- i18n lesson recorded: section files must be namespace-wrapped; parity check alone can't catch it.
+- Next: D4 session rating + NPS (1–5 + comment detached table, weekly NPS prompt).

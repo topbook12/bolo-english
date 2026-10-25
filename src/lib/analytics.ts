@@ -20,6 +20,7 @@ export const TRACK_EVENTS = [
   "ai_call", // {feature}  (server-derived from /api/ai)
   "cv_export", // {}
   "app_install", // {}
+  "feedback_sent", // {cat}  (client-fired by the D3 feedback widget on success)
 ] as const;
 
 export type TrackEventName = (typeof TRACK_EVENTS)[number];

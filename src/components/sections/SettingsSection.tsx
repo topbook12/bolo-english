@@ -40,6 +40,7 @@ import StoragePoolCard from "@/components/settings/StoragePoolCard";
 import TurnPoolCard from "@/components/settings/TurnPoolCard";
 import LibraryStudioCard from "@/components/settings/LibraryStudioCard";
 import AnalyticsCard from "@/components/settings/AnalyticsCard";
+import FeedbackAdminCard from "@/components/feedback/FeedbackAdminCard";
 import type { UserConfig as ApiUserConfig } from "@/hooks/use-device";
 
 // Labels render via tCommon("level.*") — always in the user's UI language.
@@ -443,6 +444,10 @@ export default function SettingsSection() {
         {/* ── Analytics dashboard (D2): platform growth & usage for the owner
             — ADMIN-ONLY like the pool cards; the API is fail-closed 403 ── */}
         {isAdmin && <AnalyticsCard />}
+
+        {/* ── Feedback queue (D3): triage the floating-widget submissions
+            (new → seen → resolved) — ADMIN-ONLY; the API is fail-closed 403 ── */}
+        {isAdmin && <FeedbackAdminCard />}
 
         {/* ── Content Studio (owner-authored library: vocab/grammar/listening)
             — ADMIN-ONLY like the pool cards: the API rejects non-admin tokens

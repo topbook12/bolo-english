@@ -288,6 +288,27 @@ model AnalyticsEvent {
   @@index([userId, createdAt])
 }
 
+// ─── In-app feedback (D3, ROADMAP-60) ───
+// One row = one submission from the floating feedback widget. Privacy:
+//   • the message is USER-TYPED free text (their own choice what to include);
+//     the server never auto-attaches email / IP / user-agent
+//   • userId is attached server-side from the session cookie (like analytics)
+//   • `page` is path-only (query string stripped → no tokens/PIE leak via URLs)
+model Feedback {
+  id        String   @id @default(cuid())
+  category  String // bug | idea | problem (server whitelist)
+  message   String // user-typed, ≤1000 chars
+  status    String   @default("new") // new | seen | resolved (admin queue)
+  page      String   @default("") // path-only, ≤120 chars, "" when unknown
+  deviceId  String // submitter device (localStorage bolo_device_id)
+  userId    String? // attached server-side from the session cookie
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@index([deviceId])
+}
+
 // ─── CV Studio ───
 // Auto-generated, fully customizable CVs. One row = one CV; the entire
 // content + design (template, accent, section order) lives in `data` as JSON
