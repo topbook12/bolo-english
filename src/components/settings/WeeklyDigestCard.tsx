@@ -20,6 +20,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 import type { WeekDigest } from "@/lib/digest";
 
 // Admin weekly digest card (D6, ROADMAP-60). Rendered ONLY for admins
@@ -43,9 +44,11 @@ function formatWhen(iso: string | null): string {
 
 export default function WeeklyDigestCard() {
   const t = useTranslations("digest");
+  const { toast } = useToast();
   const [resp, setResp] = useState<DigestResp | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -68,6 +71,26 @@ export default function WeeklyDigestCard() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // Manual snapshot — the same upsert the cron performs, triggered by the
+  // admin. Keeps the weekly report armed even before CRON_SECRET is set.
+  const saveSnapshot = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch("/api/digest", { method: "POST" });
+      const json = await res.json().catch(() => null);
+      if (res.ok && json?.ok) {
+        toast({ title: t("savedToast", { key: String(json.weekKey) }) });
+        await load();
+      } else {
+        toast({ title: t("saveFailed"), variant: "destructive" });
+      }
+    } catch {
+      toast({ title: t("saveFailed"), variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const d = resp?.digest;
   const stat = (
@@ -110,6 +133,22 @@ export default function WeeklyDigestCard() {
         <CardDescription>{t("desc")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        <div className="flex justify-end">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => void saveSnapshot()}
+            disabled={saving || loading || !!error}
+            className="min-h-9 gap-1.5 text-xs"
+          >
+            {saving ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+            ) : (
+              <CalendarCheck className="h-3.5 w-3.5" aria-hidden />
+            )}
+            {t("saveSnapshot")}
+          </Button>
+        </div>
         {loading && (
           <div className="flex min-h-24 items-center justify-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden />

@@ -1,5 +1,8 @@
 {
   "digest": {
+    "saveSnapshot": "Save snapshot",
+    "savedToast": "Snapshot {key} saved",
+    "saveFailed": "Couldn't save — please try again.",
     "title": "Weekly digest",
     "desc": "Last 7 days at a glance — the same snapshot the Monday cron freezes for the week report.",
     "loading": "Computing…",
