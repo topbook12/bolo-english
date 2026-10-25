@@ -3372,3 +3372,8 @@ Work Log:
 Stage Summary:
 - The owner's Monday ritual is now automated: cron freezes a week snapshot at 09:00 Dhaka, Settings shows live + saved numbers, and the DB has a proven-restore backup path. Owner actions: (1) set CRON_SECRET in Vercel to arm the weekly snapshot, (2) optionally add the GitHub Actions backup workflow from docs/BACKUP.md.
 - Next: D7 phase-review day (feedback triage, bug sweep, week-1 report).
+
+D06 addendum (deploy debugging):
+- FIRST D6 deploy returned 404 for /api/digest for ~10 min while D4/D5 routes kept serving → deployment was failing, not slow. Root cause: vercel.json crons with a WEEKLY expression ("0 3 * * 1") — Hobby plan requires daily-granularity schedules; the deployment was rejected. FIX: schedule "0 3 * * *" (daily 03:00 UTC = 09:00 Dhaka); upsert-by-weekKey means the end result is identical (one snapshot per week). Deploy then succeeded (403 fail-closed on GET, 401 on secretless POST — live-verified).
+- Hardenig added with it: WeeklyDigestCard "Save snapshot" button (admin POST /api/digest) so snapshots work even before the owner sets CRON_SECRET on Vercel; cron keeps 401-ing harmlessly (no secret → skipped) until then.
+- LESSON (recorded for future days): on this Hobby project, vercel.json cron schedules MUST be daily-granularity or the whole deployment fails with the new routes 404ing while old ones keep serving.
