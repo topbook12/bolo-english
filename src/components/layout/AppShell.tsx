@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import PwaRegister from "@/components/pwa/PwaRegister";
 import InstallPrompt from "@/components/pwa/InstallPrompt";
 import FeedbackWidget from "@/components/feedback/FeedbackWidget";
+import NpsPrompt from "@/components/rating/NpsPrompt";
 import AuthButton from "@/components/auth/AuthButton";
 import { useMounted } from "@/hooks/use-mounted";
 import { useDeviceInit, useDeviceValue } from "@/hooks/use-device";
@@ -226,6 +227,9 @@ export default function AppShell() {
       {/* Floating feedback widget (D3): present on every tab, works for
           signed-out users too (deviceId-only, rate-limited server-side). */}
       <FeedbackWidget />
+      {/* Weekly NPS pulse (D4): at most once per week, ≥7-day-old devices
+          only, dismissible forever (re-enableable in Settings). */}
+      <NpsPrompt />
 
       {/* Header */}
       <header

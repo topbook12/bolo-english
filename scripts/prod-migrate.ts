@@ -15,6 +15,9 @@
 //   * Feedback table + idx         (D3 in-app feedback widget — without it
 //                                   POST /api/feedback returns 500 on the
 //                                   live site, so apply before that deploy)
+//   * SessionRating table + idx    (D4 session ratings + NPS — without it
+//                                   POST /api/rating returns 500 on the
+//                                   live site, so apply before that deploy)
 //
 // WHY THIS EXISTS: the new login code (already deployed to Vercel) selects
 // User.role / User.nativeLang — until the columns exist in the production
@@ -289,6 +292,51 @@ async function main() {
     }
   }
 
+  // ── 7) SessionRating table + indexes (D4 session ratings + NPS) ─────────
+  // One row = one rating: 1-5 after a speaking call or quiz, 0-10 for the
+  // weekly NPS pulse. The admin overview (Settings → Ratings card) and the
+  // NPS math read these. Without the table the rating endpoints 500.
+  if (!tables.has("SessionRating")) {
+    await db.execute(/* sql */ `
+      CREATE TABLE "SessionRating" (
+          "id" TEXT NOT NULL PRIMARY KEY,
+          "kind" TEXT NOT NULL,
+          "score" INTEGER NOT NULL,
+          "comment" TEXT NOT NULL DEFAULT '',
+          "context" TEXT NOT NULL DEFAULT '',
+          "deviceId" TEXT NOT NULL,
+          "userId" TEXT,
+          "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    log(GREEN, "Created  SessionRating table  (session ratings + NPS)");
+    changed++;
+  } else {
+    log(YELLOW, "Skip     SessionRating table  (already exists)");
+  }
+
+  for (const idx of [
+    "SessionRating_kind_createdAt_idx",
+    "SessionRating_deviceId_createdAt_idx",
+  ] as const) {
+    const have = await db.execute(
+      `SELECT name FROM sqlite_master WHERE type='index' AND name='${idx}'`
+    );
+    if (have.rows.length === 0) {
+      const target =
+        idx === "SessionRating_kind_createdAt_idx"
+          ? `("kind","createdAt")`
+          : `("deviceId","createdAt")`;
+      await db.execute(
+        `CREATE INDEX "${idx}" ON "SessionRating"${target}`
+      );
+      log(GREEN, `Created  ${idx}  (index)`);
+      changed++;
+    } else {
+      log(YELLOW, `Skip     ${idx}  (already exists)`);
+    }
+  }
+
   // ── Final verification (reads the REAL state, not our assumptions) ────────
   const finalTables = await tablesOf(db);
   const finalCols = await columnsOf(db, "User");
@@ -298,7 +346,8 @@ async function main() {
     finalTables.has("UserApiKey") &&
     finalTables.has("CvDocument") &&
     finalTables.has("AnalyticsEvent") &&
-    finalTables.has("Feedback");
+    finalTables.has("Feedback") &&
+    finalTables.has("SessionRating");
 
   console.log("");
   if (ok) {

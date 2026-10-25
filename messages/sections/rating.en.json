@@ -1,0 +1,62 @@
+{
+  "rating": {
+    "rate": {
+      "title": "How was this session?",
+      "commentPlaceholder": "Anything to add? (optional)",
+      "submit": "Send rating",
+      "face_1": "Very bad",
+      "face_2": "Bad",
+      "face_3": "Okay",
+      "face_4": "Good",
+      "face_5": "Excellent"
+    },
+    "nps": {
+      "title": "How likely are you to recommend Bolo English?",
+      "subtitle": "0 = definitely not, 10 = absolutely",
+      "low": "Definitely not",
+      "high": "Absolutely",
+      "commentPlaceholder": "What would make it a 10? (optional)"
+    },
+    "thanks": "Thank you!",
+    "thanksFull": "Thank you — your rating helps us improve.",
+    "submitFailed": "Couldn't send — please try again.",
+    "skip": "Skip",
+    "later": "Later",
+    "never": "Never ask",
+    "privacyNote": "No email or IP is attached automatically",
+    "opt": {
+      "title": "Rate Bolo English",
+      "desc": "How likely are you to recommend us? Rate anytime — we ask at most once a week.",
+      "dueNote": "Your weekly feedback moment is here — 30 seconds, big impact.",
+      "rateNow": "Rate now",
+      "mute": "Don't ask again",
+      "reEnable": "Re-enable the weekly prompt"
+    },
+    "admin": {
+      "title": "Ratings & NPS",
+      "badge": "Admin",
+      "desc": "Session ratings (1-5) and the weekly NPS pulse — how learners feel.",
+      "loading": "Loading…",
+      "loadError": "Couldn't load ratings.",
+      "retry": "Retry",
+      "refresh": "Refresh",
+      "npsScore": "NPS score",
+      "npsBase": "from {n} responses",
+      "speakingAvg": "Speaking avg",
+      "quizAvg": "Quiz avg",
+      "count": "{n} ratings",
+      "promoters": "Promoters (9-10)",
+      "passives": "Passives (7-8)",
+      "detractors": "Detractors (0-6)",
+      "recent": "Recent comments",
+      "empty": "No comments yet — ratings without text aren't listed.",
+      "kind_speaking": "Speaking",
+      "kind_quiz": "Quiz",
+      "kind_nps": "NPS",
+      "delete": "Delete",
+      "confirmDelete": "Delete for sure?",
+      "deleted": "Deleted",
+      "actionFailed": "Action failed — please try again."
+    }
+  }
+}

@@ -49,8 +49,8 @@ model UserApiKey {
 model UserConfig {
   id          String   @id @default(cuid())
   deviceId    String   @unique
-  apiKeyEnc   String   // AES-256-GCM encrypted Gemini API key
-  keyPreview  String   // masked preview e.g. "AIza...9f2"
+  apiKeyEnc   String // AES-256-GCM encrypted Gemini API key
+  keyPreview  String // masked preview e.g. "AIza...9f2"
   displayName String   @default("") // "" = no name; display surfaces localize their own fallback (src/lib/no-name.ts)
   level       String   @default("beginner") // beginner | intermediate | advanced
   userId      String? // set when the device owner is logged in
@@ -124,17 +124,17 @@ model PracticeLog {
 // ─── Video call signaling (HTTP-polling based; Vercel-serverless friendly) ───
 
 model CallRoom {
-  id           String         @id @default(cuid())
-  code         String         @unique // 6-char join code
+  id           String          @id @default(cuid())
+  code         String          @unique // 6-char join code
   intent       String // "one" | "group"
-  visibility   String         @default("public") // public (quick match) | private (code)
+  visibility   String          @default("public") // public (quick match) | private (code)
   hostPeerId   String
-  status       String         @default("open") // open | closed
-  maxPeers     Int            @default(4) // 2 for one-to-one
-  lastSeq      Int            @default(0) // monotonic message cursor
-  participants String         @default("[]") // JSON: [{peerId, name, deviceId, joinedAt}]
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  status       String          @default("open") // open | closed
+  maxPeers     Int             @default(4) // 2 for one-to-one
+  lastSeq      Int             @default(0) // monotonic message cursor
+  participants String          @default("[]") // JSON: [{peerId, name, deviceId, joinedAt}]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
   messages     SignalMessage[]
 }
 
@@ -165,10 +165,10 @@ model StorageAccount {
 // Stable logical key -> physical location. Public URLs never change even
 // when the underlying account is rotated.
 model StorageObject {
-  key        String   @id
-  accountId  String
-  sizeBytes  Int      @default(0)
-  createdAt  DateTime @default(now())
+  key       String   @id
+  accountId String
+  sizeBytes Int      @default(0)
+  createdAt DateTime @default(now())
 }
 
 // ─── Video-call relay (TURN) pool ───
@@ -177,14 +177,14 @@ model StorageObject {
 // mints short-lived credentials from the active key and fails over to the
 // next one when a key errors or its quota runs out.
 model TurnKey {
-  id           String   @id @default(cuid())
-  label        String // e.g. "Cloudflare account 1 (billowing-lab-0d65)"
-  keyId        String // Cloudflare TURN Token ID
-  apiTokenEnc  String // Cloudflare TURN API token (AES-256-GCM)
-  status       String   @default("active") // active | exhausted | disabled
-  sortOrder    Int      @default(0)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          String   @id @default(cuid())
+  label       String // e.g. "Cloudflare account 1 (billowing-lab-0d65)"
+  keyId       String // Cloudflare TURN Token ID
+  apiTokenEnc String // Cloudflare TURN API token (AES-256-GCM)
+  status      String   @default("active") // active | exhausted | disabled
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model SignalMessage {
@@ -307,6 +307,25 @@ model Feedback {
 
   @@index([status, createdAt])
   @@index([deviceId])
+}
+
+// ─── Session ratings + NPS (D4) ───
+// Detached one-row-per-event table: how a session felt (1-5 after a call or
+// quiz) and the weekly NPS pulse (0-10). No status workflow — immutable
+// measurements. Privacy identical to Feedback: no IP/UA/email; userId is
+// attached server-side from the session cookie.
+model SessionRating {
+  id        String   @id @default(cuid())
+  kind      String // speaking | quiz | nps (server whitelist)
+  score     Int // 1-5 session ratings; 0-10 NPS
+  comment   String   @default("") // optional user-typed, ≤500 chars
+  context   String   @default("") // path-only/topic tag, ≤120 chars, "" unknown
+  deviceId  String // submitter device (localStorage bolo_device_id)
+  userId    String? // attached server-side from the session cookie
+  createdAt DateTime @default(now())
+
+  @@index([kind, createdAt])
+  @@index([deviceId, createdAt])
 }
 
 // ─── CV Studio ───

@@ -41,6 +41,8 @@ import TurnPoolCard from "@/components/settings/TurnPoolCard";
 import LibraryStudioCard from "@/components/settings/LibraryStudioCard";
 import AnalyticsCard from "@/components/settings/AnalyticsCard";
 import FeedbackAdminCard from "@/components/feedback/FeedbackAdminCard";
+import RatingsAdminCard from "@/components/settings/RatingsAdminCard";
+import RatingOptCard from "@/components/settings/RatingOptCard";
 import type { UserConfig as ApiUserConfig } from "@/hooks/use-device";
 
 // Labels render via tCommon("level.*") — always in the user's UI language.
@@ -448,6 +450,14 @@ export default function SettingsSection() {
         {/* ── Feedback queue (D3): triage the floating-widget submissions
             (new → seen → resolved) — ADMIN-ONLY; the API is fail-closed 403 ── */}
         {isAdmin && <FeedbackAdminCard />}
+
+        {/* ── Ratings & NPS (D4): session-rating averages + weekly NPS score —
+            ADMIN-ONLY; the API is fail-closed 403 ── */}
+        {isAdmin && <RatingsAdminCard />}
+
+        {/* ── Rate Bolo English (D4): manual NPS entry for EVERYONE, plus
+            the mute/re-enable switch for the weekly floating prompt ── */}
+        <RatingOptCard />
 
         {/* ── Content Studio (owner-authored library: vocab/grammar/listening)
             — ADMIN-ONLY like the pool cards: the API rejects non-admin tokens

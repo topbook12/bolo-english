@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { apiPost } from "@/lib/client-api";
 import type { QuizQuestion } from "@/lib/types";
 import EmptyState from "@/components/shared/EmptyState";
+import RateExperience from "@/components/rating/RateExperience";
 
 const BN_DIGITS = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
 
@@ -115,6 +116,7 @@ export default function QuizPlayer({
     const pct = Math.round((score / total) * 100);
     const msgKey = pct === 100 ? "msgPerfect" : pct >= 60 ? "msgGreat" : pct >= 40 ? "msgGood" : "msgKeep";
     return (
+      <div className="space-y-4">
       <Card className="premium-card animate-fade-in-up rounded-2xl bg-card shadow-sm">
         <CardContent className="flex flex-col items-center gap-4 p-6 text-center sm:p-8">
           <span className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-teal-500/90 to-emerald-600/90 text-white shadow-md ring-1 ring-inset ring-white/25">
@@ -145,6 +147,10 @@ export default function QuizPlayer({
           </div>
         </CardContent>
       </Card>
+
+      {/* D4: session rating — how did this listening quiz feel? Skippable. */}
+      <RateExperience kind="quiz" context="/listening" />
+      </div>
     );
   }
 

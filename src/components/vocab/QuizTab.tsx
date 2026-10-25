@@ -23,6 +23,7 @@ import { Separator } from "@/components/ui/separator";
 import EmptyState from "@/components/shared/EmptyState";
 import { cn } from "@/lib/utils";
 import { callAi, apiPost } from "@/lib/client-api";
+import RateExperience from "@/components/rating/RateExperience";
 import type { QuizQuestion } from "@/lib/types";
 import type { SavedWord } from "./types";
 import { speakEnglish } from "./speech";
@@ -144,6 +145,7 @@ export default function QuizTab({ deviceId, words, onGoWordbook }: QuizTabProps)
     const resultMessage =
       ratio >= 0.8 ? t("quiz.msgGreat") : ratio >= 0.5 ? t("quiz.msgGood") : t("quiz.msgKeep");
     return (
+      <div className="space-y-4">
       <article className="premium-card animate-fade-in-up flex flex-col items-center gap-4 rounded-2xl bg-card p-6 text-center">
         <span className="animate-float flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400/90 to-orange-500/90 text-white shadow-md">
           <Trophy className="h-8 w-8" aria-hidden />
@@ -174,6 +176,10 @@ export default function QuizTab({ deviceId, words, onGoWordbook }: QuizTabProps)
         </Button>
         <p className="text-xs text-muted-foreground">{t("quiz.retryNote")}</p>
       </article>
+
+      {/* D4: session rating — how did this vocab quiz feel? Skippable. */}
+      <RateExperience kind="quiz" context="/vocab" />
+      </div>
     );
   }
 

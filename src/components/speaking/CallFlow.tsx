@@ -25,6 +25,7 @@ import { CallClient } from "@/lib/call-client";
 import CallRoom from "@/components/speaking/CallRoom";
 import CallAvatar from "@/components/speaking/CallAvatar";
 import CallAnalysisView from "@/components/speaking/CallAnalysisView";
+import RateExperience from "@/components/rating/RateExperience";
 import type { CallAnalysis, TranscriptLine } from "@/lib/types";
 
 // CallFlow owns the whole video-call experience:
@@ -969,6 +970,9 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
               {t("callAgain")}
             </Button>
           </div>
+
+          {/* D4: session rating — how did this call feel? Skippable. */}
+          <RateExperience kind="speaking" context="/speaking" />
         </CardContent>
       </Card>
     </div>

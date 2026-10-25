@@ -22,6 +22,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import PointList from "@/components/shared/PointList";
+import RateExperience from "@/components/rating/RateExperience";
 import { useDevice } from "@/hooks/use-device";
 import { apiGet, apiPost, callAi } from "@/lib/client-api";
 import { cn } from "@/lib/utils";
@@ -282,6 +283,9 @@ export default function QuizPlayer({
             </div>
           </CardContent>
         </Card>
+
+        {/* D4: session rating — how did this quiz feel? Skippable. */}
+        <RateExperience kind="quiz" context={topic.key} />
 
         {wrongs.length > 0 && (
           <Card className="animate-fade-in-up-1 border-rose-200 bg-rose-50/60 shadow-none dark:border-rose-900/60 dark:bg-rose-950/20">

@@ -3291,3 +3291,34 @@ Stage Summary:
 - OWNER ACTION (blocks production submissions): run `bun scripts/prod-migrate.ts` with Turso env vars (creates Feedback table) — until then live submissions get a graceful error toast.
 - i18n lesson recorded: section files must be namespace-wrapped; parity check alone can't catch it.
 - Next: D4 session rating + NPS (1–5 + comment detached table, weekly NPS prompt).
+---
+Task ID: D04
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 4 — session rating (1-5) + weekly NPS prompt; plus catch-up: D3 production Feedback migration
+
+Work Log:
+- CREDENTIALS SAVED (owner instruction): Turso URL + fresh write token → `.env.turso` (gitignored via `.env*`; NOT loaded by Next.js automatically — local dev keeps using local SQLite). Token verified live (query + table list OK). Usage: `set -a; source .env.turso; set +a; bun scripts/prod-migrate.ts`
+- CATCH-UP FOUND+FIXED: production had NO Feedback table (D3 code was deployed but the owner-action migration never ran → live submissions were 500ing). Ran prod-migrate with the saved token: Feedback table + 2 indexes created. Live E2E: POST https://bolo-english-mu.vercel.app/api/feedback → ok:true; test row then deleted via token (0 rows left). D3 now 100% live.
+- Prisma: SessionRating model (kind speaking|quiz|nps, score 1-5 / 0-10, comment ≤500 default "", context path/topic-tag ≤120 default "", deviceId, userId?, createdAt; kind+createdAt & deviceId+createdAt indexes) → db:push OK + dev server restarted (D1 lesson)
+- prod-migrate.ts section 7: SessionRating table + 2 indexes, added to final verification
+- src/lib/rating.ts (PURE contract): RATING_KINDS, per-kind score validation (nps 0-10 int, session 1-5 int), cleanComment (control-chars stripped ≤500), cleanContext (charset [a-zA-Z0-9_\-/. ] ≤120)
+- /api/rating: POST (anyone, checkIpLimit 30/min IP+device — looser than feedback because ratings fire per session end; userId attached server-side; DB failure = honest 500) / GET (admin-only: kindStats avg+count, standard NPS math %promoters(9-10) − %detractors(0-6), recent ≤30 comments shaped without raw userId) / DELETE (admin, P2025→404)
+- Analytics: TRACK_EVENTS + "rating_sent" {kind}; both rating widgets fire it on success
+- RateExperience (inline card, 5 lucide faces + optional comment + skip): dropped into 4 session-end surfaces — grammar QuizPlayer done screen (context=topic.key), vocab QuizTab done, listening QuizPlayer finished, CallFlow ended screen (context=/speaking). Reading quiz + review-dialog adoption = one-liner each, left for a later day (D4 scope: the 4 named surfaces)
+- NpsForm (shared 0-10 grid): used by both the floating prompt and Settings card
+- NpsPrompt (weekly floating pulse): localStorage `bolo_nps` {first,last,never} via a tiny external store (subscribeNps/getNpsSnapshot — useSyncExternalStore pattern like InstallPrompt, hydration-safe); shows only if device ≥7 days old AND last prompt ≥7 days ago, 12s show delay; পরে→last=now (weekly gate), আর দেখাবে না→never; REACTS LIVE when re-enabled from Settings
+- RatingOptCard (Settings, EVERYONE): rate-now inline NpsForm, mute/re-enable switch — the roadmap's "সেটিংসে স্কিপ" requirement
+- RatingsAdminCard (Settings, admin-gated): NPS score stat + promoter/passive/detractor split, speaking/quiz averages, recent comments (kind/score/context/date) with two-step delete, refresh
+- i18n: messages/sections/rating.{bn,en,hi}.json (namespace-wrapped — D3 lesson applied) — ALL-PARITY-OK
+- E2E API (curl): valid speaking/quiz/nps POSTs stored; bad kind 400; nps 15 → 400; speaking 0 → 400; unauth GET 403; 31 rapid → 429; context "<script>x</script>/grammar?token=abc#h" → "scriptx/script/grammartokenabch" (sanitizer proven); admin GET aggregates correct (1 NPS@10 → score 100, only comment-rows in recent); DELETE ok; unknown id → 404
+- E2E browser (agent-browser): registered bn QA student → grammar lesson → quiz → done screen shows "সেশনটি কেমন লাগল?" → face-5 → comment → submit → thanks + DB row (kind quiz, score 5, comment, context tense, userId attached server-side); Settings Rate card → এখনই রেট করুন → NPS 9 + comment → row verified; weekly gate: 8-day-old state → reload → prompt after 12s ✓ → পরে dismiss (last=now) ✓ → Settings mute → never=true → reload 13s → stays hidden ✓ → re-enable → prompt reappears LIVE ✓ → prompt's own আর দেখাবে না → persists across reload ✓; admin login → RatingsAdminCard renders NPS 100 + averages + breakdown + recent comments → two-step delete removes comment row ✓
+- BUG CAUGHT via browser measurement: Bengali-digits check strings ("০" vs "0") made my first hidden/muted assertions false-positive — re-verified everything with the real title text; mobile 390px: prompt overlapped the feedback FAB (x 326-352) → width fixed to min(20rem, calc(100vw-5.75rem)) + md:w-80 → re-measured right=314, FAB fully clear, screenshot-verified mobile+desktop
+- Lint lesson: react-hooks/set-state-in-effect flagged sync setState in effect (RatingOptCard) → refactored to useSyncExternalStore over the external store (project's established pattern)
+- Cleanup: QA student + all QA rating rows deleted (local DB); admin fixture (topubiswas.math@gmail.com/admin123) kept for daily admin-path testing
+- Verification: tsc 0 / lint 0 / i18n ALL-PARITY-OK / dev.log clean; ROADMAP-60.md D4 ticked
+- Speaking-end rating note: the CallFlow insertion point was verified by code review; a live two-party call couldn't be simulated in the sandbox, but the rating card itself is the identical component E2E-proven on three quiz surfaces
+
+Stage Summary:
+- The feedback loop now measures FEELING, not just function: 1-5 after every speaking call and quiz, weekly 0-10 NPS with standard promoter/detractor math, all privacy-first (no IP/UA/email; userId server-side only). Owner sees it all in Settings → রেটিং ও NPS.
+- OWNER ACTION: none for data — run `bun scripts/prod-migrate.ts` (with saved .env.turso) BEFORE/AFTER the D4 deploy to create SessionRating (until then rating submissions show a graceful error toast on production). I will run it myself in this session.
+- Next: D5 error monitoring + uptime (global error boundary + /api/client-error + /api/health).
