@@ -3395,3 +3395,23 @@ Stage Summary:
 - Phase 1 (মাপা ও শোনা) is fully live: the platform now SEES (analytics), LISTENS (feedback + ratings + NPS), ALERTS (client errors + health), REPORTS (weekly digest), and protects (backups + rate limits + fail-closed gates). The one UI-gating bug of the week was caught by exactly the process the roadmap prescribes — live sweep, not just local tests.
 - Owner still owes: ADMIN_EMAILS + CRON_SECRET on Vercel (2 env vars, 2 minutes) to unlock the admin surface + auto-snapshots in production.
 - Next: Phase 2 Day 8 — placement test (level detection → User.level).
+---
+Task ID: D08
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 8 — placement test (12 questions → A1–B2 → UserConfig.level)
+
+Work Log:
+- Completed and verified the D8 code that was sitting in an unpushed local commit (message was a stray UUID; amended to feat(D8)).
+- src/lib/placement-bank.ts: 12 trilingual questions (vocab/grammar/usage/listening) ascending A1→B2; gradePlacement() maps score→level→stored (A1/A2→beginner, B1→intermediate, B2→advanced).
+- POST /api/placement: SERVER-side grading (client never sends a score), checkIpLimit("placement",5/min,device-fallback), upserts UserConfig.level (existing column — no schema change, no prod migration needed).
+- PlacementTest.tsx: intro → 12-question player (progress bar, listening auto-TTS + replay guard, A-D option cards) → result screen (level, score, saved-badge, retake); listening stems show instruction only (text would give the answer away).
+- SettingsSection: "Take the level test" button + Dialog; onDone updates the level radios LIVE.
+- analytics whitelist: +placement_done {level}.
+- i18n: placement.{bn,en,hi}.json (40 keys each) + settings profile additions — ALL-PARITY-OK.
+- Verification: tsc 0 / lint 0 / i18n OK. API E2E (curl): bad answers 400; 12/12 → B2/advanced saved:true; 0/12 → A1/beginner; flood 429 after 5. Browser E2E (agent-browser): registered QA account → Settings → took the full 12-question test answering 8 correct → "B1 / Your level: Intermediate / 8/12 correct / Level saved" → closing the dialog shows the Intermediate radio CHECKED. No console errors, dev.log clean.
+- Cleanup: QA user + qa-d8* config rows deleted from local DB.
+- ROADMAP-60.md D8 ticked.
+
+Stage Summary:
+- Phase 2 opened with activation's keystone: the platform can now MEASURE a learner's level server-side and store it — the input D9's auto-generated path depends on.
+- Next: D9 — personalized learning path generation (level + goal → weekly plan, dynamic PathSection).

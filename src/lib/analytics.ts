@@ -22,6 +22,7 @@ export const TRACK_EVENTS = [
   "app_install", // {}
   "feedback_sent", // {cat}  (client-fired by the D3 feedback widget on success)
   "rating_sent", // {kind}  (client-fired by the D4 rating widgets on success)
+  "placement_done", // {level} (client-fired by the D8 placement test on success)
 ] as const;
 
 export type TrackEventName = (typeof TRACK_EVENTS)[number];

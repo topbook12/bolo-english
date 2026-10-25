@@ -63,7 +63,10 @@
       "name": "Your name (shown on calls)",
       "levelLabel": "English level",
       "save": "Save profile",
-      "updatedTitle": "Profile updated"
+      "updatedTitle": "Profile updated",
+      "levelTest": "Take the level test",
+      "levelTestTitle": "Level test",
+      "levelTestDesc": "12 quick questions — your level (A1–B2) is saved to your profile automatically."
     },
     "language": {
       "title": "Language",

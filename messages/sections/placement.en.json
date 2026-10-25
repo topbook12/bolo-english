@@ -1,0 +1,40 @@
+{
+  "placement": {
+    "intro": {
+      "title": "Level test",
+      "desc": "12 quick questions — words, grammar, and listening — to find your English level (A1–B2). Your path and content adapt to the result.",
+      "qCount": "{n} questions",
+      "time": "About 3 minutes",
+      "free": "Completely free",
+      "start": "Start the test"
+    },
+    "grading": "Checking your answers…",
+    "player": {
+      "progress": "Question {n}/{total}",
+      "answered": "Answered: {n}",
+      "progressAria": "Test progress",
+      "listeningStem": "🔊 Listen — which sentence do you hear?",
+      "replay": "Play again",
+      "groupAria": "Answer options",
+      "next": "Next",
+      "finish": "See result",
+      "quit": "Quit test"
+    },
+    "result": {
+      "title": "Your level: {level}",
+      "note_A1": "Starting out — your path begins with everyday words and simple sentences.",
+      "note_A2": "Basics in place — time to build sentences and confidence.",
+      "note_B1": "Solid middle ground — conversations and longer texts ahead.",
+      "note_B2": "Advanced — polish nuance, fluency and precision.",
+      "score": "{score}/{total} correct",
+      "saved": "Level saved to your profile",
+      "retake": "Retake the test",
+      "stored_beginner": "Beginner",
+      "stored_intermediate": "Intermediate",
+      "stored_advanced": "Advanced"
+    },
+    "errors": {
+      "submit": "Couldn't save the result — please try again."
+    }
+  }
+}

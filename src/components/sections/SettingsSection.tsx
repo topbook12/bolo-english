@@ -18,7 +18,10 @@ import {
   Sparkles,
   LogOut,
   Loader2,
+  Gauge,
 } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import PlacementTest from "@/components/placement/PlacementTest";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -74,6 +77,7 @@ export default function SettingsSection() {
   const [showKey, setShowKey] = useState(false);
   const [name, setName] = useState(displayName ?? "");
   const [saving, setSaving] = useState<"key" | "profile" | null>(null);
+  const [placementOpen, setPlacementOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const { toast } = useToast();
   const { canInstall, promptInstall } = usePwaInstall();
@@ -518,6 +522,17 @@ export default function SettingsSection() {
                   </button>
                 ))}
               </div>
+              {/* D8: placement test — grades 12 questions server-side and
+                  stores the mapped level (button + dialog). */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPlacementOpen(true)}
+                className="min-h-9 w-full gap-1.5 text-xs"
+              >
+                <Gauge className="h-3.5 w-3.5" aria-hidden />
+                {t("profile.levelTest")}
+              </Button>
             </div>
             <Button
               onClick={saveProfile}
@@ -529,6 +544,21 @@ export default function SettingsSection() {
             </Button>
           </CardContent>
         </Card>
+
+        {/* D8: placement test dialog — result updates the level radios live. */}
+        <Dialog open={placementOpen} onOpenChange={setPlacementOpen}>
+          <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{t("profile.levelTestTitle")}</DialogTitle>
+              <DialogDescription>{t("profile.levelTestDesc")}</DialogDescription>
+            </DialogHeader>
+            <PlacementTest
+              onDone={(stored) => {
+                setConfig({ level: stored as "beginner" | "intermediate" | "advanced" });
+              }}
+            />
+          </DialogContent>
+        </Dialog>
 
         {/* ── PWA install ── */}
         <Card className="premium-card border-border/70 rounded-2xl bg-card">
