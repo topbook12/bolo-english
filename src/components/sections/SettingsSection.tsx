@@ -43,6 +43,7 @@ import AnalyticsCard from "@/components/settings/AnalyticsCard";
 import FeedbackAdminCard from "@/components/feedback/FeedbackAdminCard";
 import RatingsAdminCard from "@/components/settings/RatingsAdminCard";
 import RatingOptCard from "@/components/settings/RatingOptCard";
+import ErrorsAdminCard from "@/components/monitor/ErrorsAdminCard";
 import type { UserConfig as ApiUserConfig } from "@/hooks/use-device";
 
 // Labels render via tCommon("level.*") — always in the user's UI language.
@@ -458,6 +459,10 @@ export default function SettingsSection() {
         {/* ── Rate Bolo English (D4): manual NPS entry for EVERYONE, plus
             the mute/re-enable switch for the weekly floating prompt ── */}
         <RatingOptCard />
+
+        {/* ── Client errors (D5): what learners' browsers reported —
+            ADMIN-ONLY; the API is fail-closed 403 ── */}
+        <ErrorsAdminCard />
 
         {/* ── Content Studio (owner-authored library: vocab/grammar/listening)
             — ADMIN-ONLY like the pool cards: the API rejects non-admin tokens

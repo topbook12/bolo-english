@@ -328,6 +328,27 @@ model SessionRating {
   @@index([deviceId, createdAt])
 }
 
+// ─── Client error monitoring (D5) ───
+// One row = one client-side error report (error boundary, window.onerror, or
+// unhandled promise rejection). Short, source-map-agnostic data only: the
+// first line of the message, a trimmed stack, the Next.js digest token when
+// present, and the path-only page. Privacy identical to the rest: no IP/UA/
+// email; userId attached server-side from the session cookie.
+model ClientError {
+  id        String   @id @default(cuid())
+  message   String // first line, ≤300 chars
+  stack     String   @default("") // trimmed stack, ≤2000 chars
+  digest    String   @default("") // Next.js digest token when present
+  path      String   @default("") // path-only, ≤120 chars
+  source    String   @default("boundary") // boundary | window | rejection
+  deviceId  String
+  userId    String? // attached server-side from the session cookie
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([deviceId, createdAt])
+}
+
 // ─── CV Studio ───
 // Auto-generated, fully customizable CVs. One row = one CV; the entire
 // content + design (template, accent, section order) lives in `data` as JSON

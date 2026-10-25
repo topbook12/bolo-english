@@ -6,6 +6,7 @@ import { localeMeta, defaultLocale, type Locale } from "@/i18n/config";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import AdminSetupCapture from "@/components/admin/AdminSetupCapture";
+import ErrorReporter from "@/components/monitor/ErrorReporter";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -73,6 +74,11 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         className={`font-sans ${geistSans.variable} ${geistMono.variable} ${notoBengali.variable} ${notoDevanagari.variable} antialiased bg-background text-foreground`}
       >
         <NextIntlClientProvider>
+          {/* Window-level error reporter (D5): lives ABOVE every state of the
+              app (login gate, main shell, even while an error boundary is
+              showing) so first-touch errors are captured too. Catches global
+              errors + unhandled rejections; deduped + rate-limited. */}
+          <ErrorReporter />
           <AdminSetupCapture />
           {children}
         </NextIntlClientProvider>

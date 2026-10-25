@@ -1,0 +1,30 @@
+{
+  "monitor": {
+    "boundary": {
+      "title": "Something went wrong",
+      "desc": "An unexpected error occurred — the report reached us automatically. Try again, or head back to home.",
+      "retry": "Try again",
+      "home": "Back to home"
+    },
+    "admin": {
+      "title": "Client errors",
+      "badge": "Admin",
+      "desc": "Errors reported by learners' browsers (boundaries, window handlers, rejections) — the fastest signal something broke.",
+      "loading": "Loading…",
+      "loadError": "Couldn't load error reports.",
+      "retry": "Retry",
+      "refresh": "Refresh",
+      "last24h": "Last 24 hours",
+      "total": "All time",
+      "recent": "Recent reports (50)",
+      "empty": "No client errors — either all quiet or all healthy.",
+      "source_boundary": "Boundary",
+      "source_window": "Window",
+      "source_rejection": "Rejection",
+      "clearAll": "Clear log",
+      "confirmClear": "Clear everything?",
+      "cleared": "Error log cleared",
+      "actionFailed": "Action failed — please try again."
+    }
+  }
+}

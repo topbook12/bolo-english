@@ -18,6 +18,9 @@
 //   * SessionRating table + idx    (D4 session ratings + NPS — without it
 //                                   POST /api/rating returns 500 on the
 //                                   live site, so apply before that deploy)
+//   * ClientError table + idx      (D5 client error monitoring — without it
+//                                   error reports are silently dropped; apply
+//                                   before that deploy)
 //
 // WHY THIS EXISTS: the new login code (already deployed to Vercel) selects
 // User.role / User.nativeLang — until the columns exist in the production
@@ -337,6 +340,53 @@ async function main() {
     }
   }
 
+  // ── 8) ClientError table + indexes (D5 client error monitoring) ──────────
+  // One row = one browser-side error report (boundary/window/rejection).
+  // The admin monitor (Settings → Client errors card) reads these. Without
+  // the table the error reporter silently fails (by design, it never
+  // disturbs users) — but the owner loses the signal.
+  if (!tables.has("ClientError")) {
+    await db.execute(/* sql */ `
+      CREATE TABLE "ClientError" (
+          "id" TEXT NOT NULL PRIMARY KEY,
+          "message" TEXT NOT NULL,
+          "stack" TEXT NOT NULL DEFAULT '',
+          "digest" TEXT NOT NULL DEFAULT '',
+          "path" TEXT NOT NULL DEFAULT '',
+          "source" TEXT NOT NULL DEFAULT 'boundary',
+          "deviceId" TEXT NOT NULL,
+          "userId" TEXT,
+          "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    log(GREEN, "Created  ClientError table  (client error monitoring)");
+    changed++;
+  } else {
+    log(YELLOW, "Skip     ClientError table  (already exists)");
+  }
+
+  for (const idx of [
+    "ClientError_createdAt_idx",
+    "ClientError_deviceId_createdAt_idx",
+  ] as const) {
+    const have = await db.execute(
+      `SELECT name FROM sqlite_master WHERE type='index' AND name='${idx}'`
+    );
+    if (have.rows.length === 0) {
+      const target =
+        idx === "ClientError_createdAt_idx"
+          ? `("createdAt")`
+          : `("deviceId","createdAt")`;
+      await db.execute(
+        `CREATE INDEX "${idx}" ON "ClientError"${target}`
+      );
+      log(GREEN, `Created  ${idx}  (index)`);
+      changed++;
+    } else {
+      log(YELLOW, `Skip     ${idx}  (already exists)`);
+    }
+  }
+
   // ── Final verification (reads the REAL state, not our assumptions) ────────
   const finalTables = await tablesOf(db);
   const finalCols = await columnsOf(db, "User");
@@ -347,7 +397,8 @@ async function main() {
     finalTables.has("CvDocument") &&
     finalTables.has("AnalyticsEvent") &&
     finalTables.has("Feedback") &&
-    finalTables.has("SessionRating");
+    finalTables.has("SessionRating") &&
+    finalTables.has("ClientError");
 
   console.log("");
   if (ok) {

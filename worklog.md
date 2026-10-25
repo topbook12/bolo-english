@@ -3322,3 +3322,29 @@ Stage Summary:
 - The feedback loop now measures FEELING, not just function: 1-5 after every speaking call and quiz, weekly 0-10 NPS with standard promoter/detractor math, all privacy-first (no IP/UA/email; userId server-side only). Owner sees it all in Settings → রেটিং ও NPS.
 - OWNER ACTION: none for data — run `bun scripts/prod-migrate.ts` (with saved .env.turso) BEFORE/AFTER the D4 deploy to create SessionRating (until then rating submissions show a graceful error toast on production). I will run it myself in this session.
 - Next: D5 error monitoring + uptime (global error boundary + /api/client-error + /api/health).
+---
+Task ID: D05
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 5 — client error monitoring + uptime health check
+
+Work Log:
+- Prisma: ClientError model (message ≤300 single-line, stack ≤2000, digest ≤64, path path-only ≤120, source boundary|window|rejection, deviceId, userId?, createdAt; createdAt & deviceId+createdAt indexes) → db:push OK + dev server restarted
+- prod-migrate.ts section 8: ClientError table + 2 indexes, added to final verification
+- src/lib/client-error.ts (PURE contract): cleanErrorMessage (first line, control chars→space, ≤300), cleanErrorStack (≤2000), cleanErrorDigest (alphanumeric+-_ only), cleanErrorPath (path-only, query+hash stripped), isSource whitelist
+- /api/client-error: POST (anyone, 30/min IP+device; empty message → ok:true stored:false; bad source → defaults "window"; DB failure swallowed quietly — the reporter must never disturb users) / GET (admin: recent ≤50 shaped rows + last24h + total counts) / DELETE (admin: {id} P2025→404, {all:true} clear-log)
+- src/app/error.tsx (App Router route boundary, NEW): friendly trilingual recovery screen (retry reset + home), reports {message, stack, digest, path, source:"boundary"} once per error instance (useRef guard after lint flagged setState-in-effect)
+- ErrorReporter ("use client"): window error + unhandledrejection listeners, keepalive POSTs, per-message session dedup (≤3 reports), mounted in ROOT LAYOUT — see bug below
+- /api/health (NEW): GET → SELECT 1 via Prisma → 200 {ok,db:"up",time} / 503 {ok,db:"down"}; no-store; perfect for pingers
+- docs/UPTIME.md (NEW): UptimeRobot setup guide for the owner (HTTP monitor + keyword check "ok":true + alert contacts + signal-meaning table)
+- ErrorsAdminCard (Settings, admin-gated): 24h/total stat cards (24h>0 → rose, 0 → emerald), recent-50 list (source badge, path, digest, time, mono message), refresh + two-step clear-all
+- i18n: messages/sections/monitor.{bn,en,hi}.json — ALL-PARITY-OK
+- E2E API (curl): 3 valid POSTs (window/rejection/boundary+digest) stored; empty message → stored:false; bad source → stored as "window"; unauth GET 403; unauth DELETE 403; admin GET aggregates correct; path "/grammar?token=x#y" → "/grammar" (sanitizer proven); DELETE one ok; DELETE all {deleted:3}; 31 flood → 429
+- 🐞 REAL BUG CAUGHT by browser E2E: ErrorReporter was first mounted inside AppShell — but logged-out visitors get <LoginGate/> instead of AppShell (page.tsx: `user ? <AppShell/> : <LoginGate/>`), so NO errors were captured for signed-out users (the whole first-touch surface!). Verified: real TypeError + synthetic ErrorEvent from a logged-out page → 0 rows. FIX: moved <ErrorReporter/> into ROOT layout.tsx (inside NextIntlClientProvider, above children) → covers login gate, main shell, AND stays alive while an error boundary is showing. Re-tested: real uncaught TypeError → row stored (source window) ✓
+- E2E browser: uncaught real TypeError from logged-out page → captured ✓; 5 identical errors → exactly 3 rows (dedup cap proven) ✓; admin login → Settings → Client errors card shows 24h=35/total=35 + recent list with badges ✓; two-step clear-all → empty state ✓ → DB rows 0 ✓
+- Verification: tsc 0 / lint 0 / i18n ALL-PARITY-OK / dev.log clean; ROADMAP-60.md D5 ticked
+- Boundary-UI note: error.tsx's render could not be triggered live without injecting a real crash; its reporting path is the identical POST flow proven via curl, and the component is type-checked + i18n-parity-checked
+
+Stage Summary:
+- Errors now flow UP: a learner's crashed screen becomes a trilingual recovery page AND a row the owner sees in Settings → ক্লায়েন্ট এরর within minutes — including signed-out first-touch users (bug fixed). Uptime: /api/health + docs/UPTIME.md (owner: 3-minute UptimeRobot setup, optional).
+- OWNER ACTION: run `bun scripts/prod-migrate.ts` (with saved .env.turso) to create ClientError table before/with the D5 deploy — done in this session; also optional UptimeRobot setup per docs/UPTIME.md.
+- Next: D6 weekly metrics digest + DB backup script.
