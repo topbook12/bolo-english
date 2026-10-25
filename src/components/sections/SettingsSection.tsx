@@ -462,12 +462,13 @@ export default function SettingsSection() {
         <RatingOptCard />
 
         {/* ── Client errors (D5): what learners' browsers reported —
-            ADMIN-ONLY; the API is fail-closed 403 ── */}
-        <ErrorsAdminCard />
+            ADMIN-ONLY (the API is ALSO fail-closed 403 — double gate) ── */}
+        {isAdmin && <ErrorsAdminCard />}
 
         {/* ── Weekly digest (D6): last-7-days metrics for the owner's week
-            report — ADMIN-ONLY; the cron (vercel.json) freezes a snapshot ── */}
-        <WeeklyDigestCard />
+            report — ADMIN-ONLY (the API is ALSO fail-closed 403); the cron
+            (vercel.json) freezes a snapshot weekly ── */}
+        {isAdmin && <WeeklyDigestCard />}
 
         {/* ── Content Studio (owner-authored library: vocab/grammar/listening)
             — ADMIN-ONLY like the pool cards: the API rejects non-admin tokens
