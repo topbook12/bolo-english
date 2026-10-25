@@ -3377,3 +3377,21 @@ D06 addendum (deploy debugging):
 - FIRST D6 deploy returned 404 for /api/digest for ~10 min while D4/D5 routes kept serving → deployment was failing, not slow. Root cause: vercel.json crons with a WEEKLY expression ("0 3 * * 1") — Hobby plan requires daily-granularity schedules; the deployment was rejected. FIX: schedule "0 3 * * *" (daily 03:00 UTC = 09:00 Dhaka); upsert-by-weekKey means the end result is identical (one snapshot per week). Deploy then succeeded (403 fail-closed on GET, 401 on secretless POST — live-verified).
 - Hardenig added with it: WeeklyDigestCard "Save snapshot" button (admin POST /api/digest) so snapshots work even before the owner sets CRON_SECRET on Vercel; cron keeps 401-ing harmlessly (no secret → skipped) until then.
 - LESSON (recorded for future days): on this Hobby project, vercel.json cron schedules MUST be daily-granularity or the whole deployment fails with the new routes 404ing while old ones keep serving.
+---
+Task ID: D07
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 7 — Phase-1 review day: production triage, live regression sweep, bug fix, Week-1 report
+
+Work Log:
+- Production data triage (Turso): 9 users (6 new in the last 4 days — organic growth started), 19 analytics events from 1 device, 0 feedback / 0 ratings / 0 client errors (features went live this week). Owner's prod account role=null → ADMIN_EMAILS still not set on Vercel (known dependency, re-surfaced in the report).
+- Live regression sweep (browser on https://bolo-english-mu.vercel.app): register QA account (bn) → app shell loads → Grammar → topic lesson → quiz (10 questions) → score screen shows D4 "সেশনটি কেমন লাগল?" rating card ✓ → Settings: rate card ✓ + FAB ✓ → feedback dialog → submitted → row in prod Feedback table (category idea, page "/") → full loop proven live.
+- 🐞 BUG FOUND+FIXED: ErrorsAdminCard and WeeklyDigestCard rendered for NON-admin users — my D5/D6 mounts lacked the {isAdmin && …} gate (the comment said ADMIN-ONLY but the code didn't). APIs were already fail-closed 403 → zero data leak, but cards mounted and showed error states. Fixed both gates (double-gate comment), verified tsc/lint, deployed, re-swept live: non-admin → digest/errors hidden, rate card visible; admin path unaffected.
+- Live login note: could not login as the owner (their real password is theirs; admin123 is a LOCAL fixture only) — noted so future sweeps create a QA account instead of guessing.
+- Cleanup: QA user + UserConfig + QA-device analytics/feedback traces deleted from production via token (9 users / 19 events / 0 feedback — exact pre-sweep state restored).
+- Week-1 report written: docs/WEEK-1-REPORT.md (deliveries D1-D7, production numbers, 6 fixed bugs incl. the Hobby-cron deployment lesson, owner actions: ADMIN_EMAILS + CRON_SECRET + optional uptime/backup setup).
+- Verification: tsc 0 / lint 0; ROADMAP-60.md D7 ticked; PHASE 1 COMPLETE (7/7 days delivered, no gaps).
+
+Stage Summary:
+- Phase 1 (মাপা ও শোনা) is fully live: the platform now SEES (analytics), LISTENS (feedback + ratings + NPS), ALERTS (client errors + health), REPORTS (weekly digest), and protects (backups + rate limits + fail-closed gates). The one UI-gating bug of the week was caught by exactly the process the roadmap prescribes — live sweep, not just local tests.
+- Owner still owes: ADMIN_EMAILS + CRON_SECRET on Vercel (2 env vars, 2 minutes) to unlock the admin surface + auto-snapshots in production.
+- Next: Phase 2 Day 8 — placement test (level detection → User.level).
