@@ -44,6 +44,7 @@ import FeedbackAdminCard from "@/components/feedback/FeedbackAdminCard";
 import RatingsAdminCard from "@/components/settings/RatingsAdminCard";
 import RatingOptCard from "@/components/settings/RatingOptCard";
 import ErrorsAdminCard from "@/components/monitor/ErrorsAdminCard";
+import WeeklyDigestCard from "@/components/settings/WeeklyDigestCard";
 import type { UserConfig as ApiUserConfig } from "@/hooks/use-device";
 
 // Labels render via tCommon("level.*") — always in the user's UI language.
@@ -463,6 +464,10 @@ export default function SettingsSection() {
         {/* ── Client errors (D5): what learners' browsers reported —
             ADMIN-ONLY; the API is fail-closed 403 ── */}
         <ErrorsAdminCard />
+
+        {/* ── Weekly digest (D6): last-7-days metrics for the owner's week
+            report — ADMIN-ONLY; the cron (vercel.json) freezes a snapshot ── */}
+        <WeeklyDigestCard />
 
         {/* ── Content Studio (owner-authored library: vocab/grammar/listening)
             — ADMIN-ONLY like the pool cards: the API rejects non-admin tokens

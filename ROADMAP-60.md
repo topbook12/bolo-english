@@ -73,9 +73,9 @@
 - [x] **D5 — এরর-মনিটরিং + আপটাইম** ✅ *(সম্পন্ন — কমিট D05)*
   - গ্লোবাল এরর-বাউন্ডারি (`error.tsx`, ত্রিভাষিক রিকভারি UI) + window.onerror/unhandledrejection রিপোর্টার (layout-মাউন্ট — লগইন-স্ক্রিন থেকে boundary পর্যন্ত সব স্টেট কভার, প্রতি-মেসেজ ৩-রো ডিডাপ) → `POST /api/client-error` (৩০/মিনিট, message≤৩০০/stack≤২০০০/digest/path-only)
   - `/api/health` (app+DB চেক, 200/503) + `docs/UPTIME.md` (UptimeRobot সেটআপ নির্দেশনা); অ্যাডমিনে Client errors কার্ড (২৪ঘণ্টা/সর্বমোট কাউন্টার, recent ৫০, clear-all)
-- [ ] **D6 — মেট্রিক্স ডাইজেস্ট + DB ব্যাকআপ**
-  - সাপ্তাহিক অটো-গণনা (নতুন ইউজার, রিটেনশন D1/D7, টপ ফিডব্যাক)
-  - `scripts/db-backup.ts` — Turso → লোকাল এক্সপোর্ট + ওনার গাইড (শিডিউল করার পদ্ধতি)
+- [x] **D6 — মেট্রিক্স ডাইজেস্ট + DB ব্যাকআপ** ✅ *(সম্পন্ন — কমিট D06)*
+  - সাপ্তাহিক অটো-গণনা: `GET /api/digest` (admin, লাইভ ৭-দিনের মেট্রিক্স) + `POST /api/digest` (Vercel cron সোমবার ৯টা Dhaka, CRON_SECRET → `MetricDigest` স্ন্যাপশট) + Settings-এ WeeklyDigestCard
+  - `scripts/db-backup.ts` (Turso → SQL ডাম্প, আসল ব্যাকআপ ২৪ টেবিল/৫০৯ রো নেওয়া হয়েছে) + `docs/BACKUP.md` ওনার গাইড (GitHub Actions/cron/ম্যানুয়াল) — **রিস্টোর-ড্রিল যাচাইকৃত**
 - [ ] **D7 — ফেজ-রিভিউ ডে** — ফিডব্যাক ট্রায়াজ, বাগ-ফিক্স, সপ্তাহ-১ রিপোর্ট ওনারকে
 
 # ফেজ ২ — অনবোর্ডিং ও অ্যাক্টিভেশন (Day 8–14)

@@ -21,6 +21,9 @@
 //   * ClientError table + idx      (D5 client error monitoring — without it
 //                                   error reports are silently dropped; apply
 //                                   before that deploy)
+//   * MetricDigest table           (D6 weekly metrics digest — without it the
+//                                   weekly snapshot cron fails; apply before
+//                                   that deploy)
 //
 // WHY THIS EXISTS: the new login code (already deployed to Vercel) selects
 // User.role / User.nativeLang — until the columns exist in the production
@@ -387,6 +390,26 @@ async function main() {
     }
   }
 
+  // ── 9) MetricDigest table (D6 weekly metrics digest) ───────────────────
+  // One row per ISO week — frozen JSON snapshot for the owner's week
+  // report (written by the Vercel cron or an admin). Without the table
+  // POST /api/digest fails and the weekly snapshot is lost.
+  if (!tables.has("MetricDigest")) {
+    await db.execute(/* sql */ `
+      CREATE TABLE "MetricDigest" (
+          "id" TEXT NOT NULL PRIMARY KEY,
+          "weekKey" TEXT NOT NULL UNIQUE,
+          "data" TEXT NOT NULL,
+          "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          "updatedAt" DATETIME NOT NULL
+      )
+    `);
+    log(GREEN, "Created  MetricDigest table  (weekly metrics digest)");
+    changed++;
+  } else {
+    log(YELLOW, "Skip     MetricDigest table  (already exists)");
+  }
+
   // ── Final verification (reads the REAL state, not our assumptions) ────────
   const finalTables = await tablesOf(db);
   const finalCols = await columnsOf(db, "User");
@@ -398,7 +421,8 @@ async function main() {
     finalTables.has("AnalyticsEvent") &&
     finalTables.has("Feedback") &&
     finalTables.has("SessionRating") &&
-    finalTables.has("ClientError");
+    finalTables.has("ClientError") &&
+    finalTables.has("MetricDigest");
 
   console.log("");
   if (ok) {

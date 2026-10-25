@@ -66,3 +66,5 @@ server.log
 /signaling.log
 /.zscripts
 tool-results
+# local DB backup dumps (D6)
+/backups

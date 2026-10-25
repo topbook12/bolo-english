@@ -349,6 +349,19 @@ model ClientError {
   @@index([deviceId, createdAt])
 }
 
+// ─── Weekly metrics digest (D6) ───
+// One row per ISO week — a frozen JSON snapshot of the owner's week report
+// (new users, active devices, learning totals, NPS, feedback, errors).
+// Written by the Vercel cron (POST /api/digest with CRON_SECRET) or an
+// admin; read by the WeeklyDigestCard. `data` is the digest JSON itself.
+model MetricDigest {
+  id        String   @id @default(cuid())
+  weekKey   String   @unique // ISO week, e.g. "2026-W43"
+  data      String // digest JSON snapshot
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 // ─── CV Studio ───
 // Auto-generated, fully customizable CVs. One row = one CV; the entire
 // content + design (template, accent, section order) lives in `data` as JSON

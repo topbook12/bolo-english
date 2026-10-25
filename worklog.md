@@ -3348,3 +3348,27 @@ Stage Summary:
 - Errors now flow UP: a learner's crashed screen becomes a trilingual recovery page AND a row the owner sees in Settings → ক্লায়েন্ট এরর within minutes — including signed-out first-touch users (bug fixed). Uptime: /api/health + docs/UPTIME.md (owner: 3-minute UptimeRobot setup, optional).
 - OWNER ACTION: run `bun scripts/prod-migrate.ts` (with saved .env.turso) to create ClientError table before/with the D5 deploy — done in this session; also optional UptimeRobot setup per docs/UPTIME.md.
 - Next: D6 weekly metrics digest + DB backup script.
+---
+Task ID: D06
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 6 — weekly metrics digest + database backup
+
+Work Log:
+- Prisma: MetricDigest model (weekKey unique ISO-week "2026-W43", data JSON snapshot, timestamps) → db:push OK + dev restart
+- prod-migrate.ts section 9: MetricDigest table, added to final verification
+- src/lib/digest.ts (shared compute): computeWeekDigest() — 15 parallel SQL/Prisma aggregations (users total/new7, week-active devices + 7-day DAU trend, quiz count+avgRatio from quiz_complete props, speaking count+minutes, ai_calls, speaking/quiz rating avg from SessionRating, NPS from 7-day score distribution with standard promoter/detractor math, feedback new7 + byCategory, client errors 24h/7d, top-5 sections) — raw rows never leave the DB; weekKeyOf() ISO-week util
+- /api/digest: GET (admin → live digest + saved-snapshot meta) / POST (Vercel cron with `Authorization: Bearer $CRON_SECRET` OR admin → compute + upsert MetricDigest by weekKey; no secret configured → 401 fail-closed)
+- vercel.json (NEW): cron [{path:"/api/digest", schedule:"0 3 * * 1"}] — Mondays 03:00 UTC = 09:00 Asia/Dhaka; owner sets CRON_SECRET in Vercel to arm it
+- scripts/db-backup.ts (NEW): Turso → plain-SQL dump (schema + indexes + all rows, ''-escaped, hex blobs, transaction-wrapped) → backups/bolo-<stamp>.sql (gitignored); env-only credentials
+- docs/BACKUP.md (NEW): one-off command + restore paths + 3 scheduling options (GitHub Actions weekly w/ artifacts 90d [recommended], local cron, Turso platform) + keep-alive note for scheduled workflows
+- WeeklyDigestCard (Settings, admin-gated): 8 stat tiles (users/new/active/errors-24h/quiz/speaking/NPS/feedback), quality panel (quiz avg %, speaking minutes, speaking rating avg, AI calls, errors 7d), top-5 sections, saved-snapshot note; namespace digest.{bn,en,hi}.json — ALL-PARITY-OK
+- E2E API (curl): unauth GET 403; POST without auth 401; wrong secret 401; correct secret → {ok, weekKey}; re-POST → upsert (still 1 row); admin GET → live digest with real values (weekDevices 3, users 1, top sections settings:4)
+- BACKUP (real run against production Turso): 24 tables, 509 rows → backups/bolo-2026-10-25-12-49.sql (4.5 MB)
+- RESTORE DRILL (passed): dump imported into a scratch DB via libsql executeMultiple → identical row counts (users 9, events 19, configs 7, wordbook 5); verified command documented in docs/BACKUP.md (first split-based attempt failed on multi-line CREATE TABLE — executeMultiple is the correct way)
+- E2E browser: admin login → Settings → WeeklyDigestCard renders Bengali live values + saved-snapshot note (2026-W43 12:49) — screenshot-equivalent text verified
+- Verification: tsc 0 / lint 0 / i18n ALL-PARITY-OK / dev.log clean; ROADMAP-60.md D6 ticked
+- Note: local MetricDigest row kept intentionally (real computed data, harmless); backup file stays in gitignored backups/
+
+Stage Summary:
+- The owner's Monday ritual is now automated: cron freezes a week snapshot at 09:00 Dhaka, Settings shows live + saved numbers, and the DB has a proven-restore backup path. Owner actions: (1) set CRON_SECRET in Vercel to arm the weekly snapshot, (2) optionally add the GitHub Actions backup workflow from docs/BACKUP.md.
+- Next: D7 phase-review day (feedback triage, bug sweep, week-1 report).

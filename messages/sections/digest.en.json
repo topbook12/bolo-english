@@ -1,0 +1,42 @@
+{
+  "digest": {
+    "title": "Weekly digest",
+    "desc": "Last 7 days at a glance — the same snapshot the Monday cron freezes for the week report.",
+    "loading": "Computing…",
+    "loadError": "Couldn't compute the digest.",
+    "retry": "Retry",
+    "users": {
+      "total": "Total users",
+      "new7": "New (7d)"
+    },
+    "active": {
+      "week": "Active devices"
+    },
+    "learning": {
+      "quiz7": "Quizzes",
+      "speaking7": "Speaking calls"
+    },
+    "sentiment": {
+      "nps": "NPS (7d)"
+    },
+    "feedback": {
+      "new7": "Feedback"
+    },
+    "errors": {
+      "last24h": "Errors 24h"
+    },
+    "quality": {
+      "title": "Quality & depth",
+      "quizAvg": "Average quiz score",
+      "speakingMin": "Speaking minutes",
+      "speakingAvg": "Speaking rating avg",
+      "aiCalls": "AI features used",
+      "errors7": "Client errors (7d)"
+    },
+    "top": {
+      "title": "Top sections (views)",
+      "empty": "No section views this week."
+    },
+    "savedNote": "Saved snapshot: {key} ({when}) — written by the weekly cron or an admin POST /api/digest."
+  }
+}
