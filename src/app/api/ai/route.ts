@@ -6,6 +6,7 @@ import { checkRateLimit, checkIpLimit } from "@/lib/rate-limit";
 import { cleanStr } from "@/lib/validate";
 import { logAnalyticsEvent } from "@/lib/analytics-server";
 import { reqLocale, apiMsg, type ApiLocale } from "@/lib/api-i18n";
+import { scenarioById, withName } from "@/lib/scenarios";
 import { GeminiError, geminiJson, getAiLevel, getUserName, getUserApiKeyWithMeta } from "@/lib/gemini";
 import { pruneAiCache } from "@/lib/ai-cache-prune";
 import type {
@@ -630,10 +631,18 @@ Return STRICT JSON array:
       case "chat-partner": {
         const history = Array.isArray(payload.history) ? payload.history.slice(-12) : [];
         const topic = cleanStr(payload.topic ?? "free conversation", 80);
+        // D16: goal-based roleplay — when a valid scenario id arrives, Raha
+        // plays the scenario's character and the prompt pushes toward the
+        // learner's mission (same JSON shape, so the UI is unchanged).
+        const scenarioId = cleanStr(payload.scenario ?? "", 40);
+        const scen = scenarioById(scenarioId);
+        const persona = scen
+          ? `SCENE: ${withName(scen.role, userName)}\nThe learner's mission: ${scen.mission.en}\nRULES: Always stay in character as the role above — never mention being an AI, never break the scene. Keep replies to 1-3 spoken sentences and move the SCENE forward (the learner has a mission to complete).\n`
+          : "";
         const data = await geminiJson<ChatPartnerReply>(
           apiKey,
           `You are "Raha", a warm, encouraging English conversation partner for ${userName}, an English learner at ${userLevel} level. ${levelRule(userLevel)}.
-Topic: ${topic}. ${lang.rule}
+${persona}Topic: ${topic}. ${lang.rule}
 TASK: React to the user's LAST message so the conversation keeps flowing — acknowledge what they said, gently fix their recent English mistakes, then invite them to say more.
 QUALITY: "reply" = 1-3 natural spoken-English sentences obeying the level rule (a friend talking, never a lecture); "banglaHint" = ONE short line ${lang.short} suggesting what THEY could say next; "corrections" = only REAL grammar/vocabulary/word-choice problems in the user's last message, max 3, [] if none — "type" exactly one of "grammar" | "vocabulary" | "pronunciation-spelling" | "better-alternative", "explanation" = 1 short encouraging sentence ${lang.short}; "followUp" = ONE simple English question about their life that invites a longer answer. Keep the same friendly persona and energy across turns.
 Conversation history (JSON): ${JSON.stringify(history)}
@@ -642,6 +651,35 @@ Return STRICT JSON:
 Shape example (1 item, values are placeholders — hints/explanations must be written ${lang.short}): {"reply":"Cricket sounds fun! I watch it every weekend.","banglaHint":"hint ${lang.short}","corrections":[{"original":"I am play cricket","corrected":"I play cricket","type":"grammar","explanation":"why — ${lang.short}"}],"followUp":"Who do you usually play with?"}
 ${JSON_ONLY}`,
           { temperature: 0.7, maxOutputTokens: 2048, label: "chat-partner" }
+        );
+        return jsonOk(data);
+      }
+
+      /* ---------------- SPEAKING: ROLEPLAY FEEDBACK (D16) ---------------- */
+      case "scenario-feedback": {
+        const scenarioId = cleanStr(payload.scenario ?? "", 40);
+        const scen = scenarioById(scenarioId);
+        if (!scen) {
+          return jsonErr("scenario_unknown", 400);
+        }
+        const history = Array.isArray(payload.history) ? payload.history.slice(-20) : [];
+        const data = await geminiJson<{
+          goalAchieved: boolean;
+          score: number;
+          strengths: string;
+          improvements: string;
+        }>(
+          apiKey,
+          `You are Raha, an encouraging English coach reviewing a finished ROLEPLAY for ${userName} (${userLevel} level). ${levelRule(userLevel)}.
+Scenario: ${withName(scen.role, userName)}
+The learner's mission was: ${scen.mission.en}
+Conversation (JSON, speaking order; "role":"user" lines are the LEARNER):
+${JSON.stringify(history)}
+TASK: Judge whether the learner accomplished the mission, then coach.
+QUALITY: "goalAchieved" = true only if every mission element was at least attempted; "score" = 0-100 (mission completion 60%, English quality 40%) — be generous with beginners, honest with advanced; "strengths" = 1-2 sentences ${lang.short} about what they did WELL (name concrete phrases they used); "improvements" = 1-2 sentences ${lang.short} with ONE specific, actionable next step.
+Return STRICT JSON: { "goalAchieved": true, "score": 75, "strengths": "... ${lang.short}", "improvements": "... ${lang.short}" }
+${JSON_ONLY}`,
+          { temperature: 0.5, maxOutputTokens: 1024, label: "scenario-feedback" }
         );
         return jsonOk(data);
       }

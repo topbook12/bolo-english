@@ -120,6 +120,22 @@
       "sttFailed": "Transcription failed — please try again.",
       "permission": "Microphone permission is needed to practice.",
       "unsupported": "This browser can't record audio."
+    },
+    "scenario": {
+      "pickLabel": "Roleplay scenarios",
+      "missionLabel": "Your mission",
+      "feedbackTitle": "Roleplay feedback",
+      "goalAchieved": "Mission accomplished",
+      "goalMissed": "Mission incomplete",
+      "strengths": "What you did well",
+      "improvements": "Next step",
+      "names": {
+        "interview": "Job interview",
+        "restaurant": "Restaurant",
+        "doctor": "Doctor visit",
+        "airport": "Airport check-in",
+        "support": "Customer service"
+      }
     }
   }
 }

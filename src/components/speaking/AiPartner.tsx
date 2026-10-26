@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   ArrowRight,
   Bot,
@@ -9,19 +9,26 @@ import {
   CheckCheck,
   Gauge,
   BookOpen,
+  Briefcase,
+  Headset,
   Lightbulb,
   Mic,
+  Plane,
   RotateCcw,
   Send,
   Sparkles,
   SpellCheck,
+  Stethoscope,
+  Target,
   User as UserIcon,
   Volume2,
   VolumeX,
+  Utensils,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 import EmptyState from "@/components/shared/EmptyState";
 import PointList from "@/components/shared/PointList";
 import StatCard from "@/components/shared/StatCard";
@@ -29,6 +36,8 @@ import { useDevice } from "@/hooks/use-device";
 import { useToast } from "@/hooks/use-toast";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import { callAi } from "@/lib/client-api";
+import { SCENARIOS, scenarioById, type ScenarioId } from "@/lib/scenarios";
+import { track } from "@/lib/track";
 import { VoiceEq } from "@/components/speaking/CallAvatar";
 import type { ChatPartnerReply, CallAnalysis, TranscriptLine, CorrectionItem } from "@/lib/types";
 
@@ -50,6 +59,16 @@ const TOPICS: { value: string; key: string }[] = [
   { value: "friends", key: "friends" },
   { value: "study & exam", key: "exam" },
 ];
+
+// D16: goal-based roleplay scenarios (src/lib/scenarios.ts) — the AI plays
+// a character, the learner has a mission, and Finish adds scenario feedback.
+const SCENARIO_ICONS: Record<ScenarioId, React.ComponentType<{ className?: string }>> = {
+  interview: Briefcase,
+  restaurant: Utensils,
+  doctor: Stethoscope,
+  airport: Plane,
+  support: Headset,
+};
 
 const TTS_STORAGE_KEY = "bolo_ai_tts";
 
@@ -83,6 +102,7 @@ function speakEnglish(text: string, opts?: { onStart?: () => void; onEnd?: () =>
 export default function AiPartner({ onSessionDone }: { onSessionDone?: () => void }) {
   const t = useTranslations("speaking");
   const tCommon = useTranslations("common");
+  const locale = useLocale() as "en" | "bn" | "hi";
   const { deviceId, hasKey, displayName } = useDevice();
   // Localized fallback name for transcript/analysis
   const myName = displayName || tCommon("student");
@@ -94,6 +114,16 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
   const [analysis, setAnalysis] = useState<CallAnalysis | null>(null);
   const [voiceOn, setVoiceOn] = useState(true);
   const [ttsSpeaking, setTtsSpeaking] = useState(false);
+  // D16: active roleplay + its end-of-scene feedback
+  const [scenario, setScenario] = useState<ScenarioId | null>(null);
+  const [roleFeedback, setRoleFeedback] = useState<{
+    goalAchieved: boolean;
+    score: number;
+    strengths: string;
+    improvements: string;
+  } | null>(null);
+  const scenRef = useRef<ScenarioId | null>(null);
+  scenRef.current = scenario;
   const { toast } = useToast();
   const endRef = useRef<HTMLDivElement>(null);
   /* Progress fix (user report: মিনিট/প্রগ্রেস আপডেট হচ্ছে না):
@@ -187,9 +217,11 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
         role: m.role === "user" ? "user" : "assistant",
         content: m.followUp ? `${m.text}\n\n${m.followUp}` : m.text,
       }));
+      const active = scenRef.current;
       const reply = await callAi<ChatPartnerReply>(deviceId, "chat-partner", {
         history,
-        topic,
+        topic: active ? "goal-based roleplay" : topic,
+        ...(active ? { scenario: active } : {}),
       });
       setMsgs((m) => [
         ...m,
@@ -213,6 +245,33 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
       setBusy(false);
     }
   };
+
+  // D16: enter a roleplay — the opener is static (zero API cost), spoken
+  // aloud like any other AI line. Leaving/clearing resets the conversation.
+  const chooseScenario = (id: ScenarioId | null) => {
+    cancelSpeech();
+    setScenario(id);
+    setRoleFeedback(null);
+    setAnalysis(null);
+    setMsgs([]);
+    setInput("");
+    if (!id) return;
+    const scen = scenarioById(id);
+    if (!scen) return;
+    if (sessionStartRef.current === null) sessionStartRef.current = Date.now();
+    setMsgs([{ role: "ai", text: withNameT(scen.opener) }]);
+    if (voiceOn) {
+      speakEnglish(scen.opener, {
+        onStart: () => setTtsSpeaking(true),
+        onEnd: () => setTtsSpeaking(false),
+      });
+    }
+  };
+
+  /** Opener carries {name} — replaced with the learner's display name. */
+  function withNameT(template: string): string {
+    return template.replace(/\{name\}/g, (myName || "the learner").slice(0, 24));
+  }
 
   const toggleVoice = () => {
     const next = !voiceOn;
@@ -270,6 +329,33 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
     }
     // progress data can refresh now, even if the AI analysis fails below
     onSessionDone?.();
+    /* 1b) D16: roleplay feedback — mission verdict + score, before the
+     *     generic deep-coach analysis (scenario-specific beats generic). */
+    const activeScen = scenRef.current;
+    if (activeScen) {
+      try {
+        const fb = await callAi<{
+          goalAchieved: boolean;
+          score: number;
+          strengths: string;
+          improvements: string;
+        }>(deviceId, "scenario-feedback", {
+          scenario: activeScen,
+          history: msgs.slice(-20).map((m) => ({
+            role: m.role === "user" ? "user" : "assistant",
+            content: m.text,
+          })),
+        });
+        setRoleFeedback(fb);
+        track("roleplay_done", {
+          scenario: activeScen,
+          score: Number(fb.score) || 0,
+          goal: fb.goalAchieved ? "yes" : "no",
+        });
+      } catch {
+        /* feedback is an enhancement — the analysis below still runs */
+      }
+    }
     /* 2) AI analysis — an enhancement, never a gate on the saved minutes. */
     try {
       const result = await callAi<CallAnalysis>(deviceId, "call-analysis", {
@@ -317,6 +403,8 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
     cancelSpeech();
     setMsgs([]);
     setAnalysis(null);
+    setRoleFeedback(null);
+    setScenario(null);
     sessionStartRef.current = null; // new conversation → new clock + record
     savedSessionRef.current = null;
   };
@@ -325,6 +413,40 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
     return (
       <Card className="premium-card rounded-2xl py-0">
         <CardContent className="space-y-4 p-4 sm:p-6">
+          {/* D16: roleplay mission verdict — shown above the deep analysis */}
+          {roleFeedback && (
+            <div className="space-y-2.5 rounded-2xl border border-amber-300/70 bg-gradient-to-br from-amber-50 via-background to-orange-50 p-4 dark:border-amber-900/60 dark:from-amber-950/30 dark:via-background dark:to-orange-950/20">
+              <div className="flex items-center justify-between gap-2">
+                <p className="flex items-center gap-2 text-sm font-bold">
+                  <Target className="h-4 w-4 text-amber-500" aria-hidden="true" />
+                  {t("scenario.feedbackTitle")}
+                </p>
+                <span
+                  className={`rounded-full px-2.5 py-1 text-[11px] font-bold text-white ${
+                    roleFeedback.goalAchieved
+                      ? "bg-gradient-to-br from-emerald-500 to-teal-600"
+                      : "bg-gradient-to-br from-orange-500 to-rose-500"
+                  }`}
+                >
+                  {roleFeedback.goalAchieved
+                    ? t("scenario.goalAchieved")
+                    : t("scenario.goalMissed")}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Progress value={Math.max(0, Math.min(100, roleFeedback.score))} className="h-2 flex-1" aria-label={t("scenario.feedbackTitle")} />
+                <span className="text-sm font-bold tabular-nums">{Math.round(roleFeedback.score)}%</span>
+              </div>
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                <span className="font-semibold text-foreground">{t("scenario.strengths")}: </span>
+                {roleFeedback.strengths}
+              </p>
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                <span className="font-semibold text-foreground">{t("scenario.improvements")}: </span>
+                {roleFeedback.improvements}
+              </p>
+            </div>
+          )}
           <div className="flex items-center justify-between gap-2">
             <h3 className="flex items-center gap-2 text-base font-semibold">
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500/90 to-orange-500/90 text-white shadow-md">
@@ -405,6 +527,58 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
             )}
           </Button>
         </div>
+
+        {/* D16: roleplay scenario chips — hidden once a scene is live */}
+        {msgs.length === 0 && !scenario && (
+          <div>
+            <p className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <Target className="h-3.5 w-3.5" aria-hidden="true" />
+              {t("scenario.pickLabel")}
+            </p>
+            <div
+              className="nice-scroll -mx-1 flex gap-2 overflow-x-auto px-1 pb-1"
+              role="group"
+              aria-label={t("scenario.pickLabel")}
+            >
+              {SCENARIOS.map((s) => {
+                const Icon = SCENARIO_ICONS[s.id];
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => chooseScenario(s.id)}
+                    className="flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 text-sm font-medium text-muted-foreground transition-colors hover:border-rose-500/50 hover:text-foreground"
+                  >
+                    <Icon className="h-4 w-4" aria-hidden="true" />
+                    {t(`scenario.names.${s.id}`)}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* D16: mission banner (visible while the scene is live) */}
+        {scenario && (() => {
+          const scen = scenarioById(scenario);
+          if (!scen) return null;
+          const Icon = SCENARIO_ICONS[scen.id];
+          return (
+            <div className="flex items-start gap-2.5 rounded-xl border border-amber-300/70 bg-amber-50 p-3 dark:border-amber-900/60 dark:bg-amber-950/30">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-sm">
+                <Icon className="h-4 w-4" aria-hidden="true" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-xs font-bold">
+                  {t("scenario.missionLabel")} · {t(`scenario.names.${scen.id}`)}
+                </p>
+                <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                  {scen.mission[locale]}
+                </p>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* topic chips */}
         <div>
@@ -549,14 +723,17 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
           <div ref={endRef} />
         </div>
 
-        {/* quick phrases (tap to send) */}
+        {/* quick phrases (tap to send) — scenario starters take over */}
         <div className="nice-scroll -mx-1 flex items-center gap-2 overflow-x-auto px-1 pb-0.5">
           {msgs.length === 0 && (
             <span className="shrink-0 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
               {t("partner.quickTitle")}
             </span>
           )}
-          {quickPhrases.map((p) => (
+          {(scenario && msgs.length <= 1
+            ? (scenarioById(scenario)?.starters ?? [])
+            : quickPhrases
+          ).map((p) => (
             <button
               key={p}
               type="button"

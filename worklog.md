@@ -3552,3 +3552,19 @@ Work Log:
 Stage Summary:
 - The core "Bolo" promise gets its first dedicated trainer: say the word, see exactly which word landed and which didn't, with a tip in your own language. Zero new platform credentials — it rides the learner's own key.
 - Next: D16 — AI partner scenario pack (roleplay: interview / restaurant / doctor / airport / customer-service with feedback).
+---
+Task ID: D16
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 16 — AI partner scenario pack (5 goal-based roleplays with feedback)
+
+Work Log:
+- src/lib/scenarios.ts (PURE): 5 scenarios — interview (Ms. Carter), restaurant (Leo), doctor (Dr. Rahman), airport (Sam), customer-service (Alex) — each with a character prompt fragment, a static opener (zero API cost), a trilingual mission, and 3 tap-to-send starter phrases. withName() safely injects the learner's name into roles/openers.
+- /api/ai: chat-partner now accepts payload.scenario — roleplay persona branch (stay in character, never break the scene, push toward the mission; same JSON reply shape so the UI is unchanged) + NEW scenario-feedback action (goalAchieved bool, score 0-100 = mission 60% + English quality 40%, strengths/improvements written in the UI language; 400 on unknown scenario).
+- AiPartner: scenario chip row (icons, hidden once a scene is live), mission banner (icon + trilingual mission), static opener appended + TTS-spoken on enter, scenario starters replace the generic quick phrases until the learner replies, send() attaches the scenario to chat-partner, Finish runs scenario-feedback BEFORE the generic call-analysis and shows a mission-verdict card (Goal badge, score bar, strengths/improvements) above it; reset clears scenario state. roleplay_done analytics {scenario, score, goal}.
+- i18n: speaking.scenario.{pickLabel,missionLabel,feedbackTitle,goalAchieved,goalMissed,strengths,improvements,names×5} ×3 — ALL-PARITY-OK.
+- Verification: tsc 0 / lint 0 / i18n OK. Browser E2E: scenario chips render → "Job interview" click → static opener ("Hi, thanks for coming in today! I'm Ms. Carter…") appears + TTS → mission banner shows the localized mission → starters replace quick phrases → message send reaches the API and surfaces the localized no-key error gracefully ("AI couldn't reply — Your Gemini API key isn't set yet"). Real AI replies use the same contract with the learner's own key. QA user cleaned; dev.log clean.
+- ROADMAP-60.md D16 ticked.
+
+Stage Summary:
+- The AI partner now has a purpose-driven mode: five real-life scenes with missions and a verdict — turning "chat practice" into trainable situations learners actually face (interviews, clinics, airports).
+- Next: D17 — speaking simulator (IELTS/interview style: part-based questions, timer, band-style feedback).
