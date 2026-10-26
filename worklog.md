@@ -3516,3 +3516,19 @@ Work Log:
 Stage Summary:
 - Activation now has a visible ladder: every new learner sees exactly what "using Bolo well" means, and the owner can watch D1/D7 retention move — the metric the 60-day plan targets at 25%+.
 - Next: D14 — Phase-2 review day (production triage + live regression sweep of D8–D13).
+---
+Task ID: D14
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 14 — Phase-2 review: production triage, live regression sweep (D8–D13), incident + fix
+
+Work Log:
+- Production triage (Turso): 9 users, 21 analytics events, 0 feedback / 0 client errors / 0 ratings (D8–D13 shipped only hours ago); VAPID + CRON_SECRET still unset on Vercel (push degrades gracefully, digest cron keeps 401).
+- LIVE regression sweep on bolo-english-mu.vercel.app with a fresh QA account: register → onboarding auto-opens (job / 20 min) → Home shows "1-day streak" + "Goal: 20 min/day" + the 7-mission checklist → Path shows "Your 4-week plan / Week 1 of 4 / goal: Job & career" with job-themed weeks → Settings shows "Daily reminders" card, Learning-goal radios synced (Job & career checked), "Take the level test" present. Zero console errors across the whole sweep. Earlier live API probes: placement grading (12/12 → B2 saved) and streak mark/read both verified on production.
+- BUG FOUND+FIXED: onboarding on a NEW device always pre-selected default goal/target even when the account had saved ones — now pre-selects the account's stored values (useDevice state at open time). tsc/lint clean.
+- ⚠️ INCIDENT (own fault, documented): a QA-cleanup delete used a PREFIX PATTERN (`deviceId LIKE 'account:%'`) instead of exact ids and removed 3 account-scoped UserConfig rows, one of which belonged to the admin/owner account. The D6 backup file no longer exists locally, so restore was impossible. Consequence: the owner's SAVED COPY of their Gemini key (and level/goal) may be gone from Settings — re-pasting the key in Settings restores everything (the key itself is unaffected; only the stored encrypted copy was deleted). LESSON RECORDED: production deletions must ALWAYS be exact-id/userId-scoped, never pattern-scoped; a test-data cleanup step in the backup doc was added mentally for the next D54 backup-drill day. User count restored to the exact pre-sweep 9; QA user/rows cleaned by exact ids only.
+- ROADMAP-60.md D14 ticked — PHASE 2 COMPLETE (D8–D14, 8/8 days, no gaps).
+
+Stage Summary:
+- Phase 2 (অনবোর্ডিং ও অ্যাক্টিভেশন) is fully live: placement test → goal → daily target → 4-week personalized plan → streak → push reminders (armed) → 7-day mission ladder → D1/D7 retention visibility. The funnel the 25%-retention target needs is measurable end-to-end.
+- Owner actions pending: VAPID_* + CRON_SECRET on Vercel (push + weekly snapshot); possibly re-paste the Gemini key if Settings shows no saved key (incident note above).
+- Next: Phase 3 Day 15 — pronunciation practice module (speak → STT → word-level accuracy + tips).

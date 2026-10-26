@@ -80,6 +80,11 @@ export default function OnboardingDialog() {
     if (!loaded || !user) return;
     if (isOnboarded()) return;
     queueMicrotask(() => {
+      // Pre-select what the account already has (a returning user on a new
+      // device sees their goal/target instead of the defaults).
+      const st = useDevice.getState();
+      if (st.goal) setGoal(st.goal);
+      if (typeof st.dailyTarget === "number") setTarget(st.dailyTarget);
       setStep("goal");
       setOpen(true);
     });
