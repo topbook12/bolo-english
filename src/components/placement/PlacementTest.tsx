@@ -99,6 +99,12 @@ export default function PlacementTest({ onDone }: { onDone?: (stored: string) =>
         setResult(json as PlacementResult);
         setPhase("done");
         track("placement_done", { level: String(json.level) });
+        // D13 mission-1 flag: the checklist reads this device-local marker.
+        try {
+          localStorage.setItem("bolo_placement_done", "1");
+        } catch {
+          /* private mode — checklist shows it unfinished; harmless */
+        }
         onDone?.(String(json.stored));
       } catch (e) {
         setError(e instanceof Error ? t("errors.submit") : t("errors.submit"));

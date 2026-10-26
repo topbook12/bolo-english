@@ -130,11 +130,69 @@ export async function GET() {
     trend.push({ date, devices: byDay.get(date) ?? 0 });
   }
 
+  // D13: D1/D7 retention over the ActivityDay streak ledger. Cohort = a
+  // device's FIRST active day; retained = that device (account days merged
+  // in JS) having a mark exactly 1 / 7 days later. Only cohorts old enough
+  // to be judged are counted (a device whose first day was yesterday can't
+  // have a D7 verdict yet).
+  const activityRows = await db.activityDay.findMany({
+    select: { deviceId: true, userId: true, day: true },
+  });
+  const todayUtc = dayStr(0);
+  const epoch = (d: string) => Math.floor(Date.parse(`${d}T00:00:00Z`) / 86_400_000);
+  const plusDays = (d: string, n: number) =>
+    new Date((epoch(d) + n) * 86_400_000).toISOString().slice(0, 10);
+
+  const firstByDevice = new Map<string, string>();
+  const daysByDevice = new Map<string, Set<string>>();
+  const daysByUser = new Map<string, Set<string>>();
+  for (const r of activityRows) {
+    const f = firstByDevice.get(r.deviceId);
+    if (!f || r.day < f) firstByDevice.set(r.deviceId, r.day);
+    (daysByDevice.get(r.deviceId) ?? daysByDevice.set(r.deviceId, new Set()).get(r.deviceId)!).add(r.day);
+    if (r.userId)
+      (daysByUser.get(r.userId) ?? daysByUser.set(r.userId, new Set()).get(r.userId)!).add(r.day);
+  }
+
+  const retention = (() => {
+    let cohort1 = 0;
+    let kept1 = 0;
+    let cohort7 = 0;
+    let kept7 = 0;
+    for (const [deviceId, first] of firstByDevice) {
+      const days = new Set<string>([
+        ...(daysByDevice.get(deviceId) ?? []),
+      ]);
+      // merge account days of any user who used this device
+      for (const [uid, set] of daysByUser) {
+        if (set.size && activityRows.some((r) => r.deviceId === deviceId && r.userId === uid)) {
+          for (const d of set) days.add(d);
+        }
+      }
+      const fE = epoch(first);
+      if (epoch(todayUtc) - fE >= 1) {
+        cohort1++;
+        if (days.has(plusDays(first, 1))) kept1++;
+      }
+      if (epoch(todayUtc) - fE >= 7) {
+        cohort7++;
+        if (days.has(plusDays(first, 7))) kept7++;
+      }
+    }
+    return {
+      cohort1,
+      d1: cohort1 ? Math.round((kept1 / cohort1) * 100) : null,
+      cohort7,
+      d7: cohort7 ? Math.round((kept7 / cohort7) * 100) : null,
+    };
+  })();
+
   return NextResponse.json({
     ok: true,
     data: {
       generatedAt: new Date().toISOString(),
       users: { total: usersTotal, new7: users7, new30: users30 },
+      retention,
       dau: trend[trend.length - 1]?.devices ?? 0,
       wau: num((activeWeek as DayRow[])[0]?.n),
       mau: num((activeMonth as DayRow[])[0]?.n),

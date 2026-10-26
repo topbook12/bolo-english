@@ -13,6 +13,7 @@ import {
   Mic,
   BookOpenCheck,
   MonitorSmartphone,
+  Repeat2,
   Loader2,
   AlertTriangle,
 } from "lucide-react";
@@ -29,6 +30,12 @@ import { useToast } from "@/hooks/use-toast";
 interface AnalyticsData {
   generatedAt: string;
   users: { total: number; new7: number; new30: number };
+  retention: {
+    cohort1: number;
+    d1: number | null;
+    cohort7: number;
+    d7: number | null;
+  };
   dau: number;
   wau: number;
   mau: number;
@@ -176,6 +183,34 @@ export default function AnalyticsCard() {
                 label={t("statSpeaking")}
                 tint="violet"
               />
+            </div>
+
+            {/* D13: retention panel — D1/D7 over the ActivityDay ledger */}
+            <div className="rounded-2xl border border-border/60 p-4">
+              <div className="mb-3 flex items-baseline justify-between gap-2">
+                <p className="flex items-center gap-1.5 text-sm font-bold">
+                  <Repeat2 className="h-4 w-4" aria-hidden /> {t("retentionTitle")}
+                </p>
+                <p className="text-[11px] text-muted-foreground">{t("retentionHint")}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-xl border border-border/50 p-3">
+                  <p className="text-2xl font-bold tracking-tight">
+                    {data.retention.d1 == null ? "—" : `${data.retention.d1}%`}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {t("retentionD1", { n: nf.format(data.retention.cohort1) })}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-border/50 p-3">
+                  <p className="text-2xl font-bold tracking-tight">
+                    {data.retention.d7 == null ? "—" : `${data.retention.d7}%`}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {t("retentionD7", { n: nf.format(data.retention.cohort7) })}
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* 14-day active-devices trend (pure CSS bars — no chart dep) */}

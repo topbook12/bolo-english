@@ -36,6 +36,7 @@ import { useDeviceValue } from "@/hooks/use-device";
 import { useMounted } from "@/hooks/use-mounted";
 import { apiGet } from "@/lib/client-api";
 import { todayLocalDay, type StreakInfo } from "@/lib/streak-days";
+import WeekMissionCard from "@/components/missions/WeekMissionCard";
 import type { DailyWord } from "@/lib/types";
 import type { TabId } from "@/components/layout/AppShell";
 import { isNoName } from "@/lib/no-name";
@@ -386,6 +387,11 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
           </CardContent>
         </Card>
       )}
+      {/* D13: 7-day mission checklist — the activation ladder. Derives its
+          ticks from the same live stores/APIs everything else uses. */}
+      <WeekMissionCard />
+
+      {/* API key notice */}
       {loaded && !hasKey && (
         <Card className="animate-fade-in-up border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/40">
           <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:p-5">

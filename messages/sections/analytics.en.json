@@ -30,6 +30,10 @@
     "minUnit": "min",
     "secUnit": "s",
     "speakingMinutes": "Total speaking time (7 days)",
-    "newUsers30": "New learners (30 days)"
+    "newUsers30": "New learners (30 days)",
+    "retentionTitle": "Retention",
+    "retentionHint": "Users active exactly 1 / 7 days after their first day",
+    "retentionD1": "Day 1 — {n} devices judged",
+    "retentionD7": "Day 7 — {n} devices judged"
   }
 }

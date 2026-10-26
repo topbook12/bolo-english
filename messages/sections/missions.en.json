@@ -1,0 +1,17 @@
+{
+  "missions": {
+    "title": "Your 7-day mission",
+    "subtitle": "{done}/{total} done — small steps, real habit",
+    "allDone": "All missions complete — you've built the habit! 🎉",
+    "hide": "Hide checklist",
+    "items": {
+      "test": "Take the level test",
+      "words": "Learn 10 words",
+      "grammar": "Finish 1 grammar lesson",
+      "listen": "Listen to 1 story",
+      "speak": "Have 1 conversation",
+      "read": "Read 1 passage",
+      "return": "Come back the next day"
+    }
+  }
+}

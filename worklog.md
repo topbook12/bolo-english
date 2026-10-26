@@ -3499,3 +3499,20 @@ Work Log:
 Stage Summary:
 - The platform can now REACH its learners outside the app: opt-in daily reminders in the user's own language, streak-danger nudges computed from the D11 ActivityDay data, dead-endpoint hygiene, and a cron that arms automatically once the owner sets VAPID_* + CRON_SECRET on Vercel.
 - Next: D13 — first-week mission checklist + D1/D7 retention panel in analytics.
+---
+Task ID: D13
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 13 — 7-day mission checklist + D1/D7 retention metrics
+
+Work Log:
+- src/components/missions/WeekMissionCard.tsx (NEW, mounted on Home): 7 missions (level test / 10 words / 1 grammar / 1 story / 1 conversation / 1 passage / return next day). Ticks DERIVED from existing sources only — placement flag (localStorage, set by PlacementTest on success), learned-store ≥10, grammar done-topics ≥1, listening done-ids ≥1, progress API totalSessions ≥1, reading done-ids ≥1, streak API last7 ≥2 — the checklist can never disagree with reality. Progress bar, all-done celebration state, dismissible (localStorage bolo_missions_hidden). Hydration-safe (external stores + mount-gated fetches; queueMicrotask for localStorage reads).
+- PlacementTest: sets bolo_placement_done=1 on success (mission-1 input).
+- /api/analytics: +retention {cohort1, d1, cohort7, d7} computed from the ActivityDay ledger — cohort = device's first active day; retained = mark on exactly first+1 / first+7; only old-enough cohorts judged; account days merged per device. Pure JS math over one findMany (small scale).
+- AnalyticsCard: Retention panel (D1% / D7% + cohort sizes, "—" when no cohort is judgeable yet) — admin-only like the rest.
+- i18n: new namespace missions.{en,bn,hi}.json (title/subtitle/allDone/hide/items×7) + analytics.retention* ×3 — ALL-PARITY-OK.
+- Verification: tsc 0 / lint 0 (fixed one set-state-in-effect via queueMicrotask). Browser E2E: card renders all 7 items; setting the placement flag turns mission 1 green after reload; dismiss persists (hidden after reload). Retention math verified with seeded history (device A: first day −8d, +1d, +7d; device B: first day only → cohort1=2, d1=50%, cohort7=2, d7=50% exactly). Admin panel shows Retention title; API shape correct (null when nothing judgeable). No console errors; client-error table empty (the /api/client-error GET in dev.log was just the admin card's poll). QA users/rows + temp ADMIN_EMAILS entry cleaned.
+- ROADMAP-60.md D13 ticked.
+
+Stage Summary:
+- Activation now has a visible ladder: every new learner sees exactly what "using Bolo well" means, and the owner can watch D1/D7 retention move — the metric the 60-day plan targets at 25%+.
+- Next: D14 — Phase-2 review day (production triage + live regression sweep of D8–D13).

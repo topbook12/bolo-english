@@ -30,6 +30,10 @@
     "minUnit": "मिनट",
     "secUnit": "सेकंड",
     "speakingMinutes": "स्पीकिंग का कुल समय (7 दिन)",
-    "newUsers30": "नए learners (30 दिन)"
+    "newUsers30": "नए learners (30 दिन)",
+    "retentionTitle": "रिटेंशन",
+    "retentionHint": "पहले दिन के ठीक 1 / 7 दिन बाद सक्रिय डिवाइस",
+    "retentionD1": "दिन 1 — {n} डिवाइस निर्णीत",
+    "retentionD7": "दिन 7 — {n} डिवाइस निर्णीत"
   }
 }
