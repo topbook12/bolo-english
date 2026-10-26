@@ -101,6 +101,25 @@
       },
       "footer": "{n} sentences practiced",
       "encourage": "Regular practice builds fluency — keep going!"
+    },
+    "pron": {
+      "title": "Pronunciation practice",
+      "desc": "Say it out loud — get word-by-word feedback instantly.",
+      "needKey": "Needs your free Gemini key",
+      "keyHint": "This uses your own Gemini key (Settings → Add API Key) to hear you — nothing is stored.",
+      "listen": "Listen",
+      "record": "Hold the mic — say it now",
+      "stop": "Stop",
+      "checking": "Listening back…",
+      "again": "Try again",
+      "scoreTitle": "Score: {score}%",
+      "wOk": "Perfect",
+      "wClose": "Almost",
+      "wMiss": "Missed",
+      "noSpeech": "Couldn't hear anything — try again a bit louder.",
+      "sttFailed": "Transcription failed — please try again.",
+      "permission": "Microphone permission is needed to practice.",
+      "unsupported": "This browser can't record audio."
     }
   }
 }

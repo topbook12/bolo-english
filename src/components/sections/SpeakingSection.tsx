@@ -22,6 +22,7 @@ import SectionHeader from "@/components/shared/SectionHeader";
 import PointList from "@/components/shared/PointList";
 import { useDevice } from "@/hooks/use-device";
 import AiPartner from "@/components/speaking/AiPartner";
+import PronunciationCard from "@/components/speaking/PronunciationCard";
 import CallFlow, { type CallIntent } from "@/components/speaking/CallFlow";
 
 type Mode = "menu" | "call" | "ai";
@@ -71,6 +72,10 @@ export default function SpeakingSection() {
   return (
     <div className="mx-auto max-w-5xl space-y-5 lg:space-y-6">
       <SectionHeader icon={Mic} tint="rose" title={t("title")} subtitle={t("subtitle")} />
+
+      {/* D15: pronunciation practice — speak → BYOK STT → word-level score.
+          Lives right under the mode cards where "practice speaking" lives. */}
+      <PronunciationCard />
 
       {/* Mode cards — 1 per column on desktop */}
       <div className="grid gap-5 lg:grid-cols-3 lg:items-stretch">

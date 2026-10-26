@@ -3532,3 +3532,23 @@ Stage Summary:
 - Phase 2 (অনবোর্ডিং ও অ্যাক্টিভেশন) is fully live: placement test → goal → daily target → 4-week personalized plan → streak → push reminders (armed) → 7-day mission ladder → D1/D7 retention visibility. The funnel the 25%-retention target needs is measurable end-to-end.
 - Owner actions pending: VAPID_* + CRON_SECRET on Vercel (push + weekly snapshot); possibly re-paste the Gemini key if Settings shows no saved key (incident note above).
 - Next: Phase 3 Day 15 — pronunciation practice module (speak → STT → word-level accuracy + tips).
+---
+Task ID: D15
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 15 — pronunciation practice module (speak → STT → word-level score + tips)
+
+Work Log:
+- src/lib/pron-bank.ts (PURE): 24 exercises (3 levels × 8 = 5 words + 3 sentences) with phonetic respelling + trilingual tips targeting the sounds bn/hi speakers actually swap (v/w, s/sh, th, clusters, -ed endings, word stress, reductions); pronExercisesForLevel() orders words before sentences.
+- compareSpeech(): word-level greedy Levenshtein matching — ok (dist 0) / close (dist ≤ 20% of word length) / miss; extra spoken words ignored (STT appends filler), missing words hurt; score = weighted %.
+- src/lib/audio-wav.ts (NEW): encodeWav16 + transcodeToWavBlob + blobToBase64 extracted from CallRoom (dedupe — call room now imports the shared module; tsc verified).
+- PronunciationCard (mounted in SpeakingSection above the mode cards): exercise chips, target + /phonetic/ + tip, TTS "Listen", Record/Stop with a 10s HARD CAP (quota protection), 0.1s elapsed ticker, score % + per-word colored verdict chips; needs-key badge + hint when no key; permission/unsupported/no-speech toasts localized.
+- Pipeline: MediaRecorder → transcodeToWavBlob → base64 → POST /api/stt (BYOK, 30/min/IP) — the exact call-room path that is proven live on mobile. Web Speech API deliberately NOT used (its dictionary auto-correct would flatter the score).
+- analytics: +pronunciation_done {score}.
+- i18n: speaking.pron.{title,desc,needKey,keyHint,listen,record,stop,checking,again,scoreTitle,wOk,wClose,wMiss,noSpeech,sttFailed,permission,unsupported} ×3 — ALL-PARITY-OK.
+- Verification: tsc 0 / lint 0 (fixed: callback order + no-ref-during-render + no-setState-in-effect + React-Compiler memoization via plain functions + exRef-in-effect). Browser E2E: card renders (chips, phonetic, tip, Listen, record button); headless mic rejection → graceful idle return, no crash. Engine unit checks: perfect=100, filler-words-ignored=100, garbage=0, near-miss handling sane. QA user cleaned.
+- Honest limit: a real microphone recording can't run in headless Chrome; the pipeline is byte-identical to the call room's proven one.
+- ROADMAP-60.md D15 ticked.
+
+Stage Summary:
+- The core "Bolo" promise gets its first dedicated trainer: say the word, see exactly which word landed and which didn't, with a tip in your own language. Zero new platform credentials — it rides the learner's own key.
+- Next: D16 — AI partner scenario pack (roleplay: interview / restaurant / doctor / airport / customer-service with feedback).

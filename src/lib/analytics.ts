@@ -25,6 +25,7 @@ export const TRACK_EVENTS = [
   "placement_done", // {level} (client-fired by the D8 placement test on success)
   "path_goal_set", // {goal} (client-fired by the D9 goal selector / settings)
   "onboarding_done", // {target} (client-fired when the D10 onboarding finishes/skips)
+  "pronunciation_done", // {score} (client-fired by the D15 pronunciation card per attempt)
 ] as const;
 
 export type TrackEventName = (typeof TRACK_EVENTS)[number];
