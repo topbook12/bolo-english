@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { reqLocale, apiMsg } from "@/lib/api-i18n";
 import { cleanDeviceId } from "@/lib/validate";
+import { getSessionUserId } from "@/lib/auth";
+import { computeStreaks, todayLocalDay } from "@/lib/streak-days";
 
 // GET /api/progress?deviceId=... → stats for the progress section
 export async function GET(req: NextRequest) {
@@ -10,7 +12,12 @@ export async function GET(req: NextRequest) {
   if (!deviceId)
     return NextResponse.json({ ok: false, error: apiMsg(locale, "deviceIdRequired") }, { status: 400 });
 
-  const [sessions, practice, wordCount] = await Promise.all([
+  // D11: the streak is server-tracked via ActivityDay (client-local days).
+  // When signed in, the account's days merge with this device's days so a
+  // streak survives device switches.
+  const userId = await getSessionUserId().catch(() => null);
+
+  const [sessions, practice, wordCount, activityDays] = await Promise.all([
     db.speakingSession.findMany({
       where: { deviceId },
       orderBy: { createdAt: "asc" },
@@ -22,6 +29,10 @@ export async function GET(req: NextRequest) {
       take: 200,
     }),
     db.wordBookItem.count({ where: { deviceId } }),
+    db.activityDay.findMany({
+      where: userId ? { OR: [{ deviceId }, { userId }] } : { deviceId },
+      select: { day: true },
+    }),
   ]);
 
   const totalSeconds = Math.round(sessions.reduce((a, s) => a + s.durationSec, 0));
@@ -30,19 +41,15 @@ export async function GET(req: NextRequest) {
     ? Math.round(sessions.reduce((a, s) => a + s.score, 0) / sessions.length)
     : 0;
 
-  // streak: consecutive days (Asia/Dhaka) with any activity
-  const days = new Set<string>();
-  sessions.forEach((s) => days.add(dhaka(s.createdAt)));
-  practice.forEach((p) => days.add(dhaka(p.createdAt)));
-  let streak = 0;
-  const d = new Date();
-  for (;;) {
-    const key = dhaka(d);
-    if (days.has(key)) {
-      streak++;
-      d.setDate(d.getDate() - 1);
-    } else break;
-  }
+  // Streak from ActivityDay (timezone-safe: days arrive already localized by
+  // the device). "today" is anchored to the client's calendar when provided.
+  const todayParam = req.nextUrl.searchParams.get("today") ?? "";
+  const streakInfo = computeStreaks(
+    activityDays.map((r) => r.day),
+    /^\d{4}-\d{2}-\d{2}$/.test(todayParam) ? todayParam : todayLocalDay()
+  );
+  const streak = streakInfo.current;
+  const streakLongest = streakInfo.longest;
 
   // score trend (last 10 sessions)
   const trend = sessions.slice(-10).map((s, i) => ({
@@ -69,13 +76,11 @@ export async function GET(req: NextRequest) {
       totalMinutes,
       avgScore,
       streak,
+      streakLongest,
+      todayDone: streakInfo.todayDone,
       wordCount,
       trend,
       practiceByKind,
     },
   });
-}
-
-function dhaka(date: Date): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Dhaka" }).format(date);
 }

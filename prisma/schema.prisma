@@ -123,6 +123,25 @@ model PracticeLog {
   createdAt DateTime @default(now())
 }
 
+// One row per (device, local day) the app was actively used — the D11
+// server-tracked streak. The day string (YYYY-MM-DD) is computed by the
+// CLIENT in the device's own timezone, which makes the streak timezone-safe
+// without ever storing the timezone itself (privacy-first). userId is
+// attached when the visitor is signed in, so an account's streak can merge
+// days across devices.
+model ActivityDay {
+  id        String   @id @default(cuid())
+  deviceId  String
+  userId    String?
+  day       String // YYYY-MM-DD, client-local calendar day
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([deviceId, day])
+  @@index([userId, day])
+  @@index([day])
+}
+
 // ─── Video call signaling (HTTP-polling based; Vercel-serverless friendly) ───
 
 model CallRoom {

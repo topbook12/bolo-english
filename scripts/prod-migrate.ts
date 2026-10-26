@@ -433,6 +433,33 @@ async function main() {
     log(YELLOW, "Skip     MetricDigest table  (already exists)");
   }
 
+  // ── 10) ActivityDay table (D11 — server-tracked streak) ────────────────
+  // One row per (device, client-local day). Without it POST /api/streak
+  // fails and the streak stays at zero for everyone.
+  if (!tables.has("ActivityDay")) {
+    await db.execute(/* sql */ `
+      CREATE TABLE "ActivityDay" (
+          "id" TEXT NOT NULL PRIMARY KEY,
+          "deviceId" TEXT NOT NULL,
+          "userId" TEXT,
+          "day" TEXT NOT NULL,
+          "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          "updatedAt" DATETIME NOT NULL
+      )
+    `);
+    await db.execute(
+      `CREATE UNIQUE INDEX "ActivityDay_deviceId_day_key" ON "ActivityDay"("deviceId", "day")`
+    );
+    await db.execute(
+      `CREATE INDEX "ActivityDay_userId_day_idx" ON "ActivityDay"("userId", "day")`
+    );
+    await db.execute(`CREATE INDEX "ActivityDay_day_idx" ON "ActivityDay"("day")`);
+    log(GREEN, "Created  ActivityDay table + 3 indexes  (D11 streak)");
+    changed++;
+  } else {
+    log(YELLOW, "Skip     ActivityDay table  (already exists)");
+  }
+
   // ── Final verification (reads the REAL state, not our assumptions) ────────
   const finalTables = await tablesOf(db);
   const finalCols = await columnsOf(db, "User");
@@ -448,7 +475,8 @@ async function main() {
     finalTables.has("Feedback") &&
     finalTables.has("SessionRating") &&
     finalTables.has("ClientError") &&
-    finalTables.has("MetricDigest");
+    finalTables.has("MetricDigest") &&
+    finalTables.has("ActivityDay");
 
   console.log("");
   if (ok) {

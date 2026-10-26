@@ -79,6 +79,13 @@
         "📚 3 real words daily, grammar lessons & listening practice — all free",
         "📖 Read stories, letters and news from easy to advanced — check every paragraph's translation"
       ]
+    },
+    "streak": {
+      "title": "{n, plural, =0 {Start your streak} =1 {1-day streak} other {#-day streak}}",
+      "today": "today",
+      "weekAria": "Last 7 days activity",
+      "goal": "Goal: {n} min/day",
+      "longest": "Best: {n} days"
     }
   }
 }

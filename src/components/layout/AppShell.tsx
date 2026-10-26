@@ -29,6 +29,7 @@ import AuthButton from "@/components/auth/AuthButton";
 import { useMounted } from "@/hooks/use-mounted";
 import { useDeviceInit, useDeviceValue } from "@/hooks/use-device";
 import { useSectionTracking, useSessionTracking } from "@/hooks/use-track";
+import { markActivityDay } from "@/lib/streak";
 import HomeSection from "@/components/sections/HomeSection";
 import PathSection from "@/components/path/PathSection";
 import SpeakingSection from "@/components/sections/SpeakingSection";
@@ -129,6 +130,11 @@ export default function AppShell() {
   // privacy-first, whitelist-only, never blocks the UI.
   useSessionTracking();
   useSectionTracking(tab);
+  // D11 streak: mark today as an active day (device-local calendar), once
+  // per day, fire-and-forget — the "used the app that day" definition.
+  useEffect(() => {
+    queueMicrotask(markActivityDay);
+  }, []);
   // Hydration-safe reads: during hydration these return the same values the
   // server rendered (false), so the header structure can never diverge from
   // the SSR HTML — even if the store already holds live state at hydration

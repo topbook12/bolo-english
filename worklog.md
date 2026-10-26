@@ -3455,3 +3455,24 @@ Stage Summary:
 - New users now land in a guided 60-second loop: goal feeds the D9 weekly plan, daily target will feed D11 streaks, and the level test feeds placement — the activation funnel of Phase 2 is wired end-to-end.
 - Owner action: `bun scripts/prod-migrate.ts` adds UserConfig.dailyTarget (safe to re-run; also covers goal if not yet applied).
 - Next: D11 — server-tracked daily streak (timezone-safe) + streak visual on Home.
+---
+Task ID: D11
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 11 — server-tracked daily streak (timezone-safe) + home streak-fire visual
+
+Work Log:
+- Schema: ActivityDay model — unique(deviceId, day) + index(userId, day) + index(day); day is a client-local "YYYY-MM-DD" string → timezone-safe without ever storing the timezone; userId attached when signed in so the streak survives device switches. db:push ✓.
+- src/lib/streak-days.ts (PURE): computeStreaks(activeDays, today) → {current, longest, last7, todayDone}; forgiving boundary (today missing but yesterday present = still alive); lexicographic day diffs via epoch-days.
+- /api/streak: POST {deviceId, day} — validated (400 bad_day), 30/min/IP+device, upsert idempotent, fire-safe (never 500s the UX); GET — union of device + account days, client can pass &today= to anchor its own calendar (server UTC clock only a fallback).
+- src/lib/streak.ts: markActivityDay() — once/day (localStorage dedupe), keepalive fetch, fire-and-forget; called from AppShell mount (queueMicrotask).
+- HomeSection: streak-fire card (flame in fire gradient — grey when 0, "today ✓" chip, 7-day dot strip oldest→newest, Goal badge = dailyTarget from D10, Best badge when longest > current); StatCard streak now prefers the server-tracked value (legacy progress.streak fallback); mount-gated render (hydration-safe).
+- /api/progress: streak recomputed from ActivityDay (device ∪ account); Asia/Dhaka-hardcoded dhaka() removed; +streakLongest, +todayDone in response.
+- i18n: home.streak.{title(plural-aware),today,weekAria,goal,longest} ×3 — ALL-PARITY-OK.
+- prod-migrate.ts: ActivityDay CREATE TABLE + 3 indexes + final verification.
+- Verification: tsc 0 / lint 0 / i18n OK. API E2E: mark ✓, bad day 400 ✓, 6-day run → current=6/longest=6/last7 correct ✓, yesterday-only → current=1 (alive) ✓, /api/progress returns streak/longest/todayDone ✓. Browser E2E: register → onboarding (school/5min) → home shows "Start your streak" + "Goal: 5 min/day" → reload → "1-day streak" + "today" chip. No console errors, dev.log clean. QA rows cleaned.
+- ROADMAP-60.md D11 ticked.
+
+Stage Summary:
+- The streak is now honest, global-ready and account-scoped: a Dhaka user and a Toronto user both get correct day boundaries, and the flame on Home (fed by D10's target) gives the daily loop its visual hook.
+- Owner action: `bun scripts/prod-migrate.ts` creates ActivityDay in production.
+- Next: D12 — PWA push notifications (VAPID + web-push + service-worker handler; daily word + streak-danger reminders, opt-in).

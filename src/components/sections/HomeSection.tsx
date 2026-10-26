@@ -22,6 +22,7 @@ import {
   Lightbulb,
   Sparkles,
   Volume2,
+  CircleCheck,
   type LucideIcon,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -34,9 +35,11 @@ import EmptyState from "@/components/shared/EmptyState";
 import { useDeviceValue } from "@/hooks/use-device";
 import { useMounted } from "@/hooks/use-mounted";
 import { apiGet } from "@/lib/client-api";
+import { todayLocalDay, type StreakInfo } from "@/lib/streak-days";
 import type { DailyWord } from "@/lib/types";
 import type { TabId } from "@/components/layout/AppShell";
 import { isNoName } from "@/lib/no-name";
+import { cn } from "@/lib/utils";
 
 interface ProgressData {
   totalSessions: number;
@@ -145,6 +148,8 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
   const displayName = useDeviceValue((s) => s.displayName, null);
   const loaded = useDeviceValue((s) => s.loaded, false);
   const [progress, setProgress] = useState<ProgressData | null>(null);
+  const [streakInfo, setStreakInfo] = useState<StreakInfo | null>(null);
+  const dailyTarget = useDeviceValue((s) => s.dailyTarget, 10);
   const [dailyWords, setDailyWords] = useState<DailyWord[] | null>(null);
   const [dailyError, setDailyError] = useState<string | null>(null);
   // Mount-gated time values: `new Date()` differs between the server (UTC)
@@ -166,6 +171,12 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
     apiGet<ProgressData>(`/api/progress?deviceId=${deviceId}`)
       .then(setProgress)
       .catch(() => setProgress(null));
+    // D11: server-tracked streak (client-local "today" anchors the boundary).
+    apiGet<StreakInfo>(
+      `/api/streak?deviceId=${deviceId}&today=${todayLocalDay()}`
+    )
+      .then(setStreakInfo)
+      .catch(() => setStreakInfo(null));
   }, [deviceId]);
 
   const loadDaily = () => {
@@ -282,7 +293,15 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
           icon={Flame}
           tint="amber"
           label={t("stats.streak")}
-          value={progress ? `${progress.streak} ${t("stats.days")}` : "—"}
+          // D11: prefer the server-tracked streak (client-local days); the
+          // legacy progress.streak is only a fallback while loading.
+          value={
+            streakInfo
+              ? `${streakInfo.current} ${t("stats.days")}`
+              : progress
+                ? `${progress.streak} ${t("stats.days")}`
+                : "—"
+          }
         />
         <StatCard
           icon={Clock3}
@@ -311,7 +330,62 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
         />
       </section>
 
-      {/* API key notice */}
+      {/* D11: streak-fire card — server-tracked streak, last-7-days strip and
+          the daily target from onboarding. Renders only after mount (the
+          streak API is a client-side fetch), so hydration stays identical. */}
+      {mounted && streakInfo && (
+        <Card className="animate-fade-in-up overflow-hidden border-amber-200/70 bg-gradient-to-br from-amber-50 via-background to-orange-50 dark:border-amber-900/50 dark:from-amber-950/30 dark:via-background dark:to-orange-950/20">
+          <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-3">
+              <span
+                className={cn(
+                  "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-white shadow-md",
+                  streakInfo.current > 0
+                    ? "bg-gradient-to-br from-orange-500 to-red-600 shadow-orange-500/30"
+                    : "bg-gradient-to-br from-stone-400 to-stone-500"
+                )}
+              >
+                <Flame className="h-6 w-6" aria-hidden />
+              </span>
+              <div className="min-w-0">
+                <p className="flex items-center gap-2 text-sm font-bold">
+                  {t("streak.title", { n: streakInfo.current })}
+                  {streakInfo.todayDone && (
+                    <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:text-emerald-300">
+                      <CircleCheck className="h-3 w-3" aria-hidden /> {t("streak.today")}
+                    </span>
+                  )}
+                </p>
+                {/* last 7 days, oldest → newest (right-most = today) */}
+                <div className="mt-1.5 flex items-center gap-1" aria-label={t("streak.weekAria")}>
+                  {streakInfo.last7.map((v, i) => (
+                    <span
+                      key={i}
+                      className={cn(
+                        "h-2.5 w-2.5 rounded-full",
+                        v === "1"
+                          ? "bg-gradient-to-br from-orange-500 to-red-500"
+                          : "bg-muted"
+                      )}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <Badge variant="secondary" className="gap-1 text-[11px]">
+                <Target className="h-3 w-3" aria-hidden />
+                {t("streak.goal", { n: dailyTarget })}
+              </Badge>
+              {streakInfo.longest > streakInfo.current && (
+                <Badge variant="outline" className="text-[11px] text-muted-foreground">
+                  {t("streak.longest", { n: streakInfo.longest })}
+                </Badge>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
       {loaded && !hasKey && (
         <Card className="animate-fade-in-up border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/40">
           <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:p-5">
