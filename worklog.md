@@ -3568,3 +3568,20 @@ Work Log:
 Stage Summary:
 - The AI partner now has a purpose-driven mode: five real-life scenes with missions and a verdict — turning "chat practice" into trainable situations learners actually face (interviews, clinics, airports).
 - Next: D17 — speaking simulator (IELTS/interview style: part-based questions, timer, band-style feedback).
+---
+Task ID: D17
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 17 — speaking simulator (IELTS-style: part-based questions, timer, band-style feedback)
+
+Work Log:
+- CONTEXT: a previous session had already committed the bulk of D17 as an unpushed commit with a UUID message (7fb777d — simulator-bank, SimulatorCard, /api/ai simulator-feedback branch, trilingual strings). This session reviewed it line-by-line, found and fixed real bugs, verified end-to-end, then finalized the commit (amended to a proper D17 message).
+- BUG FOUND+FIXED (prep timer): startSet() started the Part-2 60-second preparation countdown immediately at set start — the prep banner showed on Part 1 Q1 and recording was BLOCKED for the first 60s, and prep was long gone by the time the learner reached the cue card. Now beginPrepIfCue(nextIndex) starts the countdown only when the learner ARRIVES at the p2 step (called from submitAnswer/skipAnswer before setStep), and the prep banner renders only when isCueCard. Verified live: Part 1 record button unlocked instantly; countdown (59s) started exactly on Part 2 arrival; record unlocked after expiry.
+- CLEANUP: removed the deviceIdOk() silent gate in gradeSet() — getDeviceId() auto-creates the key synchronously, so the gate could only cause a silent stuck state (grading doing nothing, no feedback); removed an unused eslint-disable directive; moved stopTimers above the unmount effect to satisfy the react-hooks/immutability rule (declared-before-use).
+- Verification: tsc 0 / lint 0 / i18n ALL-PARITY-OK. curl probes: /api/ai simulator-feedback behind the shared no-key gate returns the localized key error (validation paths server-guarded: set_unknown / no_answers 400s). Browser E2E (full mock flow, typed answers): card renders with 3 sets + needKey badge → Daily life → Part 1 unlocked, no prep banner → answers advance 1/6→2/6→3/6 → Part 2 cue card (topic + 4 bullets in DOM) + prep countdown on arrival → prep expiry unlocks recording (62s wait) → Part 3 at 5/6 → 6/6 → grading without key → toast "Grading failed — try once more." + no-key description, state returned to 6/6 with answers intact (nothing lost) → Quit restores the pick screen. Zero console/page errors; dev.log shows only the deliberate curl-probe 400s.
+- Analytics: simulator_done {setId, band, answers} registered in TRACK_EVENTS (props numeric-safe via cleanValue; fires on successful grading — needs a real BYOK key, verified by contract + whitelist).
+- QA data cleaned EXACT-ID-ONLY (per D14 lesson): user cmvpwobz40003t8vkimuhfghc (qa-d17-e2e@example.com) + its 6 events + 3 sweep-device events + 1 activity row; local dev DB back to 0 users; production untouched. Temp scripts removed.
+- ROADMAP-60.md D17 ticked.
+
+Stage Summary:
+- The speaking engine now has a full mock-exam mode: 6-part IELTS-style tests with cue-card preparation timing, quota-protected voice answers, and honest band-style grading in one AI call — the flagship "practice like the real test" feature for the exam-goal segment.
+- Next: D18 — shadowing exercise (listen → speak along → compare, TTS+STT loop with speed control).

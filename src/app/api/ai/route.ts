@@ -7,6 +7,7 @@ import { cleanStr } from "@/lib/validate";
 import { logAnalyticsEvent } from "@/lib/analytics-server";
 import { reqLocale, apiMsg, type ApiLocale } from "@/lib/api-i18n";
 import { scenarioById, withName } from "@/lib/scenarios";
+import { simSetById } from "@/lib/simulator-bank";
 import { GeminiError, geminiJson, getAiLevel, getUserName, getUserApiKeyWithMeta } from "@/lib/gemini";
 import { pruneAiCache } from "@/lib/ai-cache-prune";
 import type {
@@ -680,6 +681,47 @@ QUALITY: "goalAchieved" = true only if every mission element was at least attemp
 Return STRICT JSON: { "goalAchieved": true, "score": 75, "strengths": "... ${lang.short}", "improvements": "... ${lang.short}" }
 ${JSON_ONLY}`,
           { temperature: 0.5, maxOutputTokens: 1024, label: "scenario-feedback" }
+        );
+        return jsonOk(data);
+      }
+
+      /* ---------------- SPEAKING: SIMULATOR FEEDBACK (D17) ---------------- */
+      case "simulator-feedback": {
+        const setId = cleanStr(payload.setId ?? "", 40);
+        const set = simSetById(setId);
+        if (!set) {
+          return jsonErr("set_unknown", 400);
+        }
+        const answers = Array.isArray(payload.answers)
+          ? payload.answers
+              .filter((a: unknown) => a && typeof a === "object")
+              .slice(0, 12)
+              .map((a: { question?: unknown; answer?: unknown; kind?: unknown }) => ({
+                question: cleanStr(a.question ?? "", 200),
+                answer: cleanStr(a.answer ?? "", 1200),
+                kind: cleanStr(a.kind ?? "p1", 4),
+              }))
+              .filter((a: { answer: string }) => a.answer.length > 0)
+          : [];
+        if (answers.length === 0) {
+          return jsonErr("no_answers", 400);
+        }
+        const data = await geminiJson<{
+          overallBand: number;
+          bands: { fluency: number; lexical: number; grammar: number };
+          summary: string;
+          topTip: string;
+        }>(
+          apiKey,
+          `You are an experienced IELTS speaking examiner grading ${userName} (${userLevel} level) after a full mock test. ${levelRule(userLevel)}.
+The exam set: "${set.title}" — Part 1 interview, Part 2 long turn ("${set.part2.topic}"), Part 3 discussion.
+Answers in order (JSON; "kind" marks the part; answers may be STT transcripts — treat punctuation/case noise kindly):
+${JSON.stringify(answers)}
+TASK: Grade band-style like the real test.
+QUALITY: "bands" = 4.0-9.0 each in 0.5 steps — "fluency" (pace, hesitation, linking), "lexical" (vocabulary range, collocations), "grammar" (range + accuracy); "overallBand" = the rounded mean; be encouraging but honest — a learner who answered everything with short simple sentences is 4.5-5.5, natural connected speech is 6.5-7.5; "summary" = 2-3 sentences ${lang.short} naming ONE thing that went well and ONE clear weakness; "topTip" = ONE concrete drill ${lang.short} they can do today.
+Return STRICT JSON: { "overallBand": 6.0, "bands": { "fluency": 6.0, "lexical": 5.5, "grammar": 6.0 }, "summary": "... ${lang.short}", "topTip": "... ${lang.short}" }
+${JSON_ONLY}`,
+          { temperature: 0.4, maxOutputTokens: 1024, label: "simulator-feedback" }
         );
         return jsonOk(data);
       }

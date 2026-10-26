@@ -136,6 +136,40 @@
         "airport": "Airport check-in",
         "support": "Customer service"
       }
+    },
+    "sim": {
+      "title": "Speaking simulator",
+      "desc": "A full IELTS-style mock test — Part 1 interview, Part 2 long turn, Part 3 discussion — graded band-style.",
+      "needKey": "Needs your free Gemini key",
+      "quotaNote": "Your voice is transcribed with your own Gemini key; nothing is stored.",
+      "setMeta": "{questions} questions · ~8 minutes",
+      "part1": "Part 1 · Interview",
+      "part2": "Part 2 · Long turn",
+      "part3": "Part 3 · Discussion",
+      "prepLeft": "Prepare your answer: {n}s",
+      "progress": "{n}/{total}",
+      "record": "Answer now — speak clearly",
+      "stop": "Stop",
+      "transcribing": "Transcribing…",
+      "typePlaceholder": "…or type your answer instead",
+      "send": "Submit answer",
+      "skip": "Skip this question",
+      "target": "aim for {n}s",
+      "quit": "Quit test",
+      "grading": "The examiner is grading your test…",
+      "resultTitle": "Your mock-test result",
+      "overall": "Band",
+      "fluency": "Fluency",
+      "lexical": "Vocabulary",
+      "grammar": "Grammar",
+      "topTip": "Today's drill",
+      "again": "Take another test",
+      "sttFailed": "Transcription failed — you can type your answer instead.",
+      "noSpeech": "Couldn't hear anything — try again or type your answer.",
+      "permission": "Microphone permission is needed — or type your answer.",
+      "unsupported": "This browser can't record — type your answer instead.",
+      "feedbackFailed": "Grading failed — try once more.",
+      "needOne": "Answer at least one question to get a grade."
     }
   }
 }
