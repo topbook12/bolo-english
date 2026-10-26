@@ -73,7 +73,9 @@
       "goal_job": "চাকরি ও ক্যারিয়ার",
       "goal_exam": "IELTS / পরীক্ষা",
       "goal_travel": "ভ্রমণ",
-      "goal_school": "স্কুল ও পড়াশোনা"
+      "goal_school": "স্কুল ও পড়াশোনা",
+      "targetLabel": "দৈনিক টার্গেট",
+      "targetMinutes": "দিনে {n} মিনিট"
     },
     "language": {
       "title": "ভাষা",

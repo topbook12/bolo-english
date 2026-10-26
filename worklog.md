@@ -3436,3 +3436,22 @@ Stage Summary:
 - The path is now PERSONAL: level (D8's placement test output) + goal (job/exam/travel/school) produce a visible 4-week plan with goal-shaped weekly themes and an extra activity per week — all client-computed (zero API cost), persisted server-side.
 - Owner action: run `bun scripts/prod-migrate.ts` to add UserConfig.goal in production (idempotent, safe to re-run).
 - Next: D10 — onboarding widget (language → goal → daily target → placement test redirect).
+---
+Task ID: D10
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 10 — onboarding widget (goal → daily target → level test)
+
+Work Log:
+- Schema: UserConfig.dailyTarget Int @default(10) (5|10|20); db:push local ✓; prod-migrate ALTER added (idempotent).
+- /api/config: dailyTarget GET + POST whitelist (5|10|20 strict); use-device store + refresh.
+- src/components/onboarding/OnboardingDialog.tsx (NEW): mounted in AppShell; opens once per device when auth user exists and localStorage "bolo_onboarded" flag absent (device-scoped by design). 3 steps: goal (5 PATH_GOALS chips → setConfig live), daily target (5/10/20 cards), level test (embeds D8 PlacementTest, or skip). Language intentionally not a step (locked at signup).
+- Safety refinements found in E2E: (1) closing the dialog mid-placement-test now returns to step 3 instead of silently trapping the user; (2) finish() persists ONLY explicitly chosen values — skipping a step can never overwrite an existing config with defaults; onboarding_done tracks target:"unset" when step 2 was skipped.
+- SettingsSection: Daily-target radio row (5/10/20 min) in the profile card + included in saveProfile.
+- i18n: new namespace onboarding.{en,bn,hi}.json (goal/target/test/done/back) + settings.profile.target* — ALL-PARITY-OK.
+- Verification: tsc 0 / lint 0 (fixed a setState-in-effect lint error via queueMicrotask pattern). Browser E2E: register → dialog auto-opens → goal=Job & career → target=20 → placement opens inside dialog → close mid-test returns to step 3 → Skip → dialog closes → account row in DB shows goal:"job" dailyTarget:20 → reload → dialog does NOT reappear; Settings shows Job & career + 20 min/day checked. No console errors, dev.log clean. QA users/configs cleaned from local DB.
+- ROADMAP-60.md D10 ticked.
+
+Stage Summary:
+- New users now land in a guided 60-second loop: goal feeds the D9 weekly plan, daily target will feed D11 streaks, and the level test feeds placement — the activation funnel of Phase 2 is wired end-to-end.
+- Owner action: `bun scripts/prod-migrate.ts` adds UserConfig.dailyTarget (safe to re-run; also covers goal if not yet applied).
+- Next: D11 — server-tracked daily streak (timezone-safe) + streak visual on Home.

@@ -73,7 +73,9 @@
       "goal_job": "नौकरी और करियर",
       "goal_exam": "IELTS / परीक्षा",
       "goal_travel": "यात्रा",
-      "goal_school": "स्कूल और पढ़ाई"
+      "goal_school": "स्कूल और पढ़ाई",
+      "targetLabel": "दैनिक लक्ष्य",
+      "targetMinutes": "दिन में {n} मिनट"
     },
     "language": {
       "title": "भाषा",

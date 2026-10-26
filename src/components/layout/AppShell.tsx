@@ -24,6 +24,7 @@ import PwaRegister from "@/components/pwa/PwaRegister";
 import InstallPrompt from "@/components/pwa/InstallPrompt";
 import FeedbackWidget from "@/components/feedback/FeedbackWidget";
 import NpsPrompt from "@/components/rating/NpsPrompt";
+import OnboardingDialog from "@/components/onboarding/OnboardingDialog";
 import AuthButton from "@/components/auth/AuthButton";
 import { useMounted } from "@/hooks/use-mounted";
 import { useDeviceInit, useDeviceValue } from "@/hooks/use-device";
@@ -230,6 +231,9 @@ export default function AppShell() {
       {/* Weekly NPS pulse (D4): at most once per week, ≥7-day-old devices
           only, dismissible forever (re-enableable in Settings). */}
       <NpsPrompt />
+      {/* First-run onboarding (D10): goal → daily target → level test, shown
+          once per device right after login/registration. */}
+      <OnboardingDialog />
 
       {/* Header */}
       <header

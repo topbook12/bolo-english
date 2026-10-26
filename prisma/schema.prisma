@@ -54,6 +54,7 @@ model UserConfig {
   displayName String   @default("") // "" = no name; display surfaces localize their own fallback (src/lib/no-name.ts)
   level       String   @default("beginner") // beginner | intermediate | advanced
   goal        String   @default("general") // general | job | exam | travel | school (D9: shapes the weekly plan)
+  dailyTarget Int      @default(10) // daily practice target in minutes (5|10|20) — D10 onboarding
   userId      String? // set when the device owner is logged in
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

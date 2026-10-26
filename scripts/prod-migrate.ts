@@ -151,6 +151,17 @@ async function main() {
     log(YELLOW, 'Skip   UserConfig.goal  (already exists)');
   }
 
+  // ── 2c) UserConfig.dailyTarget (D10 — onboarding daily target) ──────────
+  if (!userConfigCols.has("dailyTarget")) {
+    await db.execute(
+      `ALTER TABLE "UserConfig" ADD COLUMN "dailyTarget" INTEGER NOT NULL DEFAULT 10`
+    );
+    log(GREEN, 'Added  UserConfig.dailyTarget  (D10 daily minutes, default 10)');
+    changed++;
+  } else {
+    log(YELLOW, 'Skip   UserConfig.dailyTarget  (already exists)');
+  }
+
   // ── 3) UserApiKey table + index ───────────────────────────────────────────
   if (!tables.has("UserApiKey")) {
     await db.execute(/* sql */ `
@@ -430,6 +441,7 @@ async function main() {
     finalCols.has("nativeLang") &&
     finalCols.has("role") &&
     finalConfigCols.has("goal") &&
+    finalConfigCols.has("dailyTarget") &&
     finalTables.has("UserApiKey") &&
     finalTables.has("CvDocument") &&
     finalTables.has("AnalyticsEvent") &&

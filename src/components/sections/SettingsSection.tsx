@@ -56,6 +56,9 @@ const LEVELS = [{ value: "beginner" }, { value: "intermediate" }, { value: "adva
 // D9: learning goals — same ids as /api/config whitelist + path-plan.ts.
 const GOALS = ["general", "job", "exam", "travel", "school"] as const;
 
+// D10: daily practice targets in minutes — same whitelist as /api/config.
+const TARGETS = [5, 10, 20] as const;
+
 // Native-script labels for the locked account language (same wording as the
 // signup gate's language cards).
 const LANG_LABELS: Record<string, string> = {
@@ -69,7 +72,7 @@ export default function SettingsSection() {
   const tCommon = useTranslations("common");
   const tAuth = useTranslations("auth");
   const locale = useLocale();
-  const { deviceId, hasKey, keyPreview, displayName, level, goal, storageError, setConfig } =
+  const { deviceId, hasKey, keyPreview, displayName, level, goal, dailyTarget, storageError, setConfig } =
     useDevice();
   const user = useAuth((s) => s.user);
   const role = useAuth((s) => s.role);
@@ -154,7 +157,7 @@ export default function SettingsSection() {
       const res = await fetch("/api/config", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ deviceId, displayName: name, level, goal }),
+        body: JSON.stringify({ deviceId, displayName: name, level, goal, dailyTarget }),
       });
       const json: { ok: boolean; data?: ApiUserConfig; error?: string } = await res
         .json()
@@ -165,6 +168,7 @@ export default function SettingsSection() {
         displayName: json.data?.displayName ?? name,
         level: json.data?.level ?? level,
         goal: json.data?.goal ?? goal,
+        dailyTarget: json.data?.dailyTarget ?? dailyTarget,
       });
       toast({ title: t("profile.updatedTitle") });
     } catch (e) {
@@ -558,6 +562,27 @@ export default function SettingsSection() {
               <p className="text-[11px] leading-relaxed text-muted-foreground">
                 {t("profile.goalHint")}
               </p>
+            </div>
+            {/* D10: daily practice target — set in onboarding, editable here. */}
+            <div className="space-y-1.5">
+              <Label>{t("profile.targetLabel")}</Label>
+              <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label={t("profile.targetLabel")}>
+                {TARGETS.map((n) => (
+                  <button
+                    key={n}
+                    role="radio"
+                    aria-checked={dailyTarget === n}
+                    onClick={() => setConfig({ dailyTarget: n })}
+                    className={`min-h-11 rounded-xl border px-2 py-2.5 text-sm font-medium transition-colors ${
+                      dailyTarget === n
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-background hover:bg-accent"
+                    }`}
+                  >
+                    {t("profile.targetMinutes", { n })}
+                  </button>
+                ))}
+              </div>
             </div>
               {/* D8: placement test — grades 12 questions server-side and
                   stores the mapped level (button + dialog). */}

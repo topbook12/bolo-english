@@ -73,7 +73,9 @@
       "goal_job": "Job & career",
       "goal_exam": "IELTS / exams",
       "goal_travel": "Travel",
-      "goal_school": "School & study"
+      "goal_school": "School & study",
+      "targetLabel": "Daily target",
+      "targetMinutes": "{n} min/day"
     },
     "language": {
       "title": "Language",

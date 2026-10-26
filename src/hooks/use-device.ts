@@ -11,6 +11,7 @@ export interface UserConfig {
   displayName: string | null; // null → client shows localized "Student"
   level: "beginner" | "intermediate" | "advanced";
   goal: "general" | "job" | "exam" | "travel" | "school"; // D9: shapes the weekly plan
+  dailyTarget: number; // D10: daily practice target in minutes (5|10|20)
   loaded: boolean;
 }
 
@@ -43,6 +44,7 @@ export const useDevice = create<DeviceStore>((set, get) => ({
   displayName: null,
   level: "beginner",
   goal: "general",
+  dailyTarget: 10,
   loaded: false,
   storageError: null,
   setConfig: (partial) => set(partial),
@@ -60,6 +62,7 @@ export const useDevice = create<DeviceStore>((set, get) => ({
           displayName: json.data.displayName,
           level: json.data.level,
           goal: json.data.goal ?? "general",
+          dailyTarget: typeof json.data.dailyTarget === "number" ? json.data.dailyTarget : 10,
           storageError: null,
           loaded: true,
         });

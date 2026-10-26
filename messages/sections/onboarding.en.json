@@ -1,0 +1,37 @@
+{
+  "onboarding": {
+    "goal": {
+      "title": "Welcome! What's your goal?",
+      "desc": "We'll shape your weekly plan around it.",
+      "general": "Everyday fluency",
+      "job": "Job & career",
+      "exam": "IELTS / exams",
+      "travel": "Travel",
+      "school": "School & study"
+    },
+    "target": {
+      "title": "Daily target",
+      "desc": "How much time can you give each day? Small and steady wins.",
+      "minutes": "minutes a day",
+      "hint_5": "Light & easy — one quick activity",
+      "hint_10": "Balanced — words + one lesson",
+      "hint_20": "Serious push — full unit pace"
+    },
+    "test": {
+      "title": "Know your level",
+      "desc": "A 3-minute test places you at A1–B2 and tunes your path.",
+      "cardTitle": "12 quick questions",
+      "cardBody": "Words, grammar and listening — your level is saved to your profile automatically.",
+      "start": "Start the level test",
+      "skip": "Skip for now",
+      "placingTitle": "Level test",
+      "placingDesc": "Answer 12 questions — your level is saved automatically."
+    },
+    "done": {
+      "title": "You're all set!",
+      "body": "Your plan is ready on the Learning Path. See you tomorrow!",
+      "cta": "Let's start"
+    },
+    "back": "Back"
+  }
+}

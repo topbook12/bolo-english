@@ -59,6 +59,7 @@ type ConfigUpdate = {
   displayName?: string;
   level?: string;
   goal?: string;
+  dailyTarget?: number;
 };
 
 async function writeConfig(
@@ -87,6 +88,7 @@ async function writeConfig(
             displayName: update.displayName ?? "",
             level: update.level ?? "beginner",
             goal: update.goal ?? "general",
+            dailyTarget: update.dailyTarget ?? 10,
           },
         });
       } catch {
@@ -120,6 +122,7 @@ async function writeConfig(
       displayName: update.displayName ?? "",
       level: update.level ?? "beginner",
       goal: update.goal ?? "general",
+      dailyTarget: update.dailyTarget ?? 10,
     },
     update,
   });
@@ -281,6 +284,7 @@ export async function GET(req: NextRequest) {
           displayName: name,
           level: cfg?.level ?? "beginner",
           goal: cfg?.goal ?? "general",
+          dailyTarget: cfg?.dailyTarget ?? 10,
           ...(pool ? { pool } : {}),
         },
       });
@@ -293,6 +297,7 @@ export async function GET(req: NextRequest) {
         displayName: name,
         level: cfg.level,
         goal: cfg.goal ?? "general",
+        dailyTarget: cfg.dailyTarget ?? 10,
         ...(pool ? { pool } : {}),
       },
     });
@@ -327,6 +332,10 @@ export async function POST(req: NextRequest) {
   // D9: learning goal — whitelisted, shapes the personalized weekly plan.
   if (typeof goal === "string" && ["general", "job", "exam", "travel", "school"].includes(goal)) {
     update.goal = goal;
+  }
+  // D10: daily practice target in minutes (5|10|20).
+  if (body?.dailyTarget === 5 || body?.dailyTarget === 10 || body?.dailyTarget === 20) {
+    update.dailyTarget = body.dailyTarget;
   }
 
   let warning: string | null = null;
@@ -412,6 +421,7 @@ export async function POST(req: NextRequest) {
         displayName: resolveName(savedName ?? user?.name, cfg?.displayName),
         level: cfg?.level,
         goal: cfg?.goal ?? "general",
+        dailyTarget: cfg?.dailyTarget ?? 10,
       },
     });
   } catch (e) {
