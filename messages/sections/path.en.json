@@ -103,6 +103,61 @@
       "point1": "Small chunks: 12 words + 1 lesson + 1 story — easy to finish in one sitting",
       "point2": "Every step builds on the last: the story recycles the exact words you just learned",
       "point3": "You recall at every step — marking words and taking the story quiz makes it stick"
+    },
+    "plan": {
+      "title": "Your 4-week plan",
+      "goalLabel": "My goal",
+      "subtitle": "Built for your level and your goal: {goal}. Follow the weeks — the highlighted one is where you are now.",
+      "week": "Week {n}",
+      "weekShort": "W{n}",
+      "weekNow": "Week {n} of 4",
+      "now": "Now",
+      "unitsLabel": "Units {units}",
+      "goals": {
+        "general": "Everyday fluency",
+        "job": "Job & career",
+        "exam": "IELTS / exams",
+        "travel": "Travel",
+        "school": "School & study"
+      },
+      "extra": {
+        "review": "Extra: word review",
+        "speaking": "Extra: speaking practice",
+        "listening": "Extra: listening practice",
+        "reading": "Extra: reading"
+      },
+      "themes": {
+        "general": {
+          "w1": "Everyday words & simple sentences — start speaking from day one",
+          "w2": "Ask questions and keep a small conversation alive",
+          "w3": "Talk about your day, plans and opinions",
+          "w4": "Put it all together — stories, reviews and confident chat"
+        },
+        "job": {
+          "w1": "Workplace words & introductions that sound professional",
+          "w2": "Describe your experience and answer common interview questions",
+          "w3": "Meetings, phone calls and polite workplace requests",
+          "w4": "Full interview rehearsal — plus speaking practice every week"
+        },
+        "exam": {
+          "w1": "Core exam vocabulary and accurate sentence building",
+          "w2": "Complex sentences and linking ideas (Part 3 skills)",
+          "w3": "Note-taking while listening — exam-style practice",
+          "w4": "Timed practice, review and exam-day strategies"
+        },
+        "travel": {
+          "w1": "Airport, hotel and direction words you'll actually use",
+          "w2": "Ask for things politely — food, tickets, help",
+          "w3": "Handle problems: changes, delays, misunderstandings",
+          "w4": "Real conversation flow — small talk with strangers"
+        },
+        "school": {
+          "w1": "Study words & classroom language from day one",
+          "w2": "Read and understand longer texts with confidence",
+          "w3": "Write and speak about lessons and homework",
+          "w4": "Present ideas clearly — everything comes together"
+        }
+      }
     }
   }
 }

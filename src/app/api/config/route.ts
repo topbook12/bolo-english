@@ -58,6 +58,7 @@ type ConfigUpdate = {
   keyPreview?: string;
   displayName?: string;
   level?: string;
+  goal?: string;
 };
 
 async function writeConfig(
@@ -85,6 +86,7 @@ async function writeConfig(
             keyPreview: update.keyPreview ?? "",
             displayName: update.displayName ?? "",
             level: update.level ?? "beginner",
+            goal: update.goal ?? "general",
           },
         });
       } catch {
@@ -117,6 +119,7 @@ async function writeConfig(
       keyPreview: update.keyPreview ?? "",
       displayName: update.displayName ?? "",
       level: update.level ?? "beginner",
+      goal: update.goal ?? "general",
     },
     update,
   });
@@ -277,6 +280,7 @@ export async function GET(req: NextRequest) {
           keyPreview: null,
           displayName: name,
           level: cfg?.level ?? "beginner",
+          goal: cfg?.goal ?? "general",
           ...(pool ? { pool } : {}),
         },
       });
@@ -288,6 +292,7 @@ export async function GET(req: NextRequest) {
         keyPreview: cfg.keyPreview,
         displayName: name,
         level: cfg.level,
+        goal: cfg.goal ?? "general",
         ...(pool ? { pool } : {}),
       },
     });
@@ -310,7 +315,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: apiMsg(locale, "deviceIdRequired") }, { status: 400 });
   }
   const user = await getSessionUser();
-  const { displayName, level } = body;
+  const { displayName, level, goal } = body;
 
   const update: ConfigUpdate = {};
   if (typeof displayName === "string" && displayName.trim()) {
@@ -318,6 +323,10 @@ export async function POST(req: NextRequest) {
   }
   if (typeof level === "string" && ["beginner", "intermediate", "advanced"].includes(level)) {
     update.level = level;
+  }
+  // D9: learning goal — whitelisted, shapes the personalized weekly plan.
+  if (typeof goal === "string" && ["general", "job", "exam", "travel", "school"].includes(goal)) {
+    update.goal = goal;
   }
 
   let warning: string | null = null;
@@ -402,6 +411,7 @@ export async function POST(req: NextRequest) {
         keyPreview: cfg?.keyPreview || null,
         displayName: resolveName(savedName ?? user?.name, cfg?.displayName),
         level: cfg?.level,
+        goal: cfg?.goal ?? "general",
       },
     });
   } catch (e) {

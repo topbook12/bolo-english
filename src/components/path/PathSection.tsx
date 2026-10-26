@@ -22,6 +22,7 @@ import {
   BookOpenText,
   BookOpen,
   BrainCircuit,
+  CalendarRange,
   Check,
   CircleCheck,
   GraduationCap,
@@ -31,15 +32,25 @@ import {
   Route,
   RotateCcw,
   Sparkles,
+  Target,
   Trophy,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import SectionHeader from "@/components/shared/SectionHeader";
 import PointList from "@/components/shared/PointList";
-import { useDeviceValue } from "@/hooks/use-device";
+import { useDeviceValue, useDevice } from "@/hooks/use-device";
 import { apiGet } from "@/lib/client-api";
+import { track } from "@/lib/track";
+import {
+  buildWeekPlan,
+  goalFromStored,
+  unitToWeek,
+  PATH_GOALS,
+  type GoalId,
+} from "@/lib/path-plan";
 import { cn } from "@/lib/utils";
 import { fmtNum } from "@/components/grammar/shared";
 import {
@@ -156,6 +167,31 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
   const storeLevel = useDeviceValue((s) => s.level, "beginner");
   const [levelOverride, setLevelOverride] = useState<LibraryLevel | null>(null);
   const level = levelOverride ?? storeLevel;
+
+  // D9: goal from the device/account config — persisted via /api/config and
+  // shared with Settings. The weekly plan derives from level + goal.
+  const storeGoal = useDeviceValue((s) => s.goal, "general");
+  const goal = goalFromStored(storeGoal);
+  const plan = useMemo(() => buildWeekPlan(level, goal), [level, goal]);
+
+  const setGoal = useCallback(
+    (g: GoalId) => {
+      if (g === goal) return;
+      useDevice.getState().setConfig({ goal: g });
+      // Fire-and-forget persist — a failed save must never block the UI;
+      // the next config refresh re-syncs the store.
+      const deviceId = useDevice.getState().deviceId;
+      if (deviceId) {
+        fetch("/api/config", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ deviceId, goal: g }),
+        }).catch(() => null);
+      }
+      track("path_goal_set", { goal: g });
+    },
+    [goal]
+  );
 
   const [vocab, setVocab] = useState<VocabItem[] | null>(null);
   const [grammar, setGrammar] = useState<GrammarMetaItem[] | null>(null);
@@ -348,6 +384,16 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
   const donePhases = units.reduce((acc, u) => acc + u.phasesDone, 0);
   const allDone = totalPhases > 0 && donePhases === totalPhases;
 
+  // D9: the plan highlights the first week whose units aren't finished yet.
+  const currentWeek = useMemo(() => {
+    const completeByUnit = new Map<number, boolean>();
+    for (const u of units) completeByUnit.set(u.def.unit, u.complete);
+    for (const w of plan) {
+      if (!w.units.every((un) => completeByUnit.get(un) === true)) return w.week;
+    }
+    return plan[plan.length - 1]?.week ?? 1;
+  }, [plan, units]);
+
   /* ---- navigation actions (deep-link into the exact step) ---- */
   const goWords = useCallback(
     (unit: number) => {
@@ -466,6 +512,38 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
         ))}
       </div>
 
+      {/* D9: goal selector — personalizes the weekly plan below. Persisted
+          instantly (fire-and-forget) so the plan survives reloads. */}
+      <div className="animate-fade-in-up space-y-1.5">
+        <p className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+          <Target className="h-3.5 w-3.5" aria-hidden />
+          {t("plan.goalLabel")}
+        </p>
+        <div
+          role="radiogroup"
+          aria-label={t("plan.goalLabel")}
+          className="flex flex-wrap gap-1.5"
+        >
+          {PATH_GOALS.map((g) => (
+            <button
+              key={g}
+              type="button"
+              role="radio"
+              aria-checked={goal === g}
+              onClick={() => setGoal(g)}
+              className={cn(
+                "min-h-9 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all duration-200",
+                goal === g
+                  ? "border-transparent bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-sm ring-1 ring-inset ring-white/25"
+                  : "border-border/70 bg-muted/60 text-muted-foreground hover:bg-background hover:text-foreground"
+              )}
+            >
+              {t(`plan.goals.${g}`)}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Hero — overall progress + the single Continue button */}
       <Card className="animate-fade-in-up overflow-hidden border-teal-200/60 bg-gradient-to-br from-teal-50 via-background to-emerald-50 dark:border-teal-900/50 dark:from-teal-950/40 dark:via-background dark:to-emerald-950/30">
         <CardContent className="p-5 sm:p-6">
@@ -521,6 +599,60 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
               aria-hidden
               className="animate-float hidden h-16 w-auto shrink-0 object-contain drop-shadow-sm lg:block"
             />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* D9: the 4-week personalized plan — level units laid onto weeks with
+          a goal-specific extra push each week. Current week is highlighted. */}
+      <Card className="animate-fade-in-up border-teal-200/60 bg-card dark:border-teal-900/50">
+        <CardContent className="space-y-3 p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-sm">
+              <CalendarRange className="h-4 w-4" aria-hidden />
+            </span>
+            <p className="text-sm font-bold">{t("plan.title")}</p>
+            <Badge variant="secondary" className="ml-auto gap-1 text-[11px]">
+              {t("plan.weekNow", { n: fmt(currentWeek) })}
+            </Badge>
+          </div>
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            {t("plan.subtitle", { goal: t(`plan.goals.${goal}`) })}
+          </p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {plan.map((w) => (
+              <div
+                key={w.week}
+                className={cn(
+                  "rounded-xl border p-3 transition-colors",
+                  w.week === currentWeek
+                    ? "border-teal-300 bg-teal-50/70 dark:border-teal-800 dark:bg-teal-950/30"
+                    : "border-border/60"
+                )}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-bold tracking-tight">
+                    {t("plan.week", { n: fmt(w.week) })}
+                  </span>
+                  {w.week === currentWeek && (
+                    <span className="rounded-full bg-teal-500/10 px-2 py-0.5 text-[10px] font-semibold text-teal-700 dark:text-teal-300">
+                      {t("plan.now")}
+                    </span>
+                  )}
+                </div>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  {t(`plan.themes.${goal}.w${w.week}`)}
+                </p>
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  <Badge variant="secondary" className="text-[10px]">
+                    {t("plan.unitsLabel", { units: w.units.map((un) => fmt(un)).join(", ") })}
+                  </Badge>
+                  <Badge variant="secondary" className="text-[10px]">
+                    {t(`plan.extra.${w.extra}`)}
+                  </Badge>
+                </div>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
@@ -603,6 +735,10 @@ export default function PathSection({ onNavigate }: { onNavigate: (t: TabId) => 
                           {t("upNext")}
                         </span>
                       )}
+                      {/* D9: which week of the plan this unit belongs to. */}
+                      <Badge variant="outline" className="text-[10px] font-semibold text-muted-foreground">
+                        {t("plan.weekShort", { n: fmt(unitToWeek(u.def.unit)) })}
+                      </Badge>
                     </div>
                     <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                       {t(`units.${u.def.key}.goal`)}

@@ -10,6 +10,7 @@ export interface UserConfig {
   keyPreview: string | null;
   displayName: string | null; // null → client shows localized "Student"
   level: "beginner" | "intermediate" | "advanced";
+  goal: "general" | "job" | "exam" | "travel" | "school"; // D9: shapes the weekly plan
   loaded: boolean;
 }
 
@@ -41,6 +42,7 @@ export const useDevice = create<DeviceStore>((set, get) => ({
   keyPreview: null,
   displayName: null,
   level: "beginner",
+  goal: "general",
   loaded: false,
   storageError: null,
   setConfig: (partial) => set(partial),
@@ -57,6 +59,7 @@ export const useDevice = create<DeviceStore>((set, get) => ({
           keyPreview: json.data.keyPreview,
           displayName: json.data.displayName,
           level: json.data.level,
+          goal: json.data.goal ?? "general",
           storageError: null,
           loaded: true,
         });

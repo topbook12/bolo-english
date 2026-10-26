@@ -139,6 +139,18 @@ async function main() {
     log(YELLOW, 'Skip   User.role  (already exists)');
   }
 
+  // ── 2b) UserConfig.goal (D9 — personalized weekly plan) ──────────────────
+  const userConfigCols = await columnsOf(db, "UserConfig");
+  if (!userConfigCols.has("goal")) {
+    await db.execute(
+      `ALTER TABLE "UserConfig" ADD COLUMN "goal" TEXT NOT NULL DEFAULT 'general'`
+    );
+    log(GREEN, 'Added  UserConfig.goal  (D9 learning goal, default general)');
+    changed++;
+  } else {
+    log(YELLOW, 'Skip   UserConfig.goal  (already exists)');
+  }
+
   // ── 3) UserApiKey table + index ───────────────────────────────────────────
   if (!tables.has("UserApiKey")) {
     await db.execute(/* sql */ `
@@ -413,9 +425,11 @@ async function main() {
   // ── Final verification (reads the REAL state, not our assumptions) ────────
   const finalTables = await tablesOf(db);
   const finalCols = await columnsOf(db, "User");
+  const finalConfigCols = await columnsOf(db, "UserConfig");
   const ok =
     finalCols.has("nativeLang") &&
     finalCols.has("role") &&
+    finalConfigCols.has("goal") &&
     finalTables.has("UserApiKey") &&
     finalTables.has("CvDocument") &&
     finalTables.has("AnalyticsEvent") &&

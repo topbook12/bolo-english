@@ -3415,3 +3415,24 @@ Work Log:
 Stage Summary:
 - Phase 2 opened with activation's keystone: the platform can now MEASURE a learner's level server-side and store it — the input D9's auto-generated path depends on.
 - Next: D9 — personalized learning path generation (level + goal → weekly plan, dynamic PathSection).
+---
+Task ID: D09
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 9 — personalized learning path auto-generation (level + goal → 4-week plan)
+
+Work Log:
+- Schema: UserConfig.goal String @default("general") (general|job|exam|travel|school); bun run db:push local ✓.
+- src/lib/path-plan.ts (NEW, pure): GoalId, PATH_GOALS, buildWeekPlan(level, goal) → 4 weeks (w1=units 1+2, w2=3, w3=4, w4=5) with goal-specific extra each week (general→word review, job/travel→speaking, exam→listening, school→reading); unitToWeek() for unit-card badges. Unit ORDER untouched (scaffolding sequence preserved).
+- /api/config: goal added to GET response, POST whitelist (invalid goals rejected), ConfigUpdate, both writeConfig create-branches.
+- use-device.ts: goal in UserConfig interface + store default + refresh().
+- PathSection: goal chip row (radiogroup, instant fire-and-forget persist + path_goal_set analytics); "Your 4-week plan" card (current week = first with incomplete units, highlighted; each week = theme + units + extra chips); Week badge on every unit card. Theme strings via i18n path.plan.themes.<goal>.w1..w4 — trilingual.
+- SettingsSection: Learning-goal radio grid (2/3 cols) in profile card + goal in saveProfile POST/response sync.
+- i18n: path.plan.{title,goalLabel,subtitle,week,weekShort,weekNow,now,unitsLabel,goals×5,extra×4,themes 5×4} + settings.profile.goal* — ALL-PARITY-OK (3 languages).
+- prod-migrate.ts: idempotent ALTER TABLE "UserConfig" ADD COLUMN "goal" TEXT NOT NULL DEFAULT 'general' + final verification includes goal.
+- Verification: tsc 0 / lint 0 / i18n OK. API E2E: default general → POST exam → saved; invalid goal "hacky" → 400 nothing-to-update; GET persists. Browser E2E: Path shows goal chips + 4-week plan; switching to "IELTS / exams" instantly re-themes all 4 weeks + extra chips; reload → goal persisted (radio checked, themes still exam); Settings shows goal radios synced. No console errors, dev.log clean. QA user/config cleaned.
+- ROADMAP-60.md D9 ticked.
+
+Stage Summary:
+- The path is now PERSONAL: level (D8's placement test output) + goal (job/exam/travel/school) produce a visible 4-week plan with goal-shaped weekly themes and an extra activity per week — all client-computed (zero API cost), persisted server-side.
+- Owner action: run `bun scripts/prod-migrate.ts` to add UserConfig.goal in production (idempotent, safe to re-run).
+- Next: D10 — onboarding widget (language → goal → daily target → placement test redirect).

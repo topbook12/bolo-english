@@ -53,6 +53,9 @@ import type { UserConfig as ApiUserConfig } from "@/hooks/use-device";
 // Labels render via tCommon("level.*") — always in the user's UI language.
 const LEVELS = [{ value: "beginner" }, { value: "intermediate" }, { value: "advanced" }] as const;
 
+// D9: learning goals — same ids as /api/config whitelist + path-plan.ts.
+const GOALS = ["general", "job", "exam", "travel", "school"] as const;
+
 // Native-script labels for the locked account language (same wording as the
 // signup gate's language cards).
 const LANG_LABELS: Record<string, string> = {
@@ -66,7 +69,7 @@ export default function SettingsSection() {
   const tCommon = useTranslations("common");
   const tAuth = useTranslations("auth");
   const locale = useLocale();
-  const { deviceId, hasKey, keyPreview, displayName, level, storageError, setConfig } =
+  const { deviceId, hasKey, keyPreview, displayName, level, goal, storageError, setConfig } =
     useDevice();
   const user = useAuth((s) => s.user);
   const role = useAuth((s) => s.role);
@@ -151,14 +154,18 @@ export default function SettingsSection() {
       const res = await fetch("/api/config", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ deviceId, displayName: name, level }),
+        body: JSON.stringify({ deviceId, displayName: name, level, goal }),
       });
       const json: { ok: boolean; data?: ApiUserConfig; error?: string } = await res
         .json()
         .catch(() => null);
       if (!json) throw new Error(t("apiKey.unexpectedResponse"));
       if (!json.ok) throw new Error(json.error);
-      setConfig({ displayName: json.data?.displayName ?? name, level: json.data?.level ?? level });
+      setConfig({
+        displayName: json.data?.displayName ?? name,
+        level: json.data?.level ?? level,
+        goal: json.data?.goal ?? goal,
+      });
       toast({ title: t("profile.updatedTitle") });
     } catch (e) {
       toast({ title: t("errors.saveFailed"), description: (e as Error).message, variant: "destructive" });
@@ -522,6 +529,36 @@ export default function SettingsSection() {
                   </button>
                 ))}
               </div>
+            </div>
+            {/* D9: learning goal — feeds the personalized weekly plan on the
+                Path section (same save-profile flow as level/name). */}
+            <div className="space-y-1.5">
+              <Label>{t("profile.goalLabel")}</Label>
+              <div
+                className="grid grid-cols-2 gap-2 sm:grid-cols-3"
+                role="radiogroup"
+                aria-label={t("profile.goalLabel")}
+              >
+                {GOALS.map((g) => (
+                  <button
+                    key={g}
+                    role="radio"
+                    aria-checked={goal === g}
+                    onClick={() => setConfig({ goal: g })}
+                    className={`min-h-11 rounded-xl border px-2 py-2.5 text-sm font-medium transition-colors ${
+                      goal === g
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-background hover:bg-accent"
+                    }`}
+                  >
+                    {t(`profile.goal_${g}`)}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[11px] leading-relaxed text-muted-foreground">
+                {t("profile.goalHint")}
+              </p>
+            </div>
               {/* D8: placement test — grades 12 questions server-side and
                   stores the mapped level (button + dialog). */}
               <Button
@@ -533,7 +570,6 @@ export default function SettingsSection() {
                 <Gauge className="h-3.5 w-3.5" aria-hidden />
                 {t("profile.levelTest")}
               </Button>
-            </div>
             <Button
               onClick={saveProfile}
               disabled={saving === "profile"}

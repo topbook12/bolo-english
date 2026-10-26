@@ -66,7 +66,14 @@
       "updatedTitle": "Profile updated",
       "levelTest": "Take the level test",
       "levelTestTitle": "Level test",
-      "levelTestDesc": "12 quick questions — your level (A1–B2) is saved to your profile automatically."
+      "levelTestDesc": "12 quick questions — your level (A1–B2) is saved to your profile automatically.",
+      "goalLabel": "Learning goal",
+      "goalHint": "Your goal shapes the weekly plan on the Learning Path.",
+      "goal_general": "Everyday fluency",
+      "goal_job": "Job & career",
+      "goal_exam": "IELTS / exams",
+      "goal_travel": "Travel",
+      "goal_school": "School & study"
     },
     "language": {
       "title": "Language",
