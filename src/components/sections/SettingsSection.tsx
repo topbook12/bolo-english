@@ -48,6 +48,7 @@ import RatingsAdminCard from "@/components/settings/RatingsAdminCard";
 import RatingOptCard from "@/components/settings/RatingOptCard";
 import ErrorsAdminCard from "@/components/monitor/ErrorsAdminCard";
 import WeeklyDigestCard from "@/components/settings/WeeklyDigestCard";
+import PushCard from "@/components/settings/PushCard";
 import type { UserConfig as ApiUserConfig } from "@/hooks/use-device";
 
 // Labels render via tCommon("level.*") — always in the user's UI language.
@@ -484,6 +485,9 @@ export default function SettingsSection() {
             report — ADMIN-ONLY (the API is ALSO fail-closed 403); the cron
             (vercel.json) freezes a snapshot weekly ── */}
         {isAdmin && <WeeklyDigestCard />}
+        {/* D12: opt-in push reminders (today's word + streak danger) — the
+            card hides itself on browsers without push support. */}
+        <PushCard />
 
         {/* ── Content Studio (owner-authored library: vocab/grammar/listening)
             — ADMIN-ONLY like the pool cards: the API rejects non-admin tokens

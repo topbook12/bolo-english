@@ -3476,3 +3476,26 @@ Stage Summary:
 - The streak is now honest, global-ready and account-scoped: a Dhaka user and a Toronto user both get correct day boundaries, and the flame on Home (fed by D10's target) gives the daily loop its visual hook.
 - Owner action: `bun scripts/prod-migrate.ts` creates ActivityDay in production.
 - Next: D12 — PWA push notifications (VAPID + web-push + service-worker handler; daily word + streak-danger reminders, opt-in).
+---
+Task ID: D12
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 12 — PWA push notifications (VAPID + web-push + SW handler, opt-in reminders)
+
+Work Log:
+- web-push@3.6.7 + @types installed; VAPID keypair generated and saved to .env (VAPID_PUBLIC_KEY/VAPID_PRIVATE_KEY/VAPID_SUBJECT=mailto:hello@boloenglish.app). OWNER ACTION: set the same 3 env vars on Vercel.
+- Schema: PushSubscription (endpoint UNIQUE, p256dh, auth, deviceId, userId?, locale) — notifications go out in the subscriber's UI language; db:push ✓.
+- src/lib/push-server.ts (server-only): isPushConfigured/vapidPublicKey (graceful null when env missing), sendToSubscription → "ok"|"gone"|"error" (404/410 = gone), notificationCopy (closed en/bn/hi map: daily word + streak-danger copy).
+- APIs: GET /api/push/public-key (null when unconfigured); POST /api/push/subscribe (upsert by endpoint, strict whitelist of subscription shape, 20/min/IP+device, 503 when unconfigured); POST /api/push/unsubscribe (deleteMany — idempotent, never traps the user); POST /api/push/send-daily (CRON_SECRET bearer OR admin session): streak-alive-but-not-marked-today → 🔥 warning with current count, else level-based daily word; dead endpoints pruned; 500-sub cap.
+- sw.js: CACHE bumped v2→v3 (forces SW update), push handler (JSON payload → showNotification with badge/icon/tag/renotify, malformed → fallback text) + notificationclick (focus existing window & navigate, else openWindow).
+- vercel.json: +cron /api/push/send-daily "0 12 * * *" (18:00 Asia/Dhaka, daily granularity — Hobby lesson respected).
+- Settings: PushCard (push-card component) — unsupported browsers hide the card entirely; denied → browser-settings hint; unconfigured → disabled button + explanation; subscribed → Turn off. Mounted for ALL users (opt-in by design).
+- Client src/lib/push-client.ts: getPushState/subscribeToPush/unsubscribeFromPush; urlBase64ToUint8Array for the VAPID key. BUG FIXED during E2E: navigator.serviceWorker.ready never resolves in dev (PwaRegister unregisters SWs) → the card hung disabled forever; switched to getRegistration() which resolves immediately (no-SW → "off", subscribe throws "unsupported").
+- i18n: settings.push.{title,desc,status*,turnOn/Off,enabled*,disabled*,denied*,unavailable*,failed*} ×3 — ALL-PARITY-OK; server copy in push-server (en/bn/hi).
+- prod-migrate.ts: PushSubscription CREATE TABLE + deviceId index + verification.
+- Verification: tsc 0 / lint 0 / i18n OK. API E2E: public-key serves VAPID; bad subscription → 400; wrong secret → 401; real-crypto subscription (generated P-256 keypair, 65-byte p256dh + 16-byte auth inserted directly) → web-push successfully ENCRYPTED and POSTed to FCM → 404 (fake token) → pruned:1 — full encryption + prune path proven; fire-safe (200 with counters even when all sends fail). Browser E2E: Settings → "Daily reminders" card renders, Enable button enabled (after the ready-hang fix), QA user cleaned.
+- Honest limit: a visible notification on a real device requires a real FCM token (needs the owner's VAPID env on Vercel + a physical device) — the server path is verified up to the push service.
+- ROADMAP-60.md D12 ticked.
+
+Stage Summary:
+- The platform can now REACH its learners outside the app: opt-in daily reminders in the user's own language, streak-danger nudges computed from the D11 ActivityDay data, dead-endpoint hygiene, and a cron that arms automatically once the owner sets VAPID_* + CRON_SECRET on Vercel.
+- Next: D13 — first-week mission checklist + D1/D7 retention panel in analytics.

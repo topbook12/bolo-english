@@ -460,6 +460,30 @@ async function main() {
     log(YELLOW, "Skip     ActivityDay table  (already exists)");
   }
 
+  // ── 11) PushSubscription table (D12 — web push reminders) ─────────────
+  if (!tables.has("PushSubscription")) {
+    await db.execute(/* sql */ `
+      CREATE TABLE "PushSubscription" (
+          "id" TEXT NOT NULL PRIMARY KEY,
+          "endpoint" TEXT NOT NULL UNIQUE,
+          "p256dh" TEXT NOT NULL,
+          "auth" TEXT NOT NULL,
+          "deviceId" TEXT NOT NULL,
+          "userId" TEXT,
+          "locale" TEXT NOT NULL DEFAULT 'en',
+          "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          "updatedAt" DATETIME NOT NULL
+      )
+    `);
+    await db.execute(
+      `CREATE INDEX "PushSubscription_deviceId_idx" ON "PushSubscription"("deviceId")`
+    );
+    log(GREEN, "Created  PushSubscription table + index  (D12 web push)");
+    changed++;
+  } else {
+    log(YELLOW, "Skip     PushSubscription table  (already exists)");
+  }
+
   // ── Final verification (reads the REAL state, not our assumptions) ────────
   const finalTables = await tablesOf(db);
   const finalCols = await columnsOf(db, "User");
@@ -476,7 +500,8 @@ async function main() {
     finalTables.has("SessionRating") &&
     finalTables.has("ClientError") &&
     finalTables.has("MetricDigest") &&
-    finalTables.has("ActivityDay");
+    finalTables.has("ActivityDay") &&
+    finalTables.has("PushSubscription");
 
   console.log("");
   if (ok) {

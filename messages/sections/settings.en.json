@@ -197,6 +197,25 @@
     "errors": {
       "saveFailed": "Couldn't save",
       "removeFailed": "Couldn't remove"
+    },
+    "push": {
+      "title": "Daily reminders",
+      "desc": "A gentle daily nudge: today's word, and a warning when your streak is at risk. Completely opt-in.",
+      "statusOn": "Reminders are ON — you'll get one short notification a day.",
+      "statusOff": "Reminders are off. Turn them on to keep your streak safe.",
+      "statusDenied": "Notifications are blocked for this site in your browser settings.",
+      "turnOn": "Enable notifications",
+      "turnOff": "Turn off reminders",
+      "enabledTitle": "Reminders on",
+      "enabledDesc": "One short nudge a day — that's the promise.",
+      "disabledTitle": "Reminders off",
+      "deniedTitle": "Notifications blocked",
+      "deniedDesc": "Allow notifications for this site in your browser settings first.",
+      "deniedHint": "Blocked? Allow notifications for this site in your browser settings, then reload.",
+      "unavailableTitle": "Not available here",
+      "unavailableDesc": "Push is not configured on this deployment yet — ask the owner to set the VAPID keys.",
+      "failedTitle": "Couldn't enable",
+      "failedDesc": "Something went wrong — please try again."
     }
   }
 }

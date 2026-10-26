@@ -142,6 +142,24 @@ model ActivityDay {
   @@index([day])
 }
 
+// Web-push subscription (D12). One row per browser endpoint; the deviceId
+// links it to the learner (userId attached when signed in) so the daily
+// sender can personalize (locale) and decide streak-danger. Unsubscribes in
+// Settings DELETE the row; gone endpoints (410) are pruned by the sender.
+model PushSubscription {
+  id        String   @id @default(cuid())
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  deviceId  String
+  userId    String?
+  locale    String   @default("en") // en | bn | hi — notification language
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([deviceId])
+}
+
 // ─── Video call signaling (HTTP-polling based; Vercel-serverless friendly) ───
 
 model CallRoom {
