@@ -12,6 +12,7 @@ import {
   KeyRound,
   Loader2,
   Info,
+  X,
 } from "lucide-react";
 import {
   Card,
@@ -25,12 +26,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 type TurnKeyRow = {
   id: string;
   label: string;
   keyId: string;
   status: string;
+  mintOk: number;
+  mintFail: number;
+  lastMintAt: string | null;
+  lastFailAt: string | null;
 };
 
 type TurnInfo = {
@@ -220,6 +226,24 @@ export default function TurnPoolCard() {
                         : t("disabled")}
                   </Badge>
                   <span className="min-w-0 flex-1 truncate text-sm font-medium">{k.label}</span>
+                  {/* D19 health monitor — persistent mint counters. A rising
+                      ✕ count or a failure in the last 10 min = the owner
+                      should replace the token BEFORE calls start failing. */}
+                  <span
+                    className={cn(
+                      "inline-flex shrink-0 items-center gap-1.5 font-mono text-[10px]",
+                      Date.now() - (k.lastFailAt ? new Date(k.lastFailAt).getTime() : 0) <
+                        10 * 60 * 1000
+                        ? "font-bold text-amber-600 dark:text-amber-400"
+                        : "text-muted-foreground"
+                    )}
+                    title={t("healthTitle")}
+                  >
+                    <CheckCircle2 className="h-3 w-3 text-emerald-600 dark:text-emerald-400" aria-hidden />
+                    {k.mintOk}
+                    <X className="h-3 w-3 text-rose-500" aria-hidden />
+                    {k.mintFail}
+                  </span>
                   <span className="max-w-full truncate font-mono text-[11px] text-muted-foreground sm:max-w-[35%]">
                     {k.keyId.slice(0, 8)}…{k.keyId.slice(-4)}
                   </span>

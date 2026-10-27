@@ -24,6 +24,7 @@
     "needToken": "Enter the admin token first.",
     "ok": "Done",
     "probeOk": "Key verified — credentials minted",
-    "probeFail": "Key failed"
+    "probeFail": "Key failed",
+    "healthTitle": "Mint health: OK count / fail count (amber = failed in the last 10 minutes — check the token)"
   }
 }

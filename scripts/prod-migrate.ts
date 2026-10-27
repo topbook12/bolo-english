@@ -484,6 +484,30 @@ async function main() {
     log(YELLOW, "Skip     PushSubscription table  (already exists)");
   }
 
+  // ── 12) TurnKey health counters (D19 — TURN health monitor) ────────────
+  // Mint counters that let the owner SEE a dying relay key before calls
+  // fail. Idempotent column adds; existing rows default to 0/null.
+  if (tables.has("TurnKey")) {
+    const turnCols = await columnsOf(db, "TurnKey");
+    const turnAdds: [string, string, string][] = [
+      ["mintOk", `INTEGER NOT NULL DEFAULT 0`, "successful mints"],
+      ["mintFail", `INTEGER NOT NULL DEFAULT 0`, "failed mints"],
+      ["lastMintAt", `DATETIME`, "last successful mint"],
+      ["lastFailAt", `DATETIME`, "last failed mint"],
+    ];
+    for (const [col, ddl, why] of turnAdds) {
+      if (!turnCols.has(col)) {
+        await db.execute(`ALTER TABLE "TurnKey" ADD COLUMN "${col}" ${ddl}`);
+        log(GREEN, `Added  TurnKey.${col}  (D19 TURN health — ${why})`);
+        changed++;
+      } else {
+        log(YELLOW, `Skip   TurnKey.${col}  (already exists)`);
+      }
+    }
+  } else {
+    log(YELLOW, "Skip   TurnKey health columns  (TurnKey table not present yet)");
+  }
+
   // ── Final verification (reads the REAL state, not our assumptions) ────────
   const finalTables = await tablesOf(db);
   const finalCols = await columnsOf(db, "User");

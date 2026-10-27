@@ -34,6 +34,11 @@ export type TurnRow = {
   keyId: string;
   status: string;
   sortOrder: number;
+  // D19 health monitor — persistent mint counters (read-only for the UI).
+  mintOk: number;
+  mintFail: number;
+  lastMintAt: string | null; // ISO
+  lastFailAt: string | null; // ISO
 };
 
 export async function listTurnKeys(): Promise<TurnRow[]> {
@@ -52,7 +57,28 @@ export async function listTurnKeys(): Promise<TurnRow[]> {
       keyId: r.keyId,
       status: r.status,
       sortOrder: r.sortOrder,
+      mintOk: r.mintOk,
+      mintFail: r.mintFail,
+      lastMintAt: r.lastMintAt ? r.lastMintAt.toISOString() : null,
+      lastFailAt: r.lastFailAt ? r.lastFailAt.toISOString() : null,
     }));
+}
+
+/**
+ * D19 fire-safe health bookkeeping — MUST NEVER break a mint. Best-effort
+ * counter update keyed by keyId (not row id — callers only know keyId).
+ * Runs on REAL mints only (the 15-min credential cache skips hits), so the
+ * write volume is one row per key per ~12 minutes at most.
+ */
+function recordMint(keyId: string, ok: boolean): void {
+  void db.turnKey
+    .updateMany({
+      where: { keyId },
+      data: ok
+        ? { mintOk: { increment: 1 }, lastMintAt: new Date() }
+        : { mintFail: { increment: 1 }, lastFailAt: new Date() },
+    })
+    .catch(() => null);
 }
 
 /** Mint short-lived iceServers from one key.
@@ -85,6 +111,7 @@ export async function mintIceServers(
       // 401/403 = the key itself is dead → let the caller mark it exhausted.
       // Transient errors (timeout/5xx/429) must NOT permanently burn the key:
       // just cool it down briefly and let the next call retry.
+      recordMint(keyId, false);
       if (res.status === 401 || res.status === 403) {
         failedAt.set(keyId, Date.now());
         return { dead: true as const };
@@ -95,6 +122,7 @@ export async function mintIceServers(
     const data = (await res.json()) as { iceServers?: IceServer[] };
     const servers = Array.isArray(data.iceServers) ? data.iceServers : null;
     if (!servers) {
+      recordMint(keyId, false);
       failedAt.set(keyId, Date.now());
       return null;
     }
@@ -105,8 +133,10 @@ export async function mintIceServers(
     }));
     cache.set(keyId, { servers: cleaned, expires: Date.now() + CACHE_TTL_MS });
     failedAt.delete(keyId);
+    recordMint(keyId, true);
     return cleaned;
   } catch {
+    recordMint(keyId, false);
     failedAt.set(keyId, Date.now());
     return null;
   }

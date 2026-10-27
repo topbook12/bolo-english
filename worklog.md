@@ -3585,3 +3585,21 @@ Work Log:
 Stage Summary:
 - The speaking engine now has a full mock-exam mode: 6-part IELTS-style tests with cue-card preparation timing, quota-protected voice answers, and honest band-style grading in one AI call — the flagship "practice like the real test" feature for the exam-goal segment.
 - Next: D18 — shadowing exercise (listen → speak along → compare, TTS+STT loop with speed control).
+---
+Task ID: D18
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 18 — shadowing exercise (listen → speak along → compare, TTS+STT loop, speed control)
+
+Work Log:
+- src/lib/shadow-bank.ts (PURE): 18 natural spoken lines (3 levels × 6 — contractions, linking, everyday South-Asia contexts), each with bn/hi translation; shadowLinesForLevel().
+- speech.ts: NEW speakEnglishAt(text, rate, onend?) — rate-controlled on-device TTS (0.6 slow / 0.95 normal, clamped 0.4–1.4) with completion callback; speakEnglish() now delegates to it (zero behavior change for existing callers).
+- ShadowCard (Speak section, under SimulatorCard): level chips → #line chips → target text + locale translation (en-UI learners get Bangla help) + Listen (free TTS) + speed toggle (Slow/Normal) + record (15s HARD cap) → proven BYOK STT pipeline (MediaRecorder → WAV → /api/stt) → compareSpeech() word verdicts (ok/close/miss chips) + score%; needs-key badge + hint; permission/unsupported/no-speech toasts localized; mic+TTS cleanup on unmount.
+- analytics: +shadowing_done {score, level}.
+- i18n: speaking.shadow.{24 keys} ×3 — ALL-PARITY-OK.
+- Verification: tsc 0 / lint 0 (stopTimers declared-before-use fix, same compiler rule as D17). Browser E2E: card renders with all controls; level switch → "I'd love to visit Cox's Bazar next winter."; Listen clickable; record in headless → mic-reject → localized toast → graceful idle (GRACEFUL_MIC); 0 console errors. Note: one test artifact — text-based find "Listen" matched the sidebar "Listening" nav and switched sections (test targeting, not an app bug); re-verified with precise element targeting.
+- QA user cleaned exact-id-only (local dev DB back to 0 users).
+- ROADMAP-60.md D18 ticked; commit d2c16ba pushed (Vercel auto-deploy).
+
+Stage Summary:
+- The "speak like a native" loop is complete: listen free at learner-controlled speed, repeat, and get honest word-level feedback on the exact pipeline proven live on mobile. Zero quota cost for the listening half.
+- Next: D19 — call quality & mobile UX (reconnection, TURN health monitor, bigger mobile controls, network-quality badge).

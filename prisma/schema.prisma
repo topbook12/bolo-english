@@ -222,6 +222,14 @@ model TurnKey {
   apiTokenEnc String // Cloudflare TURN API token (AES-256-GCM)
   status      String   @default("active") // active | exhausted | disabled
   sortOrder   Int      @default(0)
+  // ─── D19 TURN health monitor ───
+  // Persistent mint counters (fire-safe increments in turn-pool.ts). The
+  // admin card surfaces them so the owner can SEE a dying key before a call
+  // fails: rising mintFail / stale lastMintAt = replace the token.
+  mintOk      Int      @default(0) // successful credential mints
+  mintFail    Int      @default(0) // failed mint attempts (transient or dead)
+  lastMintAt  DateTime? // last successful mint
+  lastFailAt  DateTime? // last failed mint
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

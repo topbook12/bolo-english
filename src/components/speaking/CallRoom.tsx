@@ -1195,7 +1195,7 @@ export default function CallRoom({
           )}
 
           {/* controls — floating frosted-glass bar, native dialer layout */}
-          <div className="call-glass relative z-10 mt-3 flex flex-wrap items-center justify-center gap-2.5 rounded-2xl p-2.5">
+          <div className="call-glass relative z-10 mt-3 flex flex-wrap items-center justify-center gap-2.5 rounded-2xl p-2.5 max-sm:pb-[max(0.625rem,env(safe-area-inset-bottom))]">
             {/* push-to-talk live status chip (Task 27-m) */}
             {(pttRecording || pttBusy) && (
               <div className="pointer-events-none absolute -top-10 left-1/2 z-20 -translate-x-1/2">
@@ -1210,7 +1210,7 @@ export default function CallRoom({
             )}
             <button
               type="button"
-              className={cn("call-btn h-12 w-12", !micOn && "call-btn-off")}
+              className={cn("call-btn h-12 w-12 max-sm:h-14 max-sm:w-14", !micOn && "call-btn-off")}
               onClick={onToggleMic}
               aria-label={micOn ? t("micMute") : t("micUnmute")}
               aria-pressed={!micOn}
@@ -1226,7 +1226,7 @@ export default function CallRoom({
               <button
                 type="button"
                 className={cn(
-                  "call-btn h-12 w-12 select-none touch-none",
+                  "call-btn h-12 w-12 max-sm:h-14 max-sm:w-14 select-none touch-none",
                   (pttRecording || pttBusy) &&
                     "border-rose-400/80 bg-rose-600/85 text-white ring-2 ring-rose-400/70",
                   pttRecording && "animate-pulse",
@@ -1252,7 +1252,7 @@ export default function CallRoom({
             )}
             <button
               type="button"
-              className={cn("call-btn h-12 w-12", !camOn && "call-btn-off")}
+              className={cn("call-btn h-12 w-12 max-sm:h-14 max-sm:w-14", !camOn && "call-btn-off")}
               onClick={onToggleCam}
               aria-label={camOn ? t("camOff") : t("camOn")}
               aria-pressed={!camOn}
@@ -1263,7 +1263,7 @@ export default function CallRoom({
                 the screen; same WebRTC transceivers, the call never renegotiates */}
             <button
               type="button"
-              className={cn("call-btn h-12 w-12", sharingScreen && "call-btn-on")}
+              className={cn("call-btn h-12 w-12 max-sm:h-14 max-sm:w-14", sharingScreen && "call-btn-on")}
               onClick={onToggleScreenShare}
               aria-pressed={sharingScreen}
               aria-label={sharingScreen ? t("screenShareStopAria") : t("screenShareStartAria")}
@@ -1274,7 +1274,7 @@ export default function CallRoom({
             {/* layout switch — grid ⇄ WhatsApp-style stack (Task 18) */}
             <button
               type="button"
-              className={cn("call-btn h-12 w-12", layout === "stack" && "call-btn-on")}
+              className={cn("call-btn h-12 w-12 max-sm:h-14 max-sm:w-14", layout === "stack" && "call-btn-on")}
               onClick={toggleLayout}
               aria-pressed={layout === "stack"}
               aria-label={layout === "grid" ? t("layoutStack") : t("layoutGrid")}
@@ -1288,7 +1288,7 @@ export default function CallRoom({
             </button>
             <button
               type="button"
-              className={cn("call-btn h-12 w-12", captionsOpen && "call-btn-on")}
+              className={cn("call-btn h-12 w-12 max-sm:h-14 max-sm:w-14", captionsOpen && "call-btn-on")}
               onClick={onToggleCaptions}
               aria-pressed={captionsOpen}
               aria-label={captionsButtonLabel}
@@ -1300,7 +1300,7 @@ export default function CallRoom({
             {/* Zoom-style full screen (Task 18) */}
             <button
               type="button"
-              className="call-btn h-12 w-12"
+              className="call-btn h-12 w-12 max-sm:h-14 max-sm:w-14"
               onClick={() => setImmersive((v) => !v)}
               aria-pressed={immersive}
               aria-label={immersive ? t("fullscreenExit") : t("fullscreenEnter")}
@@ -1311,7 +1311,7 @@ export default function CallRoom({
             <div className="relative">
               <button
                 type="button"
-                className="call-btn h-12 w-12"
+                className="call-btn h-12 w-12 max-sm:h-14 max-sm:w-14"
                 onClick={onToggleChat}
                 aria-label={t("chat")}
               >
