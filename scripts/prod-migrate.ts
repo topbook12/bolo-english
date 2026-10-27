@@ -565,6 +565,123 @@ async function main() {
     log(YELLOW, "Skip     XpEvent table  (already exists)");
   }
 
+  // ── 15) Phase 5 community tables + columns (D30–D34) ──────────────────
+  // UserConfig.avatar (D34 emoji avatar) + UserConfig.partnerOptIn (D31
+  // opt-in), SentenceSubmission + SentenceReaction (D32 daily challenge),
+  // ContentReport + UserBlock (D33 moderation). Leaderboard (D30) needs no
+  // new table — it aggregates XpEvent by userId.
+  if (tables.has("UserConfig")) {
+    const cfgCols5 = await columnsOf(db, "UserConfig");
+    if (!cfgCols5.has("avatar")) {
+      await db.execute(`ALTER TABLE "UserConfig" ADD COLUMN "avatar" TEXT NOT NULL DEFAULT ''`);
+      log(GREEN, "Added  UserConfig.avatar  (D34 profile)");
+      changed++;
+    } else {
+      log(YELLOW, "Skip   UserConfig.avatar  (already exists)");
+    }
+    if (!cfgCols5.has("partnerOptIn")) {
+      await db.execute(`ALTER TABLE "UserConfig" ADD COLUMN "partnerOptIn" BOOLEAN NOT NULL DEFAULT false`);
+      log(GREEN, "Added  UserConfig.partnerOptIn  (D31 partner matching)");
+      changed++;
+    } else {
+      log(YELLOW, "Skip   UserConfig.partnerOptIn  (already exists)");
+    }
+  }
+  if (!tables.has("SentenceSubmission")) {
+    await db.execute(/* sql */ `
+      CREATE TABLE "SentenceSubmission" (
+          "id" TEXT NOT NULL PRIMARY KEY,
+          "deviceId" TEXT NOT NULL,
+          "userId" TEXT,
+          "day" TEXT NOT NULL,
+          "promptId" TEXT NOT NULL,
+          "text" TEXT NOT NULL,
+          "feedback" TEXT NOT NULL DEFAULT '',
+          "hidden" BOOLEAN NOT NULL DEFAULT false,
+          "flagged" BOOLEAN NOT NULL DEFAULT false,
+          "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    await db.execute(
+      `CREATE UNIQUE INDEX "SentenceSubmission_deviceId_day_key" ON "SentenceSubmission"("deviceId", "day")`
+    );
+    await db.execute(
+      `CREATE INDEX "SentenceSubmission_day_createdAt_idx" ON "SentenceSubmission"("day", "createdAt")`
+    );
+    log(GREEN, "Created  SentenceSubmission table + unique(day)  (D32 challenge)");
+    changed++;
+  } else {
+    log(YELLOW, "Skip     SentenceSubmission table  (already exists)");
+  }
+  if (!tables.has("SentenceReaction")) {
+    await db.execute(/* sql */ `
+      CREATE TABLE "SentenceReaction" (
+          "id" TEXT NOT NULL PRIMARY KEY,
+          "submissionId" TEXT NOT NULL,
+          "deviceId" TEXT NOT NULL,
+          "userId" TEXT,
+          "emoji" TEXT NOT NULL,
+          "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    await db.execute(
+      `CREATE UNIQUE INDEX "SentenceReaction_submissionId_deviceId_key" ON "SentenceReaction"("submissionId", "deviceId")`
+    );
+    await db.execute(
+      `CREATE INDEX "SentenceReaction_submissionId_idx" ON "SentenceReaction"("submissionId")`
+    );
+    log(GREEN, "Created  SentenceReaction table  (D32 reactions)");
+    changed++;
+  } else {
+    log(YELLOW, "Skip     SentenceReaction table  (already exists)");
+  }
+  if (!tables.has("ContentReport")) {
+    await db.execute(/* sql */ `
+      CREATE TABLE "ContentReport" (
+          "id" TEXT NOT NULL PRIMARY KEY,
+          "targetType" TEXT NOT NULL,
+          "targetId" TEXT NOT NULL,
+          "reason" TEXT NOT NULL,
+          "note" TEXT NOT NULL DEFAULT '',
+          "reporterDeviceId" TEXT NOT NULL,
+          "reporterUserId" TEXT,
+          "status" TEXT NOT NULL DEFAULT 'open',
+          "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    await db.execute(
+      `CREATE INDEX "ContentReport_status_createdAt_idx" ON "ContentReport"("status", "createdAt")`
+    );
+    await db.execute(
+      `CREATE INDEX "ContentReport_targetType_targetId_idx" ON "ContentReport"("targetType", "targetId")`
+    );
+    log(GREEN, "Created  ContentReport table  (D33 moderation)");
+    changed++;
+  } else {
+    log(YELLOW, "Skip     ContentReport table  (already exists)");
+  }
+  if (!tables.has("UserBlock")) {
+    await db.execute(/* sql */ `
+      CREATE TABLE "UserBlock" (
+          "id" TEXT NOT NULL PRIMARY KEY,
+          "deviceId" TEXT NOT NULL,
+          "blockedDeviceId" TEXT NOT NULL,
+          "userId" TEXT,
+          "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    await db.execute(
+      `CREATE UNIQUE INDEX "UserBlock_deviceId_blockedDeviceId_key" ON "UserBlock"("deviceId", "blockedDeviceId")`
+    );
+    await db.execute(`CREATE INDEX "UserBlock_deviceId_idx" ON "UserBlock"("deviceId")`);
+    log(GREEN, "Created  UserBlock table  (D33 blocks)");
+    changed++;
+  } else {
+    log(YELLOW, "Skip     UserBlock table  (already exists)");
+  }
+
   // ── Final verification (reads the REAL state, not our assumptions) ────────
   const finalTables = await tablesOf(db);
   const finalCols = await columnsOf(db, "User");
@@ -583,7 +700,13 @@ async function main() {
     finalTables.has("MetricDigest") &&
     finalTables.has("ActivityDay") &&
     finalTables.has("PushSubscription") &&
-    finalTables.has("XpEvent");
+    finalTables.has("XpEvent") &&
+    finalConfigCols.has("avatar") &&
+    finalConfigCols.has("partnerOptIn") &&
+    finalTables.has("SentenceSubmission") &&
+    finalTables.has("SentenceReaction") &&
+    finalTables.has("ContentReport") &&
+    finalTables.has("UserBlock");
 
   console.log("");
   if (ok) {

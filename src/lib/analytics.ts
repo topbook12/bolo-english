@@ -36,6 +36,10 @@ export const TRACK_EVENTS = [
   "wod_open", // {streak} (client-fired once/day when the D23 daily words are opened)
   "ai_examples", // {word} (client-fired when a D23 AI example request succeeds)
   "word_saved_reading", // {word} (client-fired when a D27 tap-a-word save succeeds)
+  "leaderboard_view", // {range} (client-fired when the D30 leaderboard data loads)
+  "partner_invited", // {} (client-fired when a D31 one-tap call invite is created)
+  "challenge_done", // {flagged} (client-fired when a D32 sentence challenge submission lands)
+  "profile_shared", // {} (client-fired when the D34 profile share succeeds)
 ] as const;
 
 export type TrackEventName = (typeof TRACK_EVENTS)[number];

@@ -1,0 +1,172 @@
+{
+  "community": {
+    "title": "Community",
+    "subtitle": "Learn together — leaderboard, partners, challenges",
+    "leaderboard": {
+      "title": "Leaderboard",
+      "subtitle": "This week's top learners",
+      "tabWeek": "This week",
+      "tabAll": "All time",
+      "leagueGold": "Gold",
+      "leagueSilver": "Silver",
+      "leagueWood": "Wood",
+      "points": "{n} XP",
+      "me": "You",
+      "empty": "Nobody here yet — be the first!",
+      "signInHint": "Practice daily to climb — your name appears as soon as you earn XP.",
+      "learners": "{n} learners",
+      "youAre": "You're #{rank} · {n} XP",
+      "howLeague": "Leagues run on weekly XP: Gold 250+ · Silver 100+ · Wood below — a fresh chance every week",
+      "privacyNote": "Only first name + initial is shown — never the full name or email.",
+      "aria": "Leaderboard list"
+    },
+    "partners": {
+      "title": "Practice partners",
+      "subtitle": "Talk with learners at your level",
+      "optInLabel": "Show me as a partner",
+      "optInHint": "Opting in lets other learners see your first name, level and goal — turn it off any time and you disappear instantly.",
+      "empty": "No opted-in partners yet — be the first!",
+      "invite": "Call invite",
+      "inviteTitle": "Invite ready ✅",
+      "inviteDesc": "Send this 6-character code to your partner — the call starts when they join with it.",
+      "inviteGo": "Go to the call",
+      "inviteCopied": "Code copied!",
+      "privacyNote": "Timezone is never stored — “active” means used the app recently.",
+      "blockedToast": "Blocked — they no longer appear for you.",
+      "block": "Block",
+      "blockConfirmTitle": "Block this partner?",
+      "blockConfirmDesc": "They disappear from your list and feed — they are never told.",
+      "activeToday": "Active today",
+      "activeYesterday": "Active yesterday",
+      "activeEarlier": "Active earlier",
+      "matchHigh": "Great match",
+      "matchMid": "Good match",
+      "matchLow": "Match",
+      "levelNames": {
+        "beginner": "Beginner",
+        "intermediate": "Intermediate",
+        "advanced": "Advanced"
+      },
+      "goalNames": {
+        "general": "General",
+        "job": "Job",
+        "exam": "Exam",
+        "travel": "Travel",
+        "school": "School"
+      }
+    },
+    "challenge": {
+      "title": "Daily sentence challenge",
+      "subtitle": "One prompt a day — answer in English",
+      "promptLabel": "Today's prompt",
+      "writePlaceholder": "Write 1–3 sentences in English…",
+      "submit": "Submit",
+      "editBtn": "Edit",
+      "saveEdit": "Save",
+      "submitted": "Submitted! +{n} XP",
+      "edited": "Updated — today's XP was already earned",
+      "flaggedToast": "Your sentence was flagged for review — it's not visible to the community right now.",
+      "mineBadge": "Yours",
+      "aiFeedbackBtn": "Get AI feedback",
+      "aiFeedbackAgain": "Get AI feedback again",
+      "aiFeedbackTitle": "AI feedback",
+      "score": "Score {n}/100",
+      "strengths": "What worked",
+      "fixes": "What to fix",
+      "improved": "More natural version",
+      "noKeyHint": "AI feedback is optional — add a Gemini key in Settings to enable it.",
+      "starters": "Starters",
+      "feedTitle": "Other learners today",
+      "feedEmpty": "Be the first to submit today!",
+      "participants": "{n} submitted",
+      "reportBtn": "Report",
+      "reportTitle": "Report",
+      "reportDesc": "What's wrong? The admin team will review — the author is never told.",
+      "reasonSpam": "Spam",
+      "reasonAbuse": "Abusive language",
+      "reasonSexual": "Sexual content",
+      "reasonViolence": "Violence",
+      "reasonOther": "Other",
+      "reportNote": "Extra note (optional)",
+      "reportSend": "Send report",
+      "reportSent": "Report sent — thank you."
+    },
+    "profile": {
+      "title": "Your profile",
+      "subtitle": "Streak, badges and progress in one place",
+      "xpTotal": "Total XP",
+      "xpWeek": "+{n} this week",
+      "streak": "Streak",
+      "streakDays": "{n} days",
+      "bestStreak": "Best {n} days",
+      "badgesTitle": "Badges",
+      "badgesEarned": "{earned}/{n} earned",
+      "badgeLocked": "Locked — {value}/{target}",
+      "share": "Share",
+      "shareText": "I've earned {xp} XP and a {streak}-day streak on Bolo English! 🚀",
+      "shared": "Share copied!",
+      "avatarLabel": "Pick an avatar",
+      "avatarSaved": "Avatar saved",
+      "levelLabel": "Level",
+      "badges": {
+        "first_call": {
+          "name": "First call",
+          "desc": "Completed your first speaking session"
+        },
+        "call_10": {
+          "name": "Call master",
+          "desc": "10 speaking sessions"
+        },
+        "streak_7": {
+          "name": "7-day streak",
+          "desc": "Practiced 7 days in a row"
+        },
+        "words_25": {
+          "name": "Word collector",
+          "desc": "Saved 25 words"
+        },
+        "quiz_20": {
+          "name": "Quiz fighter",
+          "desc": "Completed 20 quizzes"
+        },
+        "lesson_10": {
+          "name": "Lesson finisher",
+          "desc": "Finished 10 grammar lessons"
+        },
+        "xp_500": {
+          "name": "500 club",
+          "desc": "Earned 500 total XP"
+        },
+        "challenge_5": {
+          "name": "Challenge regular",
+          "desc": "5 daily sentence challenges"
+        }
+      }
+    }
+  },
+  "moderation": {
+    "title": "Moderation queue",
+    "subtitle": "Community reports and flagged sentences",
+    "reportsTab": "Reports ({n})",
+    "flaggedTab": "Flagged ({n})",
+    "empty": "Nothing here — the community is clean!",
+    "targetSentence": "Sentence",
+    "targetRoom": "Call room",
+    "targetProfile": "Profile",
+    "reasonLabel": "Reason",
+    "hiddenBadge": "Hidden",
+    "liveBadge": "Live",
+    "actionReview": "Mark reviewed",
+    "actionHide": "Hide",
+    "actionUnhide": "Unhide",
+    "noteLabel": "Note",
+    "refresh": "Refresh",
+    "reasonSpam": "Spam",
+    "reasonAbuse": "Abusive language",
+    "reasonSexual": "Sexual content",
+    "reasonViolence": "Violence",
+    "reasonOther": "Other",
+    "noRoom": "(room gone)",
+    "noSentence": "(sentence gone)"
+  }
+}

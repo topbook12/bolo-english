@@ -12,6 +12,8 @@ export interface UserConfig {
   level: "beginner" | "intermediate" | "advanced";
   goal: "general" | "job" | "exam" | "travel" | "school"; // D9: shapes the weekly plan
   dailyTarget: number; // D10: daily practice target in minutes (5|10|20)
+  avatar: string; // D34: emoji avatar key ("" = auto by level)
+  partnerOptIn: boolean; // D31: opt-in to partner matching
   loaded: boolean;
 }
 
@@ -45,6 +47,8 @@ export const useDevice = create<DeviceStore>((set, get) => ({
   level: "beginner",
   goal: "general",
   dailyTarget: 10,
+  avatar: "",
+  partnerOptIn: false,
   loaded: false,
   storageError: null,
   setConfig: (partial) => set(partial),
@@ -63,6 +67,8 @@ export const useDevice = create<DeviceStore>((set, get) => ({
           level: json.data.level,
           goal: json.data.goal ?? "general",
           dailyTarget: typeof json.data.dailyTarget === "number" ? json.data.dailyTarget : 10,
+          avatar: typeof json.data.avatar === "string" ? json.data.avatar : "",
+          partnerOptIn: json.data.partnerOptIn === true,
           storageError: null,
           loaded: true,
         });

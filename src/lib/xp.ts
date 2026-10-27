@@ -11,7 +11,14 @@
 // Day bucketing: Asia/Dhaka calendar day (the product's home timezone).
 
 /** XP grant kinds (stored in XpEvent.kind). */
-export type XpKind = "quiz" | "reading" | "dictation" | "review" | "call" | "lesson";
+export type XpKind =
+  | "quiz"
+  | "reading"
+  | "dictation"
+  | "review"
+  | "call"
+  | "lesson"
+  | "challenge";
 
 export interface XpFlatRule {
   type: "flat";
@@ -43,6 +50,9 @@ export const XP_RULES: Record<XpKind, XpRule> = {
   call: { type: "call", xpPerMinute: 5, minSeconds: 30, maxPerCall: 40, dailyXp: 100 },
   // Grammar lesson marked done (client asks; server day-dedupes by refId).
   lesson: { type: "flat", xp: 6, dailyEvents: 4 },
+  // Daily sentence challenge submission (D32) — one per day (DB unique),
+  // so the cap mostly documents intent; the route awards directly.
+  challenge: { type: "flat", xp: 12, dailyEvents: 1 },
 };
 
 /** Hard ceiling for one device per day — nothing can exceed this. */

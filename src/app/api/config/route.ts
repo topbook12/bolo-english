@@ -10,6 +10,7 @@ import { reqLocale, apiMsg, type ApiLocale } from "@/lib/api-i18n";
 import { checkIpLimit } from "@/lib/rate-limit";
 import { cleanDeviceId } from "@/lib/validate";
 import { isNoName } from "@/lib/no-name";
+import { AVATARS } from "@/lib/badges";
 
 // Display name precedence: account name → custom device name → null (client localizes)
 function resolveName(
@@ -60,6 +61,8 @@ type ConfigUpdate = {
   level?: string;
   goal?: string;
   dailyTarget?: number;
+  avatar?: string; // D34: emoji key ("" = auto)
+  partnerOptIn?: boolean; // D31: opt-in to partner matching
 };
 
 async function writeConfig(
@@ -89,6 +92,8 @@ async function writeConfig(
             level: update.level ?? "beginner",
             goal: update.goal ?? "general",
             dailyTarget: update.dailyTarget ?? 10,
+            avatar: update.avatar ?? "",
+            partnerOptIn: update.partnerOptIn ?? false,
           },
         });
       } catch {
@@ -275,32 +280,19 @@ export async function GET(req: NextRequest) {
     const name = resolveName(user?.name, cfg?.displayName);
     // Pool previews for logged-in users only (never plaintext keys).
     const pool = user ? await loadPool(user.id) : undefined;
+    const base = {
+      displayName: name,
+      level: cfg?.level ?? "beginner",
+      goal: cfg?.goal ?? "general",
+      dailyTarget: cfg?.dailyTarget ?? 10,
+      avatar: cfg?.avatar ?? "", // D34 emoji key ("" = auto)
+      partnerOptIn: cfg?.partnerOptIn ?? false, // D31
+      ...(pool ? { pool } : {}),
+    };
     if (!cfg || !cfg.keyPreview) {
-      return NextResponse.json({
-        ok: true,
-        data: {
-          hasKey: false,
-          keyPreview: null,
-          displayName: name,
-          level: cfg?.level ?? "beginner",
-          goal: cfg?.goal ?? "general",
-          dailyTarget: cfg?.dailyTarget ?? 10,
-          ...(pool ? { pool } : {}),
-        },
-      });
+      return NextResponse.json({ ok: true, data: { hasKey: false, keyPreview: null, ...base } });
     }
-    return NextResponse.json({
-      ok: true,
-      data: {
-        hasKey: true,
-        keyPreview: cfg.keyPreview,
-        displayName: name,
-        level: cfg.level,
-        goal: cfg.goal ?? "general",
-        dailyTarget: cfg.dailyTarget ?? 10,
-        ...(pool ? { pool } : {}),
-      },
-    });
+    return NextResponse.json({ ok: true, data: { hasKey: true, keyPreview: cfg.keyPreview, ...base } });
   } catch (e) {
     return storageErrorResponse(e, reqLocale(req));
   }
@@ -336,6 +328,14 @@ export async function POST(req: NextRequest) {
   // D10: daily practice target in minutes (5|10|20).
   if (body?.dailyTarget === 5 || body?.dailyTarget === 10 || body?.dailyTarget === 20) {
     update.dailyTarget = body.dailyTarget;
+  }
+  // D34: avatar — whitelisted emoji key ("" = auto by level).
+  if (typeof body?.avatar === "string" && AVATARS.includes(body.avatar as never)) {
+    update.avatar = body.avatar;
+  }
+  // D31: partner-matching opt-in (privacy-first — never implied).
+  if (typeof body?.partnerOptIn === "boolean") {
+    update.partnerOptIn = body.partnerOptIn;
   }
 
   let warning: string | null = null;

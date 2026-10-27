@@ -10,6 +10,7 @@ import { scenarioById, withName } from "@/lib/scenarios";
 import { simSetById } from "@/lib/simulator-bank";
 import { GeminiError, geminiJson, getAiLevel, getUserName, getUserApiKeyWithMeta } from "@/lib/gemini";
 import { pruneAiCache } from "@/lib/ai-cache-prune";
+import { xpDay } from "@/lib/xp";
 import type {
   AnalysisMistake,
   CallAnalysis,
@@ -958,6 +959,63 @@ ${JSON_ONLY}`,
           { maxOutputTokens: 1536 }
         );
         return jsonOk(data);
+      }
+
+      /* ---------------- COMMUNITY: DAILY CHALLENGE FEEDBACK (D32) ---------- */
+      // The learner submitted today's sentence-challenge answer. One call
+      // grades it: a score, what worked, what to fix, and a model rewrite.
+      // Feedback is stored ON the submission (challenge route reads it back)
+      // and shared-cached by (prompt, text, level, locale) — identical
+      // answers share one grading, BYOK pays once.
+      case "challenge-feedback": {
+        const text = cleanStr(payload.text, 300);
+        const promptEn = cleanStr(payload.promptEn, 200);
+        const submissionId = cleanStr(payload.submissionId, 40);
+        if (!text || !promptEn) {
+          return jsonErr(apiMsg(locale, "paramsRequired"), 400);
+        }
+        const textHash = createHash("sha256").update(`${promptEn}|${text.toLowerCase()}`).digest("hex").slice(0, 16);
+        const data = await cachedJson<{
+          score: number;
+          strengths: string[];
+          fixes: string[];
+          improved: string;
+        }>(
+          "challenge-feedback",
+          `${textHash}|${userLevel}|${locale}`,
+          apiKey,
+          `You are a warm, encouraging English teacher grading a daily writing challenge for ${userName} (${userLevel} level). ${lang.rule}
+TODAY'S PROMPT: "${promptEn}"
+THE LEARNER'S ANSWER (English): "${text}"
+TASK: grade the answer for a language learner. "score" = 0-100 (how well it answers the prompt + English quality — be honest but kind; a simple correct answer at beginner level is 70-85); "strengths" = 2 short things they did well ${lang.short}; "fixes" = 1-3 CONCRETE fixes (grammar/word choice/prompt-fit) ${lang.short}, each with the corrected English fragment; "improved" = one improved version of THEIR idea in natural English at their level (keep their meaning, never invent new content).
+Return STRICT JSON: { "score": 80, "strengths": ["… ${lang.short}", "… ${lang.short}"], "fixes": ["… ${lang.short}"], "improved": "…" }
+${JSON_ONLY}`,
+          0.5,
+          { maxOutputTokens: 800 }
+        );
+        const out = {
+          score: Math.max(0, Math.min(100, Math.round(Number(data?.score ?? 0)) || 0)),
+          strengths: Array.isArray(data?.strengths)
+            ? data.strengths.slice(0, 3).map((s: unknown) => cleanStr(s ?? "", 160)).filter(Boolean)
+            : [],
+          fixes: Array.isArray(data?.fixes)
+            ? data.fixes.slice(0, 3).map((s: unknown) => cleanStr(s ?? "", 200)).filter(Boolean)
+            : [],
+          improved: cleanStr(data?.improved ?? "", 300),
+        };
+        if (!out.score && out.strengths.length === 0 && !out.improved) {
+          return jsonErr(apiMsg(locale, "aiFailed"), 502);
+        }
+        // Persist on the caller's own submission (bounded, device-owned).
+        if (submissionId) {
+          await db.sentenceSubmission
+            .updateMany({
+              where: { id: submissionId, deviceId, day: xpDay() },
+              data: { feedback: JSON.stringify(out) },
+            })
+            .catch(() => null);
+        }
+        return jsonOk(out);
       }
 
       default:

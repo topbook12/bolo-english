@@ -16,6 +16,7 @@ import {
   Sparkles,
   BookOpen,
   FileUser,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -38,6 +39,7 @@ import ListeningSection from "@/components/sections/ListeningSection";
 import ReadingSection from "@/components/reading/ReadingSection";
 import VocabSection from "@/components/sections/VocabSection";
 import CvStudio from "@/components/cv/CvStudio";
+import CommunitySection from "@/components/community/CommunitySection";
 import ProgressSection from "@/components/sections/ProgressSection";
 import SettingsSection from "@/components/sections/SettingsSection";
 
@@ -50,6 +52,7 @@ export type TabId =
   | "reading"
   | "vocab"
   | "cv"
+  | "community"
   | "progress"
   | "settings";
 
@@ -69,12 +72,13 @@ export const TABS: {
   { id: "reading", labelKey: "reading", icon: BookOpen, descKey: "readingDesc" },
   { id: "vocab", labelKey: "vocab", icon: LibraryBig, descKey: "vocabDesc" },
   { id: "cv", labelKey: "cv", icon: FileUser, descKey: "cvDesc" },
+  { id: "community", labelKey: "community", icon: Users, descKey: "communityDesc" },
   { id: "progress", labelKey: "progress", icon: LineChart, descKey: "progressDesc" },
   { id: "settings", labelKey: "settings", icon: Settings, descKey: "settingsDesc" },
 ];
 
 const BOTTOM_TABS: TabId[] = ["home", "speaking", "grammar", "reading"];
-const MORE_TABS: TabId[] = ["path", "listening", "vocab", "cv", "progress", "settings"];
+const MORE_TABS: TabId[] = ["path", "listening", "vocab", "cv", "community", "progress", "settings"];
 
 // ─── Bolo Spectrum module accents ───
 // Color = identity: each module owns one warm gradient that repeats in its
@@ -91,6 +95,7 @@ const TINT_ACTIVE: Record<TabId, string> = {
   reading: "from-amber-500 to-orange-600",
   vocab: "from-emerald-500 to-teal-600",
   cv: "from-fuchsia-500 to-pink-600",
+  community: "from-pink-500 to-fuchsia-600",
   progress: "from-emerald-500 to-teal-600",
   settings: "from-violet-500 to-purple-600",
 };
@@ -104,6 +109,7 @@ const TINT_TEXT: Record<TabId, string> = {
   reading: "text-amber-600 dark:text-amber-500",
   vocab: "text-emerald-600 dark:text-emerald-400",
   cv: "text-fuchsia-600 dark:text-fuchsia-400",
+  community: "text-pink-600 dark:text-pink-400",
   progress: "text-emerald-600 dark:text-emerald-400",
   settings: "text-violet-600 dark:text-violet-400",
 };
@@ -117,6 +123,7 @@ const TINT_SOFT: Record<TabId, string> = {
   reading: "bg-amber-100/80 dark:bg-amber-900/40",
   vocab: "bg-emerald-100/80 dark:bg-emerald-900/40",
   cv: "bg-fuchsia-100/80 dark:bg-fuchsia-900/40",
+  community: "bg-pink-100/80 dark:bg-pink-900/40",
   progress: "bg-emerald-100/80 dark:bg-emerald-900/40",
   settings: "bg-violet-100/80 dark:bg-violet-900/40",
 };
@@ -178,6 +185,8 @@ export default function AppShell() {
         return <VocabSection />;
       case "cv":
         return <CvStudio />;
+      case "community":
+        return <CommunitySection onNavigate={setTab} />;
       case "progress":
         return <ProgressSection />;
       case "settings":

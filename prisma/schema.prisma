@@ -55,6 +55,11 @@ model UserConfig {
   level       String   @default("beginner") // beginner | intermediate | advanced
   goal        String   @default("general") // general | job | exam | travel | school (D9: shapes the weekly plan)
   dailyTarget Int      @default(10) // daily practice target in minutes (5|10|20) — D10 onboarding
+  // D34 profile: emoji avatar key (src/lib/badges.ts AVATARS); "" = auto by level
+  avatar      String   @default("")
+  // D31 partner matching: OPT-IN visibility in /api/partners (privacy-first —
+  // nobody appears in matching unless they explicitly turned this on)
+  partnerOptIn Boolean @default(false)
   userId      String? // set when the device owner is logged in
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -444,6 +449,78 @@ model XpEvent {
   @@index([userId, day])
   @@index([day])
   @@index([kind, refId, day])
+}
+
+// ─── Daily sentence challenge (D32, ROADMAP-60) ───
+// One row = one learner's submission for the day's prompt (max 1 per device
+// per Asia/Dhaka day — the (deviceId, day) unique). The text is USER-TYPED
+// and PUBLIC to other learners (privacy-safe name only), so moderation
+// (D33) gates visibility: `flagged` = auto word-list hit, `hidden` = hidden
+// from the community feed until an admin unhides it.
+model SentenceSubmission {
+  id        String   @id @default(cuid())
+  deviceId  String
+  userId    String? // attached server-side from the session cookie
+  day       String // YYYY-MM-DD (Asia/Dhaka) — the challenge day
+  promptId  String // which prompt from src/lib/challenge-bank.ts
+  text      String // ≤300 chars, English sentence(s)
+  feedback  String   @default("") // JSON ChallengeFeedback | "" (AI, BYOK)
+  hidden    Boolean  @default(false) // hidden from the feed (moderation)
+  flagged   Boolean  @default(false) // auto-flagged by the word list
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([deviceId, day])
+  @@index([day, createdAt])
+}
+
+// Peer reactions on challenge submissions. One row per (submission, device);
+// re-tapping the same emoji toggles it off (row deleted).
+model SentenceReaction {
+  id           String   @id @default(cuid())
+  submissionId String
+  deviceId     String
+  userId       String?
+  emoji        String // thumbs_up | heart | fire (server whitelist)
+  createdAt    DateTime @default(now())
+
+  @@unique([submissionId, deviceId])
+  @@index([submissionId])
+}
+
+// ─── Moderation (D33, ROADMAP-60) ───
+// Community content (challenge sentences, call rooms, partner profiles) can
+// be reported by any learner. Reports land in the admin moderation queue
+// (Settings → ModerationCard, ADMIN_EMAILS gate); `hide` actions flip the
+// target row's hidden flag (sentences) or close the room (rooms).
+model ContentReport {
+  id        String   @id @default(cuid())
+  targetType String  // sentence | room | profile (server whitelist)
+  targetId  String // SentenceSubmission.id | CallRoom.id | UserConfig.id
+  reason    String // spam | abuse | sexual | violence | other (whitelist)
+  note      String   @default("") // optional, ≤200 chars
+  reporterDeviceId String
+  reporterUserId   String? // attached server-side
+  status    String   @default("open") // open | reviewed | actioned
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@index([targetType, targetId])
+}
+
+// Device-level block list (D33). A block hides the other learner from YOUR
+// partner suggestions AND their submissions from YOUR challenge feed —
+// one-sided, silent, never notified.
+model UserBlock {
+  id              String   @id @default(cuid())
+  deviceId        String // the blocker
+  blockedDeviceId String // the blocked
+  userId          String? // attached server-side
+  createdAt       DateTime @default(now())
+
+  @@unique([deviceId, blockedDeviceId])
+  @@index([deviceId])
 }
 
 // ─── CV Studio ───

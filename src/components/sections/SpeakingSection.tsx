@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   Users,
@@ -38,6 +38,29 @@ export default function SpeakingSection() {
   const [intent, setIntent] = useState<CallIntent>("one");
   const [code, setCode] = useState<string | undefined>(undefined);
   const [joinCode, setJoinCode] = useState("");
+
+  /* Phase 5 (D31): a partner invite created in the Community tab leaves a
+   * one-shot handoff in localStorage; picking it up here makes "Go to the
+   * call" a true one-tap join (the room code is already known). */
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("bolo_call_handoff");
+      if (!raw) return;
+      localStorage.removeItem("bolo_call_handoff");
+      const parsed = JSON.parse(raw) as { intent?: string; code?: string };
+      if (parsed?.code && parsed.code.length === 6) {
+        // defer one tick — same cascade-safety pattern as the tab restore
+        const tm = setTimeout(() => {
+          setIntent("group-code");
+          setCode(parsed.code!.toUpperCase());
+          setMode("call");
+        }, 0);
+        return () => clearTimeout(tm);
+      }
+    } catch {
+      /* private mode / stale value — ignore */
+    }
+  }, []);
 
   const startCall = (nextIntent: CallIntent, withCode?: string) => {
     setIntent(nextIntent);

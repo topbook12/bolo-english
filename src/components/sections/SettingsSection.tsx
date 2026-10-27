@@ -47,6 +47,7 @@ import FeedbackAdminCard from "@/components/feedback/FeedbackAdminCard";
 import RatingsAdminCard from "@/components/settings/RatingsAdminCard";
 import RatingOptCard from "@/components/settings/RatingOptCard";
 import ErrorsAdminCard from "@/components/monitor/ErrorsAdminCard";
+import ModerationCard from "@/components/moderation/ModerationCard";
 import WeeklyDigestCard from "@/components/settings/WeeklyDigestCard";
 import PushCard from "@/components/settings/PushCard";
 import type { UserConfig as ApiUserConfig } from "@/hooks/use-device";
@@ -495,6 +496,10 @@ export default function SettingsSection() {
         {isAdmin && <LibraryStudioCard />}
 
         {isAdmin && <TurnPoolCard />}
+
+        {/* ── Community moderation queue (D33): reports + auto-flagged
+            sentences — ADMIN-ONLY (the API is ALSO fail-closed 403) ── */}
+        {isAdmin && <ModerationCard />}
 
         {/* ── Profile ── */}
         <Card className="premium-card border-border/70 rounded-2xl bg-card">

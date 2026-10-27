@@ -62,6 +62,8 @@
     "addKey": "Add API Key",
     "addKeyShort": "Key",
     "cv": "CV Studio",
+    "community": "Community",
+    "communityDesc": "Leaderboard, partners & challenges",
     "cvDesc": "Auto-build your CV"
   },
   "locale": {
