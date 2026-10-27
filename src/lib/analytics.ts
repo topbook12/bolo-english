@@ -28,6 +28,7 @@ export const TRACK_EVENTS = [
   "pronunciation_done", // {score} (client-fired by the D15 pronunciation card per attempt)
   "roleplay_done", // {scenario, score, goal} (client-fired when a D16 roleplay finishes)
   "simulator_done", // {setId, band, answers} (client-fired when a D17 mock test is graded)
+  "shadowing_done", // {score, level} (client-fired by the D18 shadowing card per attempt)
 ] as const;
 
 export type TrackEventName = (typeof TRACK_EVENTS)[number];

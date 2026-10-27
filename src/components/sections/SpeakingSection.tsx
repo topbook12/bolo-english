@@ -24,6 +24,7 @@ import { useDevice } from "@/hooks/use-device";
 import AiPartner from "@/components/speaking/AiPartner";
 import PronunciationCard from "@/components/speaking/PronunciationCard";
 import SimulatorCard from "@/components/speaking/SimulatorCard";
+import ShadowCard from "@/components/speaking/ShadowCard";
 import CallFlow, { type CallIntent } from "@/components/speaking/CallFlow";
 
 type Mode = "menu" | "call" | "ai";
@@ -80,6 +81,9 @@ export default function SpeakingSection() {
 
       {/* D17: IELTS-style speaking simulator — full mock test with band feedback */}
       <SimulatorCard />
+
+      {/* D18: shadowing — listen → speak along → compare, speed control */}
+      <ShadowCard />
 
       {/* Mode cards — 1 per column on desktop */}
       <div className="grid gap-5 lg:grid-cols-3 lg:items-stretch">

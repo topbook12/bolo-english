@@ -4,7 +4,19 @@
 // Handles async voice loading (Chrome/Safari populate getVoices() late).
 
 export function speakEnglish(text: string): void {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+  speakEnglishAt(text, 0.9);
+}
+
+/**
+ * Rate-controlled English TTS (D18 shadowing: slow 0.6 / normal 0.95) with an
+ * optional onend callback so callers know when the utterance finishes.
+ * Free, on-device — no API cost for listening practice.
+ */
+export function speakEnglishAt(text: string, rate: number, onend?: () => void): void {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+    onend?.();
+    return;
+  }
   const synth = window.speechSynthesis;
 
   // Chrome loads voices asynchronously — nudge + listen once so getVoices() is ready.
@@ -22,7 +34,8 @@ export function speakEnglish(text: string): void {
   synth.cancel(); // stop any previous utterance before speaking
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = "en-US";
-  utter.rate = 0.9; // slightly slow for learners
+  utter.rate = Math.min(1.4, Math.max(0.4, rate));
+  if (onend) utter.onend = () => onend();
 
   const list = synth.getVoices();
   const enUs = list.find((v) => v.lang?.toLowerCase() === "en-us");

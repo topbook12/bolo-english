@@ -170,6 +170,32 @@
       "unsupported": "This browser can't record — type your answer instead.",
       "feedbackFailed": "Grading failed — try once more.",
       "needOne": "Answer at least one question to get a grade."
+    },
+    "shadow": {
+      "title": "Shadowing",
+      "desc": "Listen → speak along → compare. Copy the rhythm of natural English.",
+      "needKey": "Checking needs your free Gemini key",
+      "keyHint": "Listening is free — you only need your own key to CHECK what you said.",
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced",
+      "pickLine": "Pick a line",
+      "listen": "Listen",
+      "playing": "Playing…",
+      "slow": "Slow",
+      "normal": "Normal",
+      "record": "Now say it with the speaker",
+      "stop": "Stop",
+      "checking": "Checking…",
+      "again": "Try again",
+      "scoreTitle": "You matched {score}% of the words",
+      "wOk": "Perfect",
+      "wClose": "Close",
+      "wMiss": "Missed",
+      "sttFailed": "Transcription failed — try once more.",
+      "noSpeech": "Couldn't hear anything — try again.",
+      "permission": "Microphone permission is needed.",
+      "unsupported": "This browser can't record."
     }
   }
 }
