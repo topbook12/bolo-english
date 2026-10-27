@@ -92,6 +92,14 @@ interface ProgressData {
   practiceByKind: Record<string, { count: number; correct: number; total: number }>;
 }
 
+// D29: unified XP summary from /api/xp (device-scoped, Dhaka-day buckets).
+interface XpSummaryData {
+  total: number;
+  today: number;
+  week: number;
+  days: { day: string; xp: number }[];
+}
+
 const TYPE_ICON: Record<string, typeof Users> = {
   "one-to-one": Users,
   group: Video,
@@ -154,6 +162,8 @@ export default function ProgressSection() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [bestStreak, setBestStreak] = useState(0);
   const [loading, setLoading] = useState(true);
+  // D29: unified XP (quiz/call/review/dictation/lesson) for the XP card.
+  const [xp, setXp] = useState<XpSummaryData | null>(null);
 
   /* ── review visibility (was invisible in Progress — connectivity fix) ──
    * Same external-store + hydration-safe pattern the Learning Path uses:
@@ -183,10 +193,12 @@ export default function ProgressSection() {
     Promise.all([
       apiGet<ProgressData>(`/api/progress?deviceId=${deviceId}`),
       apiGet<SessionRow[]>(`/api/sessions?deviceId=${deviceId}&limit=30`),
+      apiGet<XpSummaryData>(`/api/xp?deviceId=${deviceId}`),
     ])
-      .then(([p, s]) => {
+      .then(([p, s, x]) => {
         setData(p);
         setSessions(s);
+        setXp(x);
         // Best streak is kept client-side (per device) — API reports current only
         try {
           const stored = Number(window.localStorage.getItem(BEST_STREAK_KEY) || 0);
@@ -305,6 +317,50 @@ export default function ProgressSection() {
           <StatCard icon={Trophy} value={data?.avgScore ?? 0} label={t("stats.avgScore")} tint="amber" />
           <StatCard icon={Library} value={data?.wordCount ?? 0} label={t("stats.words")} tint="emerald" />
         </div>
+
+        {/* ── D29: XP card — one unified effort score across every surface ── */}
+        {xp && (
+          <Card className="animate-fade-in-up overflow-hidden border-teal-200/70 bg-gradient-to-br from-teal-50 via-background to-emerald-50 dark:border-teal-900/50 dark:from-teal-950/30 dark:via-background dark:to-emerald-950/20">
+            <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-md shadow-teal-500/30">
+                  <Sparkles className="h-6 w-6" aria-hidden />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-bold">
+                    {t("xp.title", { n: xp.total })}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {t("xp.sub", { today: xp.today, week: xp.week })}
+                  </p>
+                </div>
+              </div>
+              {/* last 7 days mini bars (oldest → newest, right = today) */}
+              <div
+                className="flex h-12 shrink-0 items-end gap-1.5"
+                role="img"
+                aria-label={t("xp.weekAria")}
+              >
+                {xp.days.map((d) => {
+                  const max = Math.max(...xp.days.map((x) => x.xp), 1);
+                  return (
+                    <span
+                      key={d.day}
+                      title={`${d.day}: ${d.xp}`}
+                      className={cn(
+                        "w-2.5 rounded-t-md",
+                        d.xp > 0
+                          ? "bg-gradient-to-t from-teal-500 to-emerald-400"
+                          : "bg-muted"
+                      )}
+                      style={{ height: `${Math.max(12, (d.xp / max) * 100)}%` }}
+                    />
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* ── review stats — spaced-repetition visibility (Leitner boxes) ── */}
         {learned.length > 0 && (

@@ -85,7 +85,8 @@
       "today": "today",
       "weekAria": "Last 7 days activity",
       "goal": "Goal: {n} min/day",
-      "longest": "Best: {n} days"
+      "longest": "Best: {n} days",
+      "xp": "{n} XP · today +{today}"
     }
   }
 }

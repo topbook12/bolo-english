@@ -70,6 +70,11 @@
       "vocabGapsTitle": "Words worth learning",
       "suggestionsTitle": "Suggestions for next time",
       "transcriptTitle": "Full dialogue"
+    },
+    "xp": {
+      "title": "{n} XP earned in total 🎉",
+      "sub": "Today +{today} · this week +{week} — quizzes, calls, reviews & lessons combined",
+      "weekAria": "XP of the last 7 days"
     }
   }
 }

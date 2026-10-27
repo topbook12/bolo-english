@@ -5,6 +5,8 @@ import { reqLocale, apiMsg } from "@/lib/api-i18n";
 import { checkIpLimit } from "@/lib/rate-limit";
 import { cleanDeviceId, cleanLine } from "@/lib/validate";
 import { logAnalyticsEvent } from "@/lib/analytics-server";
+import { awardXpSafe } from "@/lib/xp-server";
+import { callXp } from "@/lib/xp";
 
 // GET /api/sessions?deviceId=...&limit=30 → speaking sessions
 export async function GET(req: NextRequest) {
@@ -78,6 +80,15 @@ export async function POST(req: NextRequest) {
     type: s.type,
     durationSec: s.durationSec,
     partnerCount: s.partnerCount,
+  });
+  // D29: call XP at the verified write-point — minute-based, capped per call
+  // and per day, computed entirely from the stored duration. Fire-safe.
+  await awardXpSafe({
+    deviceId,
+    userId,
+    kind: "call",
+    xp: callXp(s.durationSec),
+    refId: s.id,
   });
   return NextResponse.json({ ok: true, data: { id: s.id } });
 }

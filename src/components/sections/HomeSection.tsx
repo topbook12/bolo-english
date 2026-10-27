@@ -51,6 +51,12 @@ interface ProgressData {
   wordCount: number;
 }
 
+interface XpData {
+  total: number;
+  today: number;
+  week: number;
+}
+
 // Data-only module registry: titles/descs come from the "home" namespace.
 const MODULES: {
   id: TabId;
@@ -150,6 +156,7 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
   const loaded = useDeviceValue((s) => s.loaded, false);
   const [progress, setProgress] = useState<ProgressData | null>(null);
   const [streakInfo, setStreakInfo] = useState<StreakInfo | null>(null);
+  const [xp, setXp] = useState<XpData | null>(null);
   const dailyTarget = useDeviceValue((s) => s.dailyTarget, 10);
   const [dailyWords, setDailyWords] = useState<DailyWord[] | null>(null);
   const [dailyError, setDailyError] = useState<string | null>(null);
@@ -178,6 +185,10 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
     )
       .then(setStreakInfo)
       .catch(() => setStreakInfo(null));
+    // D29: XP totals for the streak card chip.
+    apiGet<XpData>(`/api/xp?deviceId=${deviceId}`)
+      .then(setXp)
+      .catch(() => setXp(null));
   }, [deviceId]);
 
   const loadDaily = () => {
@@ -374,6 +385,13 @@ export default function HomeSection({ onNavigate }: { onNavigate: (t: TabId) => 
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-2">
+              {/* D29: XP chip — the unified effort score across every surface. */}
+              {xp && (
+                <Badge className="gap-1 border-transparent bg-gradient-to-br from-teal-500 to-emerald-600 text-[11px] text-white shadow-sm">
+                  <Sparkles className="h-3 w-3" aria-hidden />
+                  {t("streak.xp", { n: xp.total, today: xp.today })}
+                </Badge>
+              )}
               <Badge variant="secondary" className="gap-1 text-[11px]">
                 <Target className="h-3 w-3" aria-hidden />
                 {t("streak.goal", { n: dailyTarget })}

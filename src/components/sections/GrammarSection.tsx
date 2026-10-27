@@ -36,6 +36,7 @@ import {
   type GrammarTopic,
   type Level,
 } from "@/components/grammar/shared";
+import { claimLessonXp } from "@/lib/xp-client";
 import type { LibraryGrammarMeta } from "@/lib/library-types";
 
 type View =
@@ -137,6 +138,8 @@ export default function GrammarSection() {
 
   const markDone = useCallback((topicId: string) => {
     setDoneTopics(saveDoneTopic(topicId));
+    // D29: lesson-done XP claim (fire-and-forget; server day-dedupes).
+    claimLessonXp(topicId);
   }, []);
 
   // Owner topics not part of the static curriculum → extra library group.

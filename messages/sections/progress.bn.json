@@ -70,6 +70,11 @@
       "vocabGapsTitle": "শেখার মতো শব্দ",
       "suggestionsTitle": "পরবর্তী পরামর্শ",
       "transcriptTitle": "সম্পূর্ণ ডায়ালগ"
+    },
+    "xp": {
+      "title": "মোট {n} XP অর্জিত 🎉",
+      "sub": "আজ +{today} · এই সপ্তাহে +{week} — কুইজ, কল, রিভিউ, লেসন সব মিলিয়ে",
+      "weekAria": "শেষ ৭ দিনের XP"
     }
   }
 }

@@ -532,6 +532,39 @@ async function main() {
     log(YELLOW, "Skip   CallRoom discovery columns  (CallRoom table not present yet)");
   }
 
+  // ── 14) XpEvent table (D29 — unified XP engine) ─────────────────────
+  // One row = one XP grant (quiz/reading/dictation/review/call/lesson).
+  // Without it POST /api/practice + /api/sessions award nothing and
+  // GET /api/xp returns zeros. Day buckets = Asia/Dhaka calendar days.
+  if (!tables.has("XpEvent")) {
+    await db.execute(/* sql */ `
+      CREATE TABLE "XpEvent" (
+          "id" TEXT NOT NULL PRIMARY KEY,
+          "deviceId" TEXT NOT NULL,
+          "userId" TEXT,
+          "kind" TEXT NOT NULL,
+          "refId" TEXT NOT NULL DEFAULT '',
+          "xp" INTEGER NOT NULL,
+          "day" TEXT NOT NULL,
+          "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    await db.execute(
+      `CREATE INDEX "XpEvent_deviceId_day_idx" ON "XpEvent"("deviceId", "day")`
+    );
+    await db.execute(
+      `CREATE INDEX "XpEvent_userId_day_idx" ON "XpEvent"("userId", "day")`
+    );
+    await db.execute(`CREATE INDEX "XpEvent_day_idx" ON "XpEvent"("day")`);
+    await db.execute(
+      `CREATE INDEX "XpEvent_kind_refId_day_idx" ON "XpEvent"("kind", "refId", "day")`
+    );
+    log(GREEN, "Created  XpEvent table + 4 indexes  (D29 XP engine)");
+    changed++;
+  } else {
+    log(YELLOW, "Skip     XpEvent table  (already exists)");
+  }
+
   // ── Final verification (reads the REAL state, not our assumptions) ────────
   const finalTables = await tablesOf(db);
   const finalCols = await columnsOf(db, "User");
@@ -549,7 +582,8 @@ async function main() {
     finalTables.has("ClientError") &&
     finalTables.has("MetricDigest") &&
     finalTables.has("ActivityDay") &&
-    finalTables.has("PushSubscription");
+    finalTables.has("PushSubscription") &&
+    finalTables.has("XpEvent");
 
   console.log("");
   if (ok) {

@@ -38,6 +38,7 @@ import { cn } from "@/lib/utils";
 import type { GrammarLessonContent } from "@/lib/types";
 import { pickTri, type LibraryGrammarEntry } from "@/lib/library-types";
 import { errMessage, fmtNum, saveDoneTopic, type GrammarTopic, type Level } from "@/components/grammar/shared";
+import { claimLessonXp } from "@/lib/xp-client";
 import { bankLessonToContent, getBankLesson } from "@/components/grammar/bank";
 import LibraryAskBox from "@/components/library/AskBox";
 
@@ -687,7 +688,11 @@ export default function LessonView({
               )}
               <Button
                 variant="outline"
-                onClick={() => saveDoneTopic(topic.topic)}
+                onClick={() => {
+                  saveDoneTopic(topic.topic);
+                  // D29: lesson-done XP claim (fire-and-forget; server dedupes).
+                  claimLessonXp(topic.topic);
+                }}
                 className="min-h-11 gap-1.5 rounded-xl border-orange-500/40 px-3 text-orange-700 hover:bg-orange-500/10 dark:text-orange-300"
                 aria-label={t("lesson.markReadAria")}
               >

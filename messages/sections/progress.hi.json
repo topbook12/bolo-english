@@ -70,6 +70,11 @@
       "vocabGapsTitle": "सीखने लायक शब्द",
       "suggestionsTitle": "आगे के लिए सुझाव",
       "transcriptTitle": "पूरा संवाद"
+    },
+    "xp": {
+      "title": "कुल {n} XP अर्जित 🎉",
+      "sub": "आज +{today} · इस हफ़्ते +{week} — क्विज़, कॉल, रिव्यू और लेसन मिलाकर",
+      "weekAria": "पिछले 7 दिन का XP"
     }
   }
 }

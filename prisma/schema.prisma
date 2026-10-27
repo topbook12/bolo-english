@@ -420,6 +420,32 @@ model MetricDigest {
   updatedAt DateTime @updatedAt
 }
 
+// ─── XP engine (D29, ROADMAP-60) ───
+// One row = one XP grant. XP is ONLY minted at verified server write-points
+// (practice logs, call sessions) or through the tightly-whitelisted client
+// kind "lesson" (day-deduped by refId), never as a raw client-supplied
+// number. Anti-abuse: per-kind daily caps + a global daily cap are enforced
+// in src/lib/xp-server.ts BEFORE the row is written — capped grants either
+// shrink or are skipped entirely (no row), so the ledger stays honest.
+// Day bucketing uses the server's Asia/Dhaka calendar day (the product's
+// home timezone) — the client never sends a day, so no timezone info exists
+// anywhere in this table.
+model XpEvent {
+  id        String   @id @default(cuid())
+  deviceId  String
+  userId    String? // attached server-side from the session cookie
+  kind      String // quiz | reading | dictation | review | call | lesson
+  refId     String   @default("") // topic/story/session tag (lesson day-dedup key)
+  xp        Int // granted XP (already clamped by the caps)
+  day       String // YYYY-MM-DD (Asia/Dhaka) — bucket for caps + leaderboards
+  createdAt DateTime @default(now())
+
+  @@index([deviceId, day])
+  @@index([userId, day])
+  @@index([day])
+  @@index([kind, refId, day])
+}
+
 // ─── CV Studio ───
 // Auto-generated, fully customizable CVs. One row = one CV; the entire
 // content + design (template, accent, section order) lives in `data` as JSON

@@ -5,6 +5,7 @@ import { reqLocale, apiMsg } from "@/lib/api-i18n";
 import { checkIpLimit } from "@/lib/rate-limit";
 import { cleanDeviceId, cleanStr } from "@/lib/validate";
 import { logAnalyticsEvent } from "@/lib/analytics-server";
+import { awardForPractice } from "@/lib/xp-server";
 
 // POST /api/practice  { deviceId, kind, refId, score, total }
 // Hardened (audit P0-3): bounded fields + per-IP limiter.
@@ -36,7 +37,10 @@ export async function POST(req: NextRequest) {
     score: log.score,
     total: log.total,
   });
-  return NextResponse.json({ ok: true, data: { id: log.id } });
+  // D29: XP at the verified write-point — the practice row itself proves the
+  // activity, so the client never asks for XP here. Fire-safe: never fails.
+  const xp = await awardForPractice(deviceId, userId, kind, log.refId);
+  return NextResponse.json({ ok: true, data: { id: log.id, xp: xp.xp } });
 }
 
 // GET /api/practice?deviceId=…&kind=grammar-quiz&take=120
