@@ -3759,3 +3759,26 @@ Work Log:
 Stage Summary:
 - Reading is now a vocabulary funnel: every word in every passage is one tap from the wordbook (with an AI-built entry when a key exists) — the SRS queue (D22) automatically inherits everything learners save while reading.
 - Next: D28 — Phase-4 review day (production triage + live regression sweep of D22–D27).
+---
+Task ID: D28
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 28 — Phase-4 review (production triage + live regression sweep D22–D27)
+
+Work Log:
+- Production triage (Turso): 9 users stable, 50 events/2d (29 section_view, 8 session_end, 7 session_start, 4 onboarding_done, 1 placement_done, 1 ai_call), 0 feedback. Client errors: only the 2 KNOWN single-instant DOM-mutation races from 2026-10-27T03:09 (D21 finding) — ZERO new errors since; monitoring stance confirmed correct.
+- LIVE regression sweep (bolo-english-mu.vercel.app, fresh QA account):
+  • D22 — "Today's review" card renders in Vocab with the empty state ✓
+  • D23 — "More examples (AI)" on word cards + word-of-day streak marked (localStorage) ✓
+  • D24 — Weak-spots card correctly HIDDEN with no quiz history; topic grid normal ✓
+  • D25 — Intermediate chip → Tense Basics → keyless instant bank lesson ("Tense basics (Intermediate)" + the continuity intro) ✓
+  • D26 — Dictation card renders with levels + "on-device" free note ✓
+  • D27 — list CEFR badges (6 found) → story → tap "Rafi" → Save → wordbook API returns ["rafi"] ✓
+  • Zero console/page errors across the whole sweep.
+- SWEEP ARTIFACT (not a bug): the first D27 checks ran while Vercel was still shipping the newest build — the old bundle briefly showed no CEFR badges/tap targets; re-checked after the deploy landed and everything was live. Lesson noted: give the deploy a beat before sweeping the freshest commit.
+- QA sweep data cleaned EXACT-ID-ONLY from production (user + 10 events/words + 1 activity row); PROD_USERS_LEFT = 9 exactly as before.
+- ROADMAP-60.md D28 ticked — PHASE 4 COMPLETE (D22–D28, 7/7 days, no gaps).
+
+Stage Summary:
+- Phase 4 (শেখার গভীরতা) is fully live: SM-2-lite SRS with a section-level review hub, level-tuned AI examples + word streaks, an adaptive weakness→drill engine, a 108-lesson keyless grammar ladder (beginner→intermediate→advanced), keyless dictation, and tap-any-word reading with CEFR grades. Every learning surface now feeds the retention loop.
+- Batch complete: D18–D28 delivered in one session — 11/11 days, all pushed, all live-verified, production migrated (TurnKey health + CallRoom discovery columns), QA data exact-id-cleaned after every sweep.
+- Next up (owner's call): Phase 5 — community & social (D29 XP unification, D30 leaderboard…).
