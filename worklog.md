@@ -3642,3 +3642,19 @@ Work Log:
 Stage Summary:
 - Bolo now has a social heartbeat: live public rooms are one tap away and "practice tonight at 9" is a real, discoverable object — with server-derived room_opened/room_joined/room_scheduled analytics feeding the growth funnel the 60-day plan targets.
 - Next: D21 — Phase-3 review day (production triage + live regression sweep of D15–D20).
+---
+Task ID: D21
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 21 — Phase-3 review (production triage + live regression sweep D15–D20)
+
+Work Log:
+- PROD MIGRATION APPLIED (owner action done proactively with stored credentials): prod-migrate added 6 columns to Turso — TurnKey.mintOk/mintFail/lastMintAt/lastFailAt (D19) + CallRoom.topic/scheduledFor (D20). Idempotent run: 6 changes, MIGRATION COMPLETE.
+- Production triage (Turso): 9 users (2 new in 4 days), 57 analytics events/7d (33 section_view, 9 session_start/end, 4 onboarding_done, 1 placement_done, 1 ai_call), 0 feedback, 0 ratings, 0 rooms. Two client errors captured at the SAME instant (2026-10-27T03:09:16Z, path "/"): insertBefore/removeChild "not a child of this node" — the classic single-instant DOM-mutation race (most often a browser extension like Translate mutating the DOM); both from one moment, no recurrence → monitoring, not actionable as a code bug. Recorded honestly.
+- LIVE regression sweep (bolo-english-mu.vercel.app, fresh QA account): onboarding dialog auto-opens ✓ → Speak section renders ALL Phase-3 cards live: Pronunciation practice (D15) ✓, AI Partner (D16) ✓, Speaking simulator (D17) ✓, Shadowing (D18) ✓, Practice rooms (D20) with the schedule form ✓. LIVE end-to-end: UI scheduled a topic room ("Live sweep room") → toast "Room FASZYS scheduled — see you there!" + instant appearance in the upcoming list ✓. Zero console/page errors across the sweep.
+- Test-tooling note: nav buttons' textContent concatenates WITHOUT spaces ("SpeakPract…") — a11y name and textContent differ; future sweeps should match on startsWith or use refs.
+- QA sweep data cleaned EXACT-ID-ONLY from production (user + 5 events + 1 activity row + room FASZYS); PROD_USERS_LEFT = 9 exactly as before.
+- ROADMAP-60.md D21 ticked — PHASE 3 COMPLETE (D15–D21, 7/7 days, no gaps).
+
+Stage Summary:
+- Phase 3 (স্পিকিং ইঞ্জিন) is fully live and production-migrated: pronunciation trainer, 5 roleplay scenarios, IELTS mock simulator, shadowing loop, 56px mobile call controls with TURN health ledger, and a public room marketplace with scheduling. The core "Bolo" promise now has depth AND a social layer.
+- Next: D22 — SM-2-lite SRS in the wordbook (upgrade the Leitner store, "today's review" queue, forgotten-first ordering).
