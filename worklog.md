@@ -3678,3 +3678,20 @@ Work Log:
 Stage Summary:
 - Every saved word now has a brain: adaptive SM-2-lite intervals that stretch for mastered words and tighten for shaky ones, a always-visible review hub in the vocab section, and NO word can silently escape the queue (daily-word saves reviewable). The D7-target retention loop gets its strongest daily-habit hook yet.
 - Next: D23 — vocab context + AI examples (level-tuned example sentences) + word-of-day streak.
+---
+Task ID: D23
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 23 — vocab context + AI examples (level-tuned) + word-of-day streak
+
+Work Log:
+- /api/ai NEW action vocab-example {word ≤40}: 3 fresh natural sentences using the word, each in a DIFFERENT real-life situation, tuned to the USER'S level (existing userLevel + levelRule machinery), each with a one-line gloss in the UI language. Cached in the SHARED AiCache (key word|level — one learner's request warms it for everyone, BYOK pays once per word per level, no PII). Response sanitized (≤3 sentences, en ≤200, note ≤160); errors localized (paramsRequired/aiFailed/rateLimited).
+- WordCard: "More examples (AI)" dashed button → busy spinner → violet AI-examples list (tap any sentence = free on-device TTS; localized gloss under each; no-key hint under the list). No-key → localized toast + button returns to idle (graceful). ai_examples {word} analytics on success.
+- DailyWordsTab: word-of-day streak — consecutive days OPENING the daily words (client-local calendar day, timezone-safe, tz never stored; localStorage bolo_wod_streak). Flame badge "N-day streak" shows from day 2 (day 1 stays quiet — reward, not nag). wod_open {streak} fires once per day (day-key deduped).
+- analytics: +wod_open, +ai_examples. i18n vocab.word.{moreExamples,moreExamplesAria,aiExamplesLabel,aiKeyNote} + vocab.daily.{streakLabel,streakAria} ×3 — ALL-PARITY-OK.
+- Verification: tsc 0 / lint 0 / i18n OK. Browser E2E: button renders on every daily-word card → click without key → localized "Gemini API key isn't set yet" toast + button returns idle; streak marked {last:today, count:1} with badge hidden on day 1; seeded yesterday streak=4 → today shows "5-day streak" badge + count 5; zero console errors. Honest limit: real AI output needs a BYOK key — contract verified (prompt/schema/cache/sanitize) and the no-key path is exact; production BYOK users exercise the same callAi path proven elsewhere.
+- QA user + events cleaned EXACT-ID-ONLY (local DB 0 users). Commit e766fef pushed (Vercel auto-deploy).
+- ROADMAP-60.md D23 ticked.
+
+Stage Summary:
+- Every word card now grows context on demand: level-tuned real-life sentences with the learner's own language glossed underneath, costing the learner's key once per word per level (shared cache), plus a streak that quietly rewards showing up for words daily.
+- Next: D24 — adaptive grammar quiz engine (weakness detection from practice history → targeted practice sets).

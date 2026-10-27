@@ -38,3 +38,24 @@ export async function POST(req: NextRequest) {
   });
   return NextResponse.json({ ok: true, data: { id: log.id } });
 }
+
+// GET /api/practice?deviceId=…&kind=grammar-quiz&take=120
+// The learner's OWN practice history (device-scoped; no other device's rows,
+// no admin data) — feeds the D24 adaptive weakness engine on the client.
+// Bounded: hard take cap, newest first, lean fields only.
+export async function GET(req: NextRequest) {
+  const locale = reqLocale(req);
+  const deviceId = cleanDeviceId(req.nextUrl.searchParams.get("deviceId"));
+  if (!deviceId) {
+    return NextResponse.json({ ok: false, error: apiMsg(locale, "deviceIdRequired") }, { status: 400 });
+  }
+  const kind = cleanStr(req.nextUrl.searchParams.get("kind") ?? "", 40);
+  const take = Math.min(Math.max(Number(req.nextUrl.searchParams.get("take")) || 120, 1), 200);
+  const rows = await db.practiceLog.findMany({
+    where: { deviceId, ...(kind ? { kind } : {}) },
+    orderBy: { createdAt: "desc" },
+    take,
+    select: { id: true, kind: true, refId: true, score: true, total: true, createdAt: true },
+  });
+  return NextResponse.json({ ok: true, data: rows });
+}

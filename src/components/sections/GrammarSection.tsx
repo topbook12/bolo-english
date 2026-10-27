@@ -19,6 +19,7 @@ import { useDevice } from "@/hooks/use-device";
 import { useToast } from "@/hooks/use-toast";
 import { apiGet } from "@/lib/client-api";
 import { takeNavIntent } from "@/lib/nav-intent";
+import WeakSpotsCard from "@/components/grammar/WeakSpotsCard";
 import { cn } from "@/lib/utils";
 import LessonView from "@/components/grammar/LessonView";
 import { getBankLesson } from "@/components/grammar/bank";
@@ -321,6 +322,9 @@ export default function GrammarSection() {
           )}
         </div>
       )}
+
+      {/* D24: adaptive weakness practice — targeted 5-question sets */}
+      <WeakSpotsCard />
 
       {/* Topic grid — grouped by difficulty: Foundation first, then Advanced */}
       <section aria-label={t("topicsLabel")} className="space-y-6">

@@ -180,6 +180,17 @@
     },
     "errors": {
       "unknown": "Something went wrong — please try again."
+    },
+    "weak": {
+      "title": "Fix your weak spots",
+      "desc": "Topics where your quiz accuracy is below 70% — practice them directly.",
+      "loading": "Checking your quiz history…",
+      "start": "Practice 5 questions from these",
+      "next": "Next question",
+      "finish": "See result",
+      "doneTitle": "You got {score}/{total} right",
+      "doneNote": "Keep quizzing these topics normally — this list updates itself as you improve.",
+      "backToWeak": "Back to weak spots"
     }
   },
   "noKey": {
