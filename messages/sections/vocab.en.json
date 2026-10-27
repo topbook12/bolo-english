@@ -129,6 +129,15 @@
       "aria": "Choose a stage of the journey",
       "mastered": "{learned}/{total} words learned",
       "complete": "Done!"
+    },
+    "reviewCard": {
+      "title": "Today's review",
+      "empty": "Save words from the daily words or the library — then review them here.",
+      "due": "{n} words due right now — forgotten ones first",
+      "mastered": "{n} mastered",
+      "caughtUp": "All caught up! {n} words mastered so far.",
+      "start": "Review {n}",
+      "allDone": "Nothing due"
     }
   }
 }

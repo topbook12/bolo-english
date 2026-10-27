@@ -15,6 +15,7 @@ import DailyWordsTab from "@/components/vocab/DailyWordsTab";
 import WordbookTab from "@/components/vocab/WordbookTab";
 import QuizTab from "@/components/vocab/QuizTab";
 import VocabLibraryTab from "@/components/vocab/VocabLibraryTab";
+import TodayReviewCard from "@/components/vocab/TodayReviewCard";
 import { cancelSpeech } from "@/components/vocab/speech";
 import { peekNavIntent } from "@/lib/nav-intent";
 
@@ -155,6 +156,9 @@ export default function VocabSection() {
         subtitle={t("subtitle")}
         tint="emerald"
       />
+
+      {/* D22: the section's SRS hub — due count + one-tap flashcard session */}
+      <TodayReviewCard learned={words?.map((w) => w.word) ?? []} />
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as VocabTab)} className="gap-4">
         <TabsList className="grid h-12 w-full grid-cols-4 gap-1 rounded-2xl bg-muted/70 p-1">

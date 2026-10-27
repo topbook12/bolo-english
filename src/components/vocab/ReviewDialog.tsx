@@ -23,12 +23,40 @@ import { apiGet, apiPost } from "@/lib/client-api";
 import { cn } from "@/lib/utils";
 import { pickTri } from "@/lib/library-types";
 import type { LibraryVocabData } from "@/lib/library-types";
+import type { DailyWord } from "@/lib/types";
 import { speakEnglish, cancelSpeech } from "@/components/vocab/speech";
 import { dueWords, gradeWord } from "@/components/vocab/review-store";
+import { track } from "@/lib/track";
 import { useDeviceValue } from "@/hooks/use-device";
 
 /** Max NEW cards per session — a small, winnable chunk (self-efficacy). */
 const SESSION_MAX = 10;
+
+/**
+ * D22: adapt a wordbook row (DailyWord — what "আজকের শব্দ" saves) into the
+ * LibraryVocabData shape the flashcard renders. DailyWord is bn-oriented, so
+ * en/hi fall back to the English meaning; examples are English-only.
+ */
+function dailyWordToVocabData(w: DailyWord): LibraryVocabData {
+  return {
+    pronunciation: w.pronunciation ?? "",
+    partOfSpeech: w.partOfSpeech ?? "",
+    meaning: {
+      bn: w.banglaMeaning || w.englishMeaning,
+      en: w.englishMeaning || w.banglaMeaning,
+      hi: w.englishMeaning || w.banglaMeaning,
+    },
+    englishMeaning: w.englishMeaning ?? "",
+    examples: (w.examples ?? []).slice(0, 3).map((en) => ({ en, bn: "" })),
+    tip: {
+      bn: w.usageTip ?? "",
+      en: w.usageTip ?? "",
+      hi: w.usageTip ?? "",
+    },
+    synonyms: [],
+    antonyms: [],
+  };
+}
 
 interface VocabRow {
   id: string;
@@ -95,6 +123,29 @@ export default function ReviewDialog({
             byWord.set(row.word, row);
           }
           if (!alive) return;
+          // D22: ALSO load the learner's own wordbook — words saved from the
+          // daily-words generator are NOT in the curated library, and they
+          // used to vanish from the review queue ("Review complete" with 3
+          // words due). Adapted DailyWord rows make every saved word
+          // reviewable. Library data still wins when both exist (richer).
+          if (deviceId) {
+            try {
+              const wb = await apiGet<(DailyWord & { id: string; word: string })[]>(
+                `/api/vocab?deviceId=${encodeURIComponent(deviceId)}`
+              );
+              for (const row of Array.isArray(wb) ? wb : []) {
+                if (!row?.word || byWord.has(row.word)) continue;
+                byWord.set(row.word, {
+                  id: row.id,
+                  word: row.word,
+                  level: "beginner",
+                  data: dailyWordToVocabData(row),
+                });
+              }
+            } catch {
+              /* wordbook unavailable — library-only review (old behavior) */
+            }
+          }
           setCards(byWord);
           const learnedSet = new Set(learned);
           const learnedWords = [...byWord.values()]
@@ -163,6 +214,9 @@ export default function ReviewDialog({
         score: ok,
         total: graded,
       }).catch(() => undefined);
+      // D22: the SRS-specific product signal (the generic quiz_complete also
+      // fires server-side via /api/practice; this one names the SRS funnel).
+      track("srs_review", { graded, ok });
     }
 
     setSession({
