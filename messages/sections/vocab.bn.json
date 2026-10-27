@@ -21,7 +21,9 @@
       "noKeyTitle": "Settings-এ Gemini API Key যোগ করুন",
       "noKeyDesc": "কী যোগ করলেই প্রতিদিন ৩টি নতুন শব্দ, বাংলা অর্থ, উদাহরণ ও উচ্চারণ পেয়ে যাবেন — একদম ফ্রি।",
       "loadErrorTitle": "আজকের শব্দ আনা যায়নি",
-      "loadingAria": "আজকের শব্দ লোড হচ্ছে"
+      "loadingAria": "আজকের শব্দ লোড হচ্ছে",
+      "streakLabel": "{n} দিনের স্ট্রিক",
+      "streakAria": "টানা {n} দিন দৈনিক শব্দ খুলেছ"
     },
     "word": {
       "pronunciationChip": "বাংলা উচ্চারণ",
@@ -32,7 +34,11 @@
       "hearAria": "উচ্চারণ শুনুন: {word}",
       "save": "ওয়ার্ডবুকে সেভ করুন",
       "saveAria": "ওয়ার্ডবুকে সেভ করুন: {word}",
-      "savedAria": "ওয়ার্ডবুকে সেভ করা আছে: {word}"
+      "savedAria": "ওয়ার্ডবুকে সেভ করা আছে: {word}",
+      "moreExamples": "আরও উদাহরণ (AI)",
+      "moreExamplesAria": "{word}-এর জন্য ৩টি AI উদাহরণ বানাও",
+      "aiExamplesLabel": "তোমার লেভেলে AI উদাহরণ",
+      "aiKeyNote": "তোমার নিজের Gemini কি দিয়ে তৈরি — ফলাফল ক্যাশ হয় ও সবাই পায়, তাই প্রতি শব্দে একবারই খরচ।"
     },
     "wordbook": {
       "addWord": "নিজের শব্দ যোগ করুন",

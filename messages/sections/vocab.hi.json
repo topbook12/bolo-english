@@ -21,7 +21,9 @@
       "noKeyTitle": "Settings में Gemini API Key जोड़ें",
       "noKeyDesc": "Key जोड़ते ही हर दिन 3 नए शब्द, बांग्ला अर्थ, उदाहरण और उच्चारण मिलेंगे — बिल्कुल मुफ़्त।",
       "loadErrorTitle": "आज के शब्द लोड नहीं हो सके",
-      "loadingAria": "आज के शब्द लोड हो रहे हैं"
+      "loadingAria": "आज के शब्द लोड हो रहे हैं",
+      "streakLabel": "{n} दिन की स्ट्रीक",
+      "streakAria": "लगातार {n} दिन डेली शब्द खोले"
     },
     "word": {
       "pronunciationChip": "बांग्ला उच्चारण",
@@ -32,7 +34,11 @@
       "hearAria": "उच्चारण सुनें: {word}",
       "save": "वर्डबुक में सेव करें",
       "saveAria": "वर्डबुक में सेव करें: {word}",
-      "savedAria": "वर्डबुक में सेव है: {word}"
+      "savedAria": "वर्डबुक में सेव है: {word}",
+      "moreExamples": "और उदाहरण (AI)",
+      "moreExamplesAria": "{word} के लिए 3 AI उदाहरण बनाएँ",
+      "aiExamplesLabel": "आपके लेवल पर AI उदाहरण",
+      "aiKeyNote": "आपकी अपनी Gemini की से बना — नतीजा कैश होता है और सबको मिलता है, इसलिए हर शब्द पर एक बार ही खर्च।"
     },
     "wordbook": {
       "addWord": "अपना शब्द जोड़ें",

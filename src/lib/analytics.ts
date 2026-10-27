@@ -33,6 +33,8 @@ export const TRACK_EVENTS = [
   "room_joined", // {intent, mode} (server-derived: /api/call/join joined an existing room)
   "room_scheduled", // {intent, when} (server-derived: /api/call/schedule created a topic room)
   "srs_review", // {graded, ok} (client-fired when a D22 SRS flashcard session completes)
+  "wod_open", // {streak} (client-fired once/day when the D23 daily words are opened)
+  "ai_examples", // {word} (client-fired when a D23 AI example request succeeds)
 ] as const;
 
 export type TrackEventName = (typeof TRACK_EVENTS)[number];

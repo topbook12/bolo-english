@@ -726,6 +726,42 @@ ${JSON_ONLY}`,
         return jsonOk(data);
       }
 
+      /* ---------------- VOCAB: LEVEL-TUNED AI EXAMPLES (D23) ---------------- */
+      case "vocab-example": {
+        const word = cleanStr(payload.word ?? "", 40);
+        if (!word) {
+          return jsonErr(apiMsg(locale, "paramsRequired"), 400);
+        }
+        // Shared AiCache (word|level) — one learner's request warms it for
+        // everyone; no PII in the key. BYOK pays once per word per level.
+        const data = await cachedJson<{ sentences: { en: string; note: string }[] }>(
+          "vocab-example",
+          `${word.toLowerCase()}|${userLevel}`,
+          apiKey,
+          `You are a friendly English teacher writing example sentences for ${userName} (${userLevel} level). ${levelRule(userLevel)}
+WORD: "${word}"
+TASK: write exactly 3 NEW, natural, everyday example sentences that USE the word — each one a DIFFERENT real-life situation (home, work/study, out in the world). Match ${userName}'s level: useful and natural, never textbook-stiff. For each sentence add "note": a one-line ${lang.short} gloss of the sentence.
+Return STRICT JSON: { "sentences": [ { "en": "…", "note": "… ${lang.short}" }, { "en": "…", "note": "… ${lang.short}" }, { "en": "…", "note": "… ${lang.short}" } ] }
+${JSON_ONLY}`,
+          0.7,
+          { maxOutputTokens: 700 }
+        );
+        const sentences = Array.isArray(data?.sentences)
+          ? data.sentences
+              .filter((s: unknown) => s && typeof s === "object")
+              .slice(0, 3)
+              .map((s: { en?: unknown; note?: unknown }) => ({
+                en: cleanStr(s.en ?? "", 200),
+                note: cleanStr(s.note ?? "", 160),
+              }))
+              .filter((s: { en: string }) => s.en.length > 0)
+          : [];
+        if (sentences.length === 0) {
+          return jsonErr(apiMsg(locale, "aiFailed"), 502);
+        }
+        return jsonOk({ sentences });
+      }
+
       /* ---------------- SPEAKING: CALL ANALYSIS (deep coach) ---------------- */
       case "call-analysis": {
         const rawLines = Array.isArray(payload.transcript) ? payload.transcript : [];

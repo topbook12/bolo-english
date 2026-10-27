@@ -1,9 +1,14 @@
 "use client";
 
-import { BookmarkPlus, Lightbulb, Loader2, Star, Volume2 } from "lucide-react";
+import { useState } from "react";
+import { BookmarkPlus, Lightbulb, Loader2, Sparkles, Star, Volume2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import PointList from "@/components/shared/PointList";
+import { callAi } from "@/lib/client-api";
+import { getDeviceId, useDeviceValue } from "@/hooks/use-device";
+import { useToast } from "@/hooks/use-toast";
+import { track } from "@/lib/track";
 import { speakEnglish } from "./speech";
 import { posChip } from "./vocab-visuals";
 import type { DailyWord } from "@/lib/types";
@@ -13,6 +18,11 @@ interface WordCardProps {
   saved: boolean;
   saving: boolean;
   onSave: () => void;
+}
+
+interface AiSentence {
+  en: string;
+  note: string;
 }
 
 // A deterministic pastel gradient per word, so every daily card gets its own
@@ -39,6 +49,31 @@ function heroGradient(word: string): string {
 export default function WordCard({ w, saved, saving, onSave }: WordCardProps) {
   const t = useTranslations("vocab");
   const tCommon = useTranslations("common");
+  const { toast } = useToast();
+  const hasKey = useDeviceValue((s) => s.hasKey, false);
+  const [aiState, setAiState] = useState<"idle" | "busy" | "done">("idle");
+  const [aiSentences, setAiSentences] = useState<AiSentence[]>([]);
+
+  // D23: level-tuned AI examples — 3 fresh real-life sentences using this
+  // word, glossed in the UI language. Shared AiCache on the server means the
+  // learner's key pays ONCE per word per level (everyone after is free).
+  async function loadAiExamples() {
+    if (aiState === "busy") return;
+    setAiState("busy");
+    try {
+      const data = await callAi<{ sentences: AiSentence[] }>(
+        getDeviceId(),
+        "vocab-example",
+        { word: w.word }
+      );
+      setAiSentences(data.sentences ?? []);
+      setAiState("done");
+      track("ai_examples", { word: w.word.slice(0, 40) });
+    } catch (e) {
+      setAiState("idle");
+      toast({ title: (e as Error).message, variant: "destructive" });
+    }
+  }
 
   return (
     <article className="premium-card flex flex-col overflow-hidden rounded-2xl bg-card">
@@ -104,6 +139,57 @@ export default function WordCard({ w, saved, saving, onSave }: WordCardProps) {
                 </button>
               ))}
             />
+          </div>
+        )}
+
+        {/* D23: AI-generated level-tuned examples (on demand, BYOK) */}
+        {aiState !== "done" ? (
+          <Button
+            variant="outline"
+            onClick={() => void loadAiExamples()}
+            disabled={aiState === "busy"}
+            className="h-10 gap-1.5 rounded-xl border-dashed text-xs"
+            aria-label={t("word.moreExamplesAria", { word: w.word })}
+          >
+            {aiState === "busy" ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+            ) : (
+              <Sparkles className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" aria-hidden />
+            )}
+            {t("word.moreExamples")}
+          </Button>
+        ) : (
+          <div>
+            <p className="mb-1.5 flex items-center gap-1 text-xs font-semibold text-muted-foreground">
+              <Sparkles className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" aria-hidden />
+              {t("word.aiExamplesLabel")}
+            </p>
+            <PointList
+              variant="number"
+              className="space-y-1"
+              items={aiSentences.map((s, i) => (
+                <div key={i} className="rounded-lg px-1.5 py-1">
+                  <button
+                    type="button"
+                    onClick={() => speakEnglish(s.en)}
+                    aria-label={t("word.hearExampleAria", { text: s.en })}
+                    className="flex min-h-9 w-full items-center gap-1.5 rounded-lg text-left transition-colors hover:bg-violet-500/10"
+                  >
+                    <Volume2
+                      className="h-3.5 w-3.5 shrink-0 text-violet-600 dark:text-violet-400"
+                      aria-hidden
+                    />
+                    <span className="min-w-0 flex-1 text-sm italic leading-snug">{s.en}</span>
+                  </button>
+                  {s.note && (
+                    <p className="pl-6 text-[11px] leading-relaxed text-muted-foreground">{s.note}</p>
+                  )}
+                </div>
+              ))}
+            />
+            {!hasKey && (
+              <p className="mt-1 text-[11px] text-muted-foreground">{t("word.aiKeyNote")}</p>
+            )}
           </div>
         )}
 

@@ -3658,3 +3658,23 @@ Work Log:
 Stage Summary:
 - Phase 3 (স্পিকিং ইঞ্জিন) is fully live and production-migrated: pronunciation trainer, 5 roleplay scenarios, IELTS mock simulator, shadowing loop, 56px mobile call controls with TURN health ledger, and a public room marketplace with scheduling. The core "Bolo" promise now has depth AND a social layer.
 - Next: D22 — SM-2-lite SRS in the wordbook (upgrade the Leitner store, "today's review" queue, forgotten-first ordering).
+---
+Task ID: D22
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 22 — SM-2-lite SRS in the wordbook (adaptive scheduling, review hub, forgotten-first)
+
+Work Log:
+- review-store.ts upgraded to SM-2-LITE (backward compatible): ReviewEntry.ease (default 2.5, clamp 1.3–2.8). remembered → box+1, interval = baseInterval(box) × (ease/2.5), ease +0.05; forgot → box 0 (10 min), ease −0.20. Legacy entries (no ease) keep the classic Leitner cadence. dueWords() ordering documented as FORGOTTEN-FIRST (box 0 → oldest due) — already the behavior, now explicit.
+- TodayReviewCard (NEW, Vocab section above all tabs): the section's SRS hub — due-now count ("forgotten ones first"), mastered count, caught-up state, one-tap start into the existing proven ReviewDialog; minute-poll + external-store subscription for live counts; disabled state when nothing is due. The review entry point previously existed ONLY inside the Learning Path.
+- ReviewDialog: NOW REVIEWS WORDBOOK WORDS — the open flow used to build cards exclusively from the curated /api/library, so daily-word saves silently vanished from the queue ("Review complete" trap with words due). Added a wordbook fetch + dailyWordToVocabData() adapter (DailyWord → LibraryVocabData; bn meaning primary, en/hi fall back to the English meaning). Library data still wins when both exist (richer card).
+- Analytics: +srs_review {graded, ok} fired on session completion (alongside the existing vocab-review practice log → quiz_complete).
+- i18n: vocab.reviewCard.* (7 keys) ×3 — ALL-PARITY-OK.
+- BUG FOUND+FIXED by E2E (real data): readReviewMap()'s sanitizer dropped the new ease field — every gradeWord() call re-read the map WITHOUT ease and rewrote it, silently erasing other words' ease values (verified in the live DB: pay lost its ease when spend was graded). The sanitizer now preserves + clamps ease. Re-verified in browser: seeded ease 2.6/1.8 → after grading, spend 1.8→1.85 with box advance, fresh word default 2.5→2.55, ungraded seed untouched.
+- Verification: tsc 0 / lint 0 / i18n OK. Browser E2E: empty state → save 3 daily words → "3 words due right now — forgotten ones first · 0 mastered" → seeded map (box0 due, box2 overdue, box4 future) → exactly 2 due after reload → full flashcard session (remember, forgot→requeue→recover) → "You reviewed 3 words — 2 remembered" + spacing ladder message → srs_review {graded:3, ok:2} + quiz_complete in DB; SM-2 state correct after the ease-preservation fix.
+- Test-environment notes (not app bugs): agent-browser close/open starts a fresh profile (localStorage gone → re-login needed); wordbook is device-scoped so a new device starts empty (account sync of wordbook rows is out of D22 scope).
+- QA user + words + practice + events cleaned EXACT-ID-ONLY (local DB 0 users). Commit b1fafc3 pushed (Vercel auto-deploy).
+- ROADMAP-60.md D22 ticked.
+
+Stage Summary:
+- Every saved word now has a brain: adaptive SM-2-lite intervals that stretch for mastered words and tighten for shaky ones, a always-visible review hub in the vocab section, and NO word can silently escape the queue (daily-word saves reviewable). The D7-target retention loop gets its strongest daily-habit hook yet.
+- Next: D23 — vocab context + AI examples (level-tuned example sentences) + word-of-day streak.

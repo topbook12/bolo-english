@@ -21,7 +21,9 @@
       "noKeyTitle": "Add your Gemini API Key in Settings",
       "noKeyDesc": "Add a key and get 3 new words every day with Bangla meanings, examples and pronunciation — completely free.",
       "loadErrorTitle": "Couldn’t load today’s words",
-      "loadingAria": "Loading today’s words"
+      "loadingAria": "Loading today’s words",
+      "streakLabel": "{n}-day streak",
+      "streakAria": "You opened the daily words {n} days in a row"
     },
     "word": {
       "pronunciationChip": "Bangla pronunciation",
@@ -32,7 +34,11 @@
       "hearAria": "Hear pronunciation: {word}",
       "save": "Save to wordbook",
       "saveAria": "Save to wordbook: {word}",
-      "savedAria": "Already saved to wordbook: {word}"
+      "savedAria": "Already saved to wordbook: {word}",
+      "moreExamples": "More examples (AI)",
+      "moreExamplesAria": "Generate 3 AI example sentences for {word}",
+      "aiExamplesLabel": "AI examples at your level",
+      "aiKeyNote": "Generated with your own Gemini key — the result is cached and shared, so it costs once per word."
     },
     "wordbook": {
       "addWord": "Add your own word",
