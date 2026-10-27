@@ -20,8 +20,16 @@ export async function GET(req: NextRequest) {
   const deviceId = cleanDeviceId(req.nextUrl.searchParams.get("deviceId"));
   if (!deviceId)
     return NextResponse.json({ ok: false, error: apiMsg(locale, "deviceIdRequired") }, { status: 400 });
-  const data = await xpSummary(deviceId);
-  return NextResponse.json({ ok: true, data });
+  // Failure-tolerant: before the XpEvent table exists on a fresh production
+  // DB this must NOT 500 (the Progress section fetches it in a Promise.all
+  // together with progress+sessions) — degrade to an honest zeroed summary.
+  try {
+    const data = await xpSummary(deviceId);
+    return NextResponse.json({ ok: true, data });
+  } catch {
+    const zero = { total: 0, today: 0, week: 0, todayByKind: {}, weekByKind: {}, days: [] };
+    return NextResponse.json({ ok: true, data: zero });
+  }
 }
 
 export async function POST(req: NextRequest) {
