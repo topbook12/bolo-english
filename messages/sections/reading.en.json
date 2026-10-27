@@ -89,7 +89,14 @@
       "nextStory": "Read the next passage",
       "allDone": "You finished every passage in this level! 🎉 Try another level.",
       "words": "words",
-      "readProgress": "{done}/{total} paragraphs read"
+      "readProgress": "{done}/{total} paragraphs read",
+      "wordTapAria": "Look up the word {word}",
+      "wordTapHint": "Hear it, look it up with AI, or save it straight to your wordbook.",
+      "wordHear": "Hear it",
+      "wordMeaning": "Meaning (AI)",
+      "wordSaveBtn": "Save to wordbook",
+      "wordSavedBtn": "Saved ✓",
+      "wordSaved": "\"{word}\" saved to your wordbook."
     }
   }
 }

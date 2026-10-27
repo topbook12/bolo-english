@@ -23,8 +23,10 @@ import {
   Languages,
   Lightbulb,
   ListChecks,
+  Loader2,
   PartyPopper,
   RotateCcw,
+  Sparkles,
   Volume2,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,13 +34,22 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { apiPost } from "@/lib/client-api";
+import { apiPost, callAi } from "@/lib/client-api";
+import { getDeviceId } from "@/hooks/use-device";
+import { useDeviceValue } from "@/hooks/use-device";
+import { track } from "@/lib/track";
 import { speakEnglish, cancelSpeech } from "@/components/vocab/speech";
 import { markReadingDone } from "@/components/reading/reading-store";
 import { markWordLearned } from "@/components/vocab/learned-store";
-import { useDeviceValue } from "@/hooks/use-device";
 import { toast } from "sonner";
+import type { DailyWord } from "@/lib/types";
 import type { ReadingStory } from "@/components/reading/ReadingSection";
 // Same 6-color tint rotation the grammar lesson cards use (no blue/indigo).
 const TINTS = [
@@ -68,6 +79,79 @@ export default function ReaderView({
   const [quizOpen, setQuizOpen] = useState(false);
   const [qIndex, setQIndex] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
+
+  // ── D27: tap-any-word → wordbook ──
+  const [tapWord, setTapWord] = useState<string | null>(null);
+  const [lookup, setLookup] = useState<
+    { state: "idle"; data: null } | { state: "busy"; data: null } | { state: "done"; data: DailyWord }
+  >({ state: "idle", data: null });
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  function openWord(raw: string) {
+    const w = raw.replace(/^[^A-Za-z]+|[^A-Za-z]+$/g, "").toLowerCase();
+    if (!w) return;
+    setTapWord(w);
+    setLookup({ state: "idle", data: null });
+    setSaved(false);
+  }
+
+  async function loadMeaning() {
+    if (!tapWord || lookup.state === "busy") return;
+    setLookup({ state: "busy", data: null });
+    try {
+      const d = await callAi<{
+        pronunciation: string;
+        partOfSpeech: string;
+        banglaMeaning: string;
+        englishMeaning: string;
+        examples: string[];
+        usageTip: string;
+      }>(getDeviceId(), "word-lookup", { word: tapWord });
+      setLookup({
+        state: "done",
+        data: {
+          word: tapWord,
+          pronunciation: d.pronunciation ?? "",
+          partOfSpeech: d.partOfSpeech ?? "",
+          banglaMeaning: d.banglaMeaning ?? "",
+          englishMeaning: d.englishMeaning ?? "",
+          examples: d.examples ?? [],
+          usageTip: d.usageTip ?? "",
+        },
+      });
+    } catch (e) {
+      setLookup({ state: "idle", data: null });
+      toast.error((e as Error).message);
+    }
+  }
+
+  async function saveToWordbook() {
+    if (!tapWord || saving || saved) return;
+    setSaving(true);
+    try {
+      const w: DailyWord =
+        lookup.state === "done"
+          ? { ...lookup.data, word: tapWord }
+          : {
+              word: tapWord,
+              pronunciation: "",
+              partOfSpeech: "",
+              banglaMeaning: "",
+              englishMeaning: "",
+              examples: [],
+              usageTip: "",
+            };
+      await apiPost("/api/vocab", { deviceId: deviceId || getDeviceId(), word: w });
+      setSaved(true);
+      track("word_saved_reading", { word: tapWord.slice(0, 40) });
+      toast.success(t("reader.wordSaved", { word: tapWord }));
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  }
   const [locked, setLocked] = useState(false);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
@@ -100,6 +184,23 @@ export default function ReaderView({
       return next;
     });
   };
+
+  /** D27: every word in a paragraph is a tap target → wordbook dialog. */
+  const renderTappable = (text: string) =>
+    text.split(/(\s+)/).map((tok, i) => {
+      if (!/^[A-Za-z][A-Za-z'’-]*$/.test(tok)) return <span key={i}>{tok}</span>;
+      return (
+        <button
+          key={i}
+          type="button"
+          onClick={() => openWord(tok)}
+          className="rounded px-[1px] -mx-[1px] transition-colors hover:bg-amber-500/20"
+          aria-label={t("reader.wordTapAria", { word: tok })}
+        >
+          {tok}
+        </button>
+      );
+  });
 
   const complete = () => {
     markReadingDone(story.id);
@@ -187,6 +288,10 @@ export default function ReaderView({
           </Badge>
           <Badge variant="secondary" className="text-[11px]">
             {t("levels." + story.level)}
+          </Badge>
+          {/* D27: CEFR grade label — A1–B2 per level bucket */}
+          <Badge variant="outline" className="text-[11px] font-bold">
+            {story.level === "beginner" ? "A1–A2" : story.level === "intermediate" ? "B1" : "B2"}
           </Badge>
           <Badge variant="secondary" className="text-[11px]">
             {t("library.minutes", { n: story.minutes })} · {wordCount} {t("reader.words")}
@@ -330,7 +435,7 @@ export default function ReaderView({
                     {i + 1}
                   </span>
                   <p className="min-w-0 max-w-prose flex-1 text-[15px] leading-[1.85] text-foreground/95">
-                    {p.en}
+                    {renderTappable(p.en)}
                   </p>
                   <div className="flex shrink-0 flex-col gap-1">
                     <button
@@ -571,6 +676,78 @@ export default function ReaderView({
           </Button>
         )}
       </div>
+
+      {/* D27: tap-a-word dialog — hear it, look it up (AI), save to wordbook */}
+      <Dialog open={!!tapWord} onOpenChange={(o) => !o && setTapWord(null)}>
+        <DialogContent className="max-w-sm gap-3 rounded-3xl p-5" aria-describedby={undefined}>
+          <DialogTitle className="text-2xl font-extrabold capitalize">{tapWord}</DialogTitle>
+          <DialogDescription className="text-xs text-muted-foreground">
+            {t("reader.wordTapHint")}
+          </DialogDescription>
+          {lookup.state === "done" && (
+            <div className="space-y-2">
+              {lookup.data.banglaMeaning && (
+                <p className="rounded-xl border border-emerald-200/60 bg-emerald-500/10 px-3 py-2 text-sm font-semibold text-emerald-800 dark:border-emerald-800/50 dark:text-emerald-200">
+                  {lookup.data.banglaMeaning}
+                </p>
+              )}
+              {lookup.data.englishMeaning && (
+                <p className="text-sm text-muted-foreground">{lookup.data.englishMeaning}</p>
+              )}
+              {lookup.data.examples.length > 0 && (
+                <ul className="space-y-1 text-xs italic text-muted-foreground">
+                  {lookup.data.examples.map((ex, i) => (
+                    <li key={i}>• {ex}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+          <div className="grid gap-2">
+            <Button
+              variant="outline"
+              onClick={() => tapWord && speakEnglish(tapWord)}
+              className="min-h-11 gap-1.5 rounded-xl"
+            >
+              <Volume2 className="h-4 w-4" aria-hidden /> {t("reader.wordHear")}
+            </Button>
+            {lookup.state !== "done" ? (
+              <Button
+                variant="outline"
+                onClick={() => void loadMeaning()}
+                disabled={lookup.state === "busy"}
+                className="min-h-11 gap-1.5 rounded-xl border-dashed text-xs"
+              >
+                {lookup.state === "busy" ? (
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                ) : (
+                  <Sparkles className="h-4 w-4 text-violet-600 dark:text-violet-400" aria-hidden />
+                )}
+                {t("reader.wordMeaning")}
+              </Button>
+            ) : null}
+            <Button
+              onClick={() => void saveToWordbook()}
+              disabled={saving || saved}
+              className={cn(
+                "min-h-11 gap-1.5 rounded-xl",
+                saved
+                  ? "border border-emerald-300/70 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+                  : "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md hover:from-emerald-600 hover:to-teal-700"
+              )}
+            >
+              {saving ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+              ) : saved ? (
+                <BookmarkCheck className="h-4 w-4" aria-hidden />
+              ) : (
+                <BookmarkPlus className="h-4 w-4" aria-hidden />
+              )}
+              {saved ? t("reader.wordSavedBtn") : t("reader.wordSaveBtn")}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

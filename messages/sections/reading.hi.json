@@ -89,7 +89,14 @@
       "nextStory": "अगला पाठ पढ़ें",
       "allDone": "इस स्तर के सारे पाठ पूरे! 🎉 दूसरा स्तर आज़माएँ।",
       "words": "शब्द",
-      "readProgress": "{done}/{total} पैराग्राफ पढ़े"
+      "readProgress": "{done}/{total} पैराग्राफ पढ़े",
+      "wordTapAria": "शब्द {word} देखें",
+      "wordTapHint": "सुनें, AI से मतलब देखें, या सीधे शब्दकोष में सेव करें।",
+      "wordHear": "सुनें",
+      "wordMeaning": "मतलब (AI)",
+      "wordSaveBtn": "शब्दकोष में सेव करें",
+      "wordSavedBtn": "सेव हो गया ✓",
+      "wordSaved": "\"{word}\" शब्दकोष में सेव हो गया।"
     }
   }
 }

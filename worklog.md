@@ -3728,3 +3728,18 @@ Work Log:
 Stage Summary:
 - The grammar ladder is complete and keyless: beginner → INTERMEDIATE (new 30-lesson B1 wave) → advanced, every step with lessons + quizzes in bn/en/hi. Intermediate learners no longer wait on AI — 78→108 bundled lessons, instant everywhere.
 - Next: D26 — listening dictation mode (listen → type → word-by-word compare, speed/loop controls).
+---
+Task ID: D26
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 26 — listening dictation mode (listen → type → word compare, speed/loop controls)
+
+Work Log:
+- DictationCard (NEW, Listening section top — keyless, zero API cost): level chips → story chips (up to 6 per level from the live library incl. DB stories) → per-sentence loop: Play (on-device TTS), Play-twice (loop), Auto-play-next toggle, Slow(0.6)/Normal(0.85) speed → Textarea → Check → compareSpeech() word verdict chips (green/amber/red) + score% + collapsible original sentence → Next (auto-plays next when enabled) → Finish → done screen (average %, sentences dictated, pick another). Sentences: paragraphs split on [.!?], 12–160 chars, max 6 per session.
+- Logging: session → POST /api/practice kind "dictation" refId=story.id score=avg% total=sentences → quiz_complete analytics server-derived. Reuses the D15 word-level matcher (PURE) — punctuation/case noise handled.
+- i18n: listening.dictation.* (25 keys) ×3 — ALL-PARITY-OK.
+- Verification: tsc 0 / lint 0 / i18n OK. Engine unit tests: perfect→100% (case+punctuation ignored), near-miss→75%, garbage→0%. Browser E2E: card renders with chips; full 6-sentence session (sentence 1 exact → 100% verdicts; rough guesses → partial/0%) → Finish → "Average 28% — well done!" + "You dictated 6 sentences"; practiceLog {dictation, rainy-day-market, 28/6} in DB. Zero console errors. (First probe typed the story TITLE instead of the heard sentence → honest 0% — engine correct.)
+- QA user + rows cleaned EXACT-ID-ONLY (local DB 0 users). Commit 0b1f014 pushed (Vercel auto-deploy).
+- ROADMAP-60.md D26 ticked.
+
+Stage Summary:
+- Listening now has a production loop, not just playback: hear a sentence at your own speed, write it, and see exactly which words landed — free forever (device TTS + local matching). Next: D27 — reading graded levels + tap-to-save words.

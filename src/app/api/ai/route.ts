@@ -762,6 +762,49 @@ ${JSON_ONLY}`,
         return jsonOk({ sentences });
       }
 
+      /* ---------------- READING: TAP-A-WORD LOOKUP (D27) ---------------- */
+      case "word-lookup": {
+        const word = cleanStr(payload.word ?? "", 40);
+        if (!word) {
+          return jsonErr(apiMsg(locale, "paramsRequired"), 400);
+        }
+        // Shared AiCache (word|level) — the meaning is identical for every
+        // learner at a level; the key pays once per word per level.
+        const data = await cachedJson<{
+          pronunciation: string;
+          partOfSpeech: string;
+          banglaMeaning: string;
+          englishMeaning: string;
+          examples: string[];
+          usageTip: string;
+        }>(
+          "word-lookup",
+          `${word.toLowerCase()}|${userLevel}`,
+          apiKey,
+          `You are a bilingual English teacher building a wordbook entry for ${userName} (${userLevel} level). ${levelRule(userLevel)}
+WORD: "${word}"
+TASK: fill a DailyWord entry. "pronunciation" = Bangla-friendly phonetic respelling (e.g. "রিলাক্স (রি-লাক্স)"); "partOfSpeech" = noun|verb|adjective|adverb|phrase; "banglaMeaning" = meaning in BANGLA (short); "englishMeaning" = simple English meaning (one line); "examples" = exactly 2 short natural English sentences using the word; "usageTip" = one-line ${lang.short} tip on when/how to use it in real life.
+Return STRICT JSON: { "pronunciation": "…", "partOfSpeech": "…", "banglaMeaning": "…", "englishMeaning": "…", "examples": ["…", "…"], "usageTip": "… ${lang.short}" }
+${JSON_ONLY}`,
+          0.5,
+          { maxOutputTokens: 600 }
+        );
+        const out = {
+          pronunciation: cleanStr(data?.pronunciation ?? "", 60),
+          partOfSpeech: cleanStr(data?.partOfSpeech ?? "", 20),
+          banglaMeaning: cleanStr(data?.banglaMeaning ?? "", 120),
+          englishMeaning: cleanStr(data?.englishMeaning ?? "", 160),
+          examples: Array.isArray(data?.examples)
+            ? data.examples.slice(0, 2).map((x: unknown) => cleanStr(x ?? "", 160)).filter(Boolean)
+            : [],
+          usageTip: cleanStr(data?.usageTip ?? "", 160),
+        };
+        if (!out.englishMeaning && !out.banglaMeaning) {
+          return jsonErr(apiMsg(locale, "aiFailed"), 502);
+        }
+        return jsonOk(out);
+      }
+
       /* ---------------- SPEAKING: CALL ANALYSIS (deep coach) ---------------- */
       case "call-analysis": {
         const rawLines = Array.isArray(payload.transcript) ? payload.transcript : [];

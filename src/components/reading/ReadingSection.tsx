@@ -447,6 +447,10 @@ export default function ReadingSection() {
                             <span aria-hidden>⏱</span>
                             {t("library.minutes", { n: s.minutes })}
                           </Badge>
+                          {/* D27: CEFR grade label on every list card */}
+                          <Badge variant="outline" className="text-[10px] font-bold">
+                            {s.level === "beginner" ? "A1–A2" : s.level === "intermediate" ? "B1" : "B2"}
+                          </Badge>
                         </div>
                       </div>
                       <div className="min-w-0">

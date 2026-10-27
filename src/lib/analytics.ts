@@ -35,6 +35,7 @@ export const TRACK_EVENTS = [
   "srs_review", // {graded, ok} (client-fired when a D22 SRS flashcard session completes)
   "wod_open", // {streak} (client-fired once/day when the D23 daily words are opened)
   "ai_examples", // {word} (client-fired when a D23 AI example request succeeds)
+  "word_saved_reading", // {word} (client-fired when a D27 tap-a-word save succeeds)
 ] as const;
 
 export type TrackEventName = (typeof TRACK_EVENTS)[number];

@@ -89,7 +89,14 @@
       "nextStory": "পরবর্তী পাঠ পড়ুন",
       "allDone": "এই লেভেলের সব পাঠ শেষ! 🎉 অন্য লেভেল চেখে দেখুন।",
       "words": "শব্দ",
-      "readProgress": "{done}/{total} অনুচ্ছেদ পড়া হয়েছে"
+      "readProgress": "{done}/{total} অনুচ্ছেদ পড়া হয়েছে",
+      "wordTapAria": "\"{word}\" শব্দটা দেখো",
+      "wordTapHint": "শুনো, AI দিয়ে মানে দেখো, বা সরাসরি শব্দকোষে সেভ করো।",
+      "wordHear": "শুনো",
+      "wordMeaning": "মানে (AI)",
+      "wordSaveBtn": "শব্দকোষে সেভ করো",
+      "wordSavedBtn": "সেভ হয়েছে ✓",
+      "wordSaved": "\"{word}\" শব্দকোষে সেভ হয়েছে।"
     }
   }
 }
