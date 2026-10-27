@@ -37,6 +37,7 @@ import { takeNavIntent } from "@/lib/nav-intent";
 import type { LibraryListeningEntry } from "@/lib/library-types";
 import { useDeviceValue } from "@/hooks/use-device";
 import SectionHeader from "@/components/shared/SectionHeader";
+import DictationCard from "@/components/listening/DictationCard";
 import EmptyState from "@/components/shared/EmptyState";
 import StoryPlayer, {
   LISTENING_LEVELS,
@@ -251,6 +252,9 @@ export default function ListeningSection() {
   return (
     <div className="space-y-6">
       <SectionHeader icon={Headphones} title={t("title")} subtitle={t("subtitle")} tint="teal" />
+
+      {/* D26: dictation — listen → type → word-by-word compare (keyless) */}
+      <DictationCard stories={allStories} />
 
       {libSel ? (
         // ---------- লাইব্রেরি স্টোরি প্লেয়ার ----------

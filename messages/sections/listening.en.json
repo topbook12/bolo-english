@@ -108,6 +108,33 @@
         "inspire": "Inspiration"
       },
       "episode": "Ep {n}"
+    },
+    "dictation": {
+      "title": "Dictation",
+      "desc": "Listen → type what you hear → see every word checked. Keyless and free.",
+      "freeNote": "Audio is on-device text-to-speech — replay as many times as you need.",
+      "noStories": "No stories at this level yet — try another level.",
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced",
+      "play": "Play",
+      "loop": "Play twice",
+      "autoPlay": "Auto-play next",
+      "slow": "Slow",
+      "normal": "Normal",
+      "placeholder": "Type the sentence you heard…",
+      "check": "Check my answer",
+      "scoreTitle": "{score}% of the words correct",
+      "wOk": "Correct",
+      "wClose": "Close",
+      "wMiss": "Wrong",
+      "showOriginal": "Show the original sentence",
+      "next": "Next sentence",
+      "finish": "Finish",
+      "quit": "Quit dictation",
+      "doneTitle": "Average {score}% — well done!",
+      "doneNote": "You dictated {n} sentences from this story.",
+      "again": "Pick another story"
     }
   }
 }

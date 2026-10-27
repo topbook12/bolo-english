@@ -3711,3 +3711,20 @@ Work Log:
 
 Stage Summary:
 - Grammar now closes its own loop: quiz results become a live weakness map, and the weakest topics turn into a targeted 5-question drill — keyless, self-updating, and honest about the math. Next: D25 — the +30 intermediate lesson bank (content day).
+---
+Task ID: D25
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 25 — grammar content expansion (+30 lessons, bilingual explanation upgrade)
+
+Work Log:
+- CONTEXT: a D25-content subagent was dispatched earlier this session but timed out on the Task-call wait — its DRAFTS landed in .d25-content/ and were accidentally committed with D20 (git add -A; noted honestly in the D20 entry). This session validated and integrated them properly.
+- INTEGRATION: moved intermediate-{en,bn,hi}.ts → src/components/grammar/bank/; wired into index.ts LESSONS; updated the coverage docs (intermediate no longer "AI-only"). Removed the .d25-content/ staging folder.
+- VALIDATION (structural, bun import): 10 lessons per locale, topics EXACTLY match the 10 core foundation topic ids (Tense basics … Phrasal Verbs), every lesson = level "intermediate" + locale match + intro + 3 sections (each ≥2 wrong/right/note examples) + 4 tips + 5 quiz questions with valid answer index + explanation. BANK_VALIDATION_PASS. BANK_LESSON_COUNT: 78 → 108.
+- TYPE FIX: BankLevel had no "intermediate" (the drafts exposed it — tsc errors on 3 hi-file lessons). Widened the union with a comment; getBankLesson/getBankQuiz now resolve intermediate lookups.
+- Verification: tsc 0 / lint 0 / i18n ALL-PARITY-OK (content is DATA, no message changes). Runtime lookups: intermediate bn/en/hi all resolve (quiz=5, sections=3, tips=4); advanced lookups unaffected. Browser E2E: register → Grammar → level chip "Intermediate" → Tense Basics → lesson renders INSTANTLY from the bank (no Generating spinner, no key) — "Tense basics (Intermediate)" intro explicitly builds on the beginner lesson (the bilingual-continuity upgrade). Zero console errors.
+- QA user cleaned EXACT-ID-ONLY (local DB 0 users). Commit fd090e6 pushed (Vercel auto-deploy).
+- ROADMAP-60.md D25 ticked.
+
+Stage Summary:
+- The grammar ladder is complete and keyless: beginner → INTERMEDIATE (new 30-lesson B1 wave) → advanced, every step with lessons + quizzes in bn/en/hi. Intermediate learners no longer wait on AI — 78→108 bundled lessons, instant everywhere.
+- Next: D26 — listening dictation mode (listen → type → word-by-word compare, speed/loop controls).
