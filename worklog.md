@@ -3620,3 +3620,25 @@ Work Log:
 Stage Summary:
 - The call stack is now observable: reconnection, per-link quality and a persistent TURN health ledger — the owner can watch relay health from Settings instead of discovering outages from user complaints; phones get dialer-grade 56px controls that clear the iOS home indicator.
 - Next: D20 — public room discovery + scheduled rooms (topic-based open rooms + "practice tonight" scheduling + analytics).
+---
+Task ID: D20
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 20 — public room discovery + scheduled rooms (topic-based list, "practice tonight", analytics)
+
+Work Log:
+- Schema: CallRoom += topic (≤60-char user-typed) + scheduledFor (DateTime?) + status "scheduled" + 2 indexes (status/visibility/updatedAt, scheduledFor); local db:push; prod-migrate block 13 (idempotent column adds).
+- signaling.pruneStaleRooms(): scheduled rooms now SKIPPED by the 90s stale-prune (they have no participants yet) and expire on their own (2h past scheduledFor).
+- NEW POST /api/call/schedule (10/min/IP): topic + scheduledFor within [now−1min, +7d]; future → status "scheduled"; within a minute → "open" (start-now) topic room. Returns code. room_scheduled analytics {intent, when}.
+- NEW GET /api/call/discover (60/min/IP): live = open public group rooms with a free seat (quick-match shells with 0 learners stay hidden — topic rooms with 0 learners ARE shown so the first joiner can start); upcoming = scheduled rooms soonest-first. Public display names + counts + topics only.
+- /api/call/join (code mode): scheduled rooms open by code-join 5 minutes before time (CAS flip scheduled→open); earlier → localized 423 roomNotYet (new api-i18n key ×3). Server-derived analytics: room_opened {intent, mode} on create, room_joined {intent, mode} on join-existing. TRACK_EVENTS +3.
+- RoomsCard (Speak section, above mode cards): live list (topic || localized "Quick match", n/max learners, Join → existing group-code flow), upcoming list (topic, localized time, host, Join disabled with "opens soon" title until the grace window), schedule form (topic + datetime-local defaulting to tonight 21:00, min=now) — start-now rooms auto-join on success; 20s auto-refresh + manual refresh.
+- i18n speaking.rooms.* (21 keys) ×3 — ALL-PARITY-OK; roomNotYet inline in api-i18n ×3.
+- Verification: tsc 0 / lint 0 / i18n OK. curl E2E: discover empty→schedule future→423 early join with localized message→upcoming listed→schedule now→live listed→join ok. FOUND+FIXED while testing: start-now topic rooms (0 learners) were filtered out of the live list — now visible so the first joiner can start. Browser E2E: RoomsCard renders with live data; UI schedule → toast "Room HE4HZS scheduled — see you there!" + instant upcoming appearance; upcoming Join disabled with opensSoon title; live room Join → CallFlow matching screen with call controls; end-call works; 0 console errors.
+- Analytics verified in DB: room_scheduled ×2 (now/later) + room_joined {mode:code}.
+- Cleanup: QA user + probe events + all 4 test rooms deleted by EXACT ids/codes; local DB 0 users / 0 rooms.
+- NOTE: .d25-content/ (the timed-out D25-content subagent's completed drafts — 10 lessons × bn/en/hi, correct BankLesson format, tsc-valid) was accidentally included in this commit via git add -A. Validated on discovery and left in place; will be properly integrated into src/components/grammar/bank/ at D25.
+- Commit 95b8698 pushed (Vercel auto-deploy). ROADMAP-60.md D20 ticked.
+
+Stage Summary:
+- Bolo now has a social heartbeat: live public rooms are one tap away and "practice tonight at 9" is a real, discoverable object — with server-derived room_opened/room_joined/room_scheduled analytics feeding the growth funnel the 60-day plan targets.
+- Next: D21 — Phase-3 review day (production triage + live regression sweep of D15–D20).
