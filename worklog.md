@@ -3695,3 +3695,19 @@ Work Log:
 Stage Summary:
 - Every word card now grows context on demand: level-tuned real-life sentences with the learner's own language glossed underneath, costing the learner's key once per word per level (shared cache), plus a streak that quietly rewards showing up for words daily.
 - Next: D24 — adaptive grammar quiz engine (weakness detection from practice history → targeted practice sets).
+---
+Task ID: D24
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 24 — adaptive grammar quiz engine (weakness detection → targeted practice)
+
+Work Log:
+- GET /api/practice (NEW): the learner's OWN practice history — device-scoped, kind filter, hard take cap 200, newest first, lean fields only. Feeds the client weakness engine.
+- src/lib/weakness.ts (PURE): computeWeakTopics() — groups grammar-quiz rows by topic (refId), needs ≥4 answered questions, accuracy <70% = weak, worst-first, only real curriculum topic ids, last 40 quizzes (recent form, not old scars). buildAdaptiveSet() — round-robin 5 bank questions across the weak topics (weakest contributes first), shuffled; level resolution via the advanced-topic-key set (foundation→beginner bank, advanced→advanced bank).
+- WeakSpotsCard (Grammar section, above the topic grid; hidden entirely when no weakness): amber card listing up to 3 weak topics with accuracy% + question count (rose <50%, amber otherwise), "Practice 5 questions" → inline player (progress, per-question topic badge, answer highlight with green/red, explanation panel, finish screen "You got X/Y right"). Session logs kind "grammar-adaptive" refId=distinct-topics → server derives quiz_complete automatically.
+- i18n: grammar.weak.* (9 keys) ×3 — ALL-PARITY-OK.
+- Verification: tsc 0 / lint 0 / i18n OK. Browser E2E: no history → card hidden; seeded history (Tense basics 2/5+1/5 = 30%·10q weak, Prepositions 5/5+5/5 = 100% strong) → card shows EXACTLY "30% · 10q" for the weak topic and excludes the strong one → full 5-question play (bank questions confirmed) → "You got 2/5 right" → practiceLog {grammar-adaptive, Tense basics, 2/5} + quiz_complete {kind:grammar-adaptive} in DB. Zero console errors.
+- QA user + rows cleaned EXACT-ID-ONLY (local DB 0 users). Commit 47622a1 pushed (Vercel auto-deploy).
+- ROADMAP-60.md D24 ticked.
+
+Stage Summary:
+- Grammar now closes its own loop: quiz results become a live weakness map, and the weakest topics turn into a targeted 5-question drill — keyless, self-updating, and honest about the math. Next: D25 — the +30 intermediate lesson bank (content day).

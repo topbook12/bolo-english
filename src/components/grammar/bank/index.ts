@@ -15,6 +15,12 @@ import FOUNDATION_HI from "./foundation-hi";
 import ADVANCED_BN from "./advanced-bn";
 import ADVANCED_EN from "./advanced-en";
 import ADVANCED_HI from "./advanced-hi";
+// D25 — INTERMEDIATE wave (CEFR ~B1): the 10 core foundation topics now have
+// a full intermediate lesson each (bn/en/hi). Intermediate used to be
+// AI-only; these make it instant and keyless like the rest of the bank.
+import INTERMEDIATE_BN from "./intermediate-bn";
+import INTERMEDIATE_EN from "./intermediate-en";
+import INTERMEDIATE_HI from "./intermediate-hi";
 
 const LESSONS: BankLesson[] = [
   ...FOUNDATION_BN,
@@ -23,6 +29,9 @@ const LESSONS: BankLesson[] = [
   ...ADVANCED_BN,
   ...ADVANCED_EN,
   ...ADVANCED_HI,
+  ...INTERMEDIATE_BN,
+  ...INTERMEDIATE_EN,
+  ...INTERMEDIATE_HI,
 ];
 
 // Fast lookup: topic → level → locale → lesson
@@ -35,8 +44,9 @@ for (const l of LESSONS) {
  * Find a static bank lesson for a topic/level/locale, or null when the
  * combination isn't banked (caller falls back to the AI path).
  *
- * Bank coverage: every foundation topic × beginner and every advanced
- * topic × advanced, each in bn/en/hi. Intermediate lessons are AI-only.
+ * Bank coverage: every foundation topic × beginner AND × intermediate
+ * (D25 wave: the 10 core foundation topics), every advanced topic ×
+ * advanced — each in bn/en/hi.
  */
 export function getBankLesson(
   topic: string,

@@ -12,7 +12,9 @@
 // tests, future scripts).
 
 export type BankLocale = "bn" | "en" | "hi";
-export type BankLevel = "beginner" | "advanced";
+/** D25: "intermediate" added — the 10 core foundation topics now have a full
+ *  B1 wave (previously intermediate was AI-only). */
+export type BankLevel = "beginner" | "intermediate" | "advanced";
 
 export interface BankExample {
   /** Incorrect sentence (English). */
