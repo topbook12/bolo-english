@@ -326,7 +326,12 @@ const M = {
   roomFull: {
     en: "The room is full.",
     bn: "রুমটি পূর্ণ হয়ে গেছে।",
-    hi: "रूम भर चुकी है।",
+    hi: "রूम भर चुकी है।",
+  },
+  roomNotYet: {
+    en: "This practice room opens 5 minutes before its scheduled time.",
+    bn: "এই প্র্যাকটিস রুম নির্ধারিত সময়ের ৫ মিনিট আগে খুলবে।",
+    hi: "यह प्रैक्टिस रूम तय समय से 5 मिनट पहले खुलेगा।",
   },
   alreadyInRoom: {
     en: "You're already in this room (another tab).",

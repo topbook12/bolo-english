@@ -508,6 +508,30 @@ async function main() {
     log(YELLOW, "Skip   TurnKey health columns  (TurnKey table not present yet)");
   }
 
+  // ── 13) CallRoom discovery columns (D20 — public rooms + scheduling) ────
+  // topic: user-typed room topic shown in the public discovery list.
+  // scheduledFor: when a "practice tonight" room opens. status "scheduled"
+  // rooms join via code 5 min early; stale-prune already skips them.
+  if (tables.has("CallRoom")) {
+    const roomCols = await columnsOf(db, "CallRoom");
+    if (!roomCols.has("topic")) {
+      await db.execute(`ALTER TABLE "CallRoom" ADD COLUMN "topic" TEXT NOT NULL DEFAULT ''`);
+      log(GREEN, "Added  CallRoom.topic  (D20 discovery)");
+      changed++;
+    } else {
+      log(YELLOW, "Skip   CallRoom.topic  (already exists)");
+    }
+    if (!roomCols.has("scheduledFor")) {
+      await db.execute(`ALTER TABLE "CallRoom" ADD COLUMN "scheduledFor" DATETIME`);
+      log(GREEN, "Added  CallRoom.scheduledFor  (D20 scheduled rooms)");
+      changed++;
+    } else {
+      log(YELLOW, "Skip   CallRoom.scheduledFor  (already exists)");
+    }
+  } else {
+    log(YELLOW, "Skip   CallRoom discovery columns  (CallRoom table not present yet)");
+  }
+
   // ── Final verification (reads the REAL state, not our assumptions) ────────
   const finalTables = await tablesOf(db);
   const finalCols = await columnsOf(db, "User");

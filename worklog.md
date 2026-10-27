@@ -3603,3 +3603,20 @@ Work Log:
 Stage Summary:
 - The "speak like a native" loop is complete: listen free at learner-controlled speed, repeat, and get honest word-level feedback on the exact pipeline proven live on mobile. Zero quota cost for the listening half.
 - Next: D19 — call quality & mobile UX (reconnection, TURN health monitor, bigger mobile controls, network-quality badge).
+---
+Task ID: D19
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 19 — call quality & mobile UX (reconnection, TURN health monitor, mobile controls, network badge)
+
+Work Log:
+- AUDIT FIRST: much of the D19 checklist already existed from earlier hardening — verify before building. Confirmed present: ICE restart on disconnected (restartIce watchdog in use-webrtc), online/offline full-recovery sweep, sustained-outage "Reconnecting…" overlay (CallFlow connectionIssue → CallRoom reconnecting), getStats link-quality badges (RTT + packet loss, good/fair/poor per remote tile), self network chip, h-12 (48px ≥44px) touch targets.
+- GENUINE GAP 1 — TURN health monitor (persistent): TurnKey += mintOk / mintFail / lastMintAt / lastFailAt (schema + local db:push + idempotent prod-migrate block 12). turn-pool.recordMint() — fire-safe updateMany by keyId on REAL mints only (credential cache means ≤1 write per key per ~12 min); success → mintOk+lastMintAt, failure → mintFail+lastFailAt. TurnPoolCard shows per-key "✓n ✕m" counter chip, amber-bold when a failure happened in the last 10 min (owner sees a dying key BEFORE calls fail). i18n turn.healthTitle ×3 — ALL-PARITY-OK.
+- GENUINE GAP 2 — mobile call controls: all 8 call-btn buttons enlarged on phones only (h-12 w-12 → max-sm:h-14 max-sm:w-14 = 56px targets, desktop unchanged); control bar gained iOS safe-area bottom padding (max-sm:pb-[max(0.625rem,env(safe-area-inset-bottom))]) so the home-indicator never covers the end-call button.
+- Verification: tsc 0 / lint 0 / i18n ALL-PARITY-OK. Dev server restarted after schema change (per rule) and re-smoked: Speak section renders (h1 + 3 partner cards), Settings renders. TURN card is admin-gated so the counter chip was verified at code+tsc level; mint recording is fire-safe by construction (try/catch, never throws). Honest limit: no real Cloudflare TURN key in dev, so counters stay 0 locally — they accrue on production calls.
+- Owner action: run `bun scripts/prod-migrate.ts` once before/with this deploy (adds the 4 TurnKey columns; idempotent, missing-only).
+- QA user cleaned exact-id-only (local DB 0 users). Commit ab692b0 pushed (Vercel auto-deploy).
+- ROADMAP-60.md D19 ticked.
+
+Stage Summary:
+- The call stack is now observable: reconnection, per-link quality and a persistent TURN health ledger — the owner can watch relay health from Settings instead of discovering outages from user complaints; phones get dialer-grade 56px controls that clear the iOS home indicator.
+- Next: D20 — public room discovery + scheduled rooms (topic-based open rooms + "practice tonight" scheduling + analytics).

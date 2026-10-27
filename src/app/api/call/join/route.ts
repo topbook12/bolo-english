@@ -3,6 +3,7 @@ import type { CallRoom } from "@prisma/client";
 import { db } from "@/lib/db";
 import { reqLocale, apiMsg } from "@/lib/api-i18n";
 import { checkIpLimit } from "@/lib/rate-limit";
+import { logAnalyticsEvent } from "@/lib/analytics-server";
 import {
   makeRoomCode,
   makePeerId,
@@ -64,11 +65,34 @@ export async function POST(req: NextRequest) {
           );
         }
         room = await db.callRoom.findUnique({ where: { code } });
-        if (!room || room.status !== "open") {
+        if (!room || room.status === "closed") {
           return NextResponse.json(
             { ok: false, error: apiMsg(locale, "roomNotFound") },
             { status: 404 }
           );
+        }
+        // D20: a scheduled room opens by code-join 5 minutes before its
+        // time — anyone from the discovery list can start it then. Earlier
+        // than that it is politely not open yet.
+        if (room.status === "scheduled") {
+          const opensAt = room.scheduledFor
+            ? room.scheduledFor.getTime() - 5 * 60 * 1000
+            : 0;
+          if (Date.now() < opensAt) {
+            return NextResponse.json(
+              { ok: false, error: apiMsg(locale, "roomNotYet") },
+              { status: 423 }
+            );
+          }
+          const flipped = await db.callRoom
+            .updateMany({
+              where: { id: room.id, status: "scheduled" },
+              data: { status: "open" },
+            })
+            .catch(() => ({ count: 0 }));
+          if (flipped.count > 0) {
+            room = { ...room, status: "open" };
+          }
         }
       } else if (mode === "quick") {
         // Final attempt: force-create. Under a burst of simultaneous joiners
@@ -104,6 +128,9 @@ export async function POST(req: NextRequest) {
             participants: serializeParticipants([me]),
           },
         });
+        // D20 server-derived analytics: a room was CREATED (the opening
+        // half of the discovery funnel). mode distinguishes quick/private.
+        void logAnalyticsEvent("room_opened", deviceId, null, { intent, mode });
         return respond(room.id, room.code, peerId, intent, [
           { peerId, name },
         ]);
@@ -166,6 +193,9 @@ export async function POST(req: NextRequest) {
           { status: 409 }
         );
       }
+      // D20 server-derived analytics: someone JOINED an existing room —
+      // the social-discovery signal (rooms that actually fill up).
+      void logAnalyticsEvent("room_joined", deviceId, null, { intent, mode });
       return respond(room.id, room.code, peerId, intent, joined);
     } catch (e) {
       if (attempt === 3) {

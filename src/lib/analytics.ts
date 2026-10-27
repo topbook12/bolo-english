@@ -29,6 +29,9 @@ export const TRACK_EVENTS = [
   "roleplay_done", // {scenario, score, goal} (client-fired when a D16 roleplay finishes)
   "simulator_done", // {setId, band, answers} (client-fired when a D17 mock test is graded)
   "shadowing_done", // {score, level} (client-fired by the D18 shadowing card per attempt)
+  "room_opened", // {intent, mode} (server-derived: /api/call/join created a room)
+  "room_joined", // {intent, mode} (server-derived: /api/call/join joined an existing room)
+  "room_scheduled", // {intent, when} (server-derived: /api/call/schedule created a topic room)
 ] as const;
 
 export type TrackEventName = (typeof TRACK_EVENTS)[number];

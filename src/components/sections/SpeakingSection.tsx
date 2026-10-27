@@ -25,6 +25,7 @@ import AiPartner from "@/components/speaking/AiPartner";
 import PronunciationCard from "@/components/speaking/PronunciationCard";
 import SimulatorCard from "@/components/speaking/SimulatorCard";
 import ShadowCard from "@/components/speaking/ShadowCard";
+import RoomsCard from "@/components/speaking/RoomsCard";
 import CallFlow, { type CallIntent } from "@/components/speaking/CallFlow";
 
 type Mode = "menu" | "call" | "ai";
@@ -84,6 +85,9 @@ export default function SpeakingSection() {
 
       {/* D18: shadowing — listen → speak along → compare, speed control */}
       <ShadowCard />
+
+      {/* D20: public room discovery + scheduled topic rooms */}
+      <RoomsCard onJoin={(code) => startCall("group-code", code)} />
 
       {/* Mode cards — 1 per column on desktop */}
       <div className="grid gap-5 lg:grid-cols-3 lg:items-stretch">

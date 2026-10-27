@@ -67,7 +67,17 @@ export function serializeParticipants(list: RoomParticipant[]): string {
 /** Delete stale rooms (no heartbeat). Cheap: only rooms untouched 90s+ */
 export async function pruneStaleRooms(): Promise<void> {
   const cutoff = new Date(Date.now() - STALE_ROOM_MS);
-  await db.callRoom.deleteMany({ where: { updatedAt: { lt: cutoff } } }).catch(() => null);
+  // D20: scheduled rooms are deliberately INVISIBLE to the stale-prune — they
+  // have no active participants yet and would be deleted before their time.
+  // They expire on their own schedule (2h past the scheduled time).
+  await db.callRoom
+    .deleteMany({ where: { updatedAt: { lt: cutoff }, status: { not: "scheduled" } } })
+    .catch(() => null);
+  await db.callRoom
+    .deleteMany({
+      where: { status: "scheduled", scheduledFor: { lt: new Date(Date.now() - 2 * 60 * 60 * 1000) } },
+    })
+    .catch(() => null);
 }
 
 export async function pruneOldMessages(roomId: string): Promise<void> {

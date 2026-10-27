@@ -196,6 +196,29 @@
       "noSpeech": "Couldn't hear anything — try again.",
       "permission": "Microphone permission is needed.",
       "unsupported": "This browser can't record."
+    },
+    "rooms": {
+      "title": "Practice rooms",
+      "desc": "Join a live public room or schedule one — practice with real people.",
+      "refresh": "Refresh list",
+      "live": "Live public rooms",
+      "liveEmpty": "No open rooms right now — start one below and it appears here.",
+      "upcoming": "Scheduled rooms",
+      "quick": "Quick match room",
+      "learners": "{n}/{max} learners",
+      "join": "Join",
+      "opensSoon": "Opens 5 minutes before the scheduled time",
+      "host": "by {name}",
+      "scheduleTitle": "Schedule a topic room",
+      "topicLabel": "Topic",
+      "topicPh": "e.g. Job interview practice",
+      "timeLabel": "Date & time",
+      "scheduleBtn": "Schedule",
+      "maxNote": "Public topic room · up to 4 learners · opens 5 min early",
+      "schedOk": "Room {code} scheduled — see you there!",
+      "schedLive": "Room is live — joining…",
+      "failed": "Scheduling failed — try once more.",
+      "maxLen": "Topic can be at most 60 characters."
     }
   }
 }

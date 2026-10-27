@@ -167,14 +167,25 @@ model CallRoom {
   code         String          @unique // 6-char join code
   intent       String // "one" | "group"
   visibility   String          @default("public") // public (quick match) | private (code)
+  // ─── D20 discovery + scheduled rooms ───
+  // Free-text topic shown in the public room list ("Job interview practice").
+  // Empty = a quick-match room (discovery shows a localized "Quick match").
+  topic        String          @default("")
+  // ISO instant this room is scheduled for. null = not scheduled. Scheduled
+  // rooms sit in status "scheduled" (invisible to quick match + stale-prune)
+  // until 5 minutes before the time, when code-join flips them open.
+  scheduledFor DateTime?
   hostPeerId   String
-  status       String          @default("open") // open | closed
+  status       String          @default("open") // open | closed | scheduled
   maxPeers     Int             @default(4) // 2 for one-to-one
   lastSeq      Int             @default(0) // monotonic message cursor
   participants String          @default("[]") // JSON: [{peerId, name, deviceId, joinedAt}]
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
   messages     SignalMessage[]
+
+  @@index([status, visibility, updatedAt])
+  @@index([scheduledFor])
 }
 
 // ─── Zero-cost storage pool (rotation of free-tier storage accounts) ───
