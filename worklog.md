@@ -3743,3 +3743,19 @@ Work Log:
 
 Stage Summary:
 - Listening now has a production loop, not just playback: hear a sentence at your own speed, write it, and see exactly which words landed — free forever (device TTS + local matching). Next: D27 — reading graded levels + tap-to-save words.
+---
+Task ID: D27
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 27 — reading graded levels (A1–B2) + tap-a-word save to wordbook
+
+Work Log:
+- CEFR labels: every reading card in the list AND the reader header now shows the grade band — beginner→"A1–A2", intermediate→"B1", advanced→"B2" (the level bucket mapped to CEFR, no new data needed).
+- Tap-any-word: every word in every paragraph is now a subtle tap target (hover tint, aria-label per word). Tap opens a compact dialog: Hear it (free TTS) · Meaning (AI) · Save to wordbook. Save works with or without AI: no key → an honest empty-fields entry lands in the wordbook; with key → /api/ai NEW action "word-lookup" fills a DailyWord (Bangla-friendly phonetics, part of speech, bangla+english meaning, 2 examples, usage tip) — SHARED AiCache (word|level, key pays once per word per level). word_saved_reading {word} analytics on save.
+- i18n: reading.reader.{wordTapAria,wordTapHint,wordHear,wordMeaning,wordSaveBtn,wordSavedBtn,wordSaved} ×3 — ALL-PARITY-OK.
+- Verification: tsc 0 / lint 0 / i18n OK. Browser E2E: list shows CEFR badges (6 found) → open a story → tap "Rafi" → dialog with all 3 actions → Save → button flips "Saved ✓" + /api/vocab returns ["rafi"] ✓ → header shows the A1–A2 badge → "Meaning (AI)" clicked: same callAi→catch chain as the D23 no-key flow (toast verified live there); toast auto-dismissed before the probe captured it here — honest note, no console errors, save path fully verified.
+- QA user + rows cleaned EXACT-ID-ONLY (local DB 0 users). Commit 96aad8a pushed (Vercel auto-deploy).
+- ROADMAP-60.md D27 ticked.
+
+Stage Summary:
+- Reading is now a vocabulary funnel: every word in every passage is one tap from the wordbook (with an AI-built entry when a key exists) — the SRS queue (D22) automatically inherits everything learners save while reading.
+- Next: D28 — Phase-4 review day (production triage + live regression sweep of D22–D27).
