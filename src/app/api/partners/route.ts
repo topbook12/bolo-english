@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
 
   const user = await getSessionUserId().catch(() => null);
   if (!user) {
-    return NextResponse.json({ ok: false, error: apiMsg(locale, "adminOnly") }, { status: 401 });
+    return NextResponse.json({ ok: false, error: apiMsg(locale, "signInRequired") }, { status: 401 });
   }
 
   try {

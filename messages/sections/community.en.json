@@ -4,7 +4,7 @@
     "subtitle": "Learn together — leaderboard, partners, challenges",
     "leaderboard": {
       "title": "Leaderboard",
-      "subtitle": "This week's top learners",
+      "subtitle": "Top learners — this week's XP board",
       "tabWeek": "This week",
       "tabAll": "All time",
       "leagueGold": "Gold",
@@ -18,7 +18,8 @@
       "youAre": "You're #{rank} · {n} XP",
       "howLeague": "Leagues run on weekly XP: Gold 250+ · Silver 100+ · Wood below — a fresh chance every week",
       "privacyNote": "Only first name + initial is shown — never the full name or email.",
-      "aria": "Leaderboard list"
+      "aria": "Leaderboard list",
+      "subtitleAll": "Top learners — all-time XP"
     },
     "partners": {
       "title": "Practice partners",

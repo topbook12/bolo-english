@@ -237,6 +237,11 @@ const M = {
   },
 
   /* ── admin role (site owner) ── */
+  signInRequired: {
+    en: "Please log in first — partners matching works with an account only.",
+    bn: "আগে লগইন করুন — পার্টনার ম্যাচিং শুধু অ্যাকাউন্টে কাজ করে।",
+    hi: "पहले लॉगिन करें — पार्टनर मैचिंग सिर्फ़ अकाउंट पर काम करती है।",
+  },
   adminOnly: {
     en: "Admin access required.",
     bn: "অ্যাডমিন অ্যাক্সেস প্রয়োজন।",

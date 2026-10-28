@@ -82,7 +82,7 @@ export default function LeaderboardCard() {
             </span>
             <div>
               <h3 className="text-sm font-bold sm:text-base">{t("title")}</h3>
-              <p className="text-xs text-muted-foreground">{t("subtitle")}</p>
+              <p className="text-xs text-muted-foreground">{range === "week" ? t("subtitle") : t("subtitleAll")}</p>
             </div>
           </div>
           {/* week/all segmented toggle */}
