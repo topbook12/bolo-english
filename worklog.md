@@ -3782,3 +3782,66 @@ Stage Summary:
 - Phase 4 (শেখার গভীরতা) is fully live: SM-2-lite SRS with a section-level review hub, level-tuned AI examples + word streaks, an adaptive weakness→drill engine, a 108-lesson keyless grammar ladder (beginner→intermediate→advanced), keyless dictation, and tap-any-word reading with CEFR grades. Every learning surface now feeds the retention loop.
 - Batch complete: D18–D28 delivered in one session — 11/11 days, all pushed, all live-verified, production migrated (TurnKey health + CallRoom discovery columns), QA data exact-id-cleaned after every sweep.
 - Next up (owner's call): Phase 5 — community & social (D29 XP unification, D30 leaderboard…).
+---
+Task ID: D29
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 29 — unified XP engine (xp_events, server-derived grants, anti-abuse caps, XP UI)
+
+Work Log:
+- XpEvent table (deviceId, userId?, kind, refId, xp, day) + 4 indexes; day bucket = Asia/Dhaka calendar day.
+- src/lib/xp.ts — PURE rules: quiz 10×8/d, reading 10×4/d, dictation 8×6/d, review 4×10/d, call 5/min (min 30s, cap 40/call, 100/d), lesson 6×4/d (day-deduped per refId), challenge 12×1/d; GLOBAL daily cap 500/device; applyCaps() PURE.
+- src/lib/xp-server.ts — server-side grant: /api/practice maps kind→XP kind (server-derived, client can never name a number); /api/call leave computes minutes; lesson via /api/xp POST (whitelisted kind, deduped).
+- /api/xp GET summary (total/today/week/byKind/7-day chart); XP UI wired into Home (today), Progress (7-day chart), Grammar lessons (mark-done grant).
+- Client xp-client.ts broadcasts bolo_xp_bump so open cards refetch.
+- Safety fix 44a9f25: /api/xp GET degrades to zeroed summary (never 500) when the XpEvent table is missing pre-migration.
+- Verification: tsc/lint clean; caps unit-checked; E2E: quiz grant + cap visible. Commit b627f42 pushed.
+
+Stage Summary:
+- One XP table for the whole product, granted ONLY server-side with per-kind + global caps — the foundation every social feature (leaderboard/leagues) reads.
+- Note: production Turso migration for XpEvent pending (owner runs scripts/prod-migrate.ts); /api/xp degrades safely until then.
+---
+Task ID: D30–D34
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Days 30–34 — leaderboard, partner matching, daily sentence challenge, moderation, profile (batch session)
+
+Work Log:
+- D30 Leaderboard: /api/leaderboard aggregates XpEvent by userId (week = Mon-based bucket from xpDay, all-time = sum); privacy-safe names server-side (first name + last initial, no-name & block aware); leagues by weekly XP (Gold 250+/Silver 100+/Wood); LeaderboardCard week/all tabs + my-rank strip + refresh.
+- D31 Partners: /api/partners — OPT-IN ONLY (UserConfig.partnerOptIn), privacy-first "no timezone stored" design: matches on level (+2)/goal (+1)/recent activity (+2); output = first name+initial, level, goal, avatar, last-active bucket, week XP; blocks honored BOTH directions; PartnerMatchCard opt-in switch, one-tap call invite → Speak section.
+- D32 Challenge: daily prompt rotation from src/lib/challenge-bank.ts (promptId per Asia/Dhaka day); /api/challenge GET (prompt + today's feed) / POST (≤300 chars, unique (deviceId, day) — one per day, +12 XP direct award); SentenceSubmission.hidden/flagged for moderation; optional BYOK AI feedback (/api/ai challenge-feedback action, shared AiCache); SentenceReaction (unique (submissionId, deviceId)) + peer feed with 👍❤️🔥 and report flag on OTHERS' entries only.
+- D33 Moderation: /api/report (sentence|room, reason enum, ≤200-char note, rate-limited), /api/block (both-direction block-set cached per request), auto-flagging of abuse-word hits at submission (src/lib/moderation.ts), admin queue /api/admin/moderation (GET open reports + flagged, POST reviewed/hide/unhide) double-gated by ADMIN_EMAILS role; ModerationCard in Settings (admin only).
+- D34 Profile: /api/profile aggregates name/avatar/level/goal/XP(total, week)/streak (D11 math, client-local day anchor)/badges — ALL badges server-computed (first_call, call_10, streak_7, words_25, quiz_20, lesson_10, xp_500, challenge_5); ProfileCard emoji avatar picker (persisted via /api/config avatar key), badges grid, Web-Share with clipboard fallback.
+- Schema: UserConfig.avatar + UserConfig.partnerOptIn columns; SentenceSubmission/SentenceReaction/ContentReport/UserBlock tables (+unique keys/indexes); prod-migrate.ts extended (idempotent sections 14–15).
+- i18n: community.* (leaderboard/partners/challenge/profile) + moderation.* — full bn/en/hi parity (172 keys each).
+- Delivered in an auto-checkpoint commit (4b28034) — full batch verified in this D35 session (below) before being declared done.
+
+Stage Summary:
+- The community layer is code-complete: XP → leaderboard/leagues, opt-in partner matching with call invites, a daily sentence challenge with AI feedback + peer reactions, report/block + admin moderation queue, and a shareable profile with server-computed badges — all privacy-first and degrade-safe.
+---
+Task ID: D35
+Agent: main (Z.ai Code)
+Task: ROADMAP-60 Day 35 — Phase-5 review: verification sweep of D29–D34, bug fixes, production deploy + triage
+
+Work Log:
+- Context recovery: the session restarted mid-Phase-5 — D29 was committed (b627f42+44a9f25) and D30–D34 sat in an unverified auto-checkpoint (4b28034). This session verified everything end-to-end before declaring Phase 5 done.
+- Local verification: tsc 0 / lint 0 / i18n ALL-PARITY-OK; local DB already had all Phase 5 tables.
+- Local E2E (agent-browser, two fresh QA accounts "Learner" + "Rahim" + one admin):
+  • Community renders all 4 cards; challenge submit → +12 XP once/day; Edit path UPDATES the entry without double-granting XP (total stayed 12) ✓
+  • Leaderboard week/all-time tabs, leagues (W badge), "You" marker, privacy note ✓
+  • Partner opt-in → appears to the other account with score "Good match" + Call invite; self never listed ✓
+  • Peer reactions across accounts persisted (👍 then ❤️, counts correct) ✓
+  • Report dialog → ContentReport(open) → admin (ADMIN_EMAILS promotion verified via /api/auth/me role:"admin") → Moderation queue shows report with preview + note → Hide → report "actioned", sentence hidden:1, feed no longer shows it ✓
+  • Block from partner card → UserBlock row, partner disappears instantly from both directions ✓
+  • Profile: avatar pick persisted (tiger), streak 1 day, +12 XP, 8-badge grid, Share (clipboard fallback) ✓
+- BUGS FOUND & FIXED (commit bfd3788):
+  • /api/partners returned the adminOnly copy on 401 — now a dedicated signInRequired message (api-i18n catalog +3 locales).
+  • Leaderboard subtitle said "This week's…" even on the All-time tab — range-aware subtitle + community.subtitleAll key ×3 locales.
+- Production: the Phase-5 batch (4b28034) had NOT deployed (live 404s on the new routes) — my rebuild+push landed it (leaderboard 200, graceful pre-migration empty states; profile card hides itself on 503; challenge submit can't crash the page). Live sweep with a fresh QA account confirmed register + all community surfaces + zero console errors.
+- Production triage: Phase-5 tables/columns NOT yet on Turso (no .env.turso in this sandbox) → /api/config 503s, XP/leaderboard/challenge serve honest empty states. OWNER ACTION documented in ROADMAP-60.md: run `set -a; source .env.turso; set +a; bun scripts/prod-migrate.ts` (idempotent, covers XpEvent + UserConfig.avatar/partnerOptIn + community tables).
+- Production QA cleanup via the established one-shot route pattern (b0d7a69+3141da1, then removed f6ea861): exact-email + @test.local + SHA-256 token guard, missing tables skipped; deleted user:1, analytics:4, activity:1 → PROD_USERS_LEFT = 9 (unchanged).
+- Also fixed a transient tsc TS1517 in the temp route before the Vercel build could fail (3141da1).
+- ROADMAP-60.md D29–D35 all ticked (7/7).
+
+Stage Summary:
+- PHASE 5 (কমিউনিটি ও সোশ্যাল) COMPLETE: unified XP engine, leaderboard+leagues, opt-in partner matching, daily sentence challenge with AI feedback and peer reactions, report/block + admin moderation, and a shareable server-computed profile — all live-verified locally and the new build is on production.
+- One pending owner action: run prod-migrate once so production Turso gains the Phase-5 tables/columns (everything degrades gracefully until then).
+- Next: Phase 6 — business infrastructure D36+ (monetization model decision needed from the owner by D35 → now).
