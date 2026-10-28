@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   if (email && !/^[^@\s]+@test\.local$/.test(email)) {
     return NextResponse.json({ ok: false, error: "only @test.local QA emails" }, { status: 400 });
   }
-  if (deviceId && !/^[0-9a-fA-:-]{8,80}$/.test(deviceId)) {
+  if (deviceId && !/^[0-9a-fA-F:-]{8,80}$/.test(deviceId)) {
     return NextResponse.json({ ok: false, error: "bad deviceId shape" }, { status: 400 });
   }
 
