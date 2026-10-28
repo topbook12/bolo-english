@@ -12,6 +12,7 @@ import { isNoName } from "@/lib/no-name";
 import { avatarEmoji } from "@/lib/badges";
 import { awardXpSafe } from "@/lib/xp-server";
 import { blockedDeviceIds } from "@/lib/block-set";
+import { ensureDbTables } from "@/lib/db-bootstrap";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +41,9 @@ export async function GET(req: NextRequest) {
   const fallback = apiMsg(locale, "learnerName");
 
   try {
+    // Pre-phase-5 DB (production Turso) self-migrates here: tables + indexes
+    // appear on the first visitor, feed stays honest-empty if DDL fails.
+    await ensureDbTables();
     const myUserId = await getSessionUserId().catch(() => null);
     const blocked = await blockedDeviceIds(deviceId, myUserId);
 
@@ -154,6 +158,7 @@ export async function POST(req: NextRequest) {
   const { flagged } = flagText(text);
 
   try {
+    await ensureDbTables(); // create the phase-5 tables before the upsert
     const existing = await db.sentenceSubmission.findUnique({
       where: { deviceId_day: { deviceId, day } },
     });

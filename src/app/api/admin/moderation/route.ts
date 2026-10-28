@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { isAdminUser } from "@/lib/auth";
 import { reqLocale, apiMsg } from "@/lib/api-i18n";
 import { cleanStr } from "@/lib/validate";
+import { ensureDbTables } from "@/lib/db-bootstrap";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,7 @@ export async function GET() {
     return NextResponse.json({ ok: false, error: apiMsg("en", "adminOnly") }, { status: 403 });
   }
   try {
+    await ensureDbTables(); // ContentReport/SentenceSubmission self-create on prod
     const reports = await db.contentReport.findMany({
       where: { status: "open" },
       orderBy: { createdAt: "desc" },
@@ -91,6 +93,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    await ensureDbTables();
     if (reportId) {
       const report = await db.contentReport.findUnique({ where: { id: reportId } });
       if (!report) return NextResponse.json({ ok: false, error: apiMsg(locale, "unknownAction") }, { status: 404 });

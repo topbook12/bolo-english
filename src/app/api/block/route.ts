@@ -4,6 +4,7 @@ import { getSessionUserId } from "@/lib/auth";
 import { reqLocale, apiMsg } from "@/lib/api-i18n";
 import { checkIpLimit } from "@/lib/rate-limit";
 import { cleanDeviceId } from "@/lib/validate";
+import { ensureDbTables } from "@/lib/db-bootstrap";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +44,7 @@ export async function POST(req: NextRequest) {
   const userId = await getSessionUserId().catch(() => null);
 
   try {
+    await ensureDbTables(); // UserBlock may not exist yet on the pre-phase-5 prod DB
     if (block) {
       await db.userBlock.upsert({
         where: { deviceId_blockedDeviceId: { deviceId, blockedDeviceId } },

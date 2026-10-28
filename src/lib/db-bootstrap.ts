@@ -194,35 +194,111 @@ const DDL: string[] = [
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
   )`,
+  /* ── Phase 5 community + XP tables (ROADMAP-60 D29–D34) ─────────────────
+   * The production Turso DB predates these (no .env.turso in the sandbox, so
+   * scripts/prod-migrate.ts could not be run there). The deployed app holds
+   * the Turso credentials itself, so the FIRST hit on any phase-5 surface
+   * (xp/leaderboard/challenge/partners/report/block/profile/config/moderation)
+   * creates whatever is missing — the manual owner action becomes a no-op
+   * fallback. DDL mirrors scripts/prod-migrate.ts + prisma/schema.prisma. */
+  `CREATE TABLE IF NOT EXISTS "XpEvent" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "deviceId" TEXT NOT NULL,
+    "userId" TEXT,
+    "kind" TEXT NOT NULL,
+    "refId" TEXT NOT NULL DEFAULT '',
+    "xp" INTEGER NOT NULL,
+    "day" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE INDEX IF NOT EXISTS "XpEvent_deviceId_day_idx" ON "XpEvent"("deviceId", "day")`,
+  `CREATE INDEX IF NOT EXISTS "XpEvent_userId_day_idx" ON "XpEvent"("userId", "day")`,
+  `CREATE INDEX IF NOT EXISTS "XpEvent_day_idx" ON "XpEvent"("day")`,
+  `CREATE INDEX IF NOT EXISTS "XpEvent_kind_refId_day_idx" ON "XpEvent"("kind", "refId", "day")`,
+  `CREATE TABLE IF NOT EXISTS "SentenceSubmission" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "deviceId" TEXT NOT NULL,
+    "userId" TEXT,
+    "day" TEXT NOT NULL,
+    "promptId" TEXT NOT NULL,
+    "text" TEXT NOT NULL,
+    "feedback" TEXT NOT NULL DEFAULT '',
+    "hidden" BOOLEAN NOT NULL DEFAULT false,
+    "flagged" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "SentenceSubmission_deviceId_day_key" ON "SentenceSubmission"("deviceId", "day")`,
+  `CREATE INDEX IF NOT EXISTS "SentenceSubmission_day_createdAt_idx" ON "SentenceSubmission"("day", "createdAt")`,
+  `CREATE TABLE IF NOT EXISTS "SentenceReaction" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "submissionId" TEXT NOT NULL,
+    "deviceId" TEXT NOT NULL,
+    "userId" TEXT,
+    "emoji" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "SentenceReaction_submissionId_deviceId_key" ON "SentenceReaction"("submissionId", "deviceId")`,
+  `CREATE INDEX IF NOT EXISTS "SentenceReaction_submissionId_idx" ON "SentenceReaction"("submissionId")`,
+  `CREATE TABLE IF NOT EXISTS "ContentReport" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "targetType" TEXT NOT NULL,
+    "targetId" TEXT NOT NULL,
+    "reason" TEXT NOT NULL,
+    "note" TEXT NOT NULL DEFAULT '',
+    "reporterDeviceId" TEXT NOT NULL,
+    "reporterUserId" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'open',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE INDEX IF NOT EXISTS "ContentReport_status_createdAt_idx" ON "ContentReport"("status", "createdAt")`,
+  `CREATE INDEX IF NOT EXISTS "ContentReport_targetType_targetId_idx" ON "ContentReport"("targetType", "targetId")`,
+  `CREATE TABLE IF NOT EXISTS "UserBlock" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "deviceId" TEXT NOT NULL,
+    "blockedDeviceId" TEXT NOT NULL,
+    "userId" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "UserBlock_deviceId_blockedDeviceId_key" ON "UserBlock"("deviceId", "blockedDeviceId")`,
+  `CREATE INDEX IF NOT EXISTS "UserBlock_deviceId_idx" ON "UserBlock"("deviceId")`,
 ];
 
 /* In-place column migrations for databases created before the learning-path
- * (v2) schema: the Library tables exist but lack the `unit` column. */
-const COLUMN_MIGRATIONS: { table: string; ddl: string }[] = [
-  { table: "LibraryVocab", ddl: `ALTER TABLE "LibraryVocab" ADD COLUMN "unit" INTEGER NOT NULL DEFAULT 1` },
-  { table: "LibraryGrammar", ddl: `ALTER TABLE "LibraryGrammar" ADD COLUMN "unit" INTEGER NOT NULL DEFAULT 1` },
-  { table: "LibraryListening", ddl: `ALTER TABLE "LibraryListening" ADD COLUMN "unit" INTEGER NOT NULL DEFAULT 0` },
+ * (v2) schema: the Library tables exist but lack the `unit` column. Phase 5
+ * (ROADMAP-60): the production UserConfig row predates D31/D34 too, so its
+ * avatar + partnerOptIn columns ride the same PRAGMA-probed path (the owner
+ * action that needed .env.turso is now covered by the app itself — the
+ * credentials already live in the deployed Vercel env). */
+const COLUMN_MIGRATIONS: { table: string; column: string; ddl: string }[] = [
+  { table: "LibraryVocab", column: "unit", ddl: `ALTER TABLE "LibraryVocab" ADD COLUMN "unit" INTEGER NOT NULL DEFAULT 1` },
+  { table: "LibraryGrammar", column: "unit", ddl: `ALTER TABLE "LibraryGrammar" ADD COLUMN "unit" INTEGER NOT NULL DEFAULT 1` },
+  { table: "LibraryListening", column: "unit", ddl: `ALTER TABLE "LibraryListening" ADD COLUMN "unit" INTEGER NOT NULL DEFAULT 0` },
+  { table: "UserConfig", column: "avatar", ddl: `ALTER TABLE "UserConfig" ADD COLUMN "avatar" TEXT NOT NULL DEFAULT ''` },
+  { table: "UserConfig", column: "partnerOptIn", ddl: `ALTER TABLE "UserConfig" ADD COLUMN "partnerOptIn" BOOLEAN NOT NULL DEFAULT false` },
 ];
 
 let columnsReady = false;
 
-/** Add any missing `unit` columns once per process (PRAGMA-probed, idempotent). */
-async function ensureColumns(): Promise<void> {
-  if (columnsReady) return;
+/** Add any missing tracked columns once per process (PRAGMA-probed, idempotent). */
+async function ensureColumns(): Promise<boolean> {
+  if (columnsReady) return true;
   let ok = true;
   for (const t of COLUMN_MIGRATIONS) {
     try {
       const cols = await db.$queryRawUnsafe<{ name: string }[]>(
         `PRAGMA table_info("${t.table}")`
       );
-      if (Array.isArray(cols) && cols.some((c) => c.name === "unit")) continue;
+      if (Array.isArray(cols) && cols.some((c) => c.name === t.column)) continue;
       await db.$executeRawUnsafe(t.ddl);
     } catch (err) {
       ok = false;
-      console.warn(`[library-bootstrap] unit column on ${t.table}:`, err);
+      console.warn(`[library-bootstrap] column ${t.table}.${t.column}:`, err);
     }
   }
   if (ok) columnsReady = true;
+  return ok;
 }
 
 /** Cheap probe — a missing sentinel table means the DDL batch must run.
@@ -234,19 +310,76 @@ async function tablesExist(): Promise<boolean> {
     await db.$queryRawUnsafe(`SELECT 1 FROM "TurnKey" LIMIT 1`);
     await db.$queryRawUnsafe(`SELECT 1 FROM "LibraryVocab" LIMIT 1`);
     await db.$queryRawUnsafe(`SELECT 1 FROM "LibraryReading" LIMIT 1`);
+    // Phase-5 sentinel: a DB that predates ROADMAP-60 (no XpEvent) must still
+    // run the (idempotent) DDL batch once to gain XP + community tables.
+    await db.$queryRawUnsafe(`SELECT 1 FROM "XpEvent" LIMIT 1`);
     return true;
   } catch {
     return false;
   }
 }
 
-async function ensureTables(): Promise<void> {
-  if (!(await tablesExist())) {
-    for (const stmt of DDL) {
-      await db.$executeRawUnsafe(stmt);
+/** Set only when EVERY table + column probe passed, so a partially failed
+ *  run retries on the next request instead of being cached as done. */
+let tablesReady = false;
+
+/* Phase-5 index shapes. `CREATE INDEX IF NOT EXISTS` only guards the NAME —
+ * a name attached to the wrong table (rename drift, a partial operator
+ * migration) would silently leave the real index missing. This probe checks
+ * BOTH name and tbl_name, repairs by dropping the mis-attached index. */
+const INDEXES: { name: string; table: string; ddl: string }[] = [
+  { name: "XpEvent_deviceId_day_idx", table: "XpEvent", ddl: `CREATE INDEX "XpEvent_deviceId_day_idx" ON "XpEvent"("deviceId", "day")` },
+  { name: "XpEvent_userId_day_idx", table: "XpEvent", ddl: `CREATE INDEX "XpEvent_userId_day_idx" ON "XpEvent"("userId", "day")` },
+  { name: "XpEvent_day_idx", table: "XpEvent", ddl: `CREATE INDEX "XpEvent_day_idx" ON "XpEvent"("day")` },
+  { name: "XpEvent_kind_refId_day_idx", table: "XpEvent", ddl: `CREATE INDEX "XpEvent_kind_refId_day_idx" ON "XpEvent"("kind", "refId", "day")` },
+  { name: "SentenceSubmission_deviceId_day_key", table: "SentenceSubmission", ddl: `CREATE UNIQUE INDEX "SentenceSubmission_deviceId_day_key" ON "SentenceSubmission"("deviceId", "day")` },
+  { name: "SentenceSubmission_day_createdAt_idx", table: "SentenceSubmission", ddl: `CREATE INDEX "SentenceSubmission_day_createdAt_idx" ON "SentenceSubmission"("day", "createdAt")` },
+  { name: "SentenceReaction_submissionId_deviceId_key", table: "SentenceReaction", ddl: `CREATE UNIQUE INDEX "SentenceReaction_submissionId_deviceId_key" ON "SentenceReaction"("submissionId", "deviceId")` },
+  { name: "SentenceReaction_submissionId_idx", table: "SentenceReaction", ddl: `CREATE INDEX "SentenceReaction_submissionId_idx" ON "SentenceReaction"("submissionId")` },
+  { name: "ContentReport_status_createdAt_idx", table: "ContentReport", ddl: `CREATE INDEX "ContentReport_status_createdAt_idx" ON "ContentReport"("status", "createdAt")` },
+  { name: "ContentReport_targetType_targetId_idx", table: "ContentReport", ddl: `CREATE INDEX "ContentReport_targetType_targetId_idx" ON "ContentReport"("targetType", "targetId")` },
+  { name: "UserBlock_deviceId_blockedDeviceId_key", table: "UserBlock", ddl: `CREATE UNIQUE INDEX "UserBlock_deviceId_blockedDeviceId_key" ON "UserBlock"("deviceId", "blockedDeviceId")` },
+  { name: "UserBlock_deviceId_idx", table: "UserBlock", ddl: `CREATE INDEX "UserBlock_deviceId_idx" ON "UserBlock"("deviceId")` },
+];
+
+async function ensureIndexes(): Promise<boolean> {
+  let ok = true;
+  for (const ix of INDEXES) {
+    try {
+      const rows = await db.$queryRawUnsafe<{ tbl_name: string }[]>(
+        `SELECT tbl_name FROM sqlite_master WHERE type='index' AND name='${ix.name}'`
+      );
+      const attached = Array.isArray(rows) ? rows[0]?.tbl_name : undefined;
+      if (attached === ix.table) continue; // healthy
+      if (typeof attached === "string" && attached.length > 0) {
+        // Name exists but on the wrong table → repair.
+        await db.$executeRawUnsafe(`DROP INDEX "${ix.name}"`);
+      }
+      await db.$executeRawUnsafe(ix.ddl);
+    } catch (err) {
+      ok = false;
+      console.warn(`[db-bootstrap] index ${ix.name}:`, err);
     }
   }
-  await ensureColumns();
+  return ok;
+}
+
+async function ensureTables(): Promise<void> {
+  if (tablesReady) return;
+  let ok = true;
+  if (!(await tablesExist())) {
+    try {
+      for (const stmt of DDL) {
+        await db.$executeRawUnsafe(stmt);
+      }
+    } catch (err) {
+      ok = false;
+      console.error("[db-bootstrap] DDL failed:", err);
+    }
+  }
+  if (!(await ensureIndexes())) ok = false;
+  if (!(await ensureColumns())) ok = false;
+  if (ok) tablesReady = true;
 }
 
 async function markerExists(cacheKey: string): Promise<boolean> {

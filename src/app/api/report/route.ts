@@ -5,6 +5,7 @@ import { reqLocale, apiMsg } from "@/lib/api-i18n";
 import { checkIpLimit } from "@/lib/rate-limit";
 import { cleanDeviceId, cleanStr } from "@/lib/validate";
 import { REPORT_REASONS, REPORT_TARGETS, type ReportReason, type ReportTarget } from "@/lib/moderation";
+import { ensureDbTables } from "@/lib/db-bootstrap";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,7 @@ export async function POST(req: NextRequest) {
   const userId = await getSessionUserId().catch(() => null);
 
   try {
+    await ensureDbTables(); // ContentReport/SentenceSubmission may not exist yet on prod
     // Self-reports of own content are meaningless → reject quietly.
     if (targetType === "sentence") {
       const sub = await db.sentenceSubmission.findUnique({ where: { id: targetId }, select: { deviceId: true } });

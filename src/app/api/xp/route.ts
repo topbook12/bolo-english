@@ -5,6 +5,7 @@ import { checkIpLimit } from "@/lib/rate-limit";
 import { cleanDeviceId, cleanStr } from "@/lib/validate";
 import { awardXpSafe, xpSummary } from "@/lib/xp-server";
 import { XP_RULES, type XpKind } from "@/lib/xp";
+import { ensureDbTables } from "@/lib/db-bootstrap";
 
 // ─── XP API (D29, ROADMAP-60) ────────────────────────────────────────────────
 // GET  /api/xp?deviceId=… → device-scoped summary (total/today/week/7-day bars)
@@ -23,7 +24,10 @@ export async function GET(req: NextRequest) {
   // Failure-tolerant: before the XpEvent table exists on a fresh production
   // DB this must NOT 500 (the Progress section fetches it in a Promise.all
   // together with progress+sessions) — degrade to an honest zeroed summary.
+  // ensureDbTables() also self-heals: it creates the missing phase-5 tables
+  // right here (prod Turso has no .env.turso-based manual migration step).
   try {
+    await ensureDbTables();
     const data = await xpSummary(deviceId);
     return NextResponse.json({ ok: true, data });
   } catch {
@@ -46,6 +50,7 @@ export async function POST(req: NextRequest) {
   }
   const userId = await getSessionUserId().catch(() => null);
   const rule = XP_RULES[kind];
+  await ensureDbTables(); // throws nothing — create the ledger first if missing
   const result = await awardXpSafe({
     deviceId,
     userId,

@@ -7,6 +7,7 @@ import { cleanDeviceId } from "@/lib/validate";
 import { lastNDays, xpDay } from "@/lib/xp";
 import { leagueFor, privacyName, rankSort } from "@/lib/leaderboard";
 import { isNoName } from "@/lib/no-name";
+import { ensureDbTables } from "@/lib/db-bootstrap";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +41,9 @@ export async function GET(req: NextRequest) {
   const weekStart = lastNDays(7, xpDay())[0]!;
 
   try {
+    // Self-migrate first: a pre-phase-5 production DB gains XpEvent here,
+    // so the very first visitor upgrades the DB (never a 500 either way).
+    await ensureDbTables();
     const grouped = await db.xpEvent.groupBy({
       by: ["userId"],
       where: range === "week" ? { day: { gte: weekStart }, userId: { not: null } } : { userId: { not: null } },

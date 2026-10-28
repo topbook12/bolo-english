@@ -9,6 +9,7 @@ import { privacyName } from "@/lib/leaderboard";
 import { isNoName } from "@/lib/no-name";
 import { avatarEmoji } from "@/lib/badges";
 import { blockedDeviceIds } from "@/lib/block-set";
+import { ensureDbTables } from "@/lib/db-bootstrap";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +43,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    await ensureDbTables(); // partnerOptIn column + XpEvent appear on first hit
     const my = await db.userConfig.findFirst({
       where: { userId: user },
       orderBy: { updatedAt: "desc" },

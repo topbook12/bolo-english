@@ -7,6 +7,7 @@ import { cleanDeviceId } from "@/lib/validate";
 import { computeStreaks, DAY_RE } from "@/lib/streak-days";
 import { computeBadges, avatarEmoji, type BadgeProgress } from "@/lib/badges";
 import { lastNDays } from "@/lib/xp";
+import { ensureDbTables } from "@/lib/db-bootstrap";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,10 @@ export async function GET(req: NextRequest) {
   const user = await getSessionUser().catch(() => null);
 
   try {
+    // Pre-phase-5 prod DB self-migrates on this first hit (XpEvent +
+    // SentenceSubmission live here); on DDL failure the catch below keeps
+    // the profile a 503-hide instead of a 500.
+    await ensureDbTables();
     const config = await db.userConfig.findFirst({
       where: user ? { userId: user.id } : { deviceId },
       orderBy: { updatedAt: "desc" },

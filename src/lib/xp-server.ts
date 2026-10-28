@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { ensureDbTables } from "@/lib/db-bootstrap";
 import {
   applyCaps,
   lastNDays,
@@ -83,9 +84,13 @@ export async function awardXp(input: AwardInput): Promise<AwardResult> {
   return { xp: allowed, capped, todayTotal: await daySum(input.deviceId, day) };
 }
 
-/** The wrapper used by API hooks — never let XP break the main activity. */
+/** The wrapper used by API hooks — never let XP break the main activity.
+ *  Also self-migrates: a pre-phase-5 production DB (no XpEvent table) gains
+ *  it on the first award attempt, so quiz/call/lesson XP never silently
+ *  vanishes on a not-yet-migrated Turso. */
 export async function awardXpSafe(input: AwardInput): Promise<AwardResult> {
   try {
+    await ensureDbTables();
     return await awardXp(input);
   } catch {
     return { xp: 0, capped: false, todayTotal: 0 };

@@ -11,6 +11,7 @@ import { checkIpLimit } from "@/lib/rate-limit";
 import { cleanDeviceId } from "@/lib/validate";
 import { isNoName } from "@/lib/no-name";
 import { AVATARS } from "@/lib/badges";
+import { ensureDbTables } from "@/lib/db-bootstrap";
 
 // Display name precedence: account name → custom device name → null (client localizes)
 function resolveName(
@@ -273,6 +274,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, error: apiMsg(locale, "deviceIdRequired") }, { status: 400 });
   }
   try {
+    // Pre-phase-5 prod DB: UserConfig.avatar/partnerOptIn columns are added
+    // here on the first hit (the manual .env.turso migration step is gone).
+    await ensureDbTables();
     const [cfg, user] = await Promise.all([
       resolveConfigRow(deviceId),
       getSessionUser(),
@@ -400,6 +404,7 @@ export async function POST(req: NextRequest) {
 
   try {
     if (Object.keys(update).length > 0) {
+      await ensureDbTables(); // avatar/partnerOptIn columns must exist before the write
       await writeConfig(deviceId, update);
     }
 

@@ -5,6 +5,7 @@ import { reqLocale, apiMsg } from "@/lib/api-i18n";
 import { checkIpLimit } from "@/lib/rate-limit";
 import { cleanDeviceId, cleanStr } from "@/lib/validate";
 import { REACTION_EMOJIS, type ReactionEmoji } from "@/lib/moderation";
+import { ensureDbTables } from "@/lib/db-bootstrap";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +29,7 @@ export async function POST(req: NextRequest) {
   const userId = await getSessionUserId().catch(() => null);
 
   try {
+    await ensureDbTables(); // pre-phase-5 production DB self-migrates here
     const sub = await db.sentenceSubmission.findUnique({
       where: { id: submissionId },
       select: { id: true, deviceId: true, hidden: true },

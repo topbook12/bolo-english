@@ -3845,3 +3845,46 @@ Stage Summary:
 - PHASE 5 (কমিউনিটি ও সোশ্যাল) COMPLETE: unified XP engine, leaderboard+leagues, opt-in partner matching, daily sentence challenge with AI feedback and peer reactions, report/block + admin moderation, and a shareable server-computed profile — all live-verified locally and the new build is on production.
 - One pending owner action: run prod-migrate once so production Turso gains the Phase-5 tables/columns (everything degrades gracefully until then).
 - Next: Phase 6 — business infrastructure D36+ (monetization model decision needed from the owner by D35 → now).
+
+---
+Task ID: D35-fix (post-phase-5)
+Agent: main (Z.ai Code)
+Task: Resolve the pending D35 owner-action — create Phase-5 tables on production Turso WITHOUT .env.turso (self-migrating app)
+
+Work Log:
+- Context: the last owner action ("source .env.turso; bun scripts/prod-migrate.ts") was blocked —
+  the sandbox holds no Turso credentials. But the DEPLOYED app does (Vercel env), so the app itself
+  was made to run the migration on its first visit, following the established db-bootstrap precedent
+  (StorageAccount/TurnKey were rescued the same way pre-D19).
+- src/lib/db-bootstrap.ts extended:
+  • DDL += phase-5 tables + indexes (XpEvent + 4 idx, SentenceSubmission + unique(day) + day idx,
+    SentenceReaction + unique(sub,device) + idx, ContentReport + 2 idx, UserBlock + unique + idx) —
+    mirrors prisma/schema.prisma + scripts/prod-migrate.ts, all IF NOT EXISTS.
+  • COLUMN_MIGRATIONS generalized to {table, column, ddl} += UserConfig.avatar + UserConfig.partnerOptIn
+    (PRAGMA-probed in-place ALTERs).
+  • tablesExist() sentinel probe += XpEvent (a DB with TurnKey but no XpEvent still runs the batch).
+  • NEW ensureIndexes(): checks (name, tbl_name) pairs — a drifted/mis-attached index name is dropped
+    and recreated on the right table (CREATE INDEX IF NOT EXISTS alone only guards the name).
+  • ensureTables() now folds index+column results into a tablesReady flag — retries on partial failure,
+    near-zero cost once healthy (per warm serverless instance).
+- ensureDbTables() wired into every phase-5 surface: /api/xp (GET+POST), /api/leaderboard,
+  /api/challenge (GET+POST), /api/challenge/react, /api/report, /api/block, /api/profile,
+  /api/partners, /api/config (GET+POST), /api/admin/moderation (GET+POST) — plus awardXpSafe()
+  in xp-server so EVERY XP-awarding path (/api/practice, /api/sessions, …) self-heals too.
+  Calls throw nothing → the existing degrade-safe catches stay intact (never a 500).
+- Local self-migration proof (db/custom.db): all 5 phase-5 tables renamed away + avatar/partnerOptIn
+  columns dropped → pre-phase-5 state. First hits on /api/leaderboard|xp|challenge|profile returned
+  ok:true (honest empties) AND recreated all tables + 12/12 indexes + both UserConfig columns; the
+  index-drift case (renamed tables keep their index names) was repaired by ensureIndexes. Restored.
+- tsc 0 / lint 0 / i18n ALL-PARITY-OK. Browser E2E on the migrated-from-scratch DB (agent-browser):
+  registered qa-selfmig@test.local → Community renders Leaderboard + Daily challenge + Partners with
+  ZERO console errors → submitted a sentence → SentenceSubmission row=1, XpEvent {kind:"challenge",
+  xp:12}, UI shows "+12 THIS WEEK" (full write path through the self-migrated tables).
+- ROADMAP-60.md: D35 owner-action note flipped from ⚠️ pending → ✅ resolved-by-code (manual command
+  kept as an optional fallback).
+
+Stage Summary:
+- The phase-5 production migration is no longer an owner action: the first visitor after this deploy
+  upgrades the production Turso schema in place (idempotent, race-safe, degrade-safe). /api/config's
+  pre-migration 503 and the honest-empty community surfaces heal themselves.
+- Next: live verification on https://bolo-english-mu.vercel.app after the Vercel deploy, then Phase 6 (D36+).
