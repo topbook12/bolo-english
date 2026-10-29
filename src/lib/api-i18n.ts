@@ -247,6 +247,26 @@ const M = {
     bn: "অ্যাডমিন অ্যাক্সেস প্রয়োজন।",
     hi: "एडमिन एक्सेस आवश्यक है।",
   },
+  emailNotFound: {
+    en: "No account with this email — ask them to sign up first.",
+    bn: "এই ইমেইলে কোনো অ্যাকাউন্ট নেই — আগে সাইন-আপ করতে বলুন।",
+    hi: "इस ईमेल पर कोई अकाउंट नहीं — पहले साइन-अप करने को कहें।",
+  },
+  planKeyUnknown: {
+    en: "Unknown plan — pick one from the list.",
+    bn: "অজানা প্ল্যান — তালিকা থেকে একটি বেছে নিন।",
+    hi: "अज्ञात प्लान — सूची से एक चुनें।",
+  },
+  grantNotFound: {
+    en: "That grant no longer exists (already revoked?).",
+    bn: "এই গ্র্যান্টটি আর নেই (ইতিমধ্যে বাতিল?)",
+    hi: "वह ग्रांट अब मौजूद नहीं (पहले ही रद्द?)।",
+  },
+  grantInvalidEmail: {
+    en: "Enter a valid email address.",
+    bn: "সঠিক ইমেইল ঠিকানা দিন।",
+    hi: "एक सही ईमेल पता डालें।",
+  },
 
   /* ── storage pool (site owner) ── */
   storageAdminRequired: {

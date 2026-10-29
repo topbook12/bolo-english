@@ -1,0 +1,48 @@
+{
+  "plan": {
+    "title": "Your plan",
+    "subtitle": "What your Bolo English plan includes — right now",
+    "daysLeft": "{n} days left",
+    "freeNote": "All core features stay free forever — nothing here is a paywall. Paid plans only add extras on top.",
+    "comingSoon": "Coming soon",
+    "priceBdt": "৳{n}",
+    "priceSoon": "Price to be announced",
+    "perDays": "{n} days",
+    "feature": {
+      "core_learning": "Core lessons & daily words",
+      "community": "Community & practice partners",
+      "cv_studio": "CV Studio",
+      "platform_ai": "AI speaking partner",
+      "unlimited_analysis": "Unlimited call analysis",
+      "certificate": "Certificates",
+      "priority_support": "Priority support"
+    },
+    "admin": {
+      "title": "Grant console",
+      "subtitle": "Manually hand out Premium plans until payments arrive",
+      "email": "User email",
+      "emailPlaceholder": "student@example.com",
+      "plan": "Plan",
+      "days": "Days",
+      "daysHint": "Leave empty to use the plan's default duration",
+      "note": "Note (optional)",
+      "notePlaceholder": "e.g. beta tester, referral reward…",
+      "grantCta": "Grant plan",
+      "granting": "Granting…",
+      "grantDone": "{plan} granted to {email} ✅",
+      "revoke": "Revoke",
+      "revoking": "Revoking…",
+      "revokeDone": "Grant revoked",
+      "expires": "Until {date}",
+      "neverExpires": "Never expires",
+      "noGrants": "No active grants yet — grant a plan above.",
+      "noPlans": "No active premium plans yet — create one in the plans table first.",
+      "plansHint": "Grants apply instantly — the user sees the new plan on their next visit.",
+      "source_grant": "Manual grant",
+      "source_payment": "Payment",
+      "source_referral": "Referral",
+      "source_admin": "Admin",
+      "failed": "Something went wrong — please try again."
+    }
+  }
+}

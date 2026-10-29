@@ -263,6 +263,35 @@ const DDL: string[] = [
   )`,
   `CREATE UNIQUE INDEX IF NOT EXISTS "UserBlock_deviceId_blockedDeviceId_key" ON "UserBlock"("deviceId", "blockedDeviceId")`,
   `CREATE INDEX IF NOT EXISTS "UserBlock_deviceId_idx" ON "UserBlock"("deviceId")`,
+  // ─── Plan / Entitlement (D36, ROADMAP-60) — mirrors prisma/schema.prisma ───
+  `CREATE TABLE IF NOT EXISTS "Plan" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "key" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "features" TEXT NOT NULL DEFAULT '[]',
+    "durationDays" INTEGER NOT NULL DEFAULT 0,
+    "priceBdt" INTEGER NOT NULL DEFAULT 0,
+    "active" BOOLEAN NOT NULL DEFAULT true,
+    "sortOrder" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "Plan_key_key" ON "Plan"("key" ASC)`,
+  `CREATE TABLE IF NOT EXISTS "Entitlement" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "planKey" TEXT NOT NULL,
+    "source" TEXT NOT NULL DEFAULT 'grant',
+    "note" TEXT NOT NULL DEFAULT '',
+    "grantedBy" TEXT NOT NULL DEFAULT '',
+    "startsAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "expiresAt" DATETIME,
+    "revokedAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS "Entitlement_userId_revokedAt_idx" ON "Entitlement"("userId", "revokedAt")`,
+  `CREATE INDEX IF NOT EXISTS "Entitlement_planKey_idx" ON "Entitlement"("planKey")`,
 ];
 
 /* In-place column migrations for databases created before the learning-path
@@ -313,6 +342,9 @@ async function tablesExist(): Promise<boolean> {
     // Phase-5 sentinel: a DB that predates ROADMAP-60 (no XpEvent) must still
     // run the (idempotent) DDL batch once to gain XP + community tables.
     await db.$queryRawUnsafe(`SELECT 1 FROM "XpEvent" LIMIT 1`);
+    // Phase-6 sentinel (D36): a DB that predates D36 must still run the
+    // (idempotent) DDL batch once to gain Plan/Entitlement.
+    await db.$queryRawUnsafe(`SELECT 1 FROM "Plan" LIMIT 1`);
     return true;
   } catch {
     return false;
@@ -340,6 +372,10 @@ const INDEXES: { name: string; table: string; ddl: string }[] = [
   { name: "ContentReport_targetType_targetId_idx", table: "ContentReport", ddl: `CREATE INDEX "ContentReport_targetType_targetId_idx" ON "ContentReport"("targetType", "targetId")` },
   { name: "UserBlock_deviceId_blockedDeviceId_key", table: "UserBlock", ddl: `CREATE UNIQUE INDEX "UserBlock_deviceId_blockedDeviceId_key" ON "UserBlock"("deviceId", "blockedDeviceId")` },
   { name: "UserBlock_deviceId_idx", table: "UserBlock", ddl: `CREATE INDEX "UserBlock_deviceId_idx" ON "UserBlock"("deviceId")` },
+  // Phase-6 (D36): Plan unique key + Entitlement read indexes.
+  { name: "Plan_key_key", table: "Plan", ddl: `CREATE UNIQUE INDEX "Plan_key_key" ON "Plan"("key" ASC)` },
+  { name: "Entitlement_userId_revokedAt_idx", table: "Entitlement", ddl: `CREATE INDEX "Entitlement_userId_revokedAt_idx" ON "Entitlement"("userId", "revokedAt")` },
+  { name: "Entitlement_planKey_idx", table: "Entitlement", ddl: `CREATE INDEX "Entitlement_planKey_idx" ON "Entitlement"("planKey")` },
 ];
 
 async function ensureIndexes(): Promise<boolean> {

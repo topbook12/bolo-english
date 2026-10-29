@@ -48,6 +48,8 @@ import RatingsAdminCard from "@/components/settings/RatingsAdminCard";
 import RatingOptCard from "@/components/settings/RatingOptCard";
 import ErrorsAdminCard from "@/components/monitor/ErrorsAdminCard";
 import ModerationCard from "@/components/moderation/ModerationCard";
+import PlanCard from "@/components/settings/PlanCard";
+import GrantAdminCard from "@/components/settings/GrantAdminCard";
 import WeeklyDigestCard from "@/components/settings/WeeklyDigestCard";
 import PushCard from "@/components/settings/PushCard";
 import type { UserConfig as ApiUserConfig } from "@/hooks/use-device";
@@ -301,6 +303,10 @@ export default function SettingsSection() {
           </CardContent>
         </Card>
 
+        {/* ── Plan & entitlements (D36): current plan + granted features —
+            visible to everyone; the admin grant console is ADMIN-ONLY ── */}
+        <PlanCard />
+
         {/* ── Language (locked to the account — display only) ── */}
         <Card className="premium-card border-border/70 rounded-2xl bg-card">
           <CardHeader>
@@ -500,6 +506,10 @@ export default function SettingsSection() {
         {/* ── Community moderation queue (D33): reports + auto-flagged
             sentences — ADMIN-ONLY (the API is ALSO fail-closed 403) ── */}
         {isAdmin && <ModerationCard />}
+
+        {/* ── Admin grant console (D36): hand out Premium manually until
+            payments land (D38) — ADMIN-ONLY (the API is ALSO fail-closed 403) ── */}
+        {isAdmin && <GrantAdminCard />}
 
         {/* ── Profile ── */}
         <Card className="premium-card border-border/70 rounded-2xl bg-card">

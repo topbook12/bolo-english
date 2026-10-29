@@ -537,3 +537,45 @@ model CvDocument {
 
   @@index([deviceId])
 }
+
+// ─── Plan / Entitlement (D36, ROADMAP-60) ─────────────────────────────────
+// The plan CATALOG (what each tier grants) + the per-user GRANTS (who has
+// what until when). Model-agnostic by design: the owner's monetization
+// decision (ROADMAP-60 ক/খ) only changes HOW grants are created (D38-39
+// payments vs. referral/admin grants) — hasAccess() never changes.
+// `features` is a JSON string array of FeatureKey values (src/lib/
+// entitlements.ts). priceBdt is DISPLAY-ONLY until payments land (D38).
+// Every signed-in user always has the implicit "free" baseline, so a missing
+// Entitlement row is NORMAL — never an error state.
+model Plan {
+  id           String   @id @default(cuid())
+  key          String   @unique // "free" | "premium" (stable ids, never renamed)
+  name         String // English display name (UI localizes)
+  features     String   @default("[]") // JSON: FeatureKey[]
+  durationDays Int      @default(0) // 0 = never expires
+  priceBdt     Int      @default(0) // display-only; 0 = free
+  active       Boolean  @default(true)
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// One row = one grant. Active = revokedAt null AND (expiresAt null OR in
+// the future). Revocation keeps the row (audit trail); grants are the ONLY
+// source of paid features — deletion never happens (history preserved).
+model Entitlement {
+  id        String    @id @default(cuid())
+  userId    String // User.id (no FK by design: grants outlive nothing)
+  planKey   String // Plan.key (denormalized for fast reads)
+  source    String    @default("grant") // grant | payment | referral | admin (whitelist)
+  note      String    @default("") // owner-facing note, ≤200 chars
+  grantedBy String    @default("") // admin userId (audit)
+  startsAt  DateTime  @default(now())
+  expiresAt DateTime? // null = never expires
+  revokedAt DateTime? // set = revoked (row kept for the audit trail)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([userId, revokedAt])
+  @@index([planKey])
+}
