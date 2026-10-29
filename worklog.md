@@ -3888,3 +3888,73 @@ Stage Summary:
   upgrades the production Turso schema in place (idempotent, race-safe, degrade-safe). /api/config's
   pre-migration 503 and the honest-empty community surfaces heal themselves.
 - Next: live verification on https://bolo-english-mu.vercel.app after the Vercel deploy, then Phase 6 (D36+).
+
+---
+Task ID: D36
+Agent: main (Z.ai Code) + D36-backend (general-purpose) + D36-ui (frontend-styling-expert)
+Task: Phase 6 opener — Entitlement/Plan system (Plan/Entitlement schema + hasAccess(userId, feature) feature-flag middleware; ROADMAP-60.md D36)
+
+Work Log:
+- Delegation per roadmap note (API/data-heavy day → general-purpose backend): D36-backend (schema, DDL,
+  entitlements libs, 2 APIs, api-i18n keys) ran in PARALLEL with D36-ui (PlanCard, GrantAdminCard,
+  SettingsSection wiring, trilingual plan.*.json) against a frozen API contract — zero file overlap.
+- BACKEND (D36-backend):
+  • prisma/schema.prisma += Plan {key unique, name, features JSON, durationDays, priceBdt display-only,
+    active, sortOrder} + Entitlement {userId, planKey denormalized, source grant|payment|referral|admin,
+    note, grantedBy, startsAt, expiresAt, revokedAt (revoke keeps the row — audit trail)} + 2 indexes.
+  • db-bootstrap.ts += phase-6 DDL (CREATE TABLE IF NOT EXISTS Plan/Entitlement + indexes), INDEXES
+    repair list += Plan_key_key + 2 Entitlement indexes, tablesExist() sentinel += "Plan" probe →
+    pre-D36 production Turso self-migrates on first visit (D35 pattern, idempotent, never a 500).
+  • src/lib/entitlements.ts (PURE): 7-feature catalog — free baseline {core_learning, community,
+    cv_studio} + premium {platform_ai, unlimited_analysis, certificate, priority_support};
+    resolveEntitlement() = baseline ∪ active-grant features on active plans; displayed plan = grant
+    with latest expiresAt (null ranks highest); unknown planKeys ignored.
+  • src/lib/entitlements-server.ts ("server-only"): PLAN_SEED (free + premium, create-only seeding —
+    owner edits never overwritten), getUserEntitlements() (DB failure → free baseline, never throws),
+    hasAccess(userId, feature) — the roadmap-named middleware; even on DB failure free-baseline
+    features stay open (platform free forever, no accidental locks). requireFeature() route-guard alias.
+  • GET /api/plan?deviceId= (rate-limited "plan"/60): guest → 200 free baseline; dead DB → honest 503;
+    response {plan, planName, source, expiresAt, daysLeft, features, upgrades[]}.
+  • POST /api/admin/grant (fail-closed isAdminUser → 403): list (plans + active grants w/ batched
+    email join), grant (normalizeEmail, planKey whitelist, days 1–3650 default plan.durationDays,
+    note ≤200, grantedBy=admin id), revoke (revokedAt=now, row kept). All DB paths → 503 never 500.
+  • api-i18n += emailNotFound / planKeyUnknown / grantNotFound / grantInvalidEmail (×3 locales).
+  • bun run db:push: additive-only, in sync; tsc 0 / lint clean; curl E2E: free baseline 200, admin
+    403 gate, grant→premium (7 features, daysLeft:14)→revoke→free, negative paths 400/404 exact.
+  • NOTE: the long-running dev server had the pre-D36 Prisma client cached (db.plan undefined →
+    honest 503s); restarted the SAME single instance on 3000 (dev.log.bak-d36 backup) — all green after.
+- UI (D36-ui):
+  • PlanCard (Settings, everyone): Gem/violet card, fetch on mount+deviceId change, Skeleton loading,
+    return-null honest-hide on 503, Free=emerald / premium=violet badge, localized feature chips
+    (role=list/listitem), "core stays free forever — nothing is a paywall" note, Premium "Coming soon"
+    teaser (price-soon + per-days) with NO button/paywall (D38-39 territory).
+  • GrantAdminCard (ADMIN-ONLY, double gate): Gift/rose card, list on mount (hide on 403/503), grant
+    form (email + plan Select excluding free + days w/ durationDays placeholder + note ≤200), per-row
+    revoke with busy state, max-h-72 nice-scroll grants list (Intl dateStyle medium per locale),
+    dashed noGrants empty state, destructive toasts surfacing localized json.error.
+  • SettingsSection: <PlanCard/> after Account; {isAdmin && <GrantAdminCard/>} after ModerationCard
+    (+10 lines only). messages/sections/plan.{en,bn,hi}.json — 40 keys ×3, ALL-PARITY-OK
+    (key parity + ICU braces + placeholder integrity).
+- Main-agent integration verification:
+  • tsc 0 / lint clean / i18n ALL-PARITY-OK / db:push in sync (git commit af1818c).
+  • Browser E2E (agent-browser): registered QA account → Settings shows PlanCard (Free badge,
+    3 chips "Core lessons & daily words / Community & practice partners / CV Studio", freeNote,
+    Premium teaser) + GrantAdminCard absent for non-admin + console errors 0.
+  • Premium flip in the browser: direct Entitlement row (14d) → reload → plan "Premium", ALL 7 chips,
+    "14 days left", upgrades list auto-hides — full frontend←backend entitlement path proven.
+  • Mobile 390px: card renders, 3 chips, no horizontal scroll; footer sticky pattern (mt-auto) intact.
+  • Console errors after first /api/plan 200: ZERO (the 3 early dev.log lines are the documented
+    pre-restart Prisma-client window).
+- QA cleanup: all 3 test accounts (qa-d36@, qa-d36-m@, d36-admin/learner@) + their rows deleted;
+  sandbox DB pristine (0 test users, 0 test grants, 2 seeded plans). Production Turso untouched.
+
+Stage Summary:
+- PHASE 6 OPENED: the platform now has a real entitlement spine — Plan catalog + per-user grants +
+  hasAccess() feature-flag middleware — with the free baseline structurally un-breakable (DB-down
+  still serves free features; guests get the same answer as free users). Nothing is paywalled:
+  premium surfaces as a calm "Coming soon" teaser until D37 (pricing page) and D38-39 (payments,
+  owner bKash/SSLCommerz dependency). Model-agnostic by design: the owner's ক/খ decision only
+  changes how grants are created, not how access is checked.
+- Self-migrating: first post-deploy visit creates Plan/Entitlement on production Turso (no .env.turso
+  needed — same mechanism as the D35 fix), plans auto-seed create-only.
+- Next: D37 — premium feature surfacing + trilingual pricing page (no-paywall UX).
