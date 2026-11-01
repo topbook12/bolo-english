@@ -1,17 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkIpLimit } from "@/lib/rate-limit";
 import { reqLocale, apiMsg, type ApiLocale } from "@/lib/api-i18n";
-import { GeminiError, geminiText, getUserApiKeyWithMeta } from "@/lib/gemini";
+import { GeminiError } from "@/lib/gemini";
+import { aiStt } from "@/lib/ai-gateway";
 
 // Server speech-to-text fallback (Task 27-m, re-built in Task 29) for browsers
 // WITHOUT the Web Speech API — iPhone Safari has no recognition at all. The
 // call room records a push-to-talk hold with MediaRecorder, transcodes it to
 // WAV client-side (Gemini does not accept audio/webm), base64-encodes it and
-// POSTs it here. The transcription is done by the LEARNER'S OWN Gemini key
-// (BYOK — the same key + key-pool resolution every other AI feature uses, so
-// it works identically on Vercel with zero platform credentials) and lands in
-// the transcript exactly like a recognition final, so captions AND the
-// end-of-call analysis keep working on mobile.
+// POSTs it here. Transcription runs on the LEARNER'S OWN Gemini key first
+// (BYOK — same key-pool resolution as every other AI feature); when that is
+// unavailable (no key / quota / Google down) the platform's Z.ai ASR serves
+// the SAME audio as an automatic backup (aiStt), so mobile captions and the
+// end-of-call analysis never dead-end on a missing key.
 
 export const maxDuration = 60;
 
@@ -87,33 +88,11 @@ export async function POST(req: NextRequest) {
     mime = rawMime.split(";")[0].trim().toLowerCase();
   }
 
-  // BYOK: the learner's own key (single key or pool, cooldown-aware) — the
-  // exact resolution every other AI feature uses. Missing key → localized
-  // "set your key" guidance, not a server error.
-  let apiKey: string;
+  // aiStt: the learner's Gemini key (single or pool) first, then the
+  // platform's ASR as the automatic backup — missing key is NOT an error
+  // anymore. Both paths use the same "#" silence sentinel.
   try {
-    apiKey = (await getUserApiKeyWithMeta(deviceId)).apiKey;
-  } catch (e) {
-    return jsonErr(geminiErrMsg(locale, e), e instanceof GeminiError ? e.status : 400);
-  }
-
-  try {
-    const text = (
-      await geminiText(
-        apiKey,
-        [
-          "Transcribe the speech in this audio recording EXACTLY as spoken.",
-          "The speaker may speak English (or mix in a little of their own language) — write what is actually said.",
-          "Reply with ONLY the transcription text on a single line — no labels, no quotes, no commentary.",
-          "If the audio is silent, noise-only or unintelligible, reply with exactly: #",
-        ].join(" "),
-        {
-          temperature: 0,
-          audio: { data: audio, mime },
-          label: "stt",
-        }
-      )
-    ).trim();
+    const text = (await aiStt(deviceId, audio, mime, "stt")).trim();
 
     const clean = text === "#" ? "" : text.replace(/^["'\s]+|["'\s]+$/g, "").slice(0, 4000);
     return jsonOk({ text: clean });

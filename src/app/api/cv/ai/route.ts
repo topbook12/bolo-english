@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { reqLocale, apiMsg } from "@/lib/api-i18n";
 import { cleanDeviceId, cleanStr } from "@/lib/validate";
 import { checkIpLimit, hitLimit } from "@/lib/rate-limit";
-import { GeminiError, geminiJson, geminiText, getUserApiKeyWithMeta } from "@/lib/gemini";
+import { GeminiError } from "@/lib/gemini";
+import { aiJson, aiText } from "@/lib/ai-gateway";
 
 // ─── CV Studio AI assist (BYOK) ─────────────────────────────────────────────
 // POST { deviceId, mode, ... }
@@ -146,7 +147,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: apiMsg(locale, "deviceIdRequired") }, { status: 400 });
 
   try {
-    const apiKey = (await getUserApiKeyWithMeta(deviceId)).apiKey;
+    // aiJson/aiText = BYOK Gemini primary + the platform's Z.ai AI as an
+    // automatic provider-level backup — CV tools work without a key too.
 
     if (body?.mode === "extract") {
       const text = cleanStr(body?.text, 12_000);
@@ -175,7 +177,7 @@ ${text}
 
 Return ONLY raw JSON — no markdown fences, no commentary before or after.`;
 
-      const parsed = await geminiJson<unknown>(apiKey, prompt, { temperature: 0.2, label: "cv-extract" });
+      const parsed = await aiJson<unknown>(deviceId, prompt, { temperature: 0.2, label: "cv-extract" });
       const clean = sanitizeAiContent(parsed);
       if (!clean)
         return NextResponse.json({ ok: false, error: apiMsg(locale, "badFormat") }, { status: 502 });
@@ -188,8 +190,8 @@ Return ONLY raw JSON — no markdown fences, no commentary before or after.`;
         return NextResponse.json({ ok: false, error: apiMsg(locale, "cvTextRequired") }, { status: 400 });
       const kind = body?.kind === "bullet" ? "bullet" : "summary";
       const lang = ["bn", "en", "hi"].includes(body?.lang) ? body.lang : "bn";
-      const out = await geminiText(
-        apiKey,
+      const out = await aiText(
+        deviceId,
         `You are a senior CV writer for the Bangladeshi job market. Rewrite this ${kind === "summary" ? "CV professional summary" : "CV experience bullet"} in ${lang === "bn" ? "natural professional Bengali" : lang === "en" ? "clear professional English" : "natural professional Hindi"}.
 Keep EVERY fact exactly as given — never invent numbers, tools, employers or achievements; quantify only with facts already present.
 Style: concise and achievement-oriented — start with a strong action verb (led, managed, organized, improved), replace weak filler ("responsible for" → "managed"), no first-person pronouns, no emojis, no quotes.

@@ -9,7 +9,8 @@ import { reqLocale, apiMsg, type ApiLocale } from "@/lib/api-i18n";
 import { scenarioById, withName } from "@/lib/scenarios";
 import { simSetById } from "@/lib/simulator-bank";
 import { writingTaskById } from "@/lib/writing-bank";
-import { GeminiError, geminiJson, getAiLevel, getUserName, getUserApiKeyWithMeta } from "@/lib/gemini";
+import { GeminiError, getAiLevel, getUserName } from "@/lib/gemini";
+import { aiJson } from "@/lib/ai-gateway";
 import { pruneAiCache } from "@/lib/ai-cache-prune";
 import { xpDay } from "@/lib/xp";
 import type {
@@ -117,7 +118,7 @@ function geminiErrMsg(locale: ApiLocale, e: unknown): string {
 async function cachedJson<T>(
   feature: string,
   cacheKey: string,
-  apiKey: string,
+  deviceId: string,
   prompt: string,
   temperature = 0.6,
   opts: { maxOutputTokens?: number } = {}
@@ -128,7 +129,9 @@ async function cachedJson<T>(
   if (hit) return JSON.parse(hit.response) as T;
   // Per-feature output cap + label for token accounting. Capped budgets keep
   // long answers from truncating mid-JSON while preventing runaway replies.
-  const data = await geminiJson<T>(apiKey, prompt, { temperature, label: feature, ...opts });
+  // aiJson = BYOK Gemini primary with the platform's Z.ai AI as the automatic
+  // provider-level backup (no key / quota / Google down → still answers).
+  const data = await aiJson<T>(deviceId, prompt, { temperature, label: feature, ...opts });
   await db.aiCache
     .create({ data: { feature, cacheKey, response: JSON.stringify(data) } })
     .catch(() => null);
@@ -419,12 +422,9 @@ export async function POST(req: NextRequest) {
   // Explanation language follows the UI locale (en default, bn/hi optional)
   const lang = LANG_POLICY[locale] ?? DEFAULT_POLICY;
 
-  let apiKey: string;
-  try {
-    apiKey = (await getUserApiKeyWithMeta(deviceId)).apiKey;
-  } catch (e) {
-    return jsonErr(geminiErrMsg(locale, e), (e as GeminiError).status ?? 400);
-  }
+  // NOTE: no early key gate here — aiJson falls back to the platform's Z.ai
+  // AI when no usable Gemini key exists, so guests without a key still get
+  // every feature. Provider failures surface through the main catch below.
   const userLevel = await getAiLevel(deviceId);
   const userName = await getUserName(deviceId);
 
@@ -437,7 +437,7 @@ export async function POST(req: NextRequest) {
         const data = await cachedJson<GrammarLessonContent>(
           "grammar-lesson",
           `${topic}::${level}::${locale}`,
-          apiKey,
+          deviceId,
           `You are a patient, encouraging English grammar teacher for Bengali- and Hindi-speaking school students. ${levelRule(level)}.
 TASK: Teach the grammar topic "${topic}" as one structured lesson. ${lang.rule}
 QUALITY: explanations of 1-3 short sentences, grounded in ${SCENARIOS}; every example grammatically correct; each "wrong"/"right" pair differs ONLY by the grammar point being taught; never repeat an example sentence; warm tone, never condescending.
@@ -468,7 +468,7 @@ Rules: 3-4 "sections" progressing easy → harder, each with 2-3 examples; examp
         const data = await cachedJson<QuizQuestion[]>(
           "grammar-quiz",
           `${topic}::${level}::${count}::${locale}`,
-          apiKey,
+          deviceId,
           `You are an encouraging English quiz master for school students. ${levelRule(level)}.
 TASK: Write ${count} multiple-choice questions that each test the grammar topic "${topic}" from a different angle. ${lang.rule}
 QUALITY: questions, options and sentences in ENGLISH; exactly 4 options per question with ONE unambiguously correct answer; distractors are typical learner mistakes for "${topic}" — plausible but clearly wrong; contexts vary across ${SCENARIOS}; no two questions reuse the same sentence; "explanation" = 1-2 short sentences ${lang.short} on why the answer is correct (and why the tempting distractor is not).
@@ -487,7 +487,7 @@ Return STRICT JSON array, exactly this shape per item:
         const data = await cachedJson<ListeningStoryContent>(
           "listening-story",
           `${topic}::${level}::${locale}`,
-          apiKey,
+          deviceId,
           `You are a warm storyteller-teacher writing English listening practice for Bengali- and Hindi-speaking students. ${levelRule(level)}.
 TASK: Write ONE original short English story about "${topic}" plus comprehension questions. ${lang.rule}
 QUALITY: 4-6 story paragraphs of 2-4 short natural sentences each with a clear beginning-middle-end; characters use everyday names; settings come from ${SCENARIOS}; vocabulary obeys the level rule — gloss any harder word inline in simpler words; no sentence appears twice; each question tests a DIFFERENT paragraph or detail; options plausible with exactly one correct.
@@ -512,7 +512,7 @@ Exactly 5 comprehension questions; "answer" = 0-based index. ${JSON_ONLY}`,
         const data = await cachedJson<GrammarLessonContent>(
           "grammar-lesson",
           `${topic}::${level}::${locale}`,
-          apiKey,
+          deviceId,
           `You are a patient, encouraging English grammar teacher for Bengali- and Hindi-speaking school students. ${levelRule(level)}.
 TASK: Teach the grammar topic "${topic}" as one structured lesson. ${lang.rule}
 QUALITY: explanations of 1-3 short sentences, grounded in ${SCENARIOS}; every example grammatically correct; each "wrong"/"right" pair differs ONLY by the grammar point being taught; never repeat an example sentence; warm tone, never condescending.
@@ -544,7 +544,7 @@ Rules: 3-4 "sections" progressing easy → harder, each with 2-3 examples; examp
         const data = await cachedJson<QuizQuestion[]>(
           "grammar-quiz",
           `${topic}::${level}::${count}::${locale}`,
-          apiKey,
+          deviceId,
           `You are an encouraging English quiz master for school students. ${levelRule(level)}.
 TASK: Write ${count} multiple-choice questions that each test the grammar topic "${topic}" from a different angle. ${lang.rule}
 QUALITY: questions, options and sentences in ENGLISH; exactly 4 options per question with ONE unambiguously correct answer; distractors are typical learner mistakes for "${topic}" — plausible but clearly wrong; contexts vary across ${SCENARIOS}; no two questions reuse the same sentence; "explanation" = 1-2 short sentences ${lang.short} on why the answer is correct (and why the tempting distractor is not).
@@ -564,7 +564,7 @@ Return STRICT JSON array, exactly this shape per item:
         const data = await cachedJson<ListeningStoryContent>(
           "listening-story",
           `${topic}::${level}::${locale}`,
-          apiKey,
+          deviceId,
           `You are a warm storyteller-teacher writing English listening practice for Bengali- and Hindi-speaking students. ${levelRule(level)}.
 TASK: Write ONE original short English story about "${topic}" plus comprehension questions. ${lang.rule}
 QUALITY: 4-6 story paragraphs of 2-4 short natural sentences each with a clear beginning-middle-end; characters use everyday names; settings come from ${SCENARIOS}; vocabulary obeys the level rule — gloss any harder word inline in simpler words; no sentence appears twice; each question tests a DIFFERENT paragraph or detail; options plausible with exactly one correct.
@@ -593,7 +593,7 @@ Exactly 5 comprehension questions; "answer" = 0-based index. ${JSON_ONLY}`,
         const data = await cachedJson<DailyWord>(
           "vocab-lookup",
           `${word.toLowerCase()}::${userLevel}::${locale}`,
-          apiKey,
+          deviceId,
           `You are a friendly vocabulary coach for Bengali- and Hindi-speaking English learners. ${levelRule(userLevel)}.
 TASK: Explain the English word "${word}" so a ${userLevel} learner understands it and can use it the same day. ${lang.rule}
 QUALITY: "partOfSpeech" = its most common use (noun/verb/adjective/adverb/phrase); "englishMeaning" = 1-2 simple sentences; "banglaMeaning" = the natural equivalent ${lang.short} (add a short sense note if the word has several meanings); the two example sentences are ORIGINAL everyday sentences from ${SCENARIOS} that obey the level rule — not dictionary clichés; "usageTip" = 1-2 short sentences ${lang.short} on when/how to use it and one common wrong use to avoid.
@@ -617,7 +617,7 @@ If "${word}" is not a real English word, still return the JSON but set "word": "
         const data = await cachedJson<QuizQuestion[]>(
           "vocab-quiz",
           `${wordKey}::${locale}`,
-          apiKey,
+          deviceId,
           `You are a playful English vocabulary quiz master for school students.
 TASK: Write a 6-question multiple-choice quiz that tests EXACTLY these words: ${words.join(", ")}. ${lang.rule}
 QUALITY: mix the question types — 2 fill-in-the-blank, 2 meaning-match, 2 correct-usage-in-context; every listed word is tested at least once; questions, options and sentences in ENGLISH; exactly 4 options per question with ONE clearly correct answer; distractors are plausible but obviously wrong to anyone who knows the word; contexts come from ${SCENARIOS}; no two questions share a sentence pattern; "explanation" = 1-2 short sentences ${lang.short}.
@@ -642,8 +642,8 @@ Return STRICT JSON array:
         const persona = scen
           ? `SCENE: ${withName(scen.role, userName)}\nThe learner's mission: ${scen.mission.en}\nRULES: Always stay in character as the role above — never mention being an AI, never break the scene. Keep replies to 1-3 spoken sentences and move the SCENE forward (the learner has a mission to complete).\n`
           : "";
-        const data = await geminiJson<ChatPartnerReply>(
-          apiKey,
+        const data = await aiJson<ChatPartnerReply>(
+          deviceId,
           `You are "Raha", a warm, encouraging English conversation partner for ${userName}, an English learner at ${userLevel} level. ${levelRule(userLevel)}.
 ${persona}Topic: ${topic}. ${lang.rule}
 TASK: React to the user's LAST message so the conversation keeps flowing — acknowledge what they said, gently fix their recent English mistakes, then invite them to say more.
@@ -666,13 +666,13 @@ ${JSON_ONLY}`,
           return jsonErr("scenario_unknown", 400);
         }
         const history = Array.isArray(payload.history) ? payload.history.slice(-20) : [];
-        const data = await geminiJson<{
+        const data = await aiJson<{
           goalAchieved: boolean;
           score: number;
           strengths: string;
           improvements: string;
         }>(
-          apiKey,
+          deviceId,
           `You are Raha, an encouraging English coach reviewing a finished ROLEPLAY for ${userName} (${userLevel} level). ${levelRule(userLevel)}.
 Scenario: ${withName(scen.role, userName)}
 The learner's mission was: ${scen.mission.en}
@@ -723,13 +723,13 @@ ${JSON_ONLY}`,
           drillPart === "full"
             ? `The full exam set: "${set.title}" — Part 1 interview, Part 2 long turn ("${set.part2.topic}"), Part 3 discussion.`
             : `A ${drillPart.toUpperCase()} PRACTICE DRILL drawn from the set "${set.title}" (only one part was attempted — grade THAT part alone, say it was a part drill in the summary).`;
-        const data = await geminiJson<{
+        const data = await aiJson<{
           overallBand: number;
           bands: { fluency: number; lexical: number; grammar: number };
           summary: string;
           topTip: string;
         }>(
-          apiKey,
+          deviceId,
           `${persona}
 ${scope}
 Answers in order (JSON; "kind" marks the part; answers may be STT transcripts — treat punctuation/case noise kindly):
@@ -754,7 +754,7 @@ ${JSON_ONLY}`,
         const data = await cachedJson<{ sentences: { en: string; note: string }[] }>(
           "vocab-example",
           `${word.toLowerCase()}|${userLevel}`,
-          apiKey,
+          deviceId,
           `You are a friendly English teacher writing example sentences for ${userName} (${userLevel} level). ${levelRule(userLevel)}
 WORD: "${word}"
 TASK: write exactly 3 NEW, natural, everyday example sentences that USE the word — each one a DIFFERENT real-life situation (home, work/study, out in the world). Match ${userName}'s level: useful and natural, never textbook-stiff. For each sentence add "note": a one-line ${lang.short} gloss of the sentence.
@@ -797,7 +797,7 @@ ${JSON_ONLY}`,
         }>(
           "word-lookup",
           `${word.toLowerCase()}|${userLevel}`,
-          apiKey,
+          deviceId,
           `You are a bilingual English teacher building a wordbook entry for ${userName} (${userLevel} level). ${levelRule(userLevel)}
 WORD: "${word}"
 TASK: fill a DailyWord entry. "pronunciation" = Bangla-friendly phonetic respelling (e.g. "রিলাক্স (রি-লাক্স)"); "partOfSpeech" = noun|verb|adjective|adverb|phrase; "banglaMeaning" = meaning in BANGLA (short); "englishMeaning" = simple English meaning (one line); "examples" = exactly 2 short natural English sentences using the word; "usageTip" = one-line ${lang.short} tip on when/how to use it in real life.
@@ -858,8 +858,8 @@ ${JSON_ONLY}`,
         // `userLines` array (~500-1,000 duplicated tokens per analysis,
         // doubled by retries). The dialogue's who-markers carry the same
         // information — the separate block is gone.
-        const rawAnalysis = await geminiJson<unknown>(
-          apiKey,
+        const rawAnalysis = await aiJson<unknown>(
+          deviceId,
           `You are a senior, encouraging English communication coach for Bengali- and Hindi-speaking students, doing a DEEP post-call analysis of a real conversation (video call, ${Math.round(durationSec / 60)} min, ${partnerCount} participant(s)). ${levelRule(userLevel)}
 Learner: ${userName}.
 
@@ -923,8 +923,8 @@ Return ONLY the JSON.`,
         const sentence = cleanStr(payload.sentence, 300);
         if (!sentence) return jsonErr(apiMsg(locale, "sentenceRequired"), 400);
         const meaning = cleanStr(payload.meaning, 200);
-        const data = await geminiJson<SentenceCheckResult>(
-          apiKey,
+        const data = await aiJson<SentenceCheckResult>(
+          deviceId,
           `You are a patient, encouraging English teacher checking a ${userLevel} learner's sentence. ${levelRule(userLevel)}
 The learner wrote a sentence using the word "${word}"${meaning ? ` (word meaning: ${meaning})` : ""}.
 Their sentence: "${sentence}"
@@ -960,7 +960,7 @@ Be encouraging, never harsh. ${JSON_ONLY}`,
         const data = await cachedJson<ContentAnswer>(
           "content-ask",
           `${title}::${ctxHash}::${question.toLowerCase()}::${locale}`,
-          apiKey,
+          deviceId,
           `You are a friendly, knowledgeable English teacher on a learning site for Bengali- and Hindi-speaking students. ${lang.rule}
 A learner is reading this stored content:
 Title: ${title || "(library content)"}
@@ -999,7 +999,7 @@ ${JSON_ONLY}`,
         }>(
           "challenge-feedback",
           `${textHash}|${userLevel}|${locale}`,
-          apiKey,
+          deviceId,
           `You are a warm, encouraging English teacher grading a daily writing challenge for ${userName} (${userLevel} level). ${lang.rule}
 TODAY'S PROMPT: "${promptEn}"
 THE LEARNER'S ANSWER (English): "${text}"
@@ -1064,7 +1064,7 @@ ${JSON_ONLY}`,
         }>(
           "writing-feedback",
           `${textHash}|${userLevel}|${locale}`,
-          apiKey,
+          deviceId,
           `You are an experienced, encouraging English writing examiner grading ${userName} (${userLevel} level) on ${kindLabel}. ${levelRule(userLevel)}
 TASK GIVEN TO THE LEARNER: "${task.prompt}"
 Guidance they saw: "${task.guide}" (aim was ~${task.minWords} words)

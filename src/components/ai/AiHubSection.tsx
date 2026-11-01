@@ -44,6 +44,7 @@ type StatusData = {
   keyPreview: string | null;
   unreadable: boolean;
   pool?: PoolSummary | null;
+  backup?: { available: boolean; name: string } | null;
 };
 
 type ProbeData = {
@@ -52,6 +53,12 @@ type ProbeData = {
   model?: string;
   models?: string[];
   code?: string;
+  message?: string;
+};
+
+type ZaiProbeData = {
+  ok: boolean;
+  latencyMs: number;
   message?: string;
 };
 
@@ -114,6 +121,7 @@ export default function AiHubSection({ onNavigate }: { onNavigate: (tab: TabId) 
   const [status, setStatus] = useState<StatusData | null>(null);
   const [statusErr, setStatusErr] = useState(false);
   const [probe, setProbe] = useState<ProbeData | null>(null);
+  const [zaiProbe, setZaiProbe] = useState<ZaiProbeData | null>(null);
   const [probing, setProbing] = useState(false);
   const [usage, setUsage] = useState<UsageData | null>(null);
   const [usageErr, setUsageErr] = useState(false);
@@ -161,18 +169,24 @@ export default function AiHubSection({ onNavigate }: { onNavigate: (tab: TabId) 
     if (!deviceId || probing) return;
     setProbing(true);
     setProbe(null);
+    setZaiProbe(null);
     try {
-      const res = await fetch(
-        `/api/ai/status?deviceId=${encodeURIComponent(deviceId)}&probe=1`,
-        { cache: "no-store" }
-      );
+      const params = new URLSearchParams({ deviceId, probeBackup: "1" });
+      // Gemini probe spends the user's quota — only when a key exists. The
+      // backup probe always runs, so keyless users can still test their AI.
+      if (status?.hasKey) params.set("probe", "1");
+      const res = await fetch(`/api/ai/status?${params.toString()}`, { cache: "no-store" });
       const json = await res.json().catch(() => null);
-      if (json?.ok && json.data?.probe) setProbe(json.data.probe as ProbeData);
-      else setProbe({ ok: false, latencyMs: 0, message: t("errors.loadFailed") });
+      const data = json?.ok && json.data ? json.data : null;
+      if (data?.probe) setProbe(data.probe as ProbeData);
+      else if (status?.hasKey) setProbe({ ok: false, latencyMs: 0, message: t("errors.loadFailed") });
+      if (data?.backupProbe) setZaiProbe(data.backupProbe as ZaiProbeData);
+      else setZaiProbe({ ok: false, latencyMs: 0, message: t("errors.loadFailed") });
       // Pool health may have changed after a probe (cooldown writes) — refresh.
       void loadStatus();
     } catch {
-      setProbe({ ok: false, latencyMs: 0, message: t("errors.loadFailed") });
+      if (status?.hasKey) setProbe({ ok: false, latencyMs: 0, message: t("errors.loadFailed") });
+      setZaiProbe({ ok: false, latencyMs: 0, message: t("errors.loadFailed") });
     } finally {
       setProbing(false);
     }
@@ -261,7 +275,16 @@ export default function AiHubSection({ onNavigate }: { onNavigate: (tab: TabId) 
                       <ShieldAlert className="h-3.5 w-3.5" /> {t("conn.unreadable")}
                     </span>
                   )}
+                  {status.backup?.available && (
+                    <Badge className="gap-1.5 bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300">
+                      <ShieldCheck className="h-3.5 w-3.5" />
+                      {t("conn.backupOn", { name: status.backup.name })}
+                    </Badge>
+                  )}
                 </div>
+                {status.backup?.available && (
+                  <p className="text-xs leading-relaxed text-muted-foreground">{t("conn.backupHint")}</p>
+                )}
 
                 {/* পুল সারসংক্ষেপ (লগইন ইউজার) */}
                 {status.pool && status.pool.total > 0 && (
@@ -285,7 +308,7 @@ export default function AiHubSection({ onNavigate }: { onNavigate: (tab: TabId) 
                   <div className="flex flex-wrap items-center gap-2.5">
                     <Button
                       onClick={runProbe}
-                      disabled={probing || !status.hasKey}
+                      disabled={probing}
                       className="min-h-11 gap-1.5 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-md shadow-violet-500/25 hover:from-violet-600 hover:to-purple-700 sm:min-h-10"
                     >
                       {probing ? (
@@ -351,6 +374,36 @@ export default function AiHubSection({ onNavigate }: { onNavigate: (tab: TabId) 
                             ))}
                           </div>
                         </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* ব্যাকআপ AI প্রোব ফলাফল */}
+                  {zaiProbe && (
+                    <div
+                      className={`mt-3 flex flex-wrap items-center gap-2 rounded-lg border p-3 ${
+                        zaiProbe.ok
+                          ? "border-teal-300/70 bg-teal-50/70 dark:border-teal-800 dark:bg-teal-950/40"
+                          : "border-destructive/40 bg-destructive/5"
+                      }`}
+                      role="status"
+                    >
+                      {zaiProbe.ok ? (
+                        <Badge className="gap-1 bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300">
+                          <ShieldCheck className="h-3.5 w-3.5" /> {t("conn.backupProbeOk")}
+                        </Badge>
+                      ) : (
+                        <Badge variant="destructive" className="gap-1">
+                          <ShieldAlert className="h-3.5 w-3.5" /> {t("conn.backupProbeFail")}
+                        </Badge>
+                      )}
+                      {zaiProbe.ok && (
+                        <span className="text-xs font-medium text-foreground/80">
+                          {t("conn.latency")}: <strong className="font-mono">{zaiProbe.latencyMs} ms</strong>
+                        </span>
+                      )}
+                      {!zaiProbe.ok && zaiProbe.message && (
+                        <p className="text-xs leading-relaxed text-muted-foreground">{zaiProbe.message}</p>
                       )}
                     </div>
                   )}

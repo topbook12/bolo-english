@@ -24,8 +24,12 @@
       "model": "Answered by",
       "models": "Models available to your key",
       "probeHint": "The test sends one tiny request to Google — results in seconds.",
-      "noKeyHint": "Add a Gemini API Key in the card below to unlock every AI feature.",
-      "getFreeKey": "Get a free key (AI Studio)"
+      "noKeyHint": "Every AI feature already runs on the backup AI without a key — adding your own Gemini API Key in the card below still makes it faster and fully self-managed.",
+      "getFreeKey": "Get a free key (AI Studio)",
+      "backupOn": "Backup AI on · {name}",
+      "backupHint": "If your Gemini key is missing, invalid or out of quota, AI calls automatically run on the backup AI — no feature ever stops.",
+      "backupProbeOk": "Backup AI ready",
+      "backupProbeFail": "Backup AI failed"
     },
     "usage": {
       "title": "AI usage",

@@ -416,7 +416,9 @@ function tryParse(s: string): unknown {
   }
 }
 
-function extractAndParseJson<T>(text: string): T {
+/** Layered JSON extraction & repair — shared with the Z.ai backup adapter
+ * (src/lib/zai.ts) so both providers honor the exact same parsing contract. */
+export function extractAndParseJson<T>(text: string): T {
   let raw = text.trim();
   // Strip any accidental BOM/zero-width chars the model may echo back
   raw = raw.replace(/[\u200B-\u200D\u2060\uFEFF]/g, "");
