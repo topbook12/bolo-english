@@ -1,0 +1,73 @@
+{
+  "aiHub": {
+    "title": "AI Hub",
+    "subtitle": "AI connection, API keys & usage — all in one place",
+    "conn": {
+      "title": "Connection status",
+      "desc": "See how ready AI is with your Gemini key — run a live check.",
+      "active": "AI connection active",
+      "noKey": "No key added yet",
+      "keyLabel": "Active key",
+      "source": "Source",
+      "sourcePool": "Key pool · auto-rotation",
+      "sourceLegacy": "Single key",
+      "unreadable": "Saved key can't be read — re-save it in the card below",
+      "poolTotal": "Total keys",
+      "poolHealthy": "Ready",
+      "poolCooldown": "Cooling down",
+      "poolFailures": "Failures",
+      "probe": "Test connection",
+      "probing": "Testing…",
+      "probeOk": "Connection OK",
+      "probeFail": "Connection failed",
+      "latency": "Response time",
+      "model": "Answered by",
+      "models": "Models available to your key",
+      "probeHint": "The test sends one tiny request to Google — results in seconds.",
+      "noKeyHint": "Add a Gemini API Key in the card below to unlock every AI feature.",
+      "getFreeKey": "Get a free key (AI Studio)"
+    },
+    "usage": {
+      "title": "AI usage",
+      "desc": "Which AI features you've used and how often — your data only.",
+      "days7": "7 days",
+      "days30": "30 days",
+      "total": "Total AI calls",
+      "calls": "calls",
+      "empty": "No AI calls yet — use any AI feature and your stats will start building here.",
+      "top": "Most used",
+      "byDay": "By day"
+    },
+    "dir": {
+      "title": "AI feature directory",
+      "desc": "Every AI-powered feature on the platform — open with one tap.",
+      "launch": "Open",
+      "used": "{n} uses"
+    },
+    "keys": {
+      "title": "API key management",
+      "desc": "Add multiple keys and the app rotates automatically when a quota runs out — practice never stops."
+    },
+    "privacy": "Your key is AES-256-GCM encrypted and never returns to the browser — AI calls are always proxied through the server.",
+    "errors": {
+      "loadFailed": "Couldn't load the status — please try again."
+    },
+    "features": {
+      "grammar-lesson": "Grammar lesson",
+      "grammar-quiz": "Grammar quiz",
+      "listening-story": "Listening story",
+      "vocab-lookup": "Word lookup",
+      "vocab-quiz": "Vocab quiz",
+      "vocab-example": "Example sentence",
+      "word-lookup": "Word check",
+      "chat-partner": "AI chat partner",
+      "scenario-feedback": "Scenario feedback",
+      "simulator-feedback": "Simulator feedback",
+      "call-analysis": "Call analysis",
+      "sentence-check": "Sentence check",
+      "writing-feedback": "Writing feedback",
+      "content-ask": "Content Q&A",
+      "challenge-feedback": "Challenge feedback"
+    }
+  }
+}

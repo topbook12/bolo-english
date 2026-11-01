@@ -69,7 +69,9 @@
     "communityDesc": "Leaderboard, partners & challenges",
     "cvDesc": "Auto-build your CV",
     "writing": "Writing",
-    "writingDesc": "Essays & emails with AI feedback"
+    "writingDesc": "Essays & emails with AI feedback",
+    "aiHub": "AI Hub",
+    "aiHubDesc": "Connection, keys & usage"
   },
   "locale": {
     "switch": "Change language",

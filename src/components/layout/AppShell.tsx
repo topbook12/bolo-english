@@ -18,6 +18,7 @@ import {
   FileUser,
   Users,
   PenLine,
+  Bot,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -34,6 +35,7 @@ import { useDeviceInit, useDeviceValue } from "@/hooks/use-device";
 import { useSectionTracking, useSessionTracking } from "@/hooks/use-track";
 import { markActivityDay } from "@/lib/streak";
 import HomeSection from "@/components/sections/HomeSection";
+import AiHubSection from "@/components/ai/AiHubSection";
 import PathSection from "@/components/path/PathSection";
 import SpeakingSection from "@/components/sections/SpeakingSection";
 import GrammarSection from "@/components/sections/GrammarSection";
@@ -48,6 +50,7 @@ import SettingsSection from "@/components/sections/SettingsSection";
 
 export type TabId =
   | "home"
+  | "ai"
   | "path"
   | "speaking"
   | "grammar"
@@ -69,6 +72,7 @@ export const TABS: {
   descKey: string;
 }[] = [
   { id: "home", labelKey: "home", icon: Home, descKey: "homeDesc" },
+  { id: "ai", labelKey: "aiHub", icon: Bot, descKey: "aiHubDesc" },
   { id: "path", labelKey: "path", icon: Route, descKey: "pathDesc" },
   { id: "speaking", labelKey: "speaking", icon: MessagesSquare, descKey: "speakingDesc" },
   { id: "grammar", labelKey: "grammar", icon: BookOpenText, descKey: "grammarDesc" },
@@ -83,7 +87,7 @@ export const TABS: {
 ];
 
 const BOTTOM_TABS: TabId[] = ["home", "speaking", "grammar", "reading"];
-const MORE_TABS: TabId[] = ["path", "listening", "writing", "vocab", "cv", "community", "progress", "settings"];
+const MORE_TABS: TabId[] = ["ai", "path", "listening", "writing", "vocab", "cv", "community", "progress", "settings"];
 
 // ─── Bolo Spectrum module accents ───
 // Color = identity: each module owns one warm gradient that repeats in its
@@ -93,6 +97,7 @@ const MORE_TABS: TabId[] = ["path", "listening", "writing", "vocab", "cv", "comm
 //   violet = AI/utility (settings)
 const TINT_ACTIVE: Record<TabId, string> = {
   home: "from-emerald-500 to-teal-600",
+  ai: "from-violet-500 to-purple-600",
   path: "from-teal-500 to-emerald-600",
   speaking: "from-rose-500 to-pink-600",
   grammar: "from-orange-500 to-amber-600",
@@ -108,6 +113,7 @@ const TINT_ACTIVE: Record<TabId, string> = {
 
 const TINT_TEXT: Record<TabId, string> = {
   home: "text-emerald-600 dark:text-emerald-400",
+  ai: "text-violet-600 dark:text-violet-400",
   path: "text-teal-600 dark:text-teal-400",
   speaking: "text-rose-600 dark:text-rose-400",
   grammar: "text-orange-600 dark:text-orange-400",
@@ -123,6 +129,7 @@ const TINT_TEXT: Record<TabId, string> = {
 
 const TINT_SOFT: Record<TabId, string> = {
   home: "bg-emerald-100/80 dark:bg-emerald-900/40",
+  ai: "bg-violet-100/80 dark:bg-violet-900/40",
   path: "bg-teal-100/80 dark:bg-teal-900/40",
   speaking: "bg-rose-100/80 dark:bg-rose-900/40",
   grammar: "bg-orange-100/80 dark:bg-orange-900/40",
@@ -179,6 +186,8 @@ export default function AppShell() {
     switch (tab) {
       case "home":
         return <HomeSection onNavigate={setTab} />;
+      case "ai":
+        return <AiHubSection onNavigate={setTab} />;
       case "path":
         return <PathSection onNavigate={setTab} />;
       case "speaking":
@@ -291,7 +300,7 @@ export default function AppShell() {
                 size="sm"
                 variant="outline"
                 className="h-11 gap-1.5 border-amber-500/60 text-amber-700 hover:bg-amber-50 sm:h-9 dark:text-amber-400 dark:hover:bg-amber-950"
-                onClick={() => setTab("settings")}
+                onClick={() => setTab("ai")}
               >
                 <KeyRound className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">{t("nav.addKey")}</span>
@@ -299,9 +308,17 @@ export default function AppShell() {
               </Button>
             )}
             {loaded && hasKey && (
-              <Badge variant="secondary" className="gap-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                <KeyRound className="h-3 w-3" /> {t("nav.aiActive")}
-              </Badge>
+              <button
+                type="button"
+                onClick={() => setTab("ai")}
+                className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label={t("nav.aiHub")}
+                title={t("nav.aiHub")}
+              >
+                <Badge variant="secondary" className="gap-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  <KeyRound className="h-3 w-3" /> {t("nav.aiActive")}
+                </Badge>
+              </button>
             )}
             {/* Locale switcher retired (Task 27-c): language is locked to the
                 account — User.nativeLang chosen at signup drives the locale. */}

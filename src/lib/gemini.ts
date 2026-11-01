@@ -782,3 +782,72 @@ function friendlyError(
   // message = raw technical reason (routes wrap it in the user's language)
   return { message: msg.slice(0, 140), code: "aiFailed" };
 }
+
+/* ── Connection probe (AI Hub) ──────────────────────────────────────────────
+ * A tiny live round-trip for the AI Hub's "Test connection" button: measures
+ * latency, reports WHICH model answered and which models the key can use.
+ * Walks the same model chain as real calls (so discovery + ineligible-skip
+ * caches get warmed as a side effect) but never throws — every failure is
+ * returned as data for the UI to render. */
+export interface ProbeResult {
+  ok: boolean;
+  latencyMs: number;
+  /** The model that actually answered (ok case). */
+  model?: string;
+  /** Usable models for this key, best-first (max 5). */
+  models?: string[];
+  code?: GeminiErrCode;
+  /** Short provider-side reason (failure case). */
+  message?: string;
+}
+
+const PROBE_MODELS_MAX = 3;
+
+export async function probeGemini(apiKey: string): Promise<ProbeResult> {
+  const started = Date.now();
+  try {
+    const chain = await buildModelChain(apiKey);
+    const models = chain.slice(0, 5);
+    if (chain.length === 0) {
+      return {
+        ok: false,
+        latencyMs: Date.now() - started,
+        code: "modelIneligible",
+        message: "No usable Gemini model is listed for this key.",
+      };
+    }
+    let lastErr: GeminiError | null = null;
+    for (const model of chain.slice(0, PROBE_MODELS_MAX)) {
+      try {
+        await callModel(apiKey, model, "Reply with exactly: OK", {
+          temperature: 0,
+          maxOutputTokens: 512,
+          label: "probe",
+        });
+        return { ok: true, latencyMs: Date.now() - started, model, models };
+      } catch (e) {
+        lastErr = e instanceof GeminiError ? e : null;
+        // Key-level failures stop immediately; model-level refusals
+        // (ineligible, one model's 429 bucket, transient 5xx) → the next
+        // model in the chain may still answer, keep walking.
+        if (!lastErr) break;
+        if (lastErr.status === 401) break;
+        if (lastErr.code === "badKey" || lastErr.code === "quota" || lastErr.code === "safety") break;
+      }
+    }
+    return {
+      ok: false,
+      latencyMs: Date.now() - started,
+      models,
+      code: lastErr?.code ?? "aiNetwork",
+      message: (lastErr?.raw || lastErr?.message || "Connection test failed").slice(0, 200),
+    };
+  } catch (e) {
+    return {
+      ok: false,
+      latencyMs: Date.now() - started,
+      code: "aiNetwork",
+      message: (e instanceof Error ? e.message : String(e)).slice(0, 200),
+    };
+  }
+}

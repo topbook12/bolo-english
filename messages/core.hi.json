@@ -69,7 +69,9 @@
     "communityDesc": "लीडरबोर्ड, पार्टनर और चैलेंज",
     "cvDesc": "जानकारी से CV बनाएं",
     "writing": "राइटिंग",
-    "writingDesc": "एसे-ईमेल, AI फ़ीडबैक के साथ"
+    "writingDesc": "एसे-ईमेल, AI फ़ीडबैक के साथ",
+    "aiHub": "AI हब",
+    "aiHubDesc": "कनेक्शन, की और उपयोग"
   },
   "locale": {
     "switch": "भाषा बदलें",
