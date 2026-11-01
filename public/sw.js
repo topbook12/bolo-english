@@ -1,5 +1,9 @@
 // Bolo English service worker — PWA offline support
-const CACHE = "bolo-english-v3";
+// v4 (Backlog A4 — অফলাইন মোড): the app shell + static assets keep working
+// offline, GET content APIs (daily words, library lists) fall back to the
+// last cached copy, and the grammar bank / wordbook (bundled + localStorage)
+// keep working with zero network. Writes (POST/PUT/DELETE) are NEVER cached.
+const CACHE = "bolo-english-v4";
 const PRECACHE = ["/", "/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png"];
 
 self.addEventListener("install", (event) => {
@@ -17,19 +21,26 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+// GET content APIs cached for offline fallback (network-first, cache as the
+// offline copy). Only safe, device-scoped GET endpoints — never auth, calls
+// or anything the learner sends.
+const API_CACHE_PATHS = [
+  "/api/vocab/daily",
+  "/api/library",
+];
+
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
 
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
-  // Never cache API calls, sockets or AI requests
-  if (url.pathname.startsWith("/api/")) return;
 
-  // Static assets: cache-first
+  // Static assets: cache-first (incl. illustrations now)
   if (
     url.pathname.startsWith("/_next/static/") ||
     url.pathname.startsWith("/icons/") ||
+    url.pathname.startsWith("/illustrations/") ||
     url.pathname === "/manifest.webmanifest"
   ) {
     event.respondWith(
@@ -45,6 +56,37 @@ self.addEventListener("fetch", (event) => {
     );
     return;
   }
+
+  // Content APIs: network-first with cache fallback (Backlog A4).
+  // Never cached: responses that are not ok (errors must not poison the
+  // offline copy) and everything not on the whitelist.
+  if (API_CACHE_PATHS.some((p) => url.pathname.startsWith(p))) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          if (res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => null);
+          }
+          return res;
+        })
+        .catch(() =>
+          caches.match(req).then(
+            (hit) =>
+              hit ||
+              new Response(JSON.stringify({ ok: false, error: "offline" }), {
+                status: 503,
+                headers: { "Content-Type": "application/json" },
+              })
+          )
+        )
+    );
+    return;
+  }
+
+  // All other API calls (AI, STT, writes, calls): straight through, offline
+  // callers get the browser's own network error.
+  if (url.pathname.startsWith("/api/")) return;
 
   // Pages: network-first with cache fallback (offline shell)
   event.respondWith(

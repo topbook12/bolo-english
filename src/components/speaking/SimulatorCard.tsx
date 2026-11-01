@@ -30,7 +30,21 @@ import { callAi } from "@/lib/client-api";
 import { getDeviceId } from "@/hooks/use-device";
 import { track } from "@/lib/track";
 import { blobToBase64, transcodeToWavBlob } from "@/lib/audio-wav";
-import { SIM_SETS, simSetById, type SimSet } from "@/lib/simulator-bank";
+import {
+  SIM_SETS,
+  INTERVIEW_SETS,
+  simSetById,
+  simPlan,
+  type SimMode,
+  type SimPartKind,
+  type SimSet,
+} from "@/lib/simulator-bank";
+import {
+  addSimHistory,
+  loadSimHistory,
+  simHistoryStats,
+  type SimHistoryEntry,
+} from "@/lib/sim-history";
 import { cn } from "@/lib/utils";
 
 const MAX_ANSWER_MS = 150_000; // hard cap per answer (Part 2 = 2 min + grace)
@@ -49,6 +63,8 @@ interface SimFeedback {
 }
 
 type Phase = "pick" | "running" | "grading" | "done";
+// Pick-screen tabs (Backlog A2): full IELTS mock · job interview · part drill.
+type PickTab = "ielts" | "interview" | "drill";
 
 export default function SimulatorCard() {
   const t = useTranslations("speaking.sim");
@@ -57,7 +73,9 @@ export default function SimulatorCard() {
   const hasKey = useDeviceValue((s) => s.hasKey, false);
 
   const [phase, setPhase] = useState<Phase>("pick");
+  const [pickTab, setPickTab] = useState<PickTab>("ielts");
   const [set, setSet] = useState<SimSet | null>(null);
+  const [drillPart, setDrillPart] = useState<SimPartKind | null>(null); // null = full mock
   const [plan, setPlan] = useState<{ kind: "p1" | "p2" | "p3"; q: string; targetSec: number }[]>([]);
   const [step, setStep] = useState(0); // index into plan
   const [answers, setAnswers] = useState<SimAnswer[]>([]);
@@ -67,6 +85,10 @@ export default function SimulatorCard() {
   const [elapsed, setElapsed] = useState(0);
   const [prepLeft, setPrepLeft] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<SimFeedback | null>(null);
+  const [history, setHistory] = useState<SimHistoryEntry[]>([]);
+  useEffect(() => {
+    queueMicrotask(() => setHistory(loadSimHistory()));
+  }, []);
 
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -101,13 +123,19 @@ export default function SimulatorCard() {
     };
   }, []);
 
-  function startSet(s: SimSet) {
+  /** part = null → the full mock; otherwise a single-part drill of THIS set. */
+  function startSet(s: SimSet, part: SimPartKind | null = null) {
     setSet(s);
-    setPlan([
-      ...s.part1,
-      { kind: "p2" as const, q: s.part2.topic, targetSec: s.part2.speakSec },
-      ...s.part3,
-    ]);
+    setDrillPart(part);
+    setPlan(
+      part === "p1"
+        ? s.part1.map((q) => ({ kind: q.kind, q: q.q, targetSec: q.targetSec }))
+        : part === "p2"
+          ? [{ kind: "p2" as const, q: s.part2.topic, targetSec: s.part2.speakSec }]
+          : part === "p3"
+            ? s.part3.map((q) => ({ kind: q.kind, q: q.q, targetSec: q.targetSec }))
+            : simPlan(s)
+    );
     setAnswers([]);
     setFeedback(null);
     setStep(0);
@@ -144,6 +172,7 @@ export default function SimulatorCard() {
     recorderRef.current = null;
     setPhase("pick");
     setSet(null);
+    setDrillPart(null);
     setPlan([]);
     setAnswers([]);
     setFeedback(null);
@@ -259,10 +288,20 @@ export default function SimulatorCard() {
     try {
       const fb = await callAi<SimFeedback>(getDeviceId(), "simulator-feedback", {
         setId: set.id,
+        drillPart: drillPart ?? "full",
         answers: all,
       });
       setFeedback(fb);
       setPhase("done");
+      // Band history lives on THIS device only (Backlog A2) — the pick screen
+      // shows a last-5 trend; nothing is uploaded.
+      addSimHistory({
+        band: fb.overallBand,
+        mode: set.mode,
+        setId: set.id,
+        part: drillPart ?? "full",
+      });
+      setHistory(loadSimHistory());
       track("simulator_done", {
         setId: set.id,
         band: fb.overallBand,
@@ -308,24 +347,120 @@ export default function SimulatorCard() {
             </div>
             {!hasKey && <Badge variant="outline" className="shrink-0 text-[10px]">{t("needKey")}</Badge>}
           </div>
-          <div className="grid gap-2 sm:grid-cols-3">
-            {SIM_SETS.map((s) => (
+
+          {/* mode tabs (Backlog A2): full IELTS mock · job interview · part drill */}
+          <div className="flex gap-1 rounded-xl border border-border/60 bg-muted/40 p-1" role="tablist" aria-label={t("title")}>
+            {(["ielts", "interview", "drill"] as const).map((tab) => (
               <button
-                key={s.id}
+                key={tab}
                 type="button"
-                onClick={() => startSet(s)}
-                className="flex min-h-16 flex-col items-start gap-0.5 rounded-xl border border-border/60 px-3.5 py-3 text-left transition-all hover:border-rose-500/50 hover:bg-accent"
+                role="tab"
+                aria-selected={pickTab === tab}
+                onClick={() => setPickTab(tab)}
+                className={cn(
+                  "min-h-9 flex-1 rounded-lg px-2 text-xs font-semibold transition-all",
+                  pickTab === tab
+                    ? "bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-sm"
+                    : "text-muted-foreground hover:bg-accent"
+                )}
               >
-                <span className="flex items-center gap-1.5 text-sm font-bold">
-                  <CirclePlay className="h-4 w-4 text-rose-500" aria-hidden />
-                  {s.title}
-                </span>
-                <span className="text-[11px] text-muted-foreground">
-                  {t("setMeta", { questions: s.part1.length + s.part3.length + 1 })}
-                </span>
+                {t(`tab.${tab}`)}
               </button>
             ))}
           </div>
+
+          {pickTab !== "drill" ? (
+            <div className="grid gap-2 sm:grid-cols-3">
+              {(pickTab === "ielts" ? SIM_SETS : INTERVIEW_SETS).map((s) => (
+                <div
+                  key={s.id}
+                  className="flex flex-col rounded-xl border border-border/60 px-3.5 py-3 transition-all hover:border-rose-500/50 hover:bg-accent"
+                >
+                  <button
+                    type="button"
+                    onClick={() => startSet(s)}
+                    className="flex min-h-12 flex-col items-start gap-0.5 text-left"
+                    aria-label={t("startSet", { title: s.title })}
+                  >
+                    <span className="flex items-center gap-1.5 text-sm font-bold">
+                      <CirclePlay className={cn("h-4 w-4", pickTab === "ielts" ? "text-rose-500" : "text-fuchsia-500")} aria-hidden />
+                      {s.title}
+                    </span>
+                    <span className="text-[11px] text-muted-foreground">
+                      {t("setMeta", { questions: s.part1.length + s.part3.length + 1 })}
+                    </span>
+                  </button>
+                  {/* part drills — one part at a time, same set */}
+                  <div className="mt-2 flex gap-1 border-t border-border/40 pt-2">
+                    {(["p1", "p2", "p3"] as const).map((p) => (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => startSet(s, p)}
+                        className="min-h-8 flex-1 rounded-md border border-border/50 text-[10px] font-semibold text-muted-foreground transition-colors hover:border-rose-400/60 hover:bg-rose-500/10 hover:text-rose-700 dark:hover:text-rose-300"
+                        aria-label={t("drillPart", {
+                          part: p === "p1" ? t("part1") : p === "p2" ? t("part2") : t("part3"),
+                        })}
+                      >
+                        {p === "p1" ? "P1" : p === "p2" ? "P2" : "P3"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-xs leading-relaxed text-muted-foreground">{t("drillDesc")}</p>
+              <div className="grid gap-2 sm:grid-cols-3">
+                {(["p1", "p2", "p3"] as const).map((p) => {
+                  const label = p === "p1" ? t("part1") : p === "p2" ? t("part2") : t("part3");
+                  return (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => {
+                        // a random IELTS set keeps every drill fresh
+                        const s = SIM_SETS[Math.floor(Math.random() * SIM_SETS.length)];
+                        startSet(s, p);
+                      }}
+                      className="flex min-h-16 flex-col items-start gap-0.5 rounded-xl border border-border/60 px-3.5 py-3 text-left transition-all hover:border-rose-500/50 hover:bg-accent"
+                    >
+                      <span className="flex items-center gap-1.5 text-sm font-bold">
+                        <CirclePlay className="h-4 w-4 text-rose-500" aria-hidden />
+                        {label}
+                      </span>
+                      <span className="text-[11px] text-muted-foreground">{t(`drillMeta.${p}`)}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* device-local band trend (Backlog A2) — last 5 graded runs */}
+          {history.length > 0 && (
+            <div className="rounded-xl border border-border/60 bg-muted/30 p-3">
+              <p className="text-[11px] font-semibold text-muted-foreground">{t("historyTitle")}</p>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                {simHistoryStats(history).recent.map((e, i) => (
+                  <Badge
+                    key={`${e.day}-${i}`}
+                    variant="secondary"
+                    className="gap-1 text-[10px] tabular-nums"
+                    title={`${e.day} · ${e.setId}`}
+                  >
+                    {e.band.toFixed(1)}
+                    <span className="text-muted-foreground">{e.mode === "interview" ? "!" : "i"}</span>
+                  </Badge>
+                ))}
+                <span className="text-[10px] text-muted-foreground">
+                  {t("historyBest", { best: simHistoryStats(history).best.toFixed(1) })}
+                </span>
+              </div>
+            </div>
+          )}
+
           <p className="text-[11px] leading-relaxed text-muted-foreground">{t("quotaNote")}</p>
         </CardContent>
       </Card>
@@ -349,7 +484,14 @@ export default function SimulatorCard() {
         <CardContent className="space-y-4 p-5 sm:p-6">
           <div className="flex items-center justify-between gap-2">
             <p className="text-sm font-bold">{t("resultTitle")}</p>
-            <Badge variant="secondary">{set.title}</Badge>
+            <div className="flex items-center gap-1.5">
+              {drillPart && (
+                <Badge variant="outline" className="text-[10px]">
+                  {drillPart === "p1" ? t("part1") : drillPart === "p2" ? t("part2") : t("part3")}
+                </Badge>
+              )}
+              <Badge variant="secondary">{set.title}</Badge>
+            </div>
           </div>
           <div className="flex items-center gap-4 rounded-2xl border border-border/60 bg-muted/40 p-4">
             <div className="text-center">

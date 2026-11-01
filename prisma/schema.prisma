@@ -538,6 +538,27 @@ model CvDocument {
   @@index([deviceId])
 }
 
+// ─── Writing practice (Backlog A1 — শেখার গভীরতা) ──────────────────────────
+// One row = one finished writing task (essay / email / paragraph). The
+// learner's text is USER-TYPED English; scores + AI feedback live as JSON
+// (same honest-JSON pattern as SentenceSubmission.feedback). Device-scoped
+// like every other guest table; userId attached server-side when signed in.
+// Powers the Writing tab history + the overall-score trend.
+model WritingSubmission {
+  id        String   @id @default(cuid())
+  deviceId  String
+  userId    String?
+  taskKey   String // src/lib/writing-bank.ts task id (≤40)
+  kind      String // essay | email | paragraph (bank whitelist)
+  text      String // learner's English writing, ≤4000 chars
+  overall   Int // 0-100 aggregate score
+  scores    String // JSON {grammar, structure, vocabulary} 0-100 each
+  feedback  String // JSON full AI feedback (summary/corrections/tips/improved)
+  createdAt DateTime @default(now())
+
+  @@index([deviceId, createdAt])
+}
+
 // ─── Plan / Entitlement (D36, ROADMAP-60) ─────────────────────────────────
 // The plan CATALOG (what each tier grants) + the per-user GRANTS (who has
 // what until when). Model-agnostic by design: the owner's monetization

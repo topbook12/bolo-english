@@ -18,7 +18,8 @@ export type XpKind =
   | "review"
   | "call"
   | "lesson"
-  | "challenge";
+  | "challenge"
+  | "writing";
 
 export interface XpFlatRule {
   type: "flat";
@@ -53,6 +54,8 @@ export const XP_RULES: Record<XpKind, XpRule> = {
   // Daily sentence challenge submission (D32) — one per day (DB unique),
   // so the cap mostly documents intent; the route awards directly.
   challenge: { type: "flat", xp: 12, dailyEvents: 1 },
+  // Writing practice task (Backlog A1) — one finished essay/email/paragraph.
+  writing: { type: "flat", xp: 15, dailyEvents: 4 },
 };
 
 /** Hard ceiling for one device per day — nothing can exceed this. */
@@ -72,6 +75,8 @@ export function practiceToXpKind(practiceKind: string): XpKind | null {
       return "dictation";
     case "vocab-review":
       return "review";
+    case "writing":
+      return "writing";
     default:
       return null;
   }

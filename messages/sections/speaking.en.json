@@ -169,7 +169,22 @@
       "permission": "Microphone permission is needed — or type your answer.",
       "unsupported": "This browser can't record — type your answer instead.",
       "feedbackFailed": "Grading failed — try once more.",
-      "needOne": "Answer at least one question to get a grade."
+      "needOne": "Answer at least one question to get a grade.",
+      "tab": {
+        "ielts": "IELTS mock",
+        "interview": "Job interview",
+        "drill": "Part drill"
+      },
+      "startSet": "Start full test: {title}",
+      "drillPart": "Drill {part} only",
+      "drillDesc": "Practice ONE part at a time — a short, focused round with the same band feedback.",
+      "drillMeta": {
+        "p1": "3 quick questions · ~2 min",
+        "p2": "1 cue card · prep 1 min + speak 2 min",
+        "p3": "2 deep questions · ~3 min"
+      },
+      "historyTitle": "Your last bands (this device)",
+      "historyBest": "best {best} · i = IELTS, ! = interview"
     },
     "shadow": {
       "title": "Shadowing",
@@ -219,6 +234,33 @@
       "schedLive": "Room is live — joining…",
       "failed": "Scheduling failed — try once more.",
       "maxLen": "Topic can be at most 60 characters."
+    },
+    "pronProgress": {
+      "title": "Pronunciation progress",
+      "desc": "Your score trend and the words that trip you up — stored on this device only.",
+      "empty": "No attempts yet. Record a pronunciation exercise above and your trend will appear here.",
+      "stat": {
+        "attempts": "Attempts",
+        "avg": "Average",
+        "best": "Best",
+        "delta": "Change"
+      },
+      "chart": {
+        "tooltip": "Score",
+        "attempt": "Attempt {n}"
+      },
+      "weak": {
+        "title": "Words to drill",
+        "drillBadge": "Tap",
+        "drillHint": "tap a word to hear it and jump straight to its exercise.",
+        "drillTip": "Listen and practice this word"
+      },
+      "suggestion": {
+        "words": "Drill focus: {words}. Say each one 5 times slowly, then record it above — the trend graph will show the fix.",
+        "great": "Excellent — your recent scores are consistently strong. Keep one sentence exercise in your daily warm-up to stay sharp.",
+        "more": "Do 2–3 more exercises today; five attempts unlock a reliable trend."
+      },
+      "clear": "Clear history"
     }
   }
 }

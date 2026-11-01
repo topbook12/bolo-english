@@ -23,6 +23,7 @@ import PointList from "@/components/shared/PointList";
 import { useDevice } from "@/hooks/use-device";
 import AiPartner from "@/components/speaking/AiPartner";
 import PronunciationCard from "@/components/speaking/PronunciationCard";
+import PronProgressCard from "@/components/speaking/PronProgressCard";
 import SimulatorCard from "@/components/speaking/SimulatorCard";
 import ShadowCard from "@/components/speaking/ShadowCard";
 import RoomsCard from "@/components/speaking/RoomsCard";
@@ -102,6 +103,9 @@ export default function SpeakingSection() {
       {/* D15: pronunciation practice — speak → BYOK STT → word-level score.
           Lives right under the mode cards where "practice speaking" lives. */}
       <PronunciationCard />
+
+      {/* Backlog A3: pronunciation progress — score trend, weak words, drills */}
+      <PronProgressCard />
 
       {/* D17: IELTS-style speaking simulator — full mock test with band feedback */}
       <SimulatorCard />

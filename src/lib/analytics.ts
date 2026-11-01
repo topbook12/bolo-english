@@ -40,6 +40,7 @@ export const TRACK_EVENTS = [
   "partner_invited", // {} (client-fired when a D31 one-tap call invite is created)
   "challenge_done", // {flagged} (client-fired when a D32 sentence challenge submission lands)
   "profile_shared", // {} (client-fired when the D34 profile share succeeds)
+  "writing_done", // {kind, score} (server-derived: /api/writing stored a graded task)
 ] as const;
 
 export type TrackEventName = (typeof TRACK_EVENTS)[number];

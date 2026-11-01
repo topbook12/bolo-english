@@ -17,12 +17,14 @@ import {
   BookOpen,
   FileUser,
   Users,
+  PenLine,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import PwaRegister from "@/components/pwa/PwaRegister";
 import InstallPrompt from "@/components/pwa/InstallPrompt";
+import OfflineBanner from "@/components/pwa/OfflineBanner";
 import FeedbackWidget from "@/components/feedback/FeedbackWidget";
 import NpsPrompt from "@/components/rating/NpsPrompt";
 import OnboardingDialog from "@/components/onboarding/OnboardingDialog";
@@ -38,6 +40,7 @@ import GrammarSection from "@/components/sections/GrammarSection";
 import ListeningSection from "@/components/sections/ListeningSection";
 import ReadingSection from "@/components/reading/ReadingSection";
 import VocabSection from "@/components/sections/VocabSection";
+import WritingSection from "@/components/writing/WritingSection";
 import CvStudio from "@/components/cv/CvStudio";
 import CommunitySection from "@/components/community/CommunitySection";
 import ProgressSection from "@/components/sections/ProgressSection";
@@ -50,6 +53,7 @@ export type TabId =
   | "grammar"
   | "listening"
   | "reading"
+  | "writing"
   | "vocab"
   | "cv"
   | "community"
@@ -70,6 +74,7 @@ export const TABS: {
   { id: "grammar", labelKey: "grammar", icon: BookOpenText, descKey: "grammarDesc" },
   { id: "listening", labelKey: "listening", icon: Headphones, descKey: "listeningDesc" },
   { id: "reading", labelKey: "reading", icon: BookOpen, descKey: "readingDesc" },
+  { id: "writing", labelKey: "writing", icon: PenLine, descKey: "writingDesc" },
   { id: "vocab", labelKey: "vocab", icon: LibraryBig, descKey: "vocabDesc" },
   { id: "cv", labelKey: "cv", icon: FileUser, descKey: "cvDesc" },
   { id: "community", labelKey: "community", icon: Users, descKey: "communityDesc" },
@@ -78,7 +83,7 @@ export const TABS: {
 ];
 
 const BOTTOM_TABS: TabId[] = ["home", "speaking", "grammar", "reading"];
-const MORE_TABS: TabId[] = ["path", "listening", "vocab", "cv", "community", "progress", "settings"];
+const MORE_TABS: TabId[] = ["path", "listening", "writing", "vocab", "cv", "community", "progress", "settings"];
 
 // ─── Bolo Spectrum module accents ───
 // Color = identity: each module owns one warm gradient that repeats in its
@@ -93,6 +98,7 @@ const TINT_ACTIVE: Record<TabId, string> = {
   grammar: "from-orange-500 to-amber-600",
   listening: "from-teal-500 to-emerald-600",
   reading: "from-amber-500 to-orange-600",
+  writing: "from-violet-500 to-purple-600",
   vocab: "from-emerald-500 to-teal-600",
   cv: "from-fuchsia-500 to-pink-600",
   community: "from-pink-500 to-fuchsia-600",
@@ -107,6 +113,7 @@ const TINT_TEXT: Record<TabId, string> = {
   grammar: "text-orange-600 dark:text-orange-400",
   listening: "text-teal-600 dark:text-teal-400",
   reading: "text-amber-600 dark:text-amber-500",
+  writing: "text-violet-600 dark:text-violet-400",
   vocab: "text-emerald-600 dark:text-emerald-400",
   cv: "text-fuchsia-600 dark:text-fuchsia-400",
   community: "text-pink-600 dark:text-pink-400",
@@ -121,6 +128,7 @@ const TINT_SOFT: Record<TabId, string> = {
   grammar: "bg-orange-100/80 dark:bg-orange-900/40",
   listening: "bg-teal-100/80 dark:bg-teal-900/40",
   reading: "bg-amber-100/80 dark:bg-amber-900/40",
+  writing: "bg-violet-100/80 dark:bg-violet-900/40",
   vocab: "bg-emerald-100/80 dark:bg-emerald-900/40",
   cv: "bg-fuchsia-100/80 dark:bg-fuchsia-900/40",
   community: "bg-pink-100/80 dark:bg-pink-900/40",
@@ -181,6 +189,8 @@ export default function AppShell() {
         return <ListeningSection />;
       case "reading":
         return <ReadingSection />;
+      case "writing":
+        return <WritingSection />;
       case "vocab":
         return <VocabSection />;
       case "cv":
@@ -240,6 +250,9 @@ export default function AppShell() {
     <div className="shell-bg flex min-h-screen flex-col">
       <PwaRegister />
       <InstallPrompt />
+      {/* Offline notice (Backlog A4): visible only while the browser is
+          actually offline — the SW keeps the shell + content caches alive. */}
+      <OfflineBanner />
       {/* Floating feedback widget (D3): present on every tab, works for
           signed-out users too (deviceId-only, rate-limited server-side). */}
       <FeedbackWidget />

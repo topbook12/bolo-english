@@ -33,7 +33,10 @@
       "iosHint": "iPhone/iPad: tap the Share (↑) button below, then choose “Add to Home Screen”.",
       "close": "Close"
     },
-    "minutesShort": "min"
+    "minutesShort": "min",
+    "offline": {
+      "banner": "You're offline — saved content still works (grammar, wordbook, daily words)."
+    }
   },
   "nav": {
     "home": "Home",
@@ -64,7 +67,9 @@
     "cv": "CV Studio",
     "community": "Community",
     "communityDesc": "Leaderboard, partners & challenges",
-    "cvDesc": "Auto-build your CV"
+    "cvDesc": "Auto-build your CV",
+    "writing": "Writing",
+    "writingDesc": "Essays & emails with AI feedback"
   },
   "locale": {
     "switch": "Change language",

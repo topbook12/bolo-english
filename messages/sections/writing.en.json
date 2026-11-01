@@ -1,0 +1,53 @@
+{
+  "writing": {
+    "title": "Writing practice",
+    "subtitle": "Write essays, emails and paragraphs — get instant AI feedback with scores.",
+    "keyNote": "Feedback uses your own free Gemini key (Settings → Add API Key). Writing itself is always free.",
+    "kind": {
+      "paragraph": "Paragraphs",
+      "email": "Emails",
+      "essay": "Essays"
+    },
+    "minutes": "{n} min",
+    "startCta": "Start writing",
+    "stat": {
+      "done": "Completed",
+      "avg": "Average",
+      "best": "Best"
+    },
+    "tooShort": "A little more, please — write at least ~12 words so the feedback can be useful.",
+    "feedbackFailed": "Feedback failed — your draft is safe, please try again.",
+    "grading": "Checking your writing…",
+    "gradingHint": "The AI grades grammar, structure and word choice, then rewrites your piece. Usually 10–20 seconds.",
+    "axis": {
+      "grammar": "Grammar",
+      "structure": "Structure",
+      "vocabulary": "Word choice"
+    },
+    "result": {
+      "title": "Feedback",
+      "subtitle": "Scores, corrections and an improved version of your writing.",
+      "overall": "Overall",
+      "corrections": "Line-by-line corrections",
+      "strengths": "What went well",
+      "tips": "Next steps",
+      "improved": "Improved version",
+      "copy": "Copy",
+      "again": "Rewrite this task",
+      "newTask": "Choose another task"
+    },
+    "history": {
+      "title": "Your past writing",
+      "empty": "Nothing here yet — finish your first task and it will appear here."
+    },
+    "editor": {
+      "title": "Your writing",
+      "subtitle": "Take your time — quality beats speed.",
+      "placeholder": "Start writing in English here…",
+      "submit": "Check with AI",
+      "submitHint": "One AI call grades the whole piece — your own key, nothing stored.",
+      "wordCount": "{words} words · aim for {min}+",
+      "elapsed": "Time {m}:{s}"
+    }
+  }
+}

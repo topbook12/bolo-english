@@ -33,7 +33,10 @@
       "iosHint": "iPhone/iPad: नीचे Share (↑) बटन दबाकर “Add to Home Screen” चुनें।",
       "close": "बंद करें"
     },
-    "minutesShort": "मिनट"
+    "minutesShort": "मिनट",
+    "offline": {
+      "banner": "आप ऑफ़लाइन हैं — सेव की गई सामग्री चालू है (व्याकरण, वर्डबुक, डेली शब्द)।"
+    }
   },
   "nav": {
     "home": "होम",
@@ -64,7 +67,9 @@
     "cv": "CV स्टूडियो",
     "community": "कम्युनिटी",
     "communityDesc": "लीडरबोर्ड, पार्टनर और चैलेंज",
-    "cvDesc": "जानकारी से CV बनाएं"
+    "cvDesc": "जानकारी से CV बनाएं",
+    "writing": "राइटिंग",
+    "writingDesc": "एसे-ईमेल, AI फ़ीडबैक के साथ"
   },
   "locale": {
     "switch": "भाषा बदलें",

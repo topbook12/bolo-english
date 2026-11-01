@@ -8,6 +8,7 @@ import { logAnalyticsEvent } from "@/lib/analytics-server";
 import { reqLocale, apiMsg, type ApiLocale } from "@/lib/api-i18n";
 import { scenarioById, withName } from "@/lib/scenarios";
 import { simSetById } from "@/lib/simulator-bank";
+import { writingTaskById } from "@/lib/writing-bank";
 import { GeminiError, geminiJson, getAiLevel, getUserName, getUserApiKeyWithMeta } from "@/lib/gemini";
 import { pruneAiCache } from "@/lib/ai-cache-prune";
 import { xpDay } from "@/lib/xp";
@@ -693,6 +694,11 @@ ${JSON_ONLY}`,
         if (!set) {
           return jsonErr("set_unknown", 400);
         }
+        // Backlog A2: which slice the learner practiced — "full" mock or one
+        // drilled part (p1/p2/p3). Only changes the prompt framing; the
+        // band JSON shape is identical for both modes.
+        const drillPartRaw = cleanStr(payload.drillPart ?? "full", 6);
+        const drillPart = ["full", "p1", "p2", "p3"].includes(drillPartRaw) ? drillPartRaw : "full";
         const answers = Array.isArray(payload.answers)
           ? payload.answers
               .filter((a: unknown) => a && typeof a === "object")
@@ -707,6 +713,16 @@ ${JSON_ONLY}`,
         if (answers.length === 0) {
           return jsonErr("no_answers", 400);
         }
+        // Mode-aware examiner persona: IELTS = band examiner, interview =
+        // an experienced hiring manager grading employability.
+        const persona =
+          set.mode === "interview"
+            ? `You are an experienced hiring manager conducting a realistic job interview with ${userName} (${userLevel} level). Grade employability: clarity, structure (STAR for behavioral answers), confidence and vocabulary.`
+            : `You are an experienced IELTS speaking examiner grading ${userName} (${userLevel} level) after a speaking test. ${levelRule(userLevel)}`;
+        const scope =
+          drillPart === "full"
+            ? `The full exam set: "${set.title}" — Part 1 interview, Part 2 long turn ("${set.part2.topic}"), Part 3 discussion.`
+            : `A ${drillPart.toUpperCase()} PRACTICE DRILL drawn from the set "${set.title}" (only one part was attempted — grade THAT part alone, say it was a part drill in the summary).`;
         const data = await geminiJson<{
           overallBand: number;
           bands: { fluency: number; lexical: number; grammar: number };
@@ -714,12 +730,12 @@ ${JSON_ONLY}`,
           topTip: string;
         }>(
           apiKey,
-          `You are an experienced IELTS speaking examiner grading ${userName} (${userLevel} level) after a full mock test. ${levelRule(userLevel)}.
-The exam set: "${set.title}" — Part 1 interview, Part 2 long turn ("${set.part2.topic}"), Part 3 discussion.
+          `${persona}
+${scope}
 Answers in order (JSON; "kind" marks the part; answers may be STT transcripts — treat punctuation/case noise kindly):
 ${JSON.stringify(answers)}
 TASK: Grade band-style like the real test.
-QUALITY: "bands" = 4.0-9.0 each in 0.5 steps — "fluency" (pace, hesitation, linking), "lexical" (vocabulary range, collocations), "grammar" (range + accuracy); "overallBand" = the rounded mean; be encouraging but honest — a learner who answered everything with short simple sentences is 4.5-5.5, natural connected speech is 6.5-7.5; "summary" = 2-3 sentences ${lang.short} naming ONE thing that went well and ONE clear weakness; "topTip" = ONE concrete drill ${lang.short} they can do today.
+QUALITY: "bands" = 4.0-9.0 each in 0.5 steps — "fluency" (pace, hesitation, linking), "lexical" (vocabulary range, collocations), "grammar" (range + accuracy); "overallBand" = the rounded mean; be encouraging but honest — a learner who answered everything with short simple sentences is 4.5-5.5, natural connected speech is 6.5-7.5; "summary" = 2-3 sentences ${lang.short} naming ONE thing that went well and ONE clear weakness; "topTip" = ONE concrete drill ${lang.short} they can do today${set.mode === "interview" ? " (prefer STAR-structure tips for behavioral questions)" : ""}.
 Return STRICT JSON: { "overallBand": 6.0, "bands": { "fluency": 6.0, "lexical": 5.5, "grammar": 6.0 }, "summary": "... ${lang.short}", "topTip": "... ${lang.short}" }
 ${JSON_ONLY}`,
           { temperature: 0.4, maxOutputTokens: 1024, label: "simulator-feedback" }
@@ -1014,6 +1030,95 @@ ${JSON_ONLY}`,
               data: { feedback: JSON.stringify(out) },
             })
             .catch(() => null);
+        }
+        return jsonOk(out);
+      }
+
+      /* ---------------- WRITING: TASK FEEDBACK (Backlog A1) ----------------
+       * One graded writing task (paragraph / email / essay). The learner's
+       * own Gemini key returns three axis scores (grammar / structure /
+       * vocabulary), line-level corrections and an improved rewrite. The
+       * result is stored by /api/writing (not here) — this call is pure
+       * grading, so identical (task, text) pairs share the cache.
+       */
+      case "writing-feedback": {
+        const taskKey = cleanStr(payload.taskKey ?? "", 40);
+        const task = writingTaskById(taskKey);
+        if (!task) {
+          return jsonErr("task_unknown", 400);
+        }
+        const text = cleanStr(payload.text ?? "", 4000);
+        if (text.length < 20) {
+          return jsonErr(apiMsg(locale, "paramsRequired"), 400);
+        }
+        const kindLabel =
+          task.kind === "essay" ? "an opinion essay" : task.kind === "email" ? "an email task" : "a guided paragraph";
+        const textHash = createHash("sha256").update(`${task.id}|${text.toLowerCase()}`).digest("hex").slice(0, 16);
+        const data = await cachedJson<{
+          scores: { grammar: number; structure: number; vocabulary: number };
+          summary: string;
+          corrections: { original: string; corrected: string; note: string }[];
+          strengths: string[];
+          tips: string[];
+          improved: string;
+        }>(
+          "writing-feedback",
+          `${textHash}|${userLevel}|${locale}`,
+          apiKey,
+          `You are an experienced, encouraging English writing examiner grading ${userName} (${userLevel} level) on ${kindLabel}. ${levelRule(userLevel)}
+TASK GIVEN TO THE LEARNER: "${task.prompt}"
+Guidance they saw: "${task.guide}" (aim was ~${task.minWords} words)
+THE LEARNER'S WRITING (English):
+"""${text}"""
+TASK: Grade it like a kind but honest teacher. ${lang.rule}
+QUALITY: "scores" = 0-100 integers — "grammar" (tense, agreement, articles, prepositions), "structure" (organization, paragraphs, linking, task-fit), "vocabulary" (range, collocations, repetition); a simple correct beginner text is 65-85, do NOT inflate; "summary" = 2-3 sentences ${lang.short} naming what went well + the ONE thing to fix first; "corrections" = the 3-6 most useful line-level fixes (original fragment from their text, smallest honest corrected version, one-line why ${lang.short}) — empty array when truly flawless; "strengths" = 2 short wins ${lang.short}; "tips" = 2-3 concrete next-step tips ${lang.short}; "improved" = their whole piece rewritten naturally at their level (same ideas, no new content, keep length similar).
+Return STRICT JSON:
+{
+  "scores": { "grammar": 0, "structure": 0, "vocabulary": 0 },
+  "summary": "… ${lang.short}",
+  "corrections": [ { "original": "…", "corrected": "…", "note": "… ${lang.short}" } ],
+  "strengths": ["… ${lang.short}", "… ${lang.short}"],
+  "tips": ["… ${lang.short}", "… ${lang.short}"],
+  "improved": "…"
+}
+${JSON_ONLY}`,
+          0.4,
+          { maxOutputTokens: 2400 }
+        );
+        const cl = (v: unknown): number => {
+          const n = Number(v);
+          return Number.isFinite(n) ? Math.min(100, Math.max(0, Math.round(n))) : 0;
+        };
+        const scoresRaw = (typeof data?.scores === "object" && data.scores !== null ? data.scores : {}) as Record<string, unknown>;
+        const out = {
+          scores: {
+            grammar: cl(scoresRaw.grammar),
+            structure: cl(scoresRaw.structure),
+            vocabulary: cl(scoresRaw.vocabulary),
+          },
+          summary: cleanStr(data?.summary ?? "", 500),
+          corrections: (Array.isArray(data?.corrections) ? data.corrections : [])
+            .slice(0, 6)
+            .flatMap((c: unknown) => {
+              if (!c || typeof c !== "object") return [];
+              const o = c as Record<string, unknown>;
+              const original = cleanStr(o.original ?? "", 300);
+              const corrected = cleanStr(o.corrected ?? "", 300);
+              const note = cleanStr(o.note ?? "", 200);
+              return original && corrected ? [{ original, corrected, note }] : [];
+            }),
+          strengths: (Array.isArray(data?.strengths) ? data.strengths : [])
+            .slice(0, 3)
+            .map((s: unknown) => cleanStr(s ?? "", 160))
+            .filter(Boolean),
+          tips: (Array.isArray(data?.tips) ? data.tips : [])
+            .slice(0, 3)
+            .map((s: unknown) => cleanStr(s ?? "", 200))
+            .filter(Boolean),
+          improved: cleanStr(data?.improved ?? "", 5000),
+        };
+        if (!out.summary && out.corrections.length === 0 && !out.improved) {
+          return jsonErr(apiMsg(locale, "aiFailed"), 502);
         }
         return jsonOk(out);
       }

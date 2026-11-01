@@ -39,6 +39,7 @@ import {
   type CompareResult,
   type PronExercise,
 } from "@/lib/pron-bank";
+import { addPronAttempt } from "@/lib/pron-history";
 import type { LibraryLevel } from "@/lib/library-types";
 import { cn } from "@/lib/utils";
 
@@ -83,6 +84,25 @@ export default function PronunciationCard() {
       setResult(null);
     });
   }, [level]);
+
+  // Drill-jump from the progress card (Backlog A3): the progress card
+  // dispatches bolo:pron-select {exId}; selecting that exercise makes the
+  // suggestion actionable in one tap.
+  useEffect(() => {
+    function onSelect(e: Event) {
+      const exId = (e as CustomEvent<{ exId?: string }>).detail?.exId;
+      if (!exId) return;
+      const i = exercises.findIndex((x) => x.id === exId);
+      if (i >= 0) {
+        queueMicrotask(() => {
+          setResult(null);
+          setIdx(i);
+        });
+      }
+    }
+    window.addEventListener("bolo:pron-select", onSelect as EventListener);
+    return () => window.removeEventListener("bolo:pron-select", onSelect as EventListener);
+  }, [exercises]);
 
 
   // Stop mic + timers + TTS on unmount.
@@ -153,6 +173,11 @@ export default function PronunciationCard() {
       }
       const cmp = compareSpeech(current!.text, text);
       setResult(cmp);
+      // Backlog A3: remember the attempt device-locally for the progress
+      // graph + weak-word list. Fire-and-forget, never blocks the UI.
+      addPronAttempt(current!.id, level as LibraryLevel, cmp);
+      // tell the progress card below to refresh (same-tab, no polling)
+      window.dispatchEvent(new CustomEvent("bolo:pron-attempt"));
       track("pronunciation_done", { score: cmp.score });
       setPhase("idle");
     } catch {
