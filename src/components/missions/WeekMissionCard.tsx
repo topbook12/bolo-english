@@ -152,7 +152,7 @@ export default function WeekMissionCard() {
         "animate-fade-in-up overflow-hidden",
         allDone
           ? "border-emerald-300/70 bg-gradient-to-br from-emerald-50 via-background to-teal-50 dark:border-emerald-900/50 dark:from-emerald-950/30 dark:via-background dark:to-teal-950/20"
-          : "border-sky-200/70 bg-gradient-to-br from-sky-50 via-background to-cyan-50 dark:border-sky-900/50 dark:from-sky-950/30 dark:via-background dark:to-cyan-950/20"
+          : "border-emerald-200/70 bg-gradient-to-br from-emerald-50 via-background to-teal-50 dark:border-emerald-900/50 dark:from-emerald-950/30 dark:via-background dark:to-teal-950/20"
       )}
     >
       <CardContent className="space-y-3 p-5 sm:p-6">
@@ -163,7 +163,7 @@ export default function WeekMissionCard() {
                 "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white shadow-sm",
                 allDone
                   ? "bg-gradient-to-br from-emerald-500 to-teal-600"
-                  : "bg-gradient-to-br from-sky-500 to-cyan-600"
+                  : "bg-gradient-to-br from-emerald-500 to-teal-600"
               )}
             >
               {allDone ? <BadgeCheck className="h-5 w-5" aria-hidden /> : <Target className="h-5 w-5" aria-hidden />}

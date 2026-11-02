@@ -67,7 +67,7 @@ const TOPICS: Topic[] = [
   { id: "dailyLife", icon: Home, gradient: "from-emerald-500 to-teal-500" },
   { id: "travel", icon: Plane, gradient: "from-amber-500 to-orange-500" },
   { id: "food", icon: UtensilsCrossed, gradient: "from-rose-500 to-orange-500" },
-  { id: "office", icon: Briefcase, gradient: "from-teal-500 to-cyan-600" },
+  { id: "office", icon: Briefcase, gradient: "from-teal-500 to-teal-600" },
   { id: "school", icon: GraduationCap, gradient: "from-orange-500 to-amber-500" },
   { id: "shopping", icon: ShoppingBag, gradient: "from-rose-500 to-pink-500" },
   { id: "weather", icon: CloudSun, gradient: "from-teal-500 to-emerald-500" },
@@ -86,7 +86,7 @@ const LEVEL_ICONS: Record<ListeningLevel, React.ComponentType<{ className?: stri
 const CATEGORY_GRADIENTS: Record<LibraryCategory, string> = {
   daily: "from-emerald-500 to-teal-500",
   travel: "from-amber-500 to-orange-500",
-  work: "from-teal-500 to-cyan-600",
+  work: "from-teal-500 to-teal-600",
   culture: "from-rose-500 to-pink-500",
   science: "from-orange-500 to-amber-600",
   inspire: "from-rose-500 to-orange-500",

@@ -600,3 +600,47 @@ model Entitlement {
   @@index([userId, revokedAt])
   @@index([planKey])
 }
+
+// ─── Certificate (D40, ROADMAP-60) ────────────────────────────────────────
+// One row = one issued certificate. Free-tier feature: earned by real
+// learning activity (XP + active days), stamped with an issuer-signed
+// verification code so anyone can confirm authenticity. `stats` is a JSON
+// snapshot {xp, activeDays, streak, level} frozen at issue time — the
+// certificate must never change after issuing (it's a document).
+// userId attached when signed in; deviceId scopes guest issuance.
+model Certificate {
+  id        String   @id @default(cuid())
+  code      String   @unique // "BOLO-XXXX-XXXX" public verify code
+  userId    String?  // User.id when signed in
+  deviceId  String
+  name      String // holder display name (≤60)
+  level     String // placement level label (beginner/intermediate/advanced)
+  tier      String @default("learner") // learner | achiever (milestone tiers)
+  stats     String // JSON {xp, activeDays, streak, quizAvg}
+  createdAt DateTime @default(now())
+
+  @@index([deviceId, createdAt])
+  @@index([userId, createdAt])
+}
+
+// ─── Referral (D41, ROADMAP-60) ───────────────────────────────────────────
+// One row = one completed invitation. The INVITER owns `code` (stable per
+// user, derived once); the INVITEE is the new account that claimed it.
+// XP rewards flow to BOTH sides through awardXp (kind "referral",
+// dedupeRefId — a Referral row can never pay twice). No premium days
+// (owner decision: platform stays free; XP-only rewards).
+model Referral {
+  id            String   @id @default(cuid())
+  code          String // inviter's referral code (BOLO + userId hash)
+  inviterUserId String // User.id of the inviter
+  inviterDevice String // inviter deviceId (XP ledger scope)
+  inviteeUserId String   @unique // one claim per new account, ever
+  inviteeDevice String
+  inviteeName   String   @default("") // display name at claim time (≤60)
+  xpInviter     Int      @default(0) // actually granted (0 = capped)
+  xpInvitee     Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  @@index([code, createdAt])
+  @@index([inviterUserId, createdAt])
+}

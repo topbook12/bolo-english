@@ -97,12 +97,12 @@ const SECTION_TINTS: SectionTint[] = [
     th: "bg-rose-500/10 text-rose-800 dark:text-rose-200",
   },
   {
-    bar: "from-teal-500 to-cyan-600",
+    bar: "from-teal-500 to-teal-600",
     chip: "bg-teal-500/10 text-teal-600 dark:text-teal-400",
     step: "text-teal-600 dark:text-teal-400",
     check: "text-teal-600 dark:text-teal-400",
     checkBg: "bg-teal-500/10 dark:bg-teal-500/15",
-    formula: "border-teal-500/25 bg-gradient-to-r from-teal-500/[0.07] to-cyan-600/[0.07]",
+    formula: "border-teal-500/25 bg-gradient-to-r from-teal-500/[0.07] to-teal-600/[0.07]",
     th: "bg-teal-500/10 text-teal-800 dark:text-teal-200",
   },
   {

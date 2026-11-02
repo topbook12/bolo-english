@@ -1,0 +1,28 @@
+{
+  "referral": {
+    "title": "Invite your friends",
+    "subtitle": "Share your link — you earn, your friend earns too",
+    "inviteLink": "Your invite link",
+    "codeLabel": "Invite code",
+    "copyLink": "Copy the link",
+    "copied": "Link copied!",
+    "copyFailed": "Couldn't copy — please note the link down.",
+    "joined": "joined",
+    "xpEarned": "XP earned",
+    "aFriend": "a friend",
+    "recentTitle": "Recent joins",
+    "empty": "Nobody has joined yet — share your link!",
+    "rewardNote": "When a friend joins, you get 150 XP and they get 100 XP",
+    "invitedYou": "{name} invited you to Bolo English!",
+    "invitedYouGeneric": "A friend invited you to Bolo English!",
+    "claimLogin": "Log in to claim your reward",
+    "claimHint": "Your reward is added automatically right after you log in or register.",
+    "welcomeToast": "Welcome! You've earned 100 XP",
+    "loginTitle": "Bring friends, earn XP",
+    "loginPrompt": "Log in to get your invite link — 150 XP per friend!",
+    "loadFailed": "Couldn't load your invite data.",
+    "retry": "Try again",
+    "aria": "Referrals and invites",
+    "xpBadge": "+{n} XP"
+  }
+}

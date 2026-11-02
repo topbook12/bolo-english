@@ -494,7 +494,7 @@ export default function StoragePoolCard() {
             <div className="rounded-xl border border-border/60 bg-muted/40 p-3.5">
               <p className="flex items-center gap-2 text-sm font-semibold">
                 <KeyRound
-                  className="h-4 w-4 text-sky-600 dark:text-sky-400"
+                  className="h-4 w-4 text-emerald-600 dark:text-emerald-400"
                   aria-hidden
                 />
                 {t("token")}

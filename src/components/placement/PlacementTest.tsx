@@ -129,7 +129,7 @@ export default function PlacementTest({ onDone }: { onDone?: (stored: string) =>
     return (
       <Card className="premium-card rounded-2xl border-border/70 bg-card">
         <CardContent className="space-y-4 p-5 text-center sm:p-6">
-          <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-cyan-600 text-white shadow-md">
+          <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md">
             <Gauge className="h-7 w-7" aria-hidden />
           </span>
           <div className="space-y-1.5">
@@ -145,7 +145,7 @@ export default function PlacementTest({ onDone }: { onDone?: (stored: string) =>
           </div>
           <Button
             onClick={() => setPhase("playing")}
-            className="min-h-11 w-full gap-2 bg-gradient-to-br from-sky-500 to-cyan-600 text-white shadow-md hover:from-sky-600 hover:to-cyan-700 sm:w-auto sm:px-8"
+            className="min-h-11 w-full gap-2 bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md hover:from-emerald-600 hover:to-teal-700 sm:w-auto sm:px-8"
           >
             {t("intro.start")}
             <ArrowRight className="h-4 w-4" aria-hidden />
@@ -253,7 +253,7 @@ export default function PlacementTest({ onDone }: { onDone?: (stored: string) =>
                   className={cn(
                     "flex min-h-11 items-center gap-2.5 rounded-xl border px-3.5 py-2.5 text-left text-sm transition-all",
                     active
-                      ? "border-transparent bg-gradient-to-br from-sky-500 to-cyan-600 text-white shadow-sm"
+                      ? "border-transparent bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm"
                       : "border-border/60 hover:bg-accent"
                   )}
                 >
@@ -287,7 +287,7 @@ export default function PlacementTest({ onDone }: { onDone?: (stored: string) =>
             size="sm"
             onClick={() => void next()}
             disabled={answers[idx] === null}
-            className="min-h-11 gap-1.5 bg-gradient-to-br from-sky-500 to-cyan-600 text-white shadow-sm hover:from-sky-600 hover:to-cyan-700"
+            className="min-h-11 gap-1.5 bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm hover:from-emerald-600 hover:to-teal-700"
           >
             {idx + 1 >= PLACEMENT_TOTAL ? t("player.finish") : t("player.next")}
             <ArrowRight className="h-4 w-4" aria-hidden />

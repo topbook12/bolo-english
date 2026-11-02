@@ -162,7 +162,7 @@ export default function DictationCard({ stories }: { stories: LibraryStory[] }) 
       <Card className="premium-card border-border/70 rounded-2xl bg-card">
         <CardContent className="space-y-3 p-5 sm:p-6">
           <div className="flex items-center gap-2">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500/90 to-cyan-600/90 text-white shadow-md">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500/90 to-teal-600/90 text-white shadow-md">
               <PenLine className="h-5 w-5" aria-hidden />
             </span>
             <div className="min-w-0">
@@ -180,7 +180,7 @@ export default function DictationCard({ stories }: { stories: LibraryStory[] }) 
                 className={cn(
                   "min-h-9 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-all",
                   level === l
-                    ? "border-transparent bg-gradient-to-br from-teal-500 to-cyan-600 text-white shadow-sm"
+                    ? "border-transparent bg-gradient-to-br from-teal-500 to-teal-600 text-white shadow-sm"
                     : "border-border/60 text-muted-foreground hover:bg-accent"
                 )}
               >
@@ -221,7 +221,7 @@ export default function DictationCard({ stories }: { stories: LibraryStory[] }) 
           <p className="text-xs text-muted-foreground">
             {t("doneNote", { n: scores.length })}
           </p>
-          <Button onClick={quit} className="min-h-11 w-full gap-1.5 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 text-white shadow-md hover:from-teal-600 hover:to-cyan-700">
+          <Button onClick={quit} className="min-h-11 w-full gap-1.5 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 text-white shadow-md hover:from-teal-600 hover:to-teal-700">
             <RotateCcw className="h-4 w-4" aria-hidden />
             {t("again")}
           </Button>
@@ -247,7 +247,7 @@ export default function DictationCard({ stories }: { stories: LibraryStory[] }) 
 
         {/* listen row: play / loop + speed */}
         <div className="flex flex-wrap items-center gap-2">
-          <Button onClick={play} className="min-h-11 gap-1.5 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 text-white shadow-md hover:from-teal-600 hover:to-cyan-700">
+          <Button onClick={play} className="min-h-11 gap-1.5 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 text-white shadow-md hover:from-teal-600 hover:to-teal-700">
             <Volume2 className="h-4 w-4" aria-hidden />
             {t("play")}
           </Button>
@@ -306,7 +306,7 @@ export default function DictationCard({ stories }: { stories: LibraryStory[] }) 
         />
 
         {!result ? (
-          <Button onClick={check} disabled={!typed.trim()} className="min-h-11 w-full rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 text-white shadow-md hover:from-teal-600 hover:to-cyan-700">
+          <Button onClick={check} disabled={!typed.trim()} className="min-h-11 w-full rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 text-white shadow-md hover:from-teal-600 hover:to-teal-700">
             {t("check")}
           </Button>
         ) : (
@@ -337,7 +337,7 @@ export default function DictationCard({ stories }: { stories: LibraryStory[] }) 
               <summary className="cursor-pointer font-medium">{t("showOriginal")}</summary>
               <p className="mt-1 leading-relaxed">{current}</p>
             </details>
-            <Button onClick={next} className="min-h-11 w-full rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 text-white shadow-md hover:from-teal-600 hover:to-cyan-700">
+            <Button onClick={next} className="min-h-11 w-full rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 text-white shadow-md hover:from-teal-600 hover:to-teal-700">
               {idx + 1 >= sentences.length ? t("finish") : t("next")}
             </Button>
           </div>

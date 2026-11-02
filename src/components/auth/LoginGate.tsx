@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useDevice } from "@/hooks/use-device";
 import { useToast } from "@/hooks/use-toast";
+import { RefGateBanner } from "@/components/community/RefCapture";
 import { localeMeta, type Locale } from "@/i18n/config";
 
 // Login-first gate (Task 27-c): the pre-login screen every first-time
@@ -227,6 +228,10 @@ export default function LoginGate() {
 
       <main className="relative z-10 flex flex-1 items-start justify-center px-4 pb-12 pt-5 sm:items-center sm:pt-8">
         <div className="premium-card w-full max-w-md overflow-hidden rounded-3xl bg-card/95 shadow-xl backdrop-blur">
+          {/* D41: personalized invite banner — a `?ref=CODE` arrival shows WHO
+              invited the visitor before any account exists (code is captured
+              app-wide by referral-shared and auto-claimed after signup). */}
+          <RefGateBanner />
           <div className="bg-hero-gradient border-b border-border/60 px-6 pb-5 pt-6 text-center">
             <h1 className="text-lg font-bold tracking-tight">
               {tab === "login" ? t("gateLoginTitle") : t("gateRegisterTitle")}

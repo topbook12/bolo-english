@@ -74,7 +74,7 @@ export default function PushCard() {
     <Card className="premium-card border-border/70 rounded-2xl bg-card">
       <CardHeader>
         <CardTitle className="flex items-center gap-2.5">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500/90 to-cyan-600/90 text-white shadow-md shadow-sky-500/30 ring-1 ring-inset ring-white/25 dark:shadow-sky-500/20">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/90 to-teal-600/90 text-white shadow-md shadow-emerald-500/30 ring-1 ring-inset ring-white/25 dark:shadow-emerald-500/20">
             <Bell className="h-4.5 w-4.5" aria-hidden />
           </span>
           {t("title")}
@@ -100,7 +100,7 @@ export default function PushCard() {
             <Button
               onClick={enable}
               disabled={busy || state === null || state === "unconfigured"}
-              className="min-h-11 flex-1 gap-1.5 bg-gradient-to-br from-sky-500 to-cyan-600 text-white shadow-sm hover:from-sky-600 hover:to-cyan-700"
+              className="min-h-11 flex-1 gap-1.5 bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm hover:from-emerald-600 hover:to-teal-700"
             >
               {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <Bell className="h-4 w-4" aria-hidden />}
               {t("turnOn")}

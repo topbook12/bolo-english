@@ -155,7 +155,7 @@ export default function OnboardingDialog() {
           <>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-base">
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-cyan-600 text-white shadow-sm">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm">
                   {step === "goal" ? (
                     <PartyPopper className="h-4 w-4" aria-hidden />
                   ) : step === "target" ? (
@@ -186,7 +186,7 @@ export default function OnboardingDialog() {
                   key={n}
                   className={cn(
                     "h-1.5 flex-1 rounded-full transition-colors",
-                    n <= stepIndex ? "bg-sky-500" : "bg-muted"
+                    n <= stepIndex ? "bg-emerald-500" : "bg-muted"
                   )}
                 />
               ))}
@@ -206,7 +206,7 @@ export default function OnboardingDialog() {
                       className={cn(
                         "flex min-h-11 w-full items-center gap-2.5 rounded-xl border px-3.5 py-2.5 text-left text-sm font-medium transition-all",
                         goal === g
-                          ? "border-transparent bg-gradient-to-br from-sky-500 to-cyan-600 text-white shadow-sm"
+                          ? "border-transparent bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm"
                           : "border-border/60 hover:bg-accent"
                       )}
                     >
@@ -231,7 +231,7 @@ export default function OnboardingDialog() {
                     className={cn(
                       "flex min-h-12 w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition-all",
                       target === n
-                        ? "border-transparent bg-gradient-to-br from-sky-500 to-cyan-600 text-white shadow-sm"
+                        ? "border-transparent bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm"
                         : "border-border/60 hover:bg-accent"
                     )}
                   >
@@ -260,7 +260,7 @@ export default function OnboardingDialog() {
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <Button
                     onClick={() => setPlacing(true)}
-                    className="min-h-11 flex-1 gap-1.5 bg-gradient-to-br from-sky-500 to-cyan-600 text-white shadow-sm hover:from-sky-600 hover:to-cyan-700"
+                    className="min-h-11 flex-1 gap-1.5 bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm hover:from-emerald-600 hover:to-teal-700"
                   >
                     <Gauge className="h-4 w-4" aria-hidden />
                     {t("test.start")}

@@ -115,7 +115,7 @@ export default function WeeklyDigestCard() {
     <Card className="premium-card border-border/70 rounded-2xl bg-card">
       <CardHeader>
         <CardTitle className="flex items-center gap-2.5">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500/90 to-cyan-600/90 text-white shadow-md shadow-sky-500/30 ring-1 ring-inset ring-white/25">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/90 to-teal-600/90 text-white shadow-md shadow-emerald-500/30 ring-1 ring-inset ring-white/25">
             <ClipboardList className="h-4.5 w-4.5" aria-hidden />
           </span>
           <span className="flex min-w-0 flex-wrap items-center gap-2">
@@ -123,7 +123,7 @@ export default function WeeklyDigestCard() {
             {d && (
               <Badge
                 variant="secondary"
-                className="bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300"
+                className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
               >
                 {d.weekKey}
               </Badge>

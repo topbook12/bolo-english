@@ -639,3 +639,40 @@
     background: #ffffff !important;
   }
 }
+
+/* ── Certificate print (D40): printing the certificate hides the whole app
+   shell and prints ONLY the .print-certificate subtree. Scoped to
+   body.cert-printing (toggled by CertificateCard around window.print())
+   so this pipeline never fights the CV Studio print portal above
+   (body.cv-printing + its portrait @page — CSS cannot class-scope @page,
+   so the A4-landscape rule is injected at print time and removed after).
+   Ancestor transforms/filters are neutralized in print so position:fixed
+   reliably escapes the scrolled, animated app shell. ── */
+@media print {
+  body.cert-printing * {
+    visibility: hidden;
+    transform: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    will-change: auto !important;
+  }
+  body.cert-printing .print-certificate,
+  body.cert-printing .print-certificate * {
+    visibility: visible;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  body.cert-printing .print-certificate .cert-seal {
+    transform: rotate(12deg) !important;
+  }
+  body.cert-printing .print-certificate {
+    position: fixed;
+    inset: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+}

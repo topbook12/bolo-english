@@ -292,6 +292,36 @@ const DDL: string[] = [
   )`,
   `CREATE INDEX IF NOT EXISTS "Entitlement_userId_revokedAt_idx" ON "Entitlement"("userId", "revokedAt")`,
   `CREATE INDEX IF NOT EXISTS "Entitlement_planKey_idx" ON "Entitlement"("planKey")`,
+  // ─── Certificate / Referral (D40-D41, ROADMAP-60) — mirrors schema ───────
+  `CREATE TABLE IF NOT EXISTS "Certificate" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "code" TEXT NOT NULL,
+    "userId" TEXT,
+    "deviceId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "level" TEXT NOT NULL,
+    "tier" TEXT NOT NULL DEFAULT 'learner',
+    "stats" TEXT NOT NULL DEFAULT '{}',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "Certificate_code_key" ON "Certificate"("code" ASC)`,
+  `CREATE INDEX IF NOT EXISTS "Certificate_deviceId_createdAt_idx" ON "Certificate"("deviceId", "createdAt")`,
+  `CREATE INDEX IF NOT EXISTS "Certificate_userId_createdAt_idx" ON "Certificate"("userId", "createdAt")`,
+  `CREATE TABLE IF NOT EXISTS "Referral" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "code" TEXT NOT NULL,
+    "inviterUserId" TEXT NOT NULL,
+    "inviterDevice" TEXT NOT NULL,
+    "inviteeUserId" TEXT NOT NULL,
+    "inviteeDevice" TEXT NOT NULL,
+    "inviteeName" TEXT NOT NULL DEFAULT '',
+    "xpInviter" INTEGER NOT NULL DEFAULT 0,
+    "xpInvitee" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "Referral_inviteeUserId_key" ON "Referral"("inviteeUserId" ASC)`,
+  `CREATE INDEX IF NOT EXISTS "Referral_code_createdAt_idx" ON "Referral"("code", "createdAt")`,
+  `CREATE INDEX IF NOT EXISTS "Referral_inviterUserId_createdAt_idx" ON "Referral"("inviterUserId", "createdAt")`,
 ];
 
 /* In-place column migrations for databases created before the learning-path
@@ -345,6 +375,9 @@ async function tablesExist(): Promise<boolean> {
     // Phase-6 sentinel (D36): a DB that predates D36 must still run the
     // (idempotent) DDL batch once to gain Plan/Entitlement.
     await db.$queryRawUnsafe(`SELECT 1 FROM "Plan" LIMIT 1`);
+    // Phase-7 sentinel (D40-D41): a DB that predates D40 must still run the
+    // (idempotent) DDL batch once to gain Certificate/Referral.
+    await db.$queryRawUnsafe(`SELECT 1 FROM "Certificate" LIMIT 1`);
     return true;
   } catch {
     return false;
@@ -376,6 +409,13 @@ const INDEXES: { name: string; table: string; ddl: string }[] = [
   { name: "Plan_key_key", table: "Plan", ddl: `CREATE UNIQUE INDEX "Plan_key_key" ON "Plan"("key" ASC)` },
   { name: "Entitlement_userId_revokedAt_idx", table: "Entitlement", ddl: `CREATE INDEX "Entitlement_userId_revokedAt_idx" ON "Entitlement"("userId", "revokedAt")` },
   { name: "Entitlement_planKey_idx", table: "Entitlement", ddl: `CREATE INDEX "Entitlement_planKey_idx" ON "Entitlement"("planKey")` },
+  // Phase-7 (D40-D41): Certificate verify key + Referral one-claim key.
+  { name: "Certificate_code_key", table: "Certificate", ddl: `CREATE UNIQUE INDEX "Certificate_code_key" ON "Certificate"("code" ASC)` },
+  { name: "Certificate_deviceId_createdAt_idx", table: "Certificate", ddl: `CREATE INDEX "Certificate_deviceId_createdAt_idx" ON "Certificate"("deviceId", "createdAt")` },
+  { name: "Certificate_userId_createdAt_idx", table: "Certificate", ddl: `CREATE INDEX "Certificate_userId_createdAt_idx" ON "Certificate"("userId", "createdAt")` },
+  { name: "Referral_inviteeUserId_key", table: "Referral", ddl: `CREATE UNIQUE INDEX "Referral_inviteeUserId_key" ON "Referral"("inviteeUserId" ASC)` },
+  { name: "Referral_code_createdAt_idx", table: "Referral", ddl: `CREATE INDEX "Referral_code_createdAt_idx" ON "Referral"("code", "createdAt")` },
+  { name: "Referral_inviterUserId_createdAt_idx", table: "Referral", ddl: `CREATE INDEX "Referral_inviterUserId_createdAt_idx" ON "Referral"("inviterUserId", "createdAt")` },
 ];
 
 async function ensureIndexes(): Promise<boolean> {

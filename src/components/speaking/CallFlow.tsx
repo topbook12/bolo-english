@@ -766,7 +766,7 @@ export default function CallFlow({ intent, code, onExit }: CallFlowProps) {
           aria-hidden
         />
         <span
-          className="call-orb call-orb-a left-1/3 top-1/2 h-40 w-40 bg-sky-500/15 [animation-delay:-6s]"
+          className="call-orb call-orb-a left-1/3 top-1/2 h-40 w-40 bg-emerald-500/15 [animation-delay:-6s]"
           aria-hidden
         />
 

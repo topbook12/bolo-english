@@ -55,6 +55,7 @@ import { apiGet } from "@/lib/client-api";
 import SectionHeader from "@/components/shared/SectionHeader";
 import StatCard from "@/components/shared/StatCard";
 import EmptyState from "@/components/shared/EmptyState";
+import CertificateCard from "@/components/progress/CertificateCard";
 import type { CallAnalysis, TranscriptLine } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
@@ -642,6 +643,8 @@ export default function ProgressSection() {
             </div>
           )}
         </section>
+
+        <CertificateCard />
       </div>
 
       {/* ── full analysis dialog ── */}

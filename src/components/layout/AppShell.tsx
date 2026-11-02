@@ -27,6 +27,7 @@ import PwaRegister from "@/components/pwa/PwaRegister";
 import InstallPrompt from "@/components/pwa/InstallPrompt";
 import OfflineBanner from "@/components/pwa/OfflineBanner";
 import FeedbackWidget from "@/components/feedback/FeedbackWidget";
+import RefCapture from "@/components/community/RefCapture";
 import NpsPrompt from "@/components/rating/NpsPrompt";
 import OnboardingDialog from "@/components/onboarding/OnboardingDialog";
 import AuthButton from "@/components/auth/AuthButton";
@@ -262,6 +263,9 @@ export default function AppShell() {
       {/* Offline notice (Backlog A4): visible only while the browser is
           actually offline — the SW keeps the shell + content caches alive. */}
       <OfflineBanner />
+      {/* Referral capture + auto-claim (D41): a `?ref=CODE` arrival claims
+          the moment a session exists — no Community visit required. */}
+      <RefCapture mode="claim" />
       {/* Floating feedback widget (D3): present on every tab, works for
           signed-out users too (deviceId-only, rate-limited server-side). */}
       <FeedbackWidget />

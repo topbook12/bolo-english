@@ -469,6 +469,60 @@ const M = {
     bn: "আগে আপনার প্রশ্ন লিখুন।",
     hi: "पहले अपना प्रश्न लिखें।",
   },
+
+  /* ── certificate (D40) ── */
+  certLoginRequired: {
+    en: "Please log in first — certificates are issued to your account.",
+    bn: "আগে লগইন করুন — সার্টিফিকেট ইস্যু হয় আপনার অ্যাকাউন্টে।",
+    hi: "पहले लॉगिन करें — सर्टिफिकेट आपके अकाउंट पर ही जारी होता है।",
+  },
+  certNotEligible: {
+    en: "You need 1000 XP and 14 active days — you have {xp} XP and {days} days.",
+    bn: "সার্টিফিকেটের জন্য দরকার ১০০০ XP এবং ১৪টি সক্রিয় দিন — আপনার আছে {xp} XP এবং {days} দিন।",
+    hi: "सर्टिफिकेट के लिए 1000 XP और 14 सक्रिय दिन चाहिए — आपके पास {xp} XP और {days} दिन हैं।",
+  },
+  certCreateFailed: {
+    en: "Couldn't create the certificate — please try again.",
+    bn: "সার্টিফিকেট তৈরি করা যায়নি — আবার চেষ্টা করুন।",
+    hi: "सर्टिफिकेट बनाया नहीं जा सका — कृपया फिर कोशिश करें।",
+  },
+
+  /* ── referral (D41) ── */
+  referralLoginRequired: {
+    en: "Please log in first — invites are tied to your account.",
+    bn: "আগে লগইন করুন — ইনভাইট যায় আপনার অ্যাকাউন্টে।",
+    hi: "पहले लॉगिन करें — इनवाइट आपके अकाउंट से जुड़ा होता है।",
+  },
+  referralCodeInvalid: {
+    en: "This invite code doesn't look right — check the link and try again.",
+    bn: "ইনভাইট কোডটি ঠিক দেখাচ্ছে না — লিংকটি দেখে আবার চেষ্টা করুন।",
+    hi: "यह इनवाइट कोड सही नहीं लग रहा — लिंक जाँचकर फिर कोशिश करें।",
+  },
+  referralCodeNotFound: {
+    en: "No account matches this invite code.",
+    bn: "এই ইনভাইট কোডের সাথে মেলা কোনো অ্যাকাউন্ট নেই।",
+    hi: "इस इनवाइट कोड से मेल खाता कोई अकाउंट नहीं मिला।",
+  },
+  referralSelfClaim: {
+    en: "You can't use your own invite code.",
+    bn: "আপনি নিজের ইনভাইট কোড ব্যবহার করতে পারবেন না।",
+    hi: "आप अपना ही इनवाइट कोड इस्तेमाल नहीं कर सकते।",
+  },
+  referralAlreadyClaimed: {
+    en: "You've already claimed a welcome reward.",
+    bn: "আপনি ইতিমধ্যে একটি স্বাগতম রিওয়ার্ড নিয়েছেন।",
+    hi: "आप पहले ही वेलकम रिवार्ड ले चुके हैं।",
+  },
+  referralClaimFailed: {
+    en: "Couldn't claim the invite right now — please try again in a moment.",
+    bn: "আমন্ত্রণটি এখন নেওয়া যায়নি — কিছুক্ষণ পর আবার চেষ্টা করুন।",
+    hi: "इनवाइट अभी क्लेम नहीं हो सका — कुछ देर बाद फिर कोशिश करें।",
+  },
+  referralLookupFailed: {
+    en: "Couldn't check the invite code right now — please try again.",
+    bn: "ইনভাইট কোডটি এখন যাচাই করা যায়নি — আবার চেষ্টা করুন।",
+    hi: "इनवाइट कोड अभी जाँचा नहीं जा सका — कृपया फिर कोशिश करें।",
+  },
 } satisfies Record<string, Catalog>;
 
 export type ApiMsgKey = keyof typeof M;

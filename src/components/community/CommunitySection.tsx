@@ -6,6 +6,7 @@ import LeaderboardCard from "@/components/community/LeaderboardCard";
 import ChallengeCard from "@/components/community/ChallengeCard";
 import PartnerMatchCard from "@/components/community/PartnerMatchCard";
 import ProfileCard from "@/components/community/ProfileCard";
+import ReferralCard from "@/components/community/ReferralCard";
 import { useTranslations } from "next-intl";
 
 // ─── Community section (Phase 5, ROADMAP-60 D30–D34) ────────────────────────
@@ -24,6 +25,7 @@ export default function CommunitySection({ onNavigate }: { onNavigate: (tab: "sp
       <ChallengeCard />
       <PartnerMatchCard onNavigate={onNavigate} />
       <ProfileCard />
+      <ReferralCard />
     </div>
   );
 }

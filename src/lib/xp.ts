@@ -19,7 +19,8 @@ export type XpKind =
   | "call"
   | "lesson"
   | "challenge"
-  | "writing";
+  | "writing"
+  | "referral";
 
 export interface XpFlatRule {
   type: "flat";
@@ -56,6 +57,11 @@ export const XP_RULES: Record<XpKind, XpRule> = {
   challenge: { type: "flat", xp: 12, dailyEvents: 1 },
   // Writing practice task (Backlog A1) — one finished essay/email/paragraph.
   writing: { type: "flat", xp: 15, dailyEvents: 4 },
+  // Referral completion (D41) — actual amounts are decided per-side by the
+  // referral route (inviter 150 / invitee 100); this rule is the CAP safety
+  // net (a device can't farm referrals beyond its own invites). The route
+  // passes `xp` explicitly and awards with dedupeRefId=referral-row id.
+  referral: { type: "flat", xp: 0, dailyEvents: 10 },
 };
 
 /** Hard ceiling for one device per day — nothing can exceed this. */

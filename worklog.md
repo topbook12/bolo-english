@@ -3958,3 +3958,66 @@ Stage Summary:
 - Self-migrating: first post-deploy visit creates Plan/Entitlement on production Turso (no .env.turso
   needed — same mechanism as the D35 fix), plans auto-seed create-only.
 - Next: D37 — premium feature surfacing + trilingual pricing page (no-paywall UX).
+
+## Day 40–41 (D40–D41, ROADMAP-60) — Certificate Generator + Referral System
+- Scope decision: D37–39 (pricing/payments) stay ON HOLD per the recorded owner decision (platform 100% free);
+  the payment-independent D40–D41 were pulled forward exactly as the roadmap allows.
+- Shared infra (main agent): prisma/schema.prisma += Certificate {code unique BOLO-XXXX-XXXX (alphabet
+  without 0/O/1/I), userId?, deviceId, name≤60, level, tier learner|achiever, stats JSON, indexes} +
+  Referral {code, inviterUserId, inviterDevice, inviteeUserId UNIQUE (one claim per account ever),
+  inviteeDevice, inviteeName, xpInviter, xpInvitee, indexes}; db-bootstrap.ts += phase-7 DDL batch +
+  "Certificate" sentinel probe + INDEXES repair entries (self-migrating on production Turso, D35/36
+  pattern); xp.ts += XpKind "referral" (cap safety net; XP_RULES.referral {flat, dailyEvents 10}).
+- BACKEND (D40): POST/GET /api/certificate (login-required issue; server-computed stats: XP total,
+  active-day count, streak, UserConfig level/name; eligibility 1000 XP ∧ 14 active days → 403 trilingual
+  with live numbers; achiever tier at 3000 XP ∧ 30 days; collision-safe randomInt codes, P2002 retry ≤5;
+  list newest-first cap 20, device+account scope, sibling `progress` payload powers the UI bars) +
+  GET /api/certificate/verify (PUBLIC, no auth: normalize sloppy input "bolo vv4g94j4" → canonical,
+  found → {valid,name,level,tier,issuedAt,xp,activeDays}, miss → 200 {valid:false}, 20/min/IP).
+- FRONTEND (D40): CertificateCard (Progress section) — eligibility Progress bars (XP/0→1000, days/0→14,
+  Bengali numerals), issue flow + toast, DOCUMENT-GRADE preview (1.414:1, emerald ring + gold dashed
+  inner border, always-cream paper, serif headings, tier badge, 4 stat chips, mono letter-spaced code,
+  Intl date per locale, rotated gold seal), PDF download via body.cert-printing + injected @page A4-
+  landscape (CV Studio's portrait @print pipeline untouched — class-scoped), public verify Dialog
+  (green valid / rose not-found), my-codes list with copy. messages/sections/certificate.{en,bn,hi}.json
+  41 keys ×3 ALL-PARITY-OK; api-i18n += certLoginRequired/certNotEligible{xp,days}/certCreateFailed.
+- BACKEND (D41): src/lib/referral.ts (deterministic code = "R"+SHA256(userId+":bolo-ref") 7 chars;
+  userIdForCode via 10-min-TTL Map built from one user scan — no schema change, tradeoff documented) +
+  GET /api/referral (login: code/invited/xpEarned/recent-5) + POST /api/referral {code,deviceId}
+  (guards 400 invalid → 404 not-found → 400 self-claim → 409 already-claimed [pre-check + P2002 net];
+  row created 0/0 first so its id anchors refId; grants written back as actuals) + GET /api/referral/
+  lookup?code= (public, {valid,name} only). XP: route-local awardReferralXp replicating awardXp
+  semantics — the frozen XP_RULES.referral {xp:0} flat-cap makes applyCaps zero ANY explicit amount
+  through awardXp (verified empirically), so the route re-implements the same anti-abuse envelope
+  (refId dedupe, 10 events/day cap, 500/day global cap, device-scoped, never-throw) with inviter 150 /
+  invitee 100; documented in-code.
+- FRONTEND (D41): ReferralCard (Community) — invite face (mono code, one-tap copy of origin/?ref= link,
+  joined/XP chips, recent list max-h-40 nice-scroll with localized dates + XP badges, dashed empty state,
+  reward explainer) + claim face; api-i18n += 7 referral keys; messages/sections/referral.{en,bn,hi}.json
+  24 keys ×3 ALL-PARITY-OK.
+- FUNNEL BUG FOUND & FIXED (main agent, browser E2E): `?ref=` was captured ONLY inside the Community
+  card — a signed-out friend landing on /?ref=CODE (LoginGate visible) lost the code forever; claim never
+  fired after signup. Fix: referral-shared.ts (client-safe capture/claim helpers, StrictMode-safe
+  one-shot POST, 5xx-keeps-code retry contract) + RefCapture (AppShell, mode "claim": captures + claims
+  the moment a session exists — no Community visit needed) + RefGateBanner (LoginGate: personalized
+  "Tapu QA আপনাকে আমন্ত্রণ জানিয়েছে!" emerald banner pre-signup) + ReferralCard slimmed to display-only.
+  Browser-verified: gate banner shows inviter name → register → auto-claim toast "স্বাগতম! আপনি ১০০ XP
+  পেয়েছেন" → Referral row {150/100} + both XpEvents (kind referral, refId=row id) + leaderboard shows
+  both users' XP.
+- UX consistency sweep (owner UI rule "no blue/indigo"): OnboardingDialog sky/cyan → brand
+  emerald/teal; global accent normalization sky→emerald, cyan→teal, blue→emerald, indigo→violet across
+  11 component files (LessonView, PlacementTest, CallFlow, PushCard, WeeklyDigestCard, TurnPoolCard,
+  StoragePoolCard, ListeningSection, DictationCard, WeekMissionCard…); WeeklyDigestCard text-sky-800 →
+  text-emerald-800. Zero blue-family utilities remain in src/components + src/app.
+- Verification: bun run lint ✓, tsc --noEmit 0 ✓, i18n parity scripts ALL-PARITY-OK (certificate 41×3,
+  referral 24×3) ✓; curl E2E: verify miss/exact/sloppy ✓, 401s trilingual ✓, list 200 [] ✓; browser E2E
+  (agent-browser): register bn → onboarding → certificate eligibility bars → boost (3604 XP/34 days via
+  temp script) → issue achiever cert BOLO-CRZB-2DG8 → preview + PDF button + codes list ✓ → public
+  verify API (clean + sloppy) ✓ → referral: copy toast, qa2 session via ?ref= link: gate banner with
+  inviter name → register → auto-claim 100 XP toast → inviter 150 XP → leaderboard reflects both ✓.
+  Mobile 390px: certificate + referral render, no h-scroll, bottom nav intact ✓. Fresh sessions: 0
+  hydration warnings, 0 console errors ✓.
+- QA cleanup: both temp accounts + referral + XP/activity/certificate/config/analytics rows deleted —
+  DB pristine (users 0, referrals 0, certs 0, xp 0, plans 2 seeded).
+- Next: D42 phase review (billing section = summary only, payments on hold) → Phase 7 content scale
+  (D43–45) or owner-prioritized alternative.
