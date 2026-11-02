@@ -74,6 +74,46 @@
         "name": "Since vs For",
         "sub": "Which one for which time"
       },
+      "presentSimpleContinuous": {
+        "name": "Present Simple vs Present Continuous",
+        "sub": "Habit vs happening right now"
+      },
+      "pastContinuous": {
+        "name": "Past Continuous",
+        "sub": "Actions in progress in the past"
+      },
+      "futureForms": {
+        "name": "Future Forms (will vs going to)",
+        "sub": "Talk about the future the right way"
+      },
+      "countable": {
+        "name": "Countable & Uncountable Nouns",
+        "sub": "Things you can count — and things you can't"
+      },
+      "adjectivesAdverbs": {
+        "name": "Adjectives & Adverbs",
+        "sub": "quick or quickly — which one goes where"
+      },
+      "frequency": {
+        "name": "Adverbs of Frequency",
+        "sub": "always, usually, sometimes and more"
+      },
+      "possessives": {
+        "name": "Possessives ('s / mine / of)",
+        "sub": "Say whose thing it is correctly"
+      },
+      "imperatives": {
+        "name": "Imperatives",
+        "sub": "Instructions, requests and warnings"
+      },
+      "thereIsAre": {
+        "name": "There is vs There are",
+        "sub": "Say what exists — the right way"
+      },
+      "eitherNeitherBoth": {
+        "name": "Either, Neither & Both",
+        "sub": "Choosing between two things"
+      },
       "inversion": {
         "name": "Inversion & Emphasis",
         "sub": "Never, rarely, only then — dramatic word order"

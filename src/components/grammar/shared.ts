@@ -94,6 +94,34 @@ const FOUNDATION_META: Pick<GrammarTopic, "topic" | "key" | "icon">[] = [
     key: "mistakes",
     icon: TriangleAlert,
   },
+  // D43–45 content-scale wave — 10 new beginner topics (offline bank lessons
+  // in every locale + one /learn/<slug> SEO landing page each).
+  {
+    topic: "Present Simple vs Present Continuous",
+    key: "presentSimpleContinuous",
+    icon: Clock3,
+  },
+  { topic: "Past Continuous", key: "pastContinuous", icon: History },
+  {
+    topic: "Future Forms (will vs going to)",
+    key: "futureForms",
+    icon: GitBranch,
+  },
+  {
+    topic: "Countable & Uncountable Nouns",
+    key: "countable",
+    icon: Blocks,
+  },
+  { topic: "Adjectives & Adverbs", key: "adjectivesAdverbs", icon: Feather },
+  { topic: "Adverbs of Frequency", key: "frequency", icon: Repeat },
+  {
+    topic: "Possessives ('s / mine / of)",
+    key: "possessives",
+    icon: KeyRound,
+  },
+  { topic: "Imperatives", key: "imperatives", icon: MessagesSquare },
+  { topic: "There is vs There are", key: "thereIsAre", icon: MapPin },
+  { topic: "Either, Neither & Both", key: "eitherNeitherBoth", icon: Scale },
 ];
 
 // Advanced grid — C1-level topics: nuance, style and academic English.

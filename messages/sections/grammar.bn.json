@@ -74,6 +74,46 @@
         "name": "Since বনাম For",
         "sub": "সময় বোঝাতে কোনটি কখন"
       },
+      "presentSimpleContinuous": {
+        "name": "Present Simple বনাম Present Continuous",
+        "sub": "অভ্যাস না এইমাত্র চলছে — পার্থক্য গুছিয়ে"
+      },
+      "pastContinuous": {
+        "name": "Past Continuous",
+        "sub": "অতীতে চলছিল এমন কাজ বোঝানো"
+      },
+      "futureForms": {
+        "name": "Future Forms (will বনাম going to)",
+        "sub": "ভবিষ্যৎ বোঝানোর সঠিক উপায়"
+      },
+      "countable": {
+        "name": "Countable ও Uncountable Noun",
+        "sub": "গণনাযোগ্য ও অগণনীয় বিশেষ্য"
+      },
+      "adjectivesAdverbs": {
+        "name": "Adjectives ও Adverbs",
+        "sub": "quick না quickly — কোনটি কোথায়"
+      },
+      "frequency": {
+        "name": "Adverbs of Frequency",
+        "sub": "always, usually, sometimes-এর ব্যবহার"
+      },
+      "possessives": {
+        "name": "Possessives ('s / mine / of)",
+        "sub": "কার জিনিস — সঠিকভাবে বোঝানো"
+      },
+      "imperatives": {
+        "name": "Imperatives",
+        "sub": "নির্দেশ, অনুরোধ আর নিষেধ"
+      },
+      "thereIsAre": {
+        "name": "There is বনাম There are",
+        "sub": "কিছু আছে বোঝানোর শুদ্ধ নিয়ম"
+      },
+      "eitherNeitherBoth": {
+        "name": "Either, Neither ও Both",
+        "sub": "দুটোর মধ্যে বাছাই বোঝানো"
+      },
       "inversion": {
         "name": "ইনভার্শন ও জোর দেওয়া",
         "sub": "Never/Rarely দিয়ে শুরু করলে বাক্য উল্টে যায়"

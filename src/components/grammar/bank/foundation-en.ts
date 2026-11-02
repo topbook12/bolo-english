@@ -1133,6 +1133,926 @@ const LESSONS: BankLesson[] = [
       },
     ],
   },
+  {
+    topic: "Present Simple vs Present Continuous",
+    level: "beginner",
+    locale: "en",
+    title: "Present Simple or Present Continuous",
+    intro:
+      "I go to school every day and I am going to school now are two different sentences with different meanings. Get this habit-vs-happening-now distinction right and your present tenses will never fail you again.",
+    sections: [
+      {
+        heading: "Present Simple: habits, facts and permanent truths",
+        explanation:
+          "Use the present simple for things that happen every day, every week, or always — and for permanent facts. With he/she/it the verb takes s/es, and negatives and questions use do/does.",
+        examples: [
+          {
+            wrong: "I am go to school every day.",
+            right: "I go to school every day.",
+            note: "A daily habit needs no 'am' — just the plain verb 'go'.",
+          },
+          {
+            wrong: "He don't like tea.",
+            right: "He doesn't like tea.",
+            note: "With he/she/it the negative is 'does not = doesn't', never 'don't'.",
+          },
+          {
+            wrong: "The sun is rising in the east.",
+            right: "The sun rises in the east.",
+            note: "Permanent truths take the present simple, not the continuous.",
+          },
+        ],
+      },
+      {
+        heading: "Present Continuous: happening right now",
+        explanation:
+          "am/is/are + verb-ing means the action is in progress right now — use it with now, right now, at the moment. Temporary actions around these days also take it: I am reading a good book these days.",
+        examples: [
+          {
+            wrong: "I read a book now.",
+            right: "I am reading a book now.",
+            note: "'Now' signals an action in progress — so 'am reading'.",
+          },
+          {
+            wrong: "She is play the piano.",
+            right: "She is playing the piano.",
+            note: "After am/is/are the verb must take -ing.",
+          },
+          {
+            wrong: "They are watching TV every evening.",
+            right: "They watch TV every evening.",
+            note: "A repeated habit takes the simple present, not the continuous.",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "See every day, usually, often → present simple. See now, right now, at the moment → present continuous.",
+      "With he/she/it: simple adds -s to the verb, continuous uses is + -ing — don't mix the two up.",
+      "Negatives: simple uses don't/doesn't, continuous uses am not/isn't/aren't.",
+      "Knowing and feeling verbs (know, like, want, understand) usually avoid the continuous — say 'I know', not 'I am knowing'.",
+    ],
+    quiz: [
+      {
+        question: "Look! The baby ___ .",
+        options: ["sleeps", "is sleeping", "sleep", "slept"],
+        answer: 1,
+        explanation: "'Look!' points to a scene happening right now — so 'is sleeping'.",
+      },
+      {
+        question: "She ___ coffee every morning.",
+        options: ["is drinking", "drink", "drinks", "drinking"],
+        answer: 2,
+        explanation: "'Every morning' is a habit; with a singular subject the verb takes -s: drinks.",
+      },
+      {
+        question: "I ___ what you mean.",
+        options: ["am understanding", "understand", "understands", "understood"],
+        answer: 1,
+        explanation: "'Understand' is a state verb — it is not used in the continuous.",
+      },
+      {
+        question: "They ___ football at the moment.",
+        options: ["play", "plays", "are playing", "played"],
+        answer: 2,
+        explanation: "'At the moment' means the action is in progress — 'are playing'.",
+      },
+      {
+        question: "He ___ to the office by bus every day.",
+        options: ["is going", "goes", "go", "going"],
+        answer: 1,
+        explanation: "'Every day' marks a habit; with 'he' the verb takes -s: goes.",
+      },
+    ],
+  },
+  {
+    topic: "Past Continuous",
+    level: "beginner",
+    locale: "en",
+    title: "Past Continuous: Actions in Progress in the Past",
+    intro:
+      "I was reading at 8 pm last night — the past continuous paints actions that were running at a moment in the past. One minute of rules will make your storytelling come alive.",
+    sections: [
+      {
+        heading: "was/were + verb-ing: when to use it",
+        explanation:
+          "Use it for an action that was in progress at a specific past moment or over a past period — I was reading at 8 pm, They were playing all evening. Singular subjects take was, plurals take were.",
+        examples: [
+          {
+            wrong: "At 9 pm I watched TV.",
+            right: "At 9 pm I was watching TV.",
+            note: "The action was in progress at that moment — 'was watching'.",
+          },
+          {
+            wrong: "She were cooking dinner.",
+            right: "She was cooking dinner.",
+            note: "A singular subject takes 'was', not 'were'.",
+          },
+          {
+            wrong: "I was study when he called.",
+            right: "I was studying when he called.",
+            note: "After was/were the verb must take -ing.",
+          },
+        ],
+      },
+      {
+        heading: "Two actions together: while and when",
+        explanation:
+          "When one past action was running and another cut into it, the running action takes the past continuous and the interrupting action takes the past simple: I was sleeping when the phone rang. With 'while', both sides can be continuous.",
+        examples: [
+          {
+            wrong: "When the phone rang, I slept.",
+            right: "When the phone rang, I was sleeping.",
+            note: "The sleep was in progress when the phone rang — 'was sleeping'.",
+          },
+          {
+            wrong: "While I was reading, the lights go out.",
+            right: "While I was reading, the lights went out.",
+            note: "A past event needs a past verb — 'went', not 'go'.",
+          },
+          {
+            wrong: "They was playing while we were studying.",
+            right: "They were playing while we were studying.",
+            note: "Plural subjects take 'were' — on both sides of 'while'.",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "A past clock time or long past period (at 8 pm, all evening) should make you think past continuous.",
+      "Short sudden actions (rang, came, broke) stay in the past simple, set against the running background.",
+      "Never drop the -ing after was/were — 'was study' is wrong, 'was studying' is right.",
+      "The past continuous is perfect for setting a scene at the start of a story: The sun was setting and birds were singing.",
+    ],
+    quiz: [
+      {
+        question: "I ___ dinner when she arrived.",
+        options: ["cooked", "was cooking", "cook", "am cooking"],
+        answer: 1,
+        explanation: "The cooking was in progress when she arrived — 'was cooking'.",
+      },
+      {
+        question: "They ___ cricket at 5 pm yesterday.",
+        options: ["played", "were playing", "play", "are playing"],
+        answer: 1,
+        explanation: "The game was running at that past time; plural subject — 'were playing'.",
+      },
+      {
+        question: "The phone ___ while I was studying.",
+        options: ["was ringing", "rings", "rang", "ring"],
+        answer: 2,
+        explanation: "A short sudden event takes the past simple — 'rang'.",
+      },
+      {
+        question: "She ___ the whole afternoon yesterday.",
+        options: ["was sleeping", "sleeped", "sleeps", "sleep"],
+        answer: 0,
+        explanation: "An action continuing all afternoon — 'was sleeping'.",
+      },
+      {
+        question: "We ___ when the rain started.",
+        options: ["walked", "walk", "were walking", "are walking"],
+        answer: 2,
+        explanation: "The walk was in progress when the rain began — 'were walking'.",
+      },
+    ],
+  },
+  {
+    topic: "Future Forms (will vs going to)",
+    level: "beginner",
+    locale: "en",
+    title: "Will or Going To: Two Roads to the Future",
+    intro:
+      "I will go tomorrow and I am going to go tomorrow are both about the future — but English keeps them apart. Learn the border between 'will' and 'going to' and your future tense becomes exact.",
+    sections: [
+      {
+        heading: "will: instant decisions, promises and predictions",
+        explanation:
+          "Use will for decisions made at the moment of speaking, promises, offers and predictions based on opinion — I'll help you, I think it will rain. After will, always use the base verb.",
+        examples: [
+          {
+            wrong: "I will to call you tonight.",
+            right: "I will call you tonight.",
+            note: "No 'to' after will — straight to the base verb.",
+          },
+          {
+            wrong: "I will helping you.",
+            right: "I will help you.",
+            note: "'Will' is never followed by an -ing form.",
+          },
+          {
+            wrong: "Don't worry — I helping you tomorrow.",
+            right: "Don't worry — I will help you tomorrow.",
+            note: "A promise takes 'will'.",
+          },
+        ],
+      },
+      {
+        heading: "going to: prior plans and clear signs",
+        explanation:
+          "Use going to for plans decided before speaking — I am going to visit Dhaka next week. Also use it for predictions based on present evidence — Look at those clouds — it is going to rain. Remember: am/is/are + going to + base verb.",
+        examples: [
+          {
+            wrong: "I will visit my uncle tomorrow — I booked the ticket yesterday.",
+            right: "I am going to visit my uncle tomorrow — I booked the ticket yesterday.",
+            note: "The plan was made earlier — so 'going to'.",
+          },
+          {
+            wrong: "We going to watch a movie tonight.",
+            right: "We are going to watch a movie tonight.",
+            note: "'Going to' needs am/is/are before it.",
+          },
+          {
+            wrong: "She will to start a business next month — the plan is ready.",
+            right: "She is going to start a business next month — the plan is ready.",
+            note: "A ready-made plan takes 'going to'; and 'will' never takes 'to'.",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "Deciding or promising as you speak → will. Planned before you speak → going to.",
+      "A prediction based on what you can see (clouds → rain) also takes going to.",
+      "After will or going to, use the base verb — never 'to + verb' or the -ing form.",
+      "For timetabled trains and classes the present simple works too: The train leaves at 6.",
+    ],
+    quiz: [
+      {
+        question: "A: The phone is ringing. B: I ___ answer it.",
+        options: ["am going to", "will", "going to", "will to"],
+        answer: 1,
+        explanation: "A decision made at that very moment takes 'will'.",
+      },
+      {
+        question: "We ___ get married in December — the date is fixed.",
+        options: ["will", "are going to", "go to", "will be"],
+        answer: 1,
+        explanation: "A plan fixed earlier — 'are going to'.",
+      },
+      {
+        question: "Look at those black clouds! It ___ rain.",
+        options: ["will", "is going to", "goes to", "rains"],
+        answer: 1,
+        explanation: "Clear present evidence of rain — 'is going to'.",
+      },
+      {
+        question: "I promise I ___ tell anyone.",
+        options: ["am going to", "will not to", "will", "going to"],
+        answer: 2,
+        explanation: "A promise takes 'will', followed by the base verb 'tell'.",
+      },
+      {
+        question: "She ___ to study medicine after school — she decided long ago.",
+        options: ["will", "is going", "going", "will be going"],
+        answer: 1,
+        explanation: "A long-standing decision — 'is going to study'.",
+      },
+    ],
+  },
+  {
+    topic: "Countable & Uncountable Nouns",
+    level: "beginner",
+    locale: "en",
+    title: "Countable or Uncountable Nouns",
+    intro:
+      "One apple, two apples — but water is never 'one water' or 'two waters'. Learn which nouns you can count and which you can't, and the many/much, few/little battle is over.",
+    sections: [
+      {
+        heading: "Things you can count: a/an, plurals, many",
+        explanation:
+          "Nouns you can count one by one (book, chair, apple) are countable. Singular ones take a/an, plurals add -s/-es, and 'many' is used for large numbers.",
+        examples: [
+          {
+            wrong: "I bought three book.",
+            right: "I bought three books.",
+            note: "Countable nouns after a number take the plural form.",
+          },
+          {
+            wrong: "She has many friend in Dhaka.",
+            right: "She has many friends in Dhaka.",
+            note: "'Many' is followed by a plural noun.",
+          },
+          {
+            wrong: "I need an advice.",
+            right: "I need some advice.",
+            note: "'Advice' is uncountable — it never takes a/an.",
+          },
+        ],
+      },
+      {
+        heading: "Things you can't count: much, little, some",
+        explanation:
+          "Nouns like water, rice, milk, money, information cannot be counted — they stay singular and take much/little. To measure them, count the container or unit instead: a glass of water, a piece of advice.",
+        examples: [
+          {
+            wrong: "How many money do you have?",
+            right: "How much money do you have?",
+            note: "'Money' is uncountable — so 'much'.",
+          },
+          {
+            wrong: "I drank two waters.",
+            right: "I drank two glasses of water.",
+            note: "You can't count water — you count glasses.",
+          },
+          {
+            wrong: "He gave me many informations.",
+            right: "He gave me a lot of information.",
+            note: "'Information' has no plural form.",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "If you can put a/an before the noun, it is countable — if you can't, it is uncountable.",
+      "Memorise the common uncountables: water, rice, milk, sugar, money, news, advice, information, furniture.",
+      "To count an uncountable, count the container or piece: a cup of tea, a piece of paper, a loaf of bread.",
+      "some/any work with both groups — when in doubt, reach for some/any.",
+    ],
+    quiz: [
+      {
+        question: "How ___ rice do you eat every day?",
+        options: ["many", "much", "few", "some"],
+        answer: 1,
+        explanation: "'Rice' is uncountable — so 'much'.",
+      },
+      {
+        question: "I need ___ information about the course.",
+        options: ["an", "many", "some", "a few"],
+        answer: 2,
+        explanation: "'Information' is uncountable — it takes 'some', not 'an' or 'many'.",
+      },
+      {
+        question: "There are ___ chairs in the room.",
+        options: ["much", "a little", "many", "a"],
+        answer: 2,
+        explanation: "'Chairs' is a countable plural — so 'many'.",
+      },
+      {
+        question: "She gave me a good ___ .",
+        options: ["advices", "advice", "advise", "an advice"],
+        answer: 1,
+        explanation: "'Advice' is uncountable — never 'advices' or 'a good advice'.",
+      },
+      {
+        question: "Can I have ___ glass of water?",
+        options: ["a", "some", "much", "an"],
+        answer: 0,
+        explanation: "'Glass' is a countable singular — 'a glass'.",
+      },
+    ],
+  },
+  {
+    topic: "Adjectives & Adverbs",
+    level: "beginner",
+    locale: "en",
+    title: "Adjectives and Adverbs: Which One Goes Where",
+    intro:
+      "He is quick is right, but He runs quickly — adjectives describe nouns while adverbs describe verbs. Divide the work between this pair and your sentences instantly get cleaner.",
+    sections: [
+      {
+        heading: "Adjectives: before nouns, after be-verbs",
+        explanation:
+          "An adjective sits before a noun (a quick runner) or after be/look/feel/smell (He is quick). Ask 'what is it like?' — the answer is an adjective.",
+        examples: [
+          {
+            wrong: "She is a very intelligence girl.",
+            right: "She is a very intelligent girl.",
+            note: "The adjective is 'intelligent', not the noun 'intelligence'.",
+          },
+          {
+            wrong: "The flowers smell sweetly.",
+            right: "The flowers smell sweet.",
+            note: "After smell/look/feel use an adjective, not an adverb.",
+          },
+          {
+            wrong: "It was a day very hot.",
+            right: "It was a very hot day.",
+            note: "The adjective goes right before the noun — 'very hot day'.",
+          },
+        ],
+      },
+      {
+        heading: "Adverbs: they colour the verb",
+        explanation:
+          "Adverbs tell you HOW an action happens — most are adjective + ly: quick → quickly, careful → carefully. They usually sit next to the verb or at the end of the sentence.",
+        examples: [
+          {
+            wrong: "He speaks English very good.",
+            right: "He speaks English very well.",
+            note: "'Good' is an adjective; how he speaks takes the adverb 'well'.",
+          },
+          {
+            wrong: "She sings beautiful.",
+            right: "She sings beautifully.",
+            note: "The manner of singing needs the adverb 'beautifully'.",
+          },
+          {
+            wrong: "He drive careful.",
+            right: "He drives carefully.",
+            note: "How he drives — the adverb 'carefully'.",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "Ask yourself: describing what something is like → adjective; describing how it's done → adverb.",
+      "After be, look, sound, smell, feel and taste, use an adjective — never an adverb.",
+      "The adverb of 'good' is irregular: well — He is a good singer, He sings well.",
+      "hard/hardly mean different things — 'works hard' means with effort; 'hardly' means almost not.",
+    ],
+    quiz: [
+      {
+        question: "She is a ___ singer.",
+        options: ["beautifully", "beautiful", "beauty", "more beautiful"],
+        answer: 1,
+        explanation: "The noun 'singer' is being described — so the adjective 'beautiful'.",
+      },
+      {
+        question: "He drives very ___ .",
+        options: ["careful", "carefully", "care", "caring"],
+        answer: 1,
+        explanation: "It describes HOW he drives — the adverb 'carefully'.",
+      },
+      {
+        question: "The soup tastes ___ .",
+        options: ["deliciously", "delicious", "delicacy", "delight"],
+        answer: 1,
+        explanation: "After 'taste' use an adjective — 'delicious'.",
+      },
+      {
+        question: "They walked ___ into the room.",
+        options: ["quiet", "quietly", "quietness", "quieted"],
+        answer: 1,
+        explanation: "It describes HOW they walked — 'quietly'.",
+      },
+      {
+        question: "He is a ___ driver, but he never drives ___ .",
+        options: ["careful, carefully", "carefully, careful", "careful, careful", "carefully, carefully"],
+        answer: 0,
+        explanation: "Adjective before the noun 'driver'; adverb with the verb 'drives'.",
+      },
+    ],
+  },
+  {
+    topic: "Adverbs of Frequency",
+    level: "beginner",
+    locale: "en",
+    title: "Adverbs of Frequency: How Often",
+    intro:
+      "always, usually, often, sometimes, never — learn exactly where these words sit inside a sentence and you will describe habits like a native speaker.",
+    sections: [
+      {
+        heading: "Position: before the main verb, after be",
+        explanation:
+          "Frequency adverbs go before ordinary verbs — I always wake up early — but after the be-verbs (am/is/are/was/were) — He is always late. This one rule fixes 90% of sentences.",
+        examples: [
+          {
+            wrong: "I wake up always early.",
+            right: "I always wake up early.",
+            note: "'Always' goes before the main verb.",
+          },
+          {
+            wrong: "She always is happy.",
+            right: "She is always happy.",
+            note: "After the be-verb 'is', 'always' follows it.",
+          },
+          {
+            wrong: "They go sometimes to the market.",
+            right: "They sometimes go to the market.",
+            note: "'Sometimes' sounds most natural before the main verb.",
+          },
+        ],
+      },
+      {
+        heading: "Time phrases: at the start or end of the sentence",
+        explanation:
+          "Phrases like every day, once a week, twice a month normally go at the beginning or the end of the sentence — I go to the gym twice a week. They never slide inside the verb. And remember: 'never' needs no extra negative.",
+        examples: [
+          {
+            wrong: "I twice a week go to the gym.",
+            right: "I go to the gym twice a week.",
+            note: "'Twice a week' belongs at the end of the sentence.",
+          },
+          {
+            wrong: "Every day I am going to the office.",
+            right: "Every day I go to the office.",
+            note: "A daily habit takes the simple present.",
+          },
+          {
+            wrong: "He doesn't never miss class.",
+            right: "He never misses class.",
+            note: "'Never' is already negative — no 'doesn't' needed.",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "One line to remember: before the main verb, after be.",
+      "The frequency ladder: always (100%) → usually → often → sometimes → rarely → never (0%).",
+      "Keep every day / once a week phrases at the start or end — not in the middle of the verb.",
+      "Adding don't/doesn't to never/seldom creates a double negative — wrong.",
+    ],
+    quiz: [
+      {
+        question: "She ___ arrives on time.",
+        options: ["always", "is always", "always is", "the always"],
+        answer: 0,
+        explanation: "'Always' goes before the main verb 'arrives'.",
+      },
+      {
+        question: "They are ___ tired after work.",
+        options: ["sometimes", "sometime", "some time", "sometimes are"],
+        answer: 0,
+        explanation: "After the be-verb 'are', 'sometimes' follows it.",
+      },
+      {
+        question: "I visit my grandparents ___ .",
+        options: ["twice a week", "twice a week go", "go twice a week", "a week twice"],
+        answer: 0,
+        explanation: "Frequency phrases sit at the end of the sentence.",
+      },
+      {
+        question: "We ___ eat out on Fridays.",
+        options: ["usually", "are usually", "usually are", "the usually"],
+        answer: 0,
+        explanation: "'Usually' goes before the main verb 'eat'.",
+      },
+      {
+        question: "He never ___ his homework.",
+        options: ["doesn't do", "don't do", "does", "do"],
+        answer: 2,
+        explanation: "'Never' already makes it negative — 'he never does'.",
+      },
+    ],
+  },
+  {
+    topic: "Possessives ('s / mine / of)",
+    level: "beginner",
+    locale: "en",
+    title: "Whose Thing Is It: 's, Mine and Of",
+    intro:
+      "Rafi's book, mine, the door of the classroom — English has three roads for showing ownership. Learn which road to take and the whose-mistake disappears for good.",
+    sections: [
+      {
+        heading: "'s and my/your/his/her",
+        explanation:
+          "For people and animals, add 's to the owner — Rafi's book. The possessive adjectives my/your/his/her/our/their sit before a noun — my bag, her keys. Remember: plural nouns ending in -s take only an apostrophe.",
+        examples: [
+          {
+            wrong: "This is Rafi book.",
+            right: "This is Rafi's book.",
+            note: "The owner's name takes 's.",
+          },
+          {
+            wrong: "She forgot she keys.",
+            right: "She forgot her keys.",
+            note: "The subject 'she' becomes 'her' before a noun.",
+          },
+          {
+            wrong: "The boys's room is upstairs.",
+            right: "The boys' room is upstairs.",
+            note: "'Boys' is plural — just the apostrophe, no extra s.",
+          },
+        ],
+      },
+      {
+        heading: "mine/yours and the of-structure",
+        explanation:
+          "When no noun follows, use mine/yours/his/hers/ours/theirs — This book is mine. For things, use of — the door of the classroom. And for relationships, English says a friend of mine, using of + mine/yours.",
+        examples: [
+          {
+            wrong: "This pen is my.",
+            right: "This pen is mine.",
+            note: "Standing alone (no noun after it), use 'mine', not 'my'.",
+          },
+          {
+            wrong: "I met a friend of me.",
+            right: "I met a friend of mine.",
+            note: "After 'of' use mine/yours/hers — never 'of me'.",
+          },
+          {
+            wrong: "This bag is her's.",
+            right: "This bag is hers.",
+            note: "Standing-alone forms take no 's — mine, yours, hers, ours, theirs.",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "People take 's; things take of — the leg of the table.",
+      "my/your/his/her go before a noun; standing alone use mine/yours/his/hers.",
+      "After a plural -s, only the apostrophe remains: students' hostel.",
+      "'A friend of mine' means one of my friends — 'a friend of me' is never right.",
+    ],
+    quiz: [
+      {
+        question: "This is ___ car.",
+        options: ["mine", "my", "me", "I"],
+        answer: 1,
+        explanation: "Before the noun 'car' use the possessive adjective 'my'.",
+      },
+      {
+        question: "The ___ shoes are new.",
+        options: ["childrens'", "children's", "children", "childrens"],
+        answer: 1,
+        explanation: "'Children' is an irregular plural — it takes 's: children's shoes.",
+      },
+      {
+        question: "That jacket isn't mine; it's ___ .",
+        options: ["her", "hers", "her's", "she"],
+        answer: 1,
+        explanation: "Standing alone, the possessive pronoun is 'hers'.",
+      },
+      {
+        question: "I borrowed a book of ___ last week.",
+        options: ["me", "my", "mine", "I"],
+        answer: 2,
+        explanation: "Like 'a friend of mine', use 'of' + mine.",
+      },
+      {
+        question: "___ phone is ringing.",
+        options: ["You're", "Yours", "Your", "You"],
+        answer: 2,
+        explanation: "Before the noun 'phone' use 'your' — 'You're' means 'you are'.",
+      },
+    ],
+  },
+  {
+    topic: "Imperatives",
+    level: "beginner",
+    locale: "en",
+    title: "Imperatives: Instructions, Requests and Warnings",
+    intro:
+      "Open the door — sentences run without a subject when the words are aimed straight at the listener. From cooking recipes to street signs, this structure is everywhere.",
+    sections: [
+      {
+        heading: "The base verb, no subject",
+        explanation:
+          "For instructions, start the sentence with the base verb — Close the window, Sit down. No -s, no 'to'. For prohibitions, start with Don't — Don't touch the wire.",
+        examples: [
+          {
+            wrong: "Opens the door, please.",
+            right: "Open the door, please.",
+            note: "Imperatives take the bare verb — no -s.",
+          },
+          {
+            wrong: "Don't to worry.",
+            right: "Don't worry.",
+            note: "No 'to' after don't.",
+          },
+          {
+            wrong: "Not touch the wet paint.",
+            right: "Don't touch the wet paint.",
+            note: "The correct prohibition form is Don't + base verb.",
+          },
+        ],
+      },
+      {
+        heading: "Politeness and Let's",
+        explanation:
+          "Adding Please at the start or end softens the request — Please sit down. For suggestions that include the speaker, use Let's — Let's go home; its negative is Let's not — Let's not go there.",
+        examples: [
+          {
+            wrong: "Please you help me.",
+            right: "Please help me.",
+            note: "Requests take no subject.",
+          },
+          {
+            wrong: "Let we start the class.",
+            right: "Let's start the class.",
+            note: "Let's = Let us — the contracted form is the everyday one.",
+          },
+          {
+            wrong: "Let's don't go there.",
+            right: "Let's not go there.",
+            note: "The negative suggestion is Let's not.",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "Imperatives use the base verb — no -s/-es, no 'to', no -ing.",
+      "Prohibition = Don't + base verb; never 'don't to'.",
+      "Soften with Please at the start or end; a name can follow: Sit down, Rafi.",
+      "Suggest together with Let's..., hold back with Let's not....",
+    ],
+    quiz: [
+      {
+        question: "___ the door, please.",
+        options: ["Closes", "Closing", "Close", "To close"],
+        answer: 2,
+        explanation: "Imperatives use the base verb 'Close'.",
+      },
+      {
+        question: "___ worry — everything is fine.",
+        options: ["Not", "Don't", "Doesn't", "No"],
+        answer: 1,
+        explanation: "Prohibition = Don't + base verb.",
+      },
+      {
+        question: "Let's ___ a short break.",
+        options: ["take", "to take", "taking", "takes"],
+        answer: 0,
+        explanation: "After Let's use the base verb 'take'.",
+      },
+      {
+        question: "___ late for the exam!",
+        options: ["Not be", "Don't be", "Be not", "Doesn't be"],
+        answer: 1,
+        explanation: "The correct warning is Don't be late.",
+      },
+      {
+        question: "___ watch the new movie tonight.",
+        options: ["Let's", "Let us to", "Lets", "Let's to"],
+        answer: 0,
+        explanation: "A suggestion takes Let's + base verb.",
+      },
+    ],
+  },
+  {
+    topic: "There is vs There are",
+    level: "beginner",
+    locale: "en",
+    title: "There Is or There Are",
+    intro:
+      "English says there is / there are to say that something exists. One thing or many — the number right after 'there' decides the verb, so just look at the thing itself.",
+    sections: [
+      {
+        heading: "Singular takes there is, plural takes there are",
+        explanation:
+          "One thing: There is a book on the table. More than one: There are three books on the table. And remember — English never uses 'there have' for existence.",
+        examples: [
+          {
+            wrong: "There is two cats in the garden.",
+            right: "There are two cats in the garden.",
+            note: "Two cats — plural, so 'are'.",
+          },
+          {
+            wrong: "There are a problem with my phone.",
+            right: "There is a problem with my phone.",
+            note: "'A problem' is singular — so 'is'.",
+          },
+          {
+            wrong: "There have many shops here.",
+            right: "There are many shops here.",
+            note: "Existence uses there is/are — 'there have' is wrong.",
+          },
+        ],
+      },
+      {
+        heading: "Negatives, questions and uncountables",
+        explanation:
+          "Negatives use there isn't/aren't, questions use Is/Are there...? Uncountables like water, milk, money always take there is — There is some milk in the fridge. And never double the negative: isn't any is right, isn't no is wrong.",
+        examples: [
+          {
+            wrong: "There isn't no milk in the fridge.",
+            right: "There isn't any milk in the fridge.",
+            note: "Only one negative — 'isn't any'.",
+          },
+          {
+            wrong: "Is there any shops near here?",
+            right: "Are there any shops near here?",
+            note: "'Shops' is plural — the question is 'Are there'.",
+          },
+          {
+            wrong: "There are some rice left.",
+            right: "There is some rice left.",
+            note: "'Rice' is uncountable — so 'is'.",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "Look at the noun right after 'there' — singular → is, plural → are.",
+      "Uncountables (water, rice, money, time, milk) always take there is.",
+      "Questions flip the order: Is there...? / Are there...? — no extra subject needed.",
+      "'There have' never exists — existence uses there is/are; 'have' is only for possession.",
+    ],
+    quiz: [
+      {
+        question: "___ a big park near our house.",
+        options: ["There are", "There is", "It has", "There have"],
+        answer: 1,
+        explanation: "'A big park' is singular — so 'There is'.",
+      },
+      {
+        question: "There ___ many students in the class.",
+        options: ["is", "are", "have", "has"],
+        answer: 1,
+        explanation: "'Many students' is plural — so 'are'.",
+      },
+      {
+        question: "___ any milk in the fridge?",
+        options: ["Is there", "Are there", "Have there", "There is"],
+        answer: 0,
+        explanation: "'Milk' is uncountable — the question is 'Is there'.",
+      },
+      {
+        question: "There ___ some money in my pocket.",
+        options: ["are", "is", "have", "were"],
+        answer: 1,
+        explanation: "'Money' is uncountable — so 'is'.",
+      },
+      {
+        question: "There aren't ___ chairs for everyone.",
+        options: ["some", "a", "any", "much"],
+        answer: 2,
+        explanation: "In a negative sentence use 'any', not 'some'.",
+      },
+    ],
+  },
+  {
+    topic: "Either, Neither & Both",
+    level: "beginner",
+    locale: "en",
+    title: "Either, Neither and Both: The Math of Two",
+    intro:
+      "One of the two, none of the two, or the two together — these three words make choosing between two things simple. They also decide which verb form follows.",
+    sections: [
+      {
+        heading: "either...or, neither...nor, both...and",
+        explanation:
+          "One of the two: either...or — You can have either tea or coffee. None of the two: neither...nor — Neither Rahim nor Karim came. The two together: both...and — Both Rahim and Karim came. Keep the pairs straight: 'either' pairs with 'or', 'neither' pairs with 'nor'.",
+        examples: [
+          {
+            wrong: "You can take either tea nor coffee.",
+            right: "You can take either tea or coffee.",
+            note: "The partner of 'either' is 'or', not 'nor'.",
+          },
+          {
+            wrong: "Neither Karim or Rahim came.",
+            right: "Neither Karim nor Rahim came.",
+            note: "The partner of 'neither' is 'nor'.",
+          },
+          {
+            wrong: "Both Karim and Rahim didn't come.",
+            right: "Neither Karim nor Rahim came.",
+            note: "'Both didn't come' is avoided — use neither...nor for 'none of the two'.",
+          },
+        ],
+      },
+      {
+        heading: "Standing alone and verb agreement",
+        explanation:
+          "As a subject, either/neither take a singular verb — Neither answer is correct; both takes a plural verb — Both answers are correct. They also work as short answers: Either is fine / Neither, thanks.",
+        examples: [
+          {
+            wrong: "Neither of the answers are correct.",
+            right: "Neither of the answers is correct.",
+            note: "'Neither' is singular — so 'is' (formal rule).",
+          },
+          {
+            wrong: "Both of the doors is open.",
+            right: "Both of the doors are open.",
+            note: "'Both' means the two of them — plural verb 'are'.",
+          },
+          {
+            wrong: "I don't like both of them.",
+            right: "I don't like either of them.",
+            note: "'I dislike the two' = not...either (or I like neither).",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "Memorise the pairs: either ↔ or, neither ↔ nor, both ↔ and.",
+      "As subjects, either/neither take a singular verb, both takes a plural verb.",
+      "To say you dislike both: I don't like either or I like neither — both work.",
+      "Answering an offer: Either is fine (any one of them) / Neither, thanks (none of them).",
+    ],
+    quiz: [
+      {
+        question: "You can sit on ___ side you like.",
+        options: ["both", "either", "neither", "all"],
+        answer: 1,
+        explanation: "Any one of the two sides — 'either'.",
+      },
+      {
+        question: "___ of my parents is a doctor.",
+        options: ["Both", "Neither", "All", "Some"],
+        answer: 1,
+        explanation: "The verb 'is' is singular — so the subject is 'Neither'.",
+      },
+      {
+        question: "Both the shirts ___ too expensive.",
+        options: ["is", "was", "are", "has"],
+        answer: 2,
+        explanation: "'Both' takes a plural verb — 'are'.",
+      },
+      {
+        question: "I haven't seen ___ of those movies.",
+        options: ["neither", "both", "either", "all"],
+        answer: 2,
+        explanation: "In a negative sentence use not...either — so 'either'.",
+      },
+      {
+        question: "___ Rahim nor Karim knew the answer.",
+        options: ["Either", "Both", "Neither", "Or"],
+        answer: 2,
+        explanation: "The partner of 'nor' is 'neither' — Neither...nor.",
+      },
+    ],
+  },
 ];
 
 export default LESSONS;

@@ -71,8 +71,48 @@
         "sub": "जो गलतियाँ लगभग सब करते हैं"
       },
       "sinceFor": {
-        "name": "Since vs For",
+        "name": "Since बनाम For",
         "sub": "समय बताने में कब कौन-सा"
+      },
+      "presentSimpleContinuous": {
+        "name": "Present Simple बनाम Present Continuous",
+        "sub": "आदत बनाम अभी हो रहा है — अंतर समझें"
+      },
+      "pastContinuous": {
+        "name": "Past Continuous",
+        "sub": "अतीत में चल रहे काम बताना"
+      },
+      "futureForms": {
+        "name": "Future Forms (will बनाम going to)",
+        "sub": "भविष्य बताने का सही तरीका"
+      },
+      "countable": {
+        "name": "Countable और Uncountable Nouns",
+        "sub": "गिनने योग्य और न गिनने योग्य संज्ञाएँ"
+      },
+      "adjectivesAdverbs": {
+        "name": "Adjectives और Adverbs",
+        "sub": "quick या quickly — कौन-सा कहाँ"
+      },
+      "frequency": {
+        "name": "Adverbs of Frequency",
+        "sub": "always, usually, sometimes का उपयोग"
+      },
+      "possessives": {
+        "name": "Possessives ('s / mine / of)",
+        "sub": "किसकी चीज़ है — सही तरीके से बताएँ"
+      },
+      "imperatives": {
+        "name": "Imperatives",
+        "sub": "आदेश, अनुरोध और मनाही"
+      },
+      "thereIsAre": {
+        "name": "There is बनाम There are",
+        "sub": "कुछ होना बताने का सही नियम"
+      },
+      "eitherNeitherBoth": {
+        "name": "Either, Neither और Both",
+        "sub": "दो चीज़ों में चुनाव बताना"
       },
       "inversion": {
         "name": "इनवर्ज़न और ज़ोर देना",

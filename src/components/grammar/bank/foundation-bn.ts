@@ -1128,6 +1128,926 @@ const LESSONS: BankLesson[] = [
       },
     ],
   },
+  {
+    topic: "Present Simple vs Present Continuous",
+    level: "beginner",
+    locale: "bn",
+    title: "Present Simple নাকি Present Continuous",
+    intro:
+      "আমি প্রতিদিন স্কুলে যাই আর আমি এখন স্কুলে যাচ্ছি — দুটো ভিন্ন বাক্য, ভিন্ন অর্থ। অভ্যাস আর চলমান কাজের এই পার্থক্যটা ধরলেই আপনার বর্তমান কাল আর কোনোদিন ভুল হবে না।",
+    sections: [
+      {
+        heading: "Present Simple: অভ্যাস, সত্য আর স্থায়ী কথা",
+        explanation:
+          "প্রতিদিন, প্রতি সপ্তাহে, সবসময় যে কাজ হয় বা যেটা চিরন্তন সত্য — সেখানে present simple। কর্তা he/she/it হলে ক্রিয়ায় s/es যোগ হয়, আর নেতিবাচক-প্রশ্নে do/does লাগে।",
+        examples: [
+          {
+            wrong: "I am go to school every day.",
+            right: "I go to school every day.",
+            note: "প্রতিদিনের অভ্যাস — am-এর দরকার নেই, সোজা go।",
+          },
+          {
+            wrong: "He don't like tea.",
+            right: "He doesn't like tea.",
+            note: "he-এর সাথে does not মানে doesn't, don't নয়।",
+          },
+          {
+            wrong: "The sun is rising in the east.",
+            right: "The sun rises in the east.",
+            note: "চিরন্তন সত্য — সবসময় যা ঘটে, সেটা present simple।",
+          },
+        ],
+      },
+      {
+        heading: "Present Continuous: এখন এই মুহূর্তে চলছে",
+        explanation:
+          "am/is/are + ক্রিয়া+ing মানে কাজটা এখন চলছে — now, right now, at the moment-এর সাথে এটাই লাগে। এই দিনগুলোতে চলছে এমন সাময়িক কাজও এখানে পড়ে: I am reading a good book these days।",
+        examples: [
+          {
+            wrong: "I read a book now.",
+            right: "I am reading a book now.",
+            note: "now মানে এই মুহূর্তে চলছে — তাই am reading।",
+          },
+          {
+            wrong: "She is play the piano.",
+            right: "She is playing the piano.",
+            note: "am/is/are-এর পরে ক্রিয়ায় ing বাধ্যতামূলক।",
+          },
+          {
+            wrong: "They are watching TV every evening.",
+            right: "They watch TV every evening.",
+            note: "প্রতি সন্ধ্যার অভ্যাস — continuous নয়, simple।",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "বাক্যে every day, usually, often দেখলে present simple; now, right now, at the moment দেখলে present continuous।",
+      "he/she/it-এর পরে simple-এ ক্রিয়ায় s, কিন্তু continuous-এ is + ing — দুটো গুলিয়ে ফেলবেন না।",
+      "নেতিবাচক বাক্যে মনে রাখুন: simple-এ don't/doesn't, continuous-এ am not/isn't/aren't।",
+      "জানা-ভাবনার ক্রিয়া (know, like, want, understand) সাধারণত continuous হয় না — I know ঠিক, I am knowing ভুল।",
+    ],
+    quiz: [
+      {
+        question: "Look! The baby ___ .",
+        options: ["sleeps", "is sleeping", "sleep", "slept"],
+        answer: 1,
+        explanation: "Look! দিয়ে এই মুহূর্তের দৃশ্য বোঝায় — তাই is sleeping।",
+      },
+      {
+        question: "She ___ coffee every morning.",
+        options: ["is drinking", "drink", "drinks", "drinking"],
+        answer: 2,
+        explanation: "every morning প্রতিদিনের অভ্যাস — একবচন কর্তার সাথে drinks।",
+      },
+      {
+        question: "I ___ what you mean.",
+        options: ["am understanding", "understand", "understands", "understood"],
+        answer: 1,
+        explanation: "understand জানা-বোঝার ক্রিয়া — continuous হয় না, তাই understand।",
+      },
+      {
+        question: "They ___ football at the moment.",
+        options: ["play", "plays", "are playing", "played"],
+        answer: 2,
+        explanation: "at the moment মানে এখন চলছে — তাই are playing।",
+      },
+      {
+        question: "He ___ to the office by bus every day.",
+        options: ["is going", "goes", "go", "going"],
+        answer: 1,
+        explanation: "every day অভ্যাস — he-এর সাথে goes।",
+      },
+    ],
+  },
+  {
+    topic: "Past Continuous",
+    level: "beginner",
+    locale: "bn",
+    title: "Past Continuous: অতীতে চলমান কাজ",
+    intro:
+      "গতকাল রাত আটটায় আমি পড়ছিলাম — এমন অতীতের চলমান দৃশ্য বোঝাতে past continuous। এক মিনিটের নিয়মেই আপনার গল্প বলা প্রাণ পাবে।",
+    sections: [
+      {
+        heading: "was/were + ক্রিয়া+ing: কখন লাগে",
+        explanation:
+          "অতীতের কোনো নির্দিষ্ট মুহূর্তে বা সময়কালে যে কাজ চলমান ছিল — I was reading at 8 pm, They were playing all evening। একবচন কর্তায় was, বহুবচনে were।",
+        examples: [
+          {
+            wrong: "At 9 pm I watched TV.",
+            right: "At 9 pm I was watching TV.",
+            note: "ওই সময়ে কাজটা চলছিল — তাই was watching।",
+          },
+          {
+            wrong: "She were cooking dinner.",
+            right: "She was cooking dinner.",
+            note: "একবচন কর্তার সাথে were নয়, was।",
+          },
+          {
+            wrong: "I was study when he called.",
+            right: "I was studying when he called.",
+            note: "was-এর পরে ক্রিয়ায় ing বাধ্যতামূলক।",
+          },
+        ],
+      },
+      {
+        heading: "while আর when দিয়ে দুই কাজের গল্প",
+        explanation:
+          "দুটো অতীত কাজের একটা চলছিল, আরেকটা ভেদ করে এল — চলমান কাজে past continuous, হঠাৎ-কাজে past simple: I was sleeping when the phone rang। while-এর দুই পাশেই continuous হতে পারে।",
+        examples: [
+          {
+            wrong: "When the phone rang, I slept.",
+            right: "When the phone rang, I was sleeping.",
+            note: "ফোন বেজে ওঠার সময় ঘুম চলছিল — তাই was sleeping।",
+          },
+          {
+            wrong: "While I was reading, the lights go out.",
+            right: "While I was reading, the lights went out.",
+            note: "অতীতের ঘটনা — go নয়, went।",
+          },
+          {
+            wrong: "They was playing while we were studying.",
+            right: "They were playing while we were studying.",
+            note: "বহুবচন কর্তায় were — দুই পাশেই were।",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "অতীতের ঘড়ির সময় বা দীর্ঘ সময়কাল বললে (at 8 pm, all evening) past continuous ভাবুন।",
+      "হঠাৎ ঘটে যাওয়া ছোট কাজ (rang, came, broke) past simple — চলমান পটভূমির ওপর বসে।",
+      "was/were লেখার পরে ing বাদ দেবেন না — was study ভুল, was studying ঠিক।",
+      "গল্পের শুরুতে পরিবেশ আঁকতে past continuous দারুণ: The sun was setting and birds were singing।",
+    ],
+    quiz: [
+      {
+        question: "I ___ dinner when she arrived.",
+        options: ["cooked", "was cooking", "cook", "am cooking"],
+        answer: 1,
+        explanation: "তার আসার সময় রান্না চলছিল — তাই was cooking।",
+      },
+      {
+        question: "They ___ cricket at 5 pm yesterday.",
+        options: ["played", "were playing", "play", "are playing"],
+        answer: 1,
+        explanation: "গতকাল ৫টায় খেলা চলছিল — বহুবচনে were playing।",
+      },
+      {
+        question: "The phone ___ while I was studying.",
+        options: ["was ringing", "rings", "rang", "ring"],
+        answer: 2,
+        explanation: "হঠাৎ বেজে ওঠা ছোট কাজ — past simple, rang।",
+      },
+      {
+        question: "She ___ the whole afternoon yesterday.",
+        options: ["was sleeping", "sleeped", "sleeps", "sleep"],
+        answer: 0,
+        explanation: "পুরো বিকেল ধরে চলমান — was sleeping।",
+      },
+      {
+        question: "We ___ when the rain started.",
+        options: ["walked", "walk", "were walking", "are walking"],
+        answer: 2,
+        explanation: "বৃষ্টি শুরুর সময় হাঁটা চলছিল — তাই were walking।",
+      },
+    ],
+  },
+  {
+    topic: "Future Forms (will vs going to)",
+    level: "beginner",
+    locale: "bn",
+    title: "will নাকি going to: ভবিষ্যৎ বলার দুই রাস্তা",
+    intro:
+      "কাল যাব আর কাল যাওয়ার প্ল্যান আছে — দুটোই ভবিষ্যৎ, কিন্তু ইংরেজিতে দুটোর রূপ ভিন্ন। will আর going to-র সীমানা বুঝলেই আপনার ভবিষ্যৎ কাল নিখুঁত।",
+    sections: [
+      {
+        heading: "will: মুহূর্তের সিদ্ধান্ত, প্রতিশ্রুতি, ভবিষ্যদ্বাণী",
+        explanation:
+          "কথা বলার সময়েই ঠিক করা সিদ্ধান্ত, প্রতিশ্রুতি, অফার আর আন্দাজের ভবিষ্যদ্বাণীতে will — I'll help you, I think it will rain। will-এর পরে ক্রিয়ার মূল রূপ বসে।",
+        examples: [
+          {
+            wrong: "I will to call you tonight.",
+            right: "I will call you tonight.",
+            note: "will-এর পরে to আসে না — সরাসরি ক্রিয়ার মূল রূপ।",
+          },
+          {
+            wrong: "I will helping you.",
+            right: "I will help you.",
+            note: "will-এর সাথে ing চলে না।",
+          },
+          {
+            wrong: "Don't worry — I helping you tomorrow.",
+            right: "Don't worry — I will help you tomorrow.",
+            note: "প্রতিশ্রুতি বোঝাতে will লাগে।",
+          },
+        ],
+      },
+      {
+        heading: "going to: আগের পরিকল্পনা আর স্পষ্ট লক্ষণ",
+        explanation:
+          "আগে থেকে ঠিক করা পরিকল্পনায় going to — I am going to visit Dhaka next week। এখনই চোখে দেখা লক্ষণ থেকে আন্দাজেও going to — Look at those clouds — it is going to rain। মনে রাখুন: am/is/are + going to + ক্রিয়া।",
+        examples: [
+          {
+            wrong: "I will visit my uncle tomorrow — I booked the ticket yesterday.",
+            right: "I am going to visit my uncle tomorrow — I booked the ticket yesterday.",
+            note: "আগেই করা পরিকল্পনা — তাই going to।",
+          },
+          {
+            wrong: "We going to watch a movie tonight.",
+            right: "We are going to watch a movie tonight.",
+            note: "going to-র আগে am/is/are লাগে।",
+          },
+          {
+            wrong: "She will to start a business next month — the plan is ready.",
+            right: "She is going to start a business next month — the plan is ready.",
+            note: "পূর্বপরিকল্পিত প্ল্যান — going to; আর will-এর পরে to আসে না।",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "মুখে মুখে সিদ্ধান্ত বা প্রতিশ্রুতি হলে will; আগে থেকে ঠিক করা প্ল্যান হলে going to।",
+      "চোখে দেখা লক্ষণ থেকে আন্দাজ (মেঘ দেখে বৃষ্টি) — সেখানেও going to।",
+      "will বা going to-র পরে ক্রিয়ার মূল রূপ — to+ক্রিয়া বা ing দুটোই চলে না।",
+      "সময়সূচিবদ্ধ ট্রেন-ক্লাসের কথা বলতে বর্তমান কালও চলে: The train leaves at 6।",
+    ],
+    quiz: [
+      {
+        question: "A: The phone is ringing. B: I ___ answer it.",
+        options: ["am going to", "will", "going to", "will to"],
+        answer: 1,
+        explanation: "ওই মুহূর্তে নেওয়া সিদ্ধান্ত — তাই will।",
+      },
+      {
+        question: "We ___ get married in December — the date is fixed.",
+        options: ["will", "are going to", "go to", "will be"],
+        answer: 1,
+        explanation: "আগেই ঠিক হওয়া পরিকল্পনা — তাই are going to।",
+      },
+      {
+        question: "Look at those black clouds! It ___ rain.",
+        options: ["will", "is going to", "goes to", "rains"],
+        answer: 1,
+        explanation: "মেঘ দেখে স্পষ্ট লক্ষণ — going to বোঝায়।",
+      },
+      {
+        question: "I promise I ___ tell anyone.",
+        options: ["am going to", "will not to", "will", "going to"],
+        answer: 2,
+        explanation: "প্রতিশ্রুতি — will; পরে মূল ক্রিয়া tell।",
+      },
+      {
+        question: "She ___ to study medicine after school — she decided long ago.",
+        options: ["will", "is going", "going", "will be going"],
+        answer: 1,
+        explanation: "অনেক আগের সিদ্ধান্ত — is going to study।",
+      },
+    ],
+  },
+  {
+    topic: "Countable & Uncountable Nouns",
+    level: "beginner",
+    locale: "bn",
+    title: "গণনাযোগ্য নাকি অগণনাযোগ্য",
+    intro:
+      "একটা আপেল, দুটো আপেল — কিন্তু পানি একটা নয়, দুটোও নয়। কোন বস্তু গোনা যায় আর কোনটা যায় না, এটা জানলাই many/much, few/little-র যুদ্ধ শেষ।",
+    sections: [
+      {
+        heading: "গোনা যায় যেসব: a/an, বহুবচন, many",
+        explanation:
+          "একটা-দুটো করে গোনা যায় যেসব বস্তু (book, chair, apple) — সেগুলো countable। একবচনে a/an বসে, বহুবচনে -s/-es যোগ হয়, বেশি অর্থে many লাগে।",
+        examples: [
+          {
+            wrong: "I bought three book.",
+            right: "I bought three books.",
+            note: "গোনা যায় বলে সংখ্যার পরে বহুবচন লাগে।",
+          },
+          {
+            wrong: "She has many friend in Dhaka.",
+            right: "She has many friends in Dhaka.",
+            note: "many-র পরে বহুবচন বিশেষ্য।",
+          },
+          {
+            wrong: "I need an advice.",
+            right: "I need some advice.",
+            note: "advice অগণনাযোগ্য — a/an বসে না।",
+          },
+        ],
+      },
+      {
+        heading: "গোনা যায় না যেসব: much, little, some",
+        explanation:
+          "water, rice, milk, money, information-এর মতো বস্তু গোনা যায় না — এরা সবসময় একবচন রূপে থাকে, much/little লাগে। পরিমাপ বোঝাতে পাত্র-খণ্ড গুনে হয়: a glass of water, a piece of advice।",
+        examples: [
+          {
+            wrong: "How many money do you have?",
+            right: "How much money do you have?",
+            note: "money অগণনাযোগ্য — তাই much।",
+          },
+          {
+            wrong: "I drank two waters.",
+            right: "I drank two glasses of water.",
+            note: "পানি গোনা যায় না — গ্লাস গোনা যায়।",
+          },
+          {
+            wrong: "He gave me many informations.",
+            right: "He gave me a lot of information.",
+            note: "information-এর বহুবচন হয় না।",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "বস্তুর সামনে a/an বসাতে পারলে সেটা countable — না পারলে uncountable।",
+      "কমন অগণনাযোগ্য তালিকা মুখস্থ করুন: water, rice, milk, sugar, money, news, advice, information, furniture।",
+      "অগণনাযোগ্যের হিসাব চাইলে পাত্র/খণ্ড গুনুন: a cup of tea, a piece of paper, a loaf of bread।",
+      "some/any দুই দলের সাথেই চলে — সন্দেহ হলে some/any ব্যবহার করুন।",
+    ],
+    quiz: [
+      {
+        question: "How ___ rice do you eat every day?",
+        options: ["many", "much", "few", "some"],
+        answer: 1,
+        explanation: "rice অগণনাযোগ্য — তাই much।",
+      },
+      {
+        question: "I need ___ information about the course.",
+        options: ["an", "many", "some", "a few"],
+        answer: 2,
+        explanation: "information অগণনাযোগ্য — a/an, many চলে না; some চলে।",
+      },
+      {
+        question: "There are ___ chairs in the room.",
+        options: ["much", "a little", "many", "a"],
+        answer: 2,
+        explanation: "chairs গণনাযোগ্য বহুবচন — তাই many।",
+      },
+      {
+        question: "She gave me a good ___ .",
+        options: ["advices", "advice", "advise", "an advice"],
+        answer: 1,
+        explanation: "advice অগণনাযোগ্য — a good advice নয়, advice।",
+      },
+      {
+        question: "Can I have ___ glass of water?",
+        options: ["a", "some", "much", "an"],
+        answer: 0,
+        explanation: "glass গণনাযোগ্য একবচন — তাই a glass।",
+      },
+    ],
+  },
+  {
+    topic: "Adjectives & Adverbs",
+    level: "beginner",
+    locale: "bn",
+    title: "Adjective আর Adverb: কোনটা কোথায়",
+    intro:
+      "He is quick ঠিক, কিন্তু He runs quickly — বিশেষণ বিশেষ্যকে আর ক্রিয়াবিশেষণ ক্রিয়াকে বর্ণনা করে। এই জুটির কাজ ভাগ করে নিলেই বাক্য পরিষ্কার হয়।",
+    sections: [
+      {
+        heading: "Adjective: বিশেষণের আগে, be-ক্রিয়ার পরে",
+        explanation:
+          "adjective বিশেষণের আগে বসে (a quick runner) বা be/look/feel/smell-এর পরে বসে (He is quick)। বাংলার সাথে মেলান: দ্রুত ছেলে, ছেলেটা দ্রুত।",
+        examples: [
+          {
+            wrong: "She is a very intelligence girl.",
+            right: "She is a very intelligent girl.",
+            note: "বিশেষণ হিসেবে intelligent, intelligence নয়।",
+          },
+          {
+            wrong: "The flowers smell sweetly.",
+            right: "The flowers smell sweet.",
+            note: "smell/look/feel-এর পরে adjective বসে — ফুলের গন্ধ, কর্ম নয়।",
+          },
+          {
+            wrong: "It was a day very hot.",
+            right: "It was a very hot day.",
+            note: "adjective বিশেষণের ঠিক আগে বসে — very hot day।",
+          },
+        ],
+      },
+      {
+        heading: "Adverb: ক্রিয়াকে রং দেয়",
+        explanation:
+          "কীভাবে কাজটা হয় সেটা বলে adverb — বেশিরভাগ adjective + ly: quick → quickly, careful → carefully। সাধারণত ক্রিয়ার পাশে বা বাক্যের শেষে বসে।",
+        examples: [
+          {
+            wrong: "He speaks English very good.",
+            right: "He speaks English very well.",
+            note: "good adjective; কথা বলা কেমন হয় — তাই well।",
+          },
+          {
+            wrong: "She sings beautiful.",
+            right: "She sings beautifully.",
+            note: "গাওয়ার ধরন বোঝাতে adverb beautifully।",
+          },
+          {
+            wrong: "He drive careful.",
+            right: "He drives carefully.",
+            note: "চালানো কেমন হয় — তাই carefully।",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "প্রশ্ন করুন: কেমন (বিশেষণ) নাকি কীভাবে (adverb)? উত্তর অনুযায়ী শব্দ বাছুন।",
+      "be, look, sound, smell, feel, taste-এর পরে adjective বসে — adverb নয়।",
+      "good-এর adverb অনিয়মিত: well — He is a good singer, He sings well।",
+      "hard/hardly-র অর্থ ভিন্ন — works hard মানে কঠোর পরিশ্রম, hardly মানে প্রায় না।",
+    ],
+    quiz: [
+      {
+        question: "She is a ___ singer.",
+        options: ["beautifully", "beautiful", "beauty", "more beautiful"],
+        answer: 1,
+        explanation: "বিশেষণ singer-কে বর্ণনা করছে — তাই beautiful।",
+      },
+      {
+        question: "He drives very ___ .",
+        options: ["careful", "carefully", "care", "caring"],
+        answer: 1,
+        explanation: "চালানো কীভাবে হয় — adverb carefully।",
+      },
+      {
+        question: "The soup tastes ___ .",
+        options: ["deliciously", "delicious", "delicacy", "delight"],
+        answer: 1,
+        explanation: "taste-এর পরে adjective — delicious।",
+      },
+      {
+        question: "They walked ___ into the room.",
+        options: ["quiet", "quietly", "quietness", "quieted"],
+        answer: 1,
+        explanation: "হাঁটা কীভাবে হলো — তাই quietly।",
+      },
+      {
+        question: "He is a ___ driver, but he never drives ___ .",
+        options: ["careful, carefully", "carefully, careful", "careful, careful", "carefully, carefully"],
+        answer: 0,
+        explanation: "driver-এর আগে adjective, ক্রিয়া drives-এর সাথে adverb।",
+      },
+    ],
+  },
+  {
+    topic: "Adverbs of Frequency",
+    level: "beginner",
+    locale: "bn",
+    title: "Adverbs of Frequency: কতটা প্রায়ই",
+    intro:
+      "always, usually, often, sometimes, never — এই শব্দগুলো বাক্যের ভেতরে কোথায় বসে জানলেই অভ্যাস বর্ণনা করা হয়ে যায় নেটিভদের মতো।",
+    sections: [
+      {
+        heading: "বসার জায়গা: ক্রিয়ার আগে, be-এর পরে",
+        explanation:
+          "সাধারণ ক্রিয়ার আগে বসে — I always wake up early; কিন্তু be-ক্রিয়ার (am/is/are/was/were) পরে বসে — He is always late। এই একটা নিয়মেই ৯০% বাক্য ঠিক হয়ে যায়।",
+        examples: [
+          {
+            wrong: "I wake up always early.",
+            right: "I always wake up early.",
+            note: "প্রধান ক্রিয়ার আগে always।",
+          },
+          {
+            wrong: "She always is happy.",
+            right: "She is always happy.",
+            note: "be-ক্রিয়ার পরে always।",
+          },
+          {
+            wrong: "They go sometimes to the market.",
+            right: "They sometimes go to the market.",
+            note: "প্রধান ক্রিয়ার আগে sometimes বসলে সবচেয়ে স্বাভাবিক শোনায়।",
+          },
+        ],
+      },
+      {
+        heading: "সময়ের বাক্যাংশ: বাক্যের শুরু বা শেষে",
+        explanation:
+          "every day, once a week, twice a month-এর মতো বাক্যাংশ সাধারণত বাক্যের শুরুতে বা শেষে বসে — I go to the gym twice a week। এগুলো ক্রিয়ার মাঝে ঢোকে না। সাথে মনে রাখুন: never-এর সাথে আর একটা নেতিবাচক লাগে না।",
+        examples: [
+          {
+            wrong: "I twice a week go to the gym.",
+            right: "I go to the gym twice a week.",
+            note: "twice a week বাক্যের শেষে বসে।",
+          },
+          {
+            wrong: "Every day I am going to the office.",
+            right: "Every day I go to the office.",
+            note: "প্রতিদিনের অভ্যাস — simple present।",
+          },
+          {
+            wrong: "He doesn't never miss class.",
+            right: "He never misses class.",
+            note: "never নিজেই নেতিবাচক — doesn't আর লাগে না।",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "এক লাইনে মুখস্থ রাখুন: ক্রিয়ার আগে, be-এর পরে।",
+      "ঘনত্বের সিঁড়ি: always (১০০%) → usually → often → sometimes → rarely → never (০%)।",
+      "every day/once a week জাতীয় বাক্যাংশ বাক্যের শুরু বা শেষে রাখুন — ক্রিয়ার মাঝে নয়।",
+      "never/seldom-এর সাথে don't/doesn't যোগ করলে দ্বিগুণ নেতিবাচক হয়ে ভুল হয়।",
+    ],
+    quiz: [
+      {
+        question: "She ___ arrives on time.",
+        options: ["always", "is always", "always is", "the always"],
+        answer: 0,
+        explanation: "প্রধান ক্রিয়া arrives-এর আগে always।",
+      },
+      {
+        question: "They are ___ tired after work.",
+        options: ["sometimes", "sometime", "some time", "sometimes are"],
+        answer: 0,
+        explanation: "be-ক্রিয়া are-এর পরে sometimes।",
+      },
+      {
+        question: "I visit my grandparents ___ .",
+        options: ["twice a week", "twice a week go", "go twice a week", "a week twice"],
+        answer: 0,
+        explanation: "কনা-প্রতি বাক্যাংশ বাক্যের শেষে বসে।",
+      },
+      {
+        question: "We ___ eat out on Fridays.",
+        options: ["usually", "are usually", "usually are", "the usually"],
+        answer: 0,
+        explanation: "প্রধান ক্রিয়া eat-এর আগে usually।",
+      },
+      {
+        question: "He never ___ his homework.",
+        options: ["doesn't do", "don't do", "does", "do"],
+        answer: 2,
+        explanation: "never-এর সাথে আর don't/doesn't লাগে না — he never does।",
+      },
+    ],
+  },
+  {
+    topic: "Possessives ('s / mine / of)",
+    level: "beginner",
+    locale: "bn",
+    title: "কার জিনিস: 's, mine আর of",
+    intro:
+      "রাফির বই, আমারটা, ক্লাসের দরজা — মালিকানা বোঝানোর তিনটা রাস্তা ইংরেজিতে। কোথায় কোনটা বসে জানলেই কার-জিনিসের ভুল আর থাকবে না।",
+    sections: [
+      {
+        heading: "'s আর my/your/his/her",
+        explanation:
+          "মানুষ বা প্রাণীর মালিকানায় নামের পরে 's — Rafi's book। বিশেষণের আগে বসে my/your/his/her/our/their — my bag, her keys। মনে রাখুন: -s দিয়ে শেষ হওয়া বহুবচনে শুধু অ্যাপস্ট্রফি বসে।",
+        examples: [
+          {
+            wrong: "This is Rafi book.",
+            right: "This is Rafi's book.",
+            note: "মালিকের নামের পরে 's বসে।",
+          },
+          {
+            wrong: "She forgot she keys.",
+            right: "She forgot her keys.",
+            note: "কর্তা she হলে মালিকানা-রূপ her।",
+          },
+          {
+            wrong: "The boys's room is upstairs.",
+            right: "The boys' room is upstairs.",
+            note: "boys বহুবচন — শুধু অ্যাপস্ট্রফি।",
+          },
+        ],
+      },
+      {
+        heading: "mine/yours আর of-কাঠামো",
+        explanation:
+          "মালিক-শব্দটা একা বসলে mine/yours/his/hers/ours/theirs — This book is mine। জড় বস্তুর মালিকানায় of — the door of the classroom। আর সম্পর্ক বোঝাতে a friend of mine-এর মতো of + mine/yours চলে।",
+        examples: [
+          {
+            wrong: "This pen is my.",
+            right: "This pen is mine.",
+            note: "জিনিসের পরে না বসলে my নয়, mine।",
+          },
+          {
+            wrong: "I met a friend of me.",
+            right: "I met a friend of mine.",
+            note: "of-এর পরে mine/yours/hers — of me নয়।",
+          },
+          {
+            wrong: "This bag is her's.",
+            right: "This bag is hers.",
+            note: "একা বসা রূপে 's যোগ হয় না — mine, yours, hers, ours, theirs।",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "মানুষের জন্য 's, জড় বস্তুর জন্য of — the leg of the table।",
+      "my/your/his/her বিশেষণের আগে; একা বসলে mine/yours/his/hers।",
+      "বহুবচন -s-এর পরে শুধু অ্যাপস্ট্রফি: students' hostel।",
+      "'a friend of mine' মানে আমার এক বন্ধু — a friend of me কখনো চলে না।",
+    ],
+    quiz: [
+      {
+        question: "This is ___ car.",
+        options: ["mine", "my", "me", "I"],
+        answer: 1,
+        explanation: "car-এর আগে বিশেষণ-রূপ my বসে।",
+      },
+      {
+        question: "The ___ shoes are new.",
+        options: ["childrens'", "children's", "children", "childrens"],
+        answer: 1,
+        explanation: "children-এর বহুবচন নিয়মে 's — children's shoes।",
+      },
+      {
+        question: "That jacket isn't mine; it's ___ .",
+        options: ["her", "hers", "her's", "she"],
+        answer: 1,
+        explanation: "একা বসা মালিকানা-রূপ hers।",
+      },
+      {
+        question: "I borrowed a book of ___ last week.",
+        options: ["me", "my", "mine", "I"],
+        answer: 2,
+        explanation: "a friend of mine-এর মতো of + mine।",
+      },
+      {
+        question: "___ phone is ringing.",
+        options: ["You're", "Yours", "Your", "You"],
+        answer: 2,
+        explanation: "phone-এর আগে your — You're মানে you are।",
+      },
+    ],
+  },
+  {
+    topic: "Imperatives",
+    level: "beginner",
+    locale: "bn",
+    title: "Imperatives: নির্দেশ, নিষেধ আর অনুরোধ",
+    intro:
+      "Open the door — কর্তা ছাড়াই বাক্য চলে যখন কথাটা সোজা শ্রোতার উদ্দেশ্যে। রান্নার রেসিপি থেকে রাস্তার সাইনবোর্ড, সবখানেই এই কাঠামো।",
+    sections: [
+      {
+        heading: "কর্তা ছাড়া মূল ক্রিয়া",
+        explanation:
+          "নির্দেশে বাক্যের শুরুতে ক্রিয়ার মূল রূপ — Close the window, Sit down। ক্রিয়ায় s যোগ হয় না, to ও লাগে না। নিষেধে শুরুতে Don't — Don't touch the wire।",
+        examples: [
+          {
+            wrong: "Opens the door, please.",
+            right: "Open the door, please.",
+            note: "নির্দেশে ক্রিয়ায় s যোগ হয় না।",
+          },
+          {
+            wrong: "Don't to worry.",
+            right: "Don't worry.",
+            note: "don't-এর পরে to আসে না।",
+          },
+          {
+            wrong: "Not touch the wet paint.",
+            right: "Don't touch the wet paint.",
+            note: "নিষেধের সঠিক রূপ Don't + মূল ক্রিয়া।",
+          },
+        ],
+      },
+      {
+        heading: "ভদ্রতা আর Let's",
+        explanation:
+          "শুরুতে বা শেষে Please বসালে অনুরোধ নরম হয় — Please sit down। একসাথে করার প্রস্তাবে Let's — Let's go home; আর তার নিষেধ Let's not — Let's not go there।",
+        examples: [
+          {
+            wrong: "Please you help me.",
+            right: "Please help me.",
+            note: "অনুরোধে কর্তা you বসে না।",
+          },
+          {
+            wrong: "Let we start the class.",
+            right: "Let's start the class.",
+            note: "Let's = Let us — সংকুচিত রূপটাই ব্যবহৃত হয়।",
+          },
+          {
+            wrong: "Let's don't go there.",
+            right: "Let's not go there.",
+            note: "প্রস্তাবের নিষেধ Let's not।",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "নির্দেশ-বাক্যে ক্রিয়ার মূল রূপ — s/es, to, ing কিছুই লাগে না।",
+      "নিষেধ = Don't + মূল ক্রিয়া; কখনো don't to নয়।",
+      "ভদ্র করতে শুরু বা শেষে Please; শেষে নামও যোগ হতে পারে: Sit down, Rafi।",
+      "একসাথে করার প্রস্তাবে Let's..., বিরত রাখতে Let's not...।",
+    ],
+    quiz: [
+      {
+        question: "___ the door, please.",
+        options: ["Closes", "Closing", "Close", "To close"],
+        answer: 2,
+        explanation: "নির্দেশে ক্রিয়ার মূল রূপ Close।",
+      },
+      {
+        question: "___ worry — everything is fine.",
+        options: ["Not", "Don't", "Doesn't", "No"],
+        answer: 1,
+        explanation: "নিষেধ Don't + মূল ক্রিয়া।",
+      },
+      {
+        question: "Let's ___ a short break.",
+        options: ["take", "to take", "taking", "takes"],
+        answer: 0,
+        explanation: "Let's-এর পরে ক্রিয়ার মূল রূপ take।",
+      },
+      {
+        question: "___ late for the exam!",
+        options: ["Not be", "Don't be", "Be not", "Doesn't be"],
+        answer: 1,
+        explanation: "নিষেধের সঠিক রূপ Don't be late।",
+      },
+      {
+        question: "___ watch the new movie tonight.",
+        options: ["Let's", "Let us to", "Lets", "Let's to"],
+        answer: 0,
+        explanation: "প্রস্তাবে Let's + মূল ক্রিয়া।",
+      },
+    ],
+  },
+  {
+    topic: "There is vs There are",
+    level: "beginner",
+    locale: "bn",
+    title: "There is নাকি There are",
+    intro:
+      "কোনো কিছু আছে বোঝাতে ইংরেজি বলে there is / there are। একটা নাকি অনেকগুলো — সংখ্যা দেখেই ক্রিয়া ঠিক হয়ে যায়, শুধু বস্তুটার দিকে তাকান।",
+    sections: [
+      {
+        heading: "একবচনে there is, বহুবচনে there are",
+        explanation:
+          "একটা বস্তু থাকলে There is a book on the table; একাধিক থাকলে There are three books on the table। মনে রাখুন — 'আছে' বোঝাতে there have কখনো চলে না।",
+        examples: [
+          {
+            wrong: "There is two cats in the garden.",
+            right: "There are two cats in the garden.",
+            note: "দুটি বিড়াল — বহুবচন, তাই are।",
+          },
+          {
+            wrong: "There are a problem with my phone.",
+            right: "There is a problem with my phone.",
+            note: "a problem একবচন — তাই is।",
+          },
+          {
+            wrong: "There have many shops here.",
+            right: "There are many shops here.",
+            note: "আছে বোঝাতে there is/are — there have ভুল।",
+          },
+        ],
+      },
+      {
+        heading: "নেতিবাচক, প্রশ্ন আর অগণনাযোগ্য",
+        explanation:
+          "নেতিবাচকে there isn't/aren't, প্রশ্নে Is/Are there...?; water, milk, money-র মতো অগণনাযোগ্য সবসময় there is নেয় — There is some milk in the fridge। দ্বিগুণ নেতিবাচক চলে না: isn't any ঠিক, isn't no ভুল।",
+        examples: [
+          {
+            wrong: "There isn't no milk in the fridge.",
+            right: "There isn't any milk in the fridge.",
+            note: "একটাই নেতিবাচক — isn't any।",
+          },
+          {
+            wrong: "Is there any shops near here?",
+            right: "Are there any shops near here?",
+            note: "shops বহুবচন — প্রশ্নেও Are there।",
+          },
+          {
+            wrong: "There are some rice left.",
+            right: "There is some rice left.",
+            note: "rice অগণনাযোগ্য — তাই is।",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "there-এর ঠিক পরের বস্তুটা একবচন নাকি বহুবচন — সেটা দেখেই is/are বাছুন।",
+      "অগণনাযোগ্য তালিকা (water, rice, money, time, milk) সবসময় there is নেয়।",
+      "প্রশ্নে উল্টে যায়: Is there...? / Are there...? — আলাদা কর্তার দরকার নেই।",
+      "there have কখনো চলে না — অস্তিত্বে there is/are, মালিকানায় শুধু have।",
+    ],
+    quiz: [
+      {
+        question: "___ a big park near our house.",
+        options: ["There are", "There is", "It has", "There have"],
+        answer: 1,
+        explanation: "a big park একবচন — তাই There is।",
+      },
+      {
+        question: "There ___ many students in the class.",
+        options: ["is", "are", "have", "has"],
+        answer: 1,
+        explanation: "many students বহুবচন — তাই are।",
+      },
+      {
+        question: "___ any milk in the fridge?",
+        options: ["Is there", "Are there", "Have there", "There is"],
+        answer: 0,
+        explanation: "milk অগণনাযোগ্য — প্রশ্নে Is there।",
+      },
+      {
+        question: "There ___ some money in my pocket.",
+        options: ["are", "is", "have", "were"],
+        answer: 1,
+        explanation: "money অগণনাযোগ্য — তাই is।",
+      },
+      {
+        question: "There aren't ___ chairs for everyone.",
+        options: ["some", "a", "any", "much"],
+        answer: 2,
+        explanation: "নেতিবাচক বাক্যে some নয়, any।",
+      },
+    ],
+  },
+  {
+    topic: "Either, Neither & Both",
+    level: "beginner",
+    locale: "bn",
+    title: "Either, Neither আর Both: দুইয়ের হিসাব",
+    intro:
+      "দুটোর যেকোনোটা, দুটোর কোনোটাই না, নাকি দুটোই — এই তিন শব্দ দুইয়ের মধ্যে বাছাই সহজ করে দেয়। সাথে ক্রিয়াটা কোন রূপ নেবে, সেটাও এখানেই পরিষ্কার।",
+    sections: [
+      {
+        heading: "either...or, neither...nor, both...and",
+        explanation:
+          "যেকোনো একটা বোঝাতে either...or — You can have either tea or coffee; কোনোটাই না — neither...nor — Neither Rahim nor Karim came; দুটোই — both...and — Both Rahim and Karim came। জুটি ভুললে চলবে না: either-এর সঙ্গী or, neither-র সঙ্গী nor।",
+        examples: [
+          {
+            wrong: "You can take either tea nor coffee.",
+            right: "You can take either tea or coffee.",
+            note: "either-এর জুটি or, nor নয়।",
+          },
+          {
+            wrong: "Neither Karim or Rahim came.",
+            right: "Neither Karim nor Rahim came.",
+            note: "neither-এর জুটি nor।",
+          },
+          {
+            wrong: "Both Karim and Rahim didn't come.",
+            right: "Neither Karim nor Rahim came.",
+            note: "দুজনেই আসেনি মানে neither...nor — both-এর সাথে নেতিবাচক মেশানো হয় না।",
+          },
+        ],
+      },
+      {
+        heading: "একা ব্যবহার আর ক্রিয়ার মিল",
+        explanation:
+          "কর্তা হিসেবে either/neither একবচন ক্রিয়া নেয় — Neither answer is correct; both বহুবচন ক্রিয়া নেয় — Both answers are correct। অফারের উত্তরেও চলে: Either is fine / Neither, thanks।",
+        examples: [
+          {
+            wrong: "Neither of the answers are correct.",
+            right: "Neither of the answers is correct.",
+            note: "neither একবচন — তাই is (আনুষ্ঠানিক নিয়ম)।",
+          },
+          {
+            wrong: "Both of the doors is open.",
+            right: "Both of the doors are open.",
+            note: "both মানে দুটোই — বহুবচন ক্রিয়া are।",
+          },
+          {
+            wrong: "I don't like both of them.",
+            right: "I don't like either of them.",
+            note: "দুটোই পছন্দ না — not...either (বা I like neither)।",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "জুটি মুখস্থ রাখুন: either ↔ or, neither ↔ nor, both ↔ and।",
+      "কর্তায় either/neither একবচন ক্রিয়া নেয়, both বহুবচন।",
+      "'দুটোই পছন্দ না' বলতে I don't like either বা I like neither — উভয়ই ঠিক।",
+      "অফারের উত্তরে Either is fine (যেটাই হোক) / Neither, thanks (কোনোটাই না)।",
+    ],
+    quiz: [
+      {
+        question: "You can sit on ___ side you like.",
+        options: ["both", "either", "neither", "all"],
+        answer: 1,
+        explanation: "যেকোনো একটা দিক — তাই either।",
+      },
+      {
+        question: "___ of my parents is a doctor.",
+        options: ["Both", "Neither", "All", "Some"],
+        answer: 1,
+        explanation: "is একবচন ক্রিয়া — কর্তাও একবচন Neither।",
+      },
+      {
+        question: "Both the shirts ___ too expensive.",
+        options: ["is", "was", "are", "has"],
+        answer: 2,
+        explanation: "both বহুবচন — তাই are।",
+      },
+      {
+        question: "I haven't seen ___ of those movies.",
+        options: ["neither", "both", "either", "all"],
+        answer: 2,
+        explanation: "নেতিবাচক বাক্যে not...either — তাই either।",
+      },
+      {
+        question: "___ Rahim nor Karim knew the answer.",
+        options: ["Either", "Both", "Neither", "Or"],
+        answer: 2,
+        explanation: "nor-এর জুটি neither — Neither...nor।",
+      },
+    ],
+  },
 ];
 
 export default LESSONS;

@@ -47,6 +47,12 @@ import { SEED_LISTENING_V2_ADVANCED } from "../../scripts/seed-data/listening-v2
 import { SEED_READING_V1_BEGINNER } from "../../scripts/seed-data/reading-v1-beginner";
 import { SEED_READING_V1_INTERMEDIATE } from "../../scripts/seed-data/reading-v1-intermediate";
 import { SEED_READING_V1_ADVANCED } from "../../scripts/seed-data/reading-v1-advanced";
+// v2 reading seeds (Roadmap D45 content scale): 10 STANDALONE trilingual
+// passages — 4 beginner, 3 intermediate, 3 advanced — extras on top of the
+// v1 unit 1–5 series (unit 0, so the learning path stays untouched).
+import { SEED_READING_V2_BEGINNER } from "../../scripts/seed-data/reading-v2-beginner";
+import { SEED_READING_V2_INTERMEDIATE } from "../../scripts/seed-data/reading-v2-intermediate";
+import { SEED_READING_V2_ADVANCED } from "../../scripts/seed-data/reading-v2-advanced";
 import type { LibraryLevel } from "./library-types";
 
 /* ─── Database self-bootstrap (zero-config production) ──────────────────────
@@ -85,7 +91,10 @@ const MARKERS: Record<LibraryKind, string> = {
   vocab: "vocab_v6_journey",
   grammar: "grammar_v5_lang",
   listening: "listening_v5_lang",
-  reading: "reading_v5_lang",
+  // v6 = D45 reading wave: +10 standalone passages (read-b2/i2/a2-*). Bumping
+  // forces one reseed so every DB (local + production) creates the new rows;
+  // v1 rows refresh idempotently (established v4/v5-sweep semantics).
+  reading: "reading_v6_d45",
 };
 
 /** Single-flight per kind so parallel requests share one bootstrap. */
@@ -624,6 +633,16 @@ const V1_READING: ReadingSeedEntry[] = [
   ...SEED_READING_V1_ADVANCED,
 ];
 
+const V2_READING: ReadingSeedEntry[] = [
+  ...SEED_READING_V2_BEGINNER,
+  ...SEED_READING_V2_INTERMEDIATE,
+  ...SEED_READING_V2_ADVANCED,
+];
+
+/** Full reading corpus: v1 unit series (units 1–5 + v1 standalone) + the v2
+ * standalone wave. Order matters — it defines the per-level sortOrder. */
+const ALL_READING: ReadingSeedEntry[] = [...V1_READING, ...V2_READING];
+
 async function seedVocab(): Promise<number> {
   let fails = 0;
 
@@ -786,7 +805,7 @@ async function seedReading(): Promise<number> {
   // sortOrder: per-level slot (unit episodes first via the `unit` column, so a
   // simple per-level counter keeps series order stable inside each level).
   for (const level of ["beginner", "intermediate", "advanced"] as const) {
-    const list = V1_READING.filter((e) => e.level === level);
+    const list = ALL_READING.filter((e) => e.level === level);
     for (let i = 0; i < list.length; i++) {
       const e = list[i];
       try {

@@ -1136,6 +1136,926 @@ const LESSONS: BankLesson[] = [
       },
     ],
   },
+  {
+    topic: "Present Simple vs Present Continuous",
+    level: "beginner",
+    locale: "hi",
+    title: "Present Simple बनाम Present Continuous",
+    intro:
+      "मैं रोज़ स्कूल जाता हूँ और मैं अभी स्कूल जा रहा हूँ — दो अलग वाक्य, अलग अर्थ। आदत और चल रहे काम का यही फ़र्क़ पकड़ लें तो आपका present काल फिर कभी ग़लत नहीं होगा।",
+    sections: [
+      {
+        heading: "Present Simple: आदत, सच और स्थायी बातें",
+        explanation:
+          "जो काम हर दिन, हर हफ़्ते या हमेशा होता है, और जो सदाकाल सत्य है — वहाँ present simple लगता है। कर्ता he/she/it होने पर क्रिया में s/es जुड़ता है, और नकारात्मक-प्रश्न वाक्यों में do/does आता है।",
+        examples: [
+          {
+            wrong: "I am go to school every day.",
+            right: "I go to school every day.",
+            note: "रोज़ की आदत — am की ज़रूरत नहीं, सीधे go।",
+          },
+          {
+            wrong: "He don't like tea.",
+            right: "He doesn't like tea.",
+            note: "he के साथ does not यानी doesn't, don't नहीं।",
+          },
+          {
+            wrong: "The sun is rising in the east.",
+            right: "The sun rises in the east.",
+            note: "सदाकाल सत्य — हमेशा जो घटित होता है, वह present simple में ही।",
+          },
+        ],
+      },
+      {
+        heading: "Present Continuous: इसी पल चल रहा है",
+        explanation:
+          "am/is/are + क्रिया+ing का मतलब है काम इसी पल चल रहा है — now, right now, at the moment के साथ यही लगता है। इन दिनों चल रहे अस्थायी काम भी इसी में आते हैं: I am reading a good book these days।",
+        examples: [
+          {
+            wrong: "I read a book now.",
+            right: "I am reading a book now.",
+            note: "now यानी इसी पल में चल रहा — इसलिए am reading।",
+          },
+          {
+            wrong: "She is play the piano.",
+            right: "She is playing the piano.",
+            note: "am/is/are के बाद क्रिया में ing ज़रूरी है।",
+          },
+          {
+            wrong: "They are watching TV every evening.",
+            right: "They watch TV every evening.",
+            note: "हर शाम की आदत — continuous नहीं, simple।",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "वाक्य में every day, usually, often दिखे तो present simple; now, right now, at the moment दिखे तो present continuous।",
+      "he/she/it के साथ simple में क्रिया में s जुड़ता है, पर continuous में is + ing — दोनों को न मिलाइए।",
+      "नकारात्मक वाक्य याद रखें: simple में don't/doesn't, continuous में am not/isn't/aren't।",
+      "जानने-सोचने वाली क्रियाएँ (know, like, want, understand) सामान्यतः continuous नहीं होतीं — I know सही, I am knowing ग़लत।",
+    ],
+    quiz: [
+      {
+        question: "Look! The baby ___ .",
+        options: ["sleeps", "is sleeping", "sleep", "slept"],
+        answer: 1,
+        explanation: "Look! इस पल के दृश्य की ओर इशारा है — इसलिए is sleeping।",
+      },
+      {
+        question: "She ___ coffee every morning.",
+        options: ["is drinking", "drink", "drinks", "drinking"],
+        answer: 2,
+        explanation: "every morning रोज़ की आदत — एकवचन कर्ता के साथ drinks।",
+      },
+      {
+        question: "I ___ what you mean.",
+        options: ["am understanding", "understand", "understands", "understood"],
+        answer: 1,
+        explanation: "understand जानने-समझने की क्रिया है — continuous नहीं होती, इसलिए understand।",
+      },
+      {
+        question: "They ___ football at the moment.",
+        options: ["play", "plays", "are playing", "played"],
+        answer: 2,
+        explanation: "at the moment यानी अभी चल रहा — इसलिए are playing।",
+      },
+      {
+        question: "He ___ to the office by bus every day.",
+        options: ["is going", "goes", "go", "going"],
+        answer: 1,
+        explanation: "every day आदत — he के साथ goes।",
+      },
+    ],
+  },
+  {
+    topic: "Past Continuous",
+    level: "beginner",
+    locale: "hi",
+    title: "Past Continuous: भूतकाल में चल रहा काम",
+    intro:
+      "कल रात आठ बजे मैं पढ़ रहा था — भूतकाल का ऐसा चलता हुआ दृश्य दिखाने के लिए past continuous। एक मिनट के नियम से आपकी कहानी कहना जीवंत हो उठेगा।",
+    sections: [
+      {
+        heading: "was/were + क्रिया+ing: कब लगाएँ",
+        explanation:
+          "भूतकाल के किसी निश्चित पल या समय-खंड में जो काम चल रहा था — I was reading at 8 pm, They were playing all evening। एकवचन कर्ता के साथ was, बहुवचन के साथ were।",
+        examples: [
+          {
+            wrong: "At 9 pm I watched TV.",
+            right: "At 9 pm I was watching TV.",
+            note: "उस समय काम चल रहा था — इसलिए was watching।",
+          },
+          {
+            wrong: "She were cooking dinner.",
+            right: "She was cooking dinner.",
+            note: "एकवचन कर्ता के साथ were नहीं, was।",
+          },
+          {
+            wrong: "I was study when he called.",
+            right: "I was studying when he called.",
+            note: "was के बाद क्रिया में ing ज़रूरी है।",
+          },
+        ],
+      },
+      {
+        heading: "while और when से दो कामों की कहानी",
+        explanation:
+          "दो भूतकालीन कामों में से एक चल रहा था, दूसरा बीच में घुस आया — चल रहे काम में past continuous, अचानक के काम में past simple: I was sleeping when the phone rang। while के दोनों ओर continuous हो सकता है।",
+        examples: [
+          {
+            wrong: "When the phone rang, I slept.",
+            right: "When the phone rang, I was sleeping.",
+            note: "फ़ोन बजने के समय नींद चल रही थी — इसलिए was sleeping।",
+          },
+          {
+            wrong: "While I was reading, the lights go out.",
+            right: "While I was reading, the lights went out.",
+            note: "भूतकाल की घटना — go नहीं, went।",
+          },
+          {
+            wrong: "They was playing while we were studying.",
+            right: "They were playing while we were studying.",
+            note: "बहुवचन कर्ता के साथ were — दोनों ओर were।",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "भूतकाल का घड़ी-समय या लंबा समय-खंड (at 8 pm, all evening) दिखे तो past continuous सोचिए।",
+      "अचानक हुए छोटे काम (rang, came, broke) past simple में रहते हैं — चलती पृष्ठभूमि के ऊपर।",
+      "was/were लिखने के बाद ing न छोड़ें — was study ग़लत, was studying सही।",
+      "कहानी की शुरुआत में माहौल बनाने के लिए past continuous बढ़िया है: The sun was setting and birds were singing।",
+    ],
+    quiz: [
+      {
+        question: "I ___ dinner when she arrived.",
+        options: ["cooked", "was cooking", "cook", "am cooking"],
+        answer: 1,
+        explanation: "उसके आने के समय खाना बन रहा था — इसलिए was cooking।",
+      },
+      {
+        question: "They ___ cricket at 5 pm yesterday.",
+        options: ["played", "were playing", "play", "are playing"],
+        answer: 1,
+        explanation: "कल 5 बजे खेल चल रहा था — बहुवचन में were playing।",
+      },
+      {
+        question: "The phone ___ while I was studying.",
+        options: ["was ringing", "rings", "rang", "ring"],
+        answer: 2,
+        explanation: "अचानक बजने वाला छोटा काम — past simple, rang।",
+      },
+      {
+        question: "She ___ the whole afternoon yesterday.",
+        options: ["was sleeping", "sleeped", "sleeps", "sleep"],
+        answer: 0,
+        explanation: "पूरी दोपहर चलती रही — was sleeping।",
+      },
+      {
+        question: "We ___ when the rain started.",
+        options: ["walked", "walk", "were walking", "are walking"],
+        answer: 2,
+        explanation: "बारिश शुरू होने के समय चलना जारी था — इसलिए were walking।",
+      },
+    ],
+  },
+  {
+    topic: "Future Forms (will vs going to)",
+    level: "beginner",
+    locale: "hi",
+    title: "will बनाम going to: भविष्य कहने के दो रास्ते",
+    intro:
+      "कल जाऊँगा और कल जाने का प्लान है — दोनों भविष्य हैं, पर अंग्रेज़ी में दोनों के रूप अलग हैं। will और going to की सीमा समझ लें तो आपका future काल निखर जाएगा।",
+    sections: [
+      {
+        heading: "will: उसी पल का फ़ैसला, वादा, भविष्यवाणी",
+        explanation:
+          "बोलते समय ही लिया गया फ़ैसला, वादा, ऑफ़र और अंदाज़े की भविष्यवाणी में will लगता है — I'll help you, I think it will rain। will के बाद क्रिया का मूल रूप आता है।",
+        examples: [
+          {
+            wrong: "I will to call you tonight.",
+            right: "I will call you tonight.",
+            note: "will के बाद to नहीं आता — सीधे क्रिया का मूल रूप।",
+          },
+          {
+            wrong: "I will helping you.",
+            right: "I will help you.",
+            note: "will के साथ ing नहीं चलता।",
+          },
+          {
+            wrong: "Don't worry — I helping you tomorrow.",
+            right: "Don't worry — I will help you tomorrow.",
+            note: "वादा दिखाने के लिए will लगता है।",
+          },
+        ],
+      },
+      {
+        heading: "going to: पहले की योजना और खुला संकेत",
+        explanation:
+          "पहले से तय योजना में going to — I am going to visit Dhaka next week। अभी आँखों के सामने दिख रहे संकेत से अनुमान में भी going to — Look at those clouds — it is going to rain। याद रखें: am/is/are + going to + क्रिया।",
+        examples: [
+          {
+            wrong: "I will visit my uncle tomorrow — I booked the ticket yesterday.",
+            right: "I am going to visit my uncle tomorrow — I booked the ticket yesterday.",
+            note: "योजना पहले ही बनी हुई थी — इसलिए going to।",
+          },
+          {
+            wrong: "We going to watch a movie tonight.",
+            right: "We are going to watch a movie tonight.",
+            note: "going to से पहले am/is/are ज़रूरी है।",
+          },
+          {
+            wrong: "She will to start a business next month — the plan is ready.",
+            right: "She is going to start a business next month — the plan is ready.",
+            note: "पहले से तैयार प्लान — going to; और will के बाद to नहीं आता।",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "बोलते ही फ़ैसला या वादा हो तो will; पहले से तय प्लान हो तो going to।",
+      "आँखों देखे संकेत से अनुमान (बादल देखकर बारिश) — वहाँ भी going to।",
+      "will या going to के बाद क्रिया का मूल रूप — to+क्रिया या ing दोनों ग़लत।",
+      "समय-सारिणी वाली ट्रेन-क्लास के लिए वर्तमान काल भी चलता है: The train leaves at 6।",
+    ],
+    quiz: [
+      {
+        question: "A: The phone is ringing. B: I ___ answer it.",
+        options: ["am going to", "will", "going to", "will to"],
+        answer: 1,
+        explanation: "उसी पल लिया गया फ़ैसला — इसलिए will।",
+      },
+      {
+        question: "We ___ get married in December — the date is fixed.",
+        options: ["will", "are going to", "go to", "will be"],
+        answer: 1,
+        explanation: "पहले से तय योजना — इसलिए are going to।",
+      },
+      {
+        question: "Look at those black clouds! It ___ rain.",
+        options: ["will", "is going to", "goes to", "rains"],
+        answer: 1,
+        explanation: "बादल देखकर साफ़ संकेत — going to दर्शाता है।",
+      },
+      {
+        question: "I promise I ___ tell anyone.",
+        options: ["am going to", "will not to", "will", "going to"],
+        answer: 2,
+        explanation: "वादा — will; बाद में मूल क्रिया tell।",
+      },
+      {
+        question: "She ___ to study medicine after school — she decided long ago.",
+        options: ["will", "is going", "going", "will be going"],
+        answer: 1,
+        explanation: "बहुत पहले का फ़ैसला — is going to study।",
+      },
+    ],
+  },
+  {
+    topic: "Countable & Uncountable Nouns",
+    level: "beginner",
+    locale: "hi",
+    title: "गिनने योग्य बनाम अगणनीय संज्ञाएँ",
+    intro:
+      "एक सेब, दो सेब — पर पानी न 'एक' होता है न 'दो'। कौन-सी चीज़ गिनी जा सकती है और कौन-सी नहीं, यह जान लें तो many/much, few/little की जंग ख़त्म।",
+    sections: [
+      {
+        heading: "जो गिनी जा सकती हैं: a/an, बहुवचन, many",
+        explanation:
+          "एक-दो करके जिन्हें गिना जा सके (book, chair, apple) — वे countable हैं। एकवचन में a/an आता है, बहुवचन में -s/-es जुड़ता है, और अधिकता के लिए many लगता है।",
+        examples: [
+          {
+            wrong: "I bought three book.",
+            right: "I bought three books.",
+            note: "गिनी जा सकने के कारण संख्या के बाद बहुवचन लगता है।",
+          },
+          {
+            wrong: "She has many friend in Dhaka.",
+            right: "She has many friends in Dhaka.",
+            note: "many के बाद बहुवचन संज्ञा।",
+          },
+          {
+            wrong: "I need an advice.",
+            right: "I need some advice.",
+            note: "advice अगणनीय है — a/an नहीं लगता।",
+          },
+        ],
+      },
+      {
+        heading: "जो गिनी नहीं जा सकतीं: much, little, some",
+        explanation:
+          "water, rice, milk, money, information जैसी चीज़ें गिनी नहीं जा सकतीं — ये हमेशा एकवचन रूप में रहती हैं, much/little लगता है। माप बताने के लिए पात्र-खंड गिनते हैं: a glass of water, a piece of advice।",
+        examples: [
+          {
+            wrong: "How many money do you have?",
+            right: "How much money do you have?",
+            note: "money अगणनीय — इसलिए much।",
+          },
+          {
+            wrong: "I drank two waters.",
+            right: "I drank two glasses of water.",
+            note: "पानी गिना नहीं जा सकता — गिलास गिने जा सकते हैं।",
+          },
+          {
+            wrong: "He gave me many informations.",
+            right: "He gave me a lot of information.",
+            note: "information का बहुवचन नहीं होता।",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "संज्ञा से पहले a/an बिठा सकें तो countable — न बिठा सकें तो uncountable।",
+      "आम अगणनीय सूची रट लें: water, rice, milk, sugar, money, news, advice, information, furniture।",
+      "अगणनीय का हिसाब चाहिए तो पात्र/खंड गिनें: a cup of tea, a piece of paper, a loaf of bread।",
+      "some/any दोनों समूहों के साथ चलते हैं — संदेह हो तो some/any चुनें।",
+    ],
+    quiz: [
+      {
+        question: "How ___ rice do you eat every day?",
+        options: ["many", "much", "few", "some"],
+        answer: 1,
+        explanation: "rice अगणनीय — इसलिए much।",
+      },
+      {
+        question: "I need ___ information about the course.",
+        options: ["an", "many", "some", "a few"],
+        answer: 2,
+        explanation: "information अगणनीय — a/an, many नहीं चलते; some चलता है।",
+      },
+      {
+        question: "There are ___ chairs in the room.",
+        options: ["much", "a little", "many", "a"],
+        answer: 2,
+        explanation: "chairs गणनीय बहुवचन — इसलिए many।",
+      },
+      {
+        question: "She gave me a good ___ .",
+        options: ["advices", "advice", "advise", "an advice"],
+        answer: 1,
+        explanation: "advice अगणनीय — a good advice नहीं, सिर्फ़ advice।",
+      },
+      {
+        question: "Can I have ___ glass of water?",
+        options: ["a", "some", "much", "an"],
+        answer: 0,
+        explanation: "glass गणनीय एकवचन — इसलिए a glass।",
+      },
+    ],
+  },
+  {
+    topic: "Adjectives & Adverbs",
+    level: "beginner",
+    locale: "hi",
+    title: "Adjective और Adverb: कौन-सा कहाँ",
+    intro:
+      "He is quick सही है, पर He runs quickly — विशेषण संज्ञा की और क्रियाविशेषण क्रिया की बात करता है। इस जोड़ी का काम बाँट लें तो वाक्य साफ़ हो जाते हैं।",
+    sections: [
+      {
+        heading: "Adjective: संज्ञा से पहले, be-क्रिया के बाद",
+        explanation:
+          "adjective संज्ञा से पहले बैठता है (a quick runner) या be/look/feel/smell के बाद (He is quick)। हिंदी से मिलाइए: तेज़ लड़का, लड़का तेज़ है।",
+        examples: [
+          {
+            wrong: "She is a very intelligence girl.",
+            right: "She is a very intelligent girl.",
+            note: "विशेषण intelligent है, intelligence नहीं।",
+          },
+          {
+            wrong: "The flowers smell sweetly.",
+            right: "The flowers smell sweet.",
+            note: "smell/look/feel के बाद adjective बैठता है — क्रिया-शैली नहीं।",
+          },
+          {
+            wrong: "It was a day very hot.",
+            right: "It was a very hot day.",
+            note: "adjective संज्ञा के ठीक पहले आता है — very hot day।",
+          },
+        ],
+      },
+      {
+        heading: "Adverb: क्रिया को रंग देता है",
+        explanation:
+          "काम कैसे होता है, यह adverb बताता है — ज़्यादातर adjective + ly: quick → quickly, careful → carefully। ये साधारणतः क्रिया के पास या वाक्य के अंत में बैठते हैं।",
+        examples: [
+          {
+            wrong: "He speaks English very good.",
+            right: "He speaks English very well.",
+            note: "good adjective है; बोलना कैसा होता है — उसके लिए well।",
+          },
+          {
+            wrong: "She sings beautiful.",
+            right: "She sings beautifully.",
+            note: "गाने का ढंग बताने के लिए adverb beautifully।",
+          },
+          {
+            wrong: "He drive careful.",
+            right: "He drives carefully.",
+            note: "चलाना कैसा होता है — इसलिए carefully।",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "सवाल पूछें: कैसा/कौन-सा (विशेषण) या कैसे (क्रियाविशेषण)? उत्तर के हिसाब से शब्द चुनें।",
+      "be, look, sound, smell, feel, taste के बाद adjective बैठता है — adverb नहीं।",
+      "good का adverb अनियमित है: well — He is a good singer, He sings well।",
+      "hard/hardly के अर्थ अलग हैं — works hard यानी मेहनत से, hardly यानी लगभग नहीं।",
+    ],
+    quiz: [
+      {
+        question: "She is a ___ singer.",
+        options: ["beautifully", "beautiful", "beauty", "more beautiful"],
+        answer: 1,
+        explanation: "संज्ञा singer का वर्णन हो रहा है — इसलिए beautiful।",
+      },
+      {
+        question: "He drives very ___ .",
+        options: ["careful", "carefully", "care", "caring"],
+        answer: 1,
+        explanation: "चलाना कैसा होता है — adverb carefully।",
+      },
+      {
+        question: "The soup tastes ___ .",
+        options: ["deliciously", "delicious", "delicacy", "delight"],
+        answer: 1,
+        explanation: "taste के बाद adjective — delicious।",
+      },
+      {
+        question: "They walked ___ into the room.",
+        options: ["quiet", "quietly", "quietness", "quieted"],
+        answer: 1,
+        explanation: "चलना कैसे हुआ — इसलिए quietly।",
+      },
+      {
+        question: "He is a ___ driver, but he never drives ___ .",
+        options: ["careful, carefully", "carefully, careful", "careful, careful", "carefully, carefully"],
+        answer: 0,
+        explanation: "संज्ञा driver से पहले adjective, क्रिया drives के साथ adverb।",
+      },
+    ],
+  },
+  {
+    topic: "Adverbs of Frequency",
+    level: "beginner",
+    locale: "hi",
+    title: "Adverbs of Frequency: कितनी बार",
+    intro:
+      "always, usually, often, sometimes, never — ये शब्द वाक्य में कहाँ बैठते हैं, यह जान लें तो आदतें बयाँ करना native speakers जैसा हो जाता है।",
+    sections: [
+      {
+        heading: "बैठने की जगह: क्रिया से पहले, be के बाद",
+        explanation:
+          "साधारण क्रिया से पहले बैठते हैं — I always wake up early; पर be-क्रिया (am/is/are/was/were) के बाद — He is always late। यही एक नियम 90% वाक्य ठीक कर देता है।",
+        examples: [
+          {
+            wrong: "I wake up always early.",
+            right: "I always wake up early.",
+            note: "मुख्य क्रिया से पहले always।",
+          },
+          {
+            wrong: "She always is happy.",
+            right: "She is always happy.",
+            note: "be-क्रिया is के बाद always।",
+          },
+          {
+            wrong: "They go sometimes to the market.",
+            right: "They sometimes go to the market.",
+            note: "मुख्य क्रिया से पहले sometimes बैठे तो सबसे सहज लगता है।",
+          },
+        ],
+      },
+      {
+        heading: "समय-वाक्यांश: वाक्य के शुरू या अंत में",
+        explanation:
+          "every day, once a week, twice a month जैसे वाक्यांश साधारणतः वाक्य के शुरू या अंत में बैठते हैं — I go to the gym twice a week। ये क्रिया के बीच नहीं घुसते। साथ ही याद रखें: never के साथ दूसरा नकारात्मक नहीं लगता।",
+        examples: [
+          {
+            wrong: "I twice a week go to the gym.",
+            right: "I go to the gym twice a week.",
+            note: "twice a week वाक्य के अंत में बैठता है।",
+          },
+          {
+            wrong: "Every day I am going to the office.",
+            right: "Every day I go to the office.",
+            note: "रोज़ की आदत — simple present।",
+          },
+          {
+            wrong: "He doesn't never miss class.",
+            right: "He never misses class.",
+            note: "never ख़ुद नकारात्मक है — doesn't की ज़रूरत नहीं।",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "एक पंक्ति में रटें: क्रिया से पहले, be के बाद।",
+      "आवृत्ति की सीढ़ी: always (100%) → usually → often → sometimes → rarely → never (0%)।",
+      "every day/once a week जैसे वाक्यांश वाक्य के शुरू या अंत में रखें — क्रिया के बीच नहीं।",
+      "never/seldom के साथ don't/doesn't जोड़ने से दोहरा नकारात्मक बन जाता है — ग़लत।",
+    ],
+    quiz: [
+      {
+        question: "She ___ arrives on time.",
+        options: ["always", "is always", "always is", "the always"],
+        answer: 0,
+        explanation: "मुख्य क्रिया arrives से पहले always।",
+      },
+      {
+        question: "They are ___ tired after work.",
+        options: ["sometimes", "sometime", "some time", "sometimes are"],
+        answer: 0,
+        explanation: "be-क्रिया are के बाद sometimes।",
+      },
+      {
+        question: "I visit my grandparents ___ .",
+        options: ["twice a week", "twice a week go", "go twice a week", "a week twice"],
+        answer: 0,
+        explanation: "आवृत्ति-वाक्यांश वाक्य के अंत में बैठता है।",
+      },
+      {
+        question: "We ___ eat out on Fridays.",
+        options: ["usually", "are usually", "usually are", "the usually"],
+        answer: 0,
+        explanation: "मुख्य क्रिया eat से पहले usually।",
+      },
+      {
+        question: "He never ___ his homework.",
+        options: ["doesn't do", "don't do", "does", "do"],
+        answer: 2,
+        explanation: "never के साथ don't/doesn't नहीं लगता — he never does।",
+      },
+    ],
+  },
+  {
+    topic: "Possessives ('s / mine / of)",
+    level: "beginner",
+    locale: "hi",
+    title: "किसकी चीज़: 's, mine और of",
+    intro:
+      "राफ़ी की किताब, मेरी वाली, कक्षा का दरवाज़ा — मालिकी दिखाने के तीन रास्ते अंग्रेज़ी में हैं। कहाँ कौन-सा बैठता है, यह जान लें तो किसकी-चीज़ की ग़लती ख़त्म।",
+    sections: [
+      {
+        heading: "'s और my/your/his/her",
+        explanation:
+          "लोगों-जानवरों की मालिकी में नाम के बाद 's — Rafi's book। संज्ञा से पहले my/your/his/her/our/their बैठते हैं — my bag, her keys। याद रखें: -s पर ख़त्म होने वाले बहुवचन में सिर्फ़ apostrophe आता है।",
+        examples: [
+          {
+            wrong: "This is Rafi book.",
+            right: "This is Rafi's book.",
+            note: "मालिक के नाम के बाद 's बैठता है।",
+          },
+          {
+            wrong: "She forgot she keys.",
+            right: "She forgot her keys.",
+            note: "कर्ता she होने पर मालिकी-रूप her होता है।",
+          },
+          {
+            wrong: "The boys's room is upstairs.",
+            right: "The boys' room is upstairs.",
+            note: "boys बहुवचन है — सिर्फ़ apostrophe।",
+          },
+        ],
+      },
+      {
+        heading: "mine/yours और of-संरचना",
+        explanation:
+          "मालिक-शब्द अकेला बैठे तो mine/yours/his/hers/ours/theirs — This book is mine। बेजान चीज़ों की मालिकी में of — the door of the classroom। और रिश्ते दिखाने के लिए a friend of mine जैसा of + mine/yours चलता है।",
+        examples: [
+          {
+            wrong: "This pen is my.",
+            right: "This pen is mine.",
+            note: "अकेला बैठने पर my नहीं, mine।",
+          },
+          {
+            wrong: "I met a friend of me.",
+            right: "I met a friend of mine.",
+            note: "of के बाद mine/yours/hers — of me नहीं।",
+          },
+          {
+            wrong: "This bag is her's.",
+            right: "This bag is hers.",
+            note: "अकेले रूप में 's नहीं जुड़ता — mine, yours, hers, ours, theirs।",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "लोगों के लिए 's, बेजान चीज़ों के लिए of — the leg of the table।",
+      "my/your/his/her संज्ञा से पहले; अकेले बैठें तो mine/yours/his/hers।",
+      "बहुवचन -s के बाद सिर्फ़ apostrophe: students' hostel।",
+      "'a friend of mine' यानी मेरा एक दोस्त — a friend of me कभी नहीं चलता।",
+    ],
+    quiz: [
+      {
+        question: "This is ___ car.",
+        options: ["mine", "my", "me", "I"],
+        answer: 1,
+        explanation: "car से पहले विशेषण-रूप my बैठता है।",
+      },
+      {
+        question: "The ___ shoes are new.",
+        options: ["childrens'", "children's", "children", "childrens"],
+        answer: 1,
+        explanation: "children के नियम में 's — children's shoes।",
+      },
+      {
+        question: "That jacket isn't mine; it's ___ .",
+        options: ["her", "hers", "her's", "she"],
+        answer: 1,
+        explanation: "अकेला बैठा मालिकी-रूप hers है।",
+      },
+      {
+        question: "I borrowed a book of ___ last week.",
+        options: ["me", "my", "mine", "I"],
+        answer: 2,
+        explanation: "a friend of mine की तरह of + mine।",
+      },
+      {
+        question: "___ phone is ringing.",
+        options: ["You're", "Yours", "Your", "You"],
+        answer: 2,
+        explanation: "phone से पहले your — You're यानी you are।",
+      },
+    ],
+  },
+  {
+    topic: "Imperatives",
+    level: "beginner",
+    locale: "hi",
+    title: "Imperatives: आदेश, निषेध और निवेदन",
+    intro:
+      "Open the door — जब बात सीधे सुनने वाले पर हो तो वाक्य कर्ता के बिना चलता है। खाना-पकाने की विधि से सड़क के साइनबोर्ड तक, हर जगह यही ढाँचा।",
+    sections: [
+      {
+        heading: "कर्ता रहित मूल क्रिया",
+        explanation:
+          "आदेश में वाक्य की शुरुआत क्रिया के मूल रूप से होती है — Close the window, Sit down। क्रिया में s नहीं जुड़ता, to भी नहीं लगता। निषेध में शुरुआत Don't से — Don't touch the wire।",
+        examples: [
+          {
+            wrong: "Opens the door, please.",
+            right: "Open the door, please.",
+            note: "आदेश में क्रिया में s नहीं जुड़ता।",
+          },
+          {
+            wrong: "Don't to worry.",
+            right: "Don't worry.",
+            note: "don't के बाद to नहीं आता।",
+          },
+          {
+            wrong: "Not touch the wet paint.",
+            right: "Don't touch the wet paint.",
+            note: "निषेध का सही रूप Don't + मूल क्रिया है।",
+          },
+        ],
+      },
+      {
+        heading: "शिष्टता और Let's",
+        explanation:
+          "शुरू या अंत में Please बिठाने से निवेदन नरम हो जाता है — Please sit down। साथ मिलकर करने के सुझाव में Let's — Let's go home; उसका निषेध Let's not — Let's not go there।",
+        examples: [
+          {
+            wrong: "Please you help me.",
+            right: "Please help me.",
+            note: "निवेदन में कर्ता you नहीं बैठता।",
+          },
+          {
+            wrong: "Let we start the class.",
+            right: "Let's start the class.",
+            note: "Let's = Let us — संकुचित रूप ही रोज़मर्रा में चलता है।",
+          },
+          {
+            wrong: "Let's don't go there.",
+            right: "Let's not go there.",
+            note: "सुझाव का निषेध Let's not है।",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "आदेश-वाक्य में क्रिया का मूल रूप — s/es, to, ing कुछ भी नहीं लगता।",
+      "निषेध = Don't + मूल क्रिया; कभी don't to नहीं।",
+      "नरम करने के लिए शुरू या अंत में Please; अंत में नाम भी जुड़ सकता है: Sit down, Rafi।",
+      "साथ करने के सुझाव में Let's..., रोकने के लिए Let's not...।",
+    ],
+    quiz: [
+      {
+        question: "___ the door, please.",
+        options: ["Closes", "Closing", "Close", "To close"],
+        answer: 2,
+        explanation: "आदेश में क्रिया का मूल रूप Close।",
+      },
+      {
+        question: "___ worry — everything is fine.",
+        options: ["Not", "Don't", "Doesn't", "No"],
+        answer: 1,
+        explanation: "निषेध Don't + मूल क्रिया है।",
+      },
+      {
+        question: "Let's ___ a short break.",
+        options: ["take", "to take", "taking", "takes"],
+        answer: 0,
+        explanation: "Let's के बाद क्रिया का मूल रूप take।",
+      },
+      {
+        question: "___ late for the exam!",
+        options: ["Not be", "Don't be", "Be not", "Doesn't be"],
+        answer: 1,
+        explanation: "निषेध का सही रूप Don't be late है।",
+      },
+      {
+        question: "___ watch the new movie tonight.",
+        options: ["Let's", "Let us to", "Lets", "Let's to"],
+        answer: 0,
+        explanation: "सुझाव में Let's + मूल क्रिया।",
+      },
+    ],
+  },
+  {
+    topic: "There is vs There are",
+    level: "beginner",
+    locale: "hi",
+    title: "There is बनाम There are",
+    intro:
+      "कोई चीज़ मौजूद है बताने के लिए अंग्रेज़ी कहती है there is / there are। एक है या कई — संख्या देखकर ही क्रिया तय हो जाती है, बस चीज़ की ओर देखिए।",
+    sections: [
+      {
+        heading: "एकवचन में there is, बहुवचन में there are",
+        explanation:
+          "एक चीज़ हो तो There is a book on the table; एक से अधिक हों तो There are three books on the table। याद रखें — 'होना' बताने के लिए there have कभी नहीं चलता।",
+        examples: [
+          {
+            wrong: "There is two cats in the garden.",
+            right: "There are two cats in the garden.",
+            note: "दो बिल्लियाँ — बहुवचन, इसलिए are।",
+          },
+          {
+            wrong: "There are a problem with my phone.",
+            right: "There is a problem with my phone.",
+            note: "a problem एकवचन है — इसलिए is।",
+          },
+          {
+            wrong: "There have many shops here.",
+            right: "There are many shops here.",
+            note: "होना बताने के लिए there is/are — there have ग़लत।",
+          },
+        ],
+      },
+      {
+        heading: "नकारात्मक, प्रश्न और अगणनीय",
+        explanation:
+          "नकारात्मक में there isn't/aren't, प्रश्न में Is/Are there...?; water, milk, money जैसी अगणनीय चीज़ें हमेशा there is लेती हैं — There is some milk in the fridge। दोहरा नकारात्मक नहीं चलता: isn't any सही, isn't no ग़लत।",
+        examples: [
+          {
+            wrong: "There isn't no milk in the fridge.",
+            right: "There isn't any milk in the fridge.",
+            note: "सिर्फ़ एक नकारात्मक — isn't any।",
+          },
+          {
+            wrong: "Is there any shops near here?",
+            right: "Are there any shops near here?",
+            note: "shops बहुवचन है — प्रश्न में भी Are there।",
+          },
+          {
+            wrong: "There are some rice left.",
+            right: "There is some rice left.",
+            note: "rice अगणनीय है — इसलिए is।",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "there के ठीक बाद वाली चीज़ एकवचन है या बहुवचन — उसी से is/are चुनें।",
+      "अगणनीय सूची (water, rice, money, time, milk) हमेशा there is लेती है।",
+      "प्रश्न में क्रम पलट जाता है: Is there...? / Are there...? — अलग कर्ता की ज़रूरत नहीं।",
+      "there have कभी नहीं चलता — मौजूदगी में there is/are, मालिकी में सिर्फ़ have।",
+    ],
+    quiz: [
+      {
+        question: "___ a big park near our house.",
+        options: ["There are", "There is", "It has", "There have"],
+        answer: 1,
+        explanation: "a big park एकवचन है — इसलिए There is।",
+      },
+      {
+        question: "There ___ many students in the class.",
+        options: ["is", "are", "have", "has"],
+        answer: 1,
+        explanation: "many students बहुवचन है — इसलिए are।",
+      },
+      {
+        question: "___ any milk in the fridge?",
+        options: ["Is there", "Are there", "Have there", "There is"],
+        answer: 0,
+        explanation: "milk अगणनीय है — प्रश्न में Is there।",
+      },
+      {
+        question: "There ___ some money in my pocket.",
+        options: ["are", "is", "have", "were"],
+        answer: 1,
+        explanation: "money अगणनीय है — इसलिए is।",
+      },
+      {
+        question: "There aren't ___ chairs for everyone.",
+        options: ["some", "a", "any", "much"],
+        answer: 2,
+        explanation: "नकारात्मक वाक्य में some नहीं, any।",
+      },
+    ],
+  },
+  {
+    topic: "Either, Neither & Both",
+    level: "beginner",
+    locale: "hi",
+    title: "Either, Neither और Both: दो का हिसाब",
+    intro:
+      "दो में से कोई एक, दो में से कोई नहीं, या दोनों — ये तीन शब्द दो चीज़ों में चुनाव आसान कर देते हैं। साथ ही यह भी तय करते हैं कि क्रिया कौन-सा रूप लेगी।",
+    sections: [
+      {
+        heading: "either...or, neither...nor, both...and",
+        explanation:
+          "दो में से कोई एक — either...or: You can have either tea or coffee; दोनों में से कोई नहीं — neither...nor: Neither Rahim nor Karim came; दोनों — both...and: Both Rahim and Karim came। जोड़ी न भूलें: either का साथी or, neither का साथी nor।",
+        examples: [
+          {
+            wrong: "You can take either tea nor coffee.",
+            right: "You can take either tea or coffee.",
+            note: "either की जोड़ी or के साथ है, nor के साथ नहीं।",
+          },
+          {
+            wrong: "Neither Karim or Rahim came.",
+            right: "Neither Karim nor Rahim came.",
+            note: "neither की जोड़ी nor के साथ।",
+          },
+          {
+            wrong: "Both Karim and Rahim didn't come.",
+            right: "Neither Karim nor Rahim came.",
+            note: "दोनों नहीं आए — neither...nor; both के साथ नकारात्मक नहीं मिलाते।",
+          },
+        ],
+      },
+      {
+        heading: "अकेला प्रयोग और क्रिया की मेल",
+        explanation:
+          "कर्ता बनकर either/neither एकवचन क्रिया लेते हैं — Neither answer is correct; both बहुवचन क्रिया लेता है — Both answers are correct। छोटे उत्तरों में भी चलते हैं: Either is fine / Neither, thanks।",
+        examples: [
+          {
+            wrong: "Neither of the answers are correct.",
+            right: "Neither of the answers is correct.",
+            note: "neither एकवचन है — इसलिए is (औपचारिक नियम)।",
+          },
+          {
+            wrong: "Both of the doors is open.",
+            right: "Both of the doors are open.",
+            note: "both यानी दोनों — बहुवचन क्रिया are।",
+          },
+          {
+            wrong: "I don't like both of them.",
+            right: "I don't like either of them.",
+            note: "दोनों पसंद नहीं — not...either (या I like neither)।",
+          },
+        ],
+      },
+    ],
+    tips: [
+      "जोड़ियाँ रटें: either ↔ or, neither ↔ nor, both ↔ and।",
+      "कर्ता बनने पर either/neither एकवचन क्रिया लेते हैं, both बहुवचन।",
+      "'दोनों पसंद नहीं' कहने के लिए I don't like either या I like neither — दोनों सही।",
+      "ऑफ़र के उत्तर में Either is fine (कोई भी चलेगा) / Neither, thanks (कोई नहीं)।",
+    ],
+    quiz: [
+      {
+        question: "You can sit on ___ side you like.",
+        options: ["both", "either", "neither", "all"],
+        answer: 1,
+        explanation: "दो में से कोई भी ओर — इसलिए either।",
+      },
+      {
+        question: "___ of my parents is a doctor.",
+        options: ["Both", "Neither", "All", "Some"],
+        answer: 1,
+        explanation: "is एकवचन क्रिया है — कर्ता भी एकवचन Neither।",
+      },
+      {
+        question: "Both the shirts ___ too expensive.",
+        options: ["is", "was", "are", "has"],
+        answer: 2,
+        explanation: "both बहुवचन है — इसलिए are।",
+      },
+      {
+        question: "I haven't seen ___ of those movies.",
+        options: ["neither", "both", "either", "all"],
+        answer: 2,
+        explanation: "नकारात्मक वाक्य में not...either — इसलिए either।",
+      },
+      {
+        question: "___ Rahim nor Karim knew the answer.",
+        options: ["Either", "Both", "Neither", "Or"],
+        answer: 2,
+        explanation: "nor की जोड़ी neither है — Neither...nor।",
+      },
+    ],
+  },
 ];
 
 export default LESSONS;
