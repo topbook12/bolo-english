@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Noto_Sans_Bengali, Noto_Sans_Devanagari } from "next
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
 import { localeMeta, defaultLocale, type Locale } from "@/i18n/config";
+import { SITE_URL, SITE_NAME } from "@/lib/site";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import AdminSetupCapture from "@/components/admin/AdminSetupCapture";
@@ -42,6 +43,17 @@ export async function generateMetadata(): Promise<Metadata> {
     description: m.description,
     keywords: m.keywords,
     applicationName: "Bolo English",
+    // D46 SEO — canonical origin + default social-card metadata; every page
+    // can override, the /learn topic pages always do.
+    metadataBase: new URL(SITE_URL),
+    openGraph: {
+      title: m.title,
+      description: m.description,
+      siteName: SITE_NAME,
+      type: "website",
+      locale: locale === "bn" ? "bn_BD" : locale === "hi" ? "hi_IN" : "en_US",
+    },
+    twitter: { card: "summary", title: m.title, description: m.description },
     manifest: "/manifest.webmanifest",
     icons: {
       icon: [

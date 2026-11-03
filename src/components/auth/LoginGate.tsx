@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   Sparkles,
   Eye,
@@ -369,6 +370,19 @@ export default function LoginGate() {
           </div>
         </div>
       </main>
+
+      {/* D46 SEO — public grammar-lesson links: crawlers (and curious guests)
+          can reach the /learn topic cluster from the very first screen. */}
+      <footer className="mt-auto border-t border-border/60 bg-background/60 px-4 py-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
+        <p className="text-center text-xs font-medium text-muted-foreground">
+          ফ্রি গ্রামার লেসন (লগইন ছাড়াই):{" "}
+          <Link href="/learn/tenses" className="mx-0.5 text-primary hover:underline">টেন্স</Link> ·{" "}
+          <Link href="/learn/articles" className="mx-0.5 text-primary hover:underline">আর্টিকেল</Link> ·{" "}
+          <Link href="/learn/conditionals" className="mx-0.5 text-primary hover:underline">কন্ডিশনাল</Link> ·{" "}
+          <Link href="/learn/present-simple-vs-present-continuous" className="mx-0.5 text-primary hover:underline">Present Simple বনাম Continuous</Link> ·{" "}
+          <Link href="/learn" className="font-semibold text-primary hover:underline">সব ৩৬টি লেসন</Link>
+        </p>
+      </footer>
     </div>
   );
 }

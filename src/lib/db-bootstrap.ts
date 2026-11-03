@@ -53,6 +53,19 @@ import { SEED_READING_V1_ADVANCED } from "../../scripts/seed-data/reading-v1-adv
 import { SEED_READING_V2_BEGINNER } from "../../scripts/seed-data/reading-v2-beginner";
 import { SEED_READING_V2_INTERMEDIATE } from "../../scripts/seed-data/reading-v2-intermediate";
 import { SEED_READING_V2_ADVANCED } from "../../scripts/seed-data/reading-v2-advanced";
+// D44 scenario vocab (content scale): 200 words in 5 batches, standalone
+// (unit 0) — hospital, food, travel, shopping, phone, job, school, routines,
+// weather, feelings. Highest sortOrder per level (90+), after the v3 journey.
+import { SEED_VOCAB_V4_A1 } from "../../scripts/seed-data/vocab-v4-a1";
+import { SEED_VOCAB_V4_A2 } from "../../scripts/seed-data/vocab-v4-a2";
+import { SEED_VOCAB_V4_A3 } from "../../scripts/seed-data/vocab-v4-a3";
+import { SEED_VOCAB_V4_A4 } from "../../scripts/seed-data/vocab-v4-a4";
+import { SEED_VOCAB_V4_A5 } from "../../scripts/seed-data/vocab-v4-a5";
+// D45 listening stories (content scale): 15 standalone graded stories — 5 per
+// level (beginner/intermediate/advanced), unit 0.
+import { SEED_LISTENING_V3_BEGINNER } from "../../scripts/seed-data/listening-v3-beginner";
+import { SEED_LISTENING_V3_INTERMEDIATE } from "../../scripts/seed-data/listening-v3-intermediate";
+import { SEED_LISTENING_V3_ADVANCED } from "../../scripts/seed-data/listening-v3-advanced";
 import type { LibraryLevel } from "./library-types";
 
 /* ─── Database self-bootstrap (zero-config production) ──────────────────────
@@ -88,9 +101,11 @@ const MARKERS: Record<LibraryKind, string> = {
   // reseed on every existing DB (local + production) after deploy.
   // v6 journey — the 60-word v3 wave (collocations + wordFamily). Bumping
   // forces one sweep: v1/v2 rows refresh identically, v3 rows get created.
-  vocab: "vocab_v6_journey",
+  // D43–45 content-scale bump: v4 scenario vocab (200 words) + v3 listening
+  // stories (15) get created; existing v1–v3 rows refresh identically.
+  vocab: "vocab_v7_scenario",
   grammar: "grammar_v5_lang",
-  listening: "listening_v5_lang",
+  listening: "listening_v6_stories",
   // v6 = D45 reading wave: +10 standalone passages (read-b2/i2/a2-*). Bumping
   // forces one reseed so every DB (local + production) creates the new rows;
   // v1 rows refresh idempotently (established v4/v5-sweep semantics).
@@ -549,6 +564,17 @@ const V3_VOCAB: VocabSeedEntry[] = [
   ...SEED_VOCAB_V3_ADVANCED,
 ];
 
+// v4 scenario wave (D44) — 200 scenario-based words in 5 batches, all
+// standalone (unit 0). sortOrder assigned in seedVocab() as (per-level index
+// + 90) so they sort AFTER the v3 journey words.
+const V4_VOCAB: VocabSeedEntry[] = [
+  ...SEED_VOCAB_V4_A1,
+  ...SEED_VOCAB_V4_A2,
+  ...SEED_VOCAB_V4_A3,
+  ...SEED_VOCAB_V4_A4,
+  ...SEED_VOCAB_V4_A5,
+];
+
 interface GrammarSeedEntry {
   topic: string;
   level: LibraryLevel;
@@ -616,6 +642,13 @@ const V2_LISTENING: ListeningSeedEntry[] = [
   ...SEED_LISTENING_V2_BEGINNER,
   ...SEED_LISTENING_V2_INTERMEDIATE,
   ...SEED_LISTENING_V2_ADVANCED,
+];
+
+// v3 stories (D45) — 15 standalone graded stories (5 per level), unit 0.
+const V3_LISTENING: ListeningSeedEntry[] = [
+  ...SEED_LISTENING_V3_BEGINNER,
+  ...SEED_LISTENING_V3_INTERMEDIATE,
+  ...SEED_LISTENING_V3_ADVANCED,
 ];
 
 interface ReadingSeedEntry {
@@ -713,6 +746,29 @@ async function seedVocab(): Promise<number> {
       fails++;
     }
   }
+
+  // v4 scenario wave (D44) — 200 standalone scenario words (unit 0), sortOrder
+  // 90+ per level so a level reads: v1 → v2 path → v3 journey → v4 scenario.
+  for (let i = 0; i < V4_VOCAB.length; i++) {
+    const e = V4_VOCAB[i];
+    const levelIdx = V4_VOCAB.filter((x, j) => j < i && x.level === e.level).length + 90;
+    try {
+      await db.libraryVocab.upsert({
+        where: { word_level: { word: e.word, level: e.level } },
+        create: {
+          word: e.word,
+          level: e.level,
+          category: e.category || "general",
+          data: JSON.stringify(e.data),
+          unit: 0,
+          sortOrder: levelIdx,
+        },
+        update: { data: JSON.stringify(e.data), unit: 0, sortOrder: levelIdx },
+      });
+    } catch {
+      fails++;
+    }
+  }
   return fails;
 }
 
@@ -791,6 +847,32 @@ async function seedListening(): Promise<number> {
           data: JSON.stringify(e.data),
           unit: e.unit,
           sortOrder: V1_LISTENING.length + i,
+        },
+      });
+    } catch {
+      fails++;
+    }
+  }
+
+  // v3 stories (D45) — 15 standalone graded stories, sortOrder after v1+v2.
+  for (let i = 0; i < V3_LISTENING.length; i++) {
+    const e = V3_LISTENING[i];
+    try {
+      await db.libraryListening.upsert({
+        where: { slug: e.slug },
+        create: {
+          slug: e.slug,
+          level: e.level,
+          category: e.category,
+          minutes: e.minutes,
+          data: JSON.stringify(e.data),
+          unit: 0,
+          sortOrder: V1_LISTENING.length + V2_LISTENING.length + i,
+        },
+        update: {
+          data: JSON.stringify(e.data),
+          unit: 0,
+          sortOrder: V1_LISTENING.length + V2_LISTENING.length + i,
         },
       });
     } catch {
