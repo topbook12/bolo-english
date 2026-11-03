@@ -4032,3 +4032,36 @@ Stage Summary:
 - Verification: tsc --noEmit 0 ✓, eslint ক্লিন ✓, i18n parity ALL-PARITY-OK ✓; ব্রাউজার E2E: /learn হাব ৩৬ টপিক ✓, /learn/past-continuous + /learn/future-forms (নতুন wave) + /learn/collocations (অ্যাডভান্সড) রেন্ডার ✓, sitemap.xml ৩৮ URL ✓, robots.txt ✓; মোবাইল ৩৯০px: h-scroll নেই, ফুটার gap 0 (লম্বা পেজে ন্যাচারাল পুশ) ✓; কনসোল-এরর শূন্য, dev.log পরিষ্কার ✓।
 - Notes: স্লাগ পার্মানেন্ট (রিলিজের পর বদলাবে না); ডিপ্লয়ে NEXT_PUBLIC_SITE_URL সেট করলে sitemap/OG/canonical স্বয়ংক্রিয়ভাবে সঠিক ডোমেইনে যাবে। স্টেল vocab-v4-scenario-{beginner,intermediate}.ts (প্রথম ব্যর্থ ড্রাফট) ডিলিট করা হয়েছে।
 - Next: D47 গাইড/ব্লগ সেকশন (SEO আর্টিকেল) → D48 শেয়ার-কার্ড → D49 ফেজ-রিভিউ।
+
+## Day 47 (D47, ROADMAP-60) — গাইড/ব্লগ সেকশন (ত্রিভাষিক SEO আর্টিকেল + প্ল্যাটফর্ম-লিংক এমবেড)
+
+- CONTENT (Task 47-b/c/d, ৩ প্যারালাল সাবএজেন্ট): ৬টি সম্পূর্ণ ট্রিলিঙ্গুয়াল (bn/en/hi) গাইড-আর্টিকেল —
+  english-speaking-25-din 🗣️ (২৫ দিনে স্পিকিং), ielts-band-7-roadmap 🎯, english-grammar-learn-order 🧱,
+  english-vocabulary-memory-hacks 🧠, chakrir-interview-english 💼, sune-sune-english-shikha 🎧।
+  প্রতিটিতে ৬ সেকশন (১–২ প্যারা ×৩ ভাষা, কিছুতে ৩–৫টি steps) + ৪ FAQ + ৬ keywords;
+  সেকশন-প্রতি cta-কাইন্ড (speaking/grammar/vocab/listening/reading/writing/ielts/pronunciation/cv/community)।
+  ফাইল: src/lib/guides/data/*.ts (৬ ফাইল, ~১৫৭০ লাইন, ৪৮–৫৪KB প্রতিটি)।
+- DATA MODEL: src/lib/guides/types.ts (Guide/LocalizedText/GuideSection/GuideFaq/GuideCtaKind — পিওর-টেক্সট,
+  সিরিয়ালাইজেবল); cta.ts (GUIDE_CTAS: কাইন্ড → href/label/desc/icon — href = /?open=<tab> ডিপ-লিংক);
+  index.ts (GUIDES রেজিস্ট্রি, allGuides/guideBySlug, guideMinutes bn-ওয়ার্ড-ভিত্তিক রিডিং-টাইম,
+  localizedDate Intl-বিহীন নির্ধারিত তারিখ ফরম্যাট — bn/en/hi মাস-টেবিল + সংখ্যা-ম্যাপ, SSR/ক্লায়েন্ট-ডেটার্মিনিস্টিক)।
+- FRONTEND (Task 47-e): /guide হাব (force-static, CollectionPage JSON-LD, ৬ ইমোজি-কার্ড রিডিং-টাইমসহ,
+  /learn ক্রস-লিংক ব্যান্ড, allLearnPages() থেকে আসল লেসন-কাউন্ট) + /guide/[slug] আর্টিকেল পেজ (dynamicParams=false,
+  Article + FAQPage(৪Q) + BreadcrumbList JSON-LD, OG type=article publishedTime/modifiedTime, ক্যানোনিকাল)।
+  GuideBody (ক্লায়েন্ট কম্পোনেন্ট): ট্রিলিঙ্গুয়াল ভাষা-সুইচার (বাংলা/English/हिन्दী পিল) — ইনিশিয়াল bn সার্ভার+ক্লায়েন্ট
+  একমত (হাইড্রেশন-মিসম্যাচ শূন্য, ক্রলার bn ইনডেক্স করে), সুইচে রিফেচ-বিহীন রি-রেন্ডার; সেকশন-CTA ব্যান্ড
+  (/?open=<tab>), steps-চেকলিস্ট, details/summary FAQ, মূল অ্যাপ-CTA, সম্পর্কিত-গাইড গ্রিড + /learn ব্যান্ড।
+- DEEP-LINK (Task 47-f): AppShell mount-effect এখন /?open=<tab> প্যারাম খায় — প্রেসিডেন্স স্পষ্ট: ডিপ-লিংক >
+  remembered-tab > home; খাওয়ার পর replaceState-এ URL ক্লিন। লগইন-পোস্টেও কাজ করে (LoginGate router.refresh()
+  URL রাখে)। setTimeout(0) প্যাটার্নে react-hooks/set-state-in-effect লিন্ট-রুল মানা।
+- SEO WIRING (Task 47-g): sitemap.ts ৩৮ → ৪৫ URL (+/guide হাব priority 0.9 + ৬ গাইড 0.8, lastModified
+  updatedAt থেকে); LoginGate ফুটারে নতুন "ফ্রি গাইড" লাইন (২৫ দিনে স্পিকিং · IELTS · সব গাইড) — প্রথম-স্ক্রিন
+  থেকেই guide-ক্লাস্টার এন্ট্রি; /learn হাব + /learn/[slug] ফুটারে /guide + ২৫-দিন লিংক (দ্বিমুখী ইন্টারনাল-লিংকিং)।
+- Verification: tsc --noEmit 0 ✓, eslint ক্লিন ✓; ব্রাউজার E2E (agent-browser): /guide হাব ৬ কার্ড ✓,
+  আর্টিকেল (৬ সেকশন + ৬ CTA-ব্যান্ড + ৪ FAQ) ✓, ভাষা-সুইচ bn→en→hi→bn পূর্ণ-বডি সুইচ ✓, FAQ টগল ✓,
+  JSON-LD = Article+FAQPage+BreadcrumbList ✓, CTA ফ্লো: গাইড → /?open=speaking → গেস্ট-গেট → নিবন্ধন →
+  অনবোর্ডিং-বাদ → সরাসরি Speaking সেকশন খোলা + URL / ক্লিন ✓; মোবাইল ৩৯০px: h-scroll শূন্য, ফুটার ন্যাচারাল
+  পুশ (6100/6100) ✓; ডেস্কটপ হাব/আর্টিকেল স্ক্রিনশট পলিশড ✓; sitemap ৪৫ URL ✓; সব ৬ গাইড 200 ✓; কনসোল-এরর
+  শূন্য, dev.log পরিষ্কার ✓।
+- QA cleanup: টেম্প অ্যাকাউন্ট (d47qa) + activity/analytics রো ডিলিট — DB প্রিস্টাইন (users 0, certs 0, refs 0, xp 0)।
+- Next: D48 শেয়ার-কার্ড (ডাইনামিক OG ইমেজ + Web Share API) → D49 ফেজ-রিভিউ।

@@ -123,6 +123,8 @@ export default function LearnHubPage() {
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
             <span className="font-semibold text-stone-700">{SITE_NAME}</span>
             <Link href="/" className="hover:text-emerald-700">অ্যাপ</Link>
+            <Link href="/guide" className="hover:text-emerald-700">গাইড</Link>
+            <Link href="/guide/english-speaking-25-din" className="hover:text-emerald-700">২৫ দিনে স্পিকিং</Link>
             <Link href="/learn/tenses" className="hover:text-emerald-700">টেন্স</Link>
             <Link href="/learn/articles" className="hover:text-emerald-700">আর্টিকেল</Link>
             <Link href="/learn/conditionals" className="hover:text-emerald-700">কন্ডিশনাল</Link>

@@ -371,11 +371,17 @@ export default function LoginGate() {
         </div>
       </main>
 
-      {/* D46 SEO — public grammar-lesson links: crawlers (and curious guests)
-          can reach the /learn topic cluster from the very first screen. */}
+      {/* D46/D47 SEO — public grammar-lesson + guide links: crawlers (and
+          curious guests) reach both content clusters from the first screen. */}
       <footer className="mt-auto border-t border-border/60 bg-background/60 px-4 py-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
         <p className="text-center text-xs font-medium text-muted-foreground">
-          ফ্রি গ্রামার লেসন (লগইন ছাড়াই):{" "}
+          ফ্রি গাইড (লগইন ছাড়াই):{" "}
+          <Link href="/guide/english-speaking-25-din" className="mx-0.5 text-primary hover:underline">২৫ দিনে স্পিকিং</Link> ·{" "}
+          <Link href="/guide/ielts-band-7-roadmap" className="mx-0.5 text-primary hover:underline">IELTS ব্যান্ড ৭</Link> ·{" "}
+          <Link href="/guide" className="font-semibold text-primary hover:underline">সব গাইড</Link>
+        </p>
+        <p className="mt-1.5 text-center text-xs font-medium text-muted-foreground">
+          ফ্রি গ্রামার লেসন:{" "}
           <Link href="/learn/tenses" className="mx-0.5 text-primary hover:underline">টেন্স</Link> ·{" "}
           <Link href="/learn/articles" className="mx-0.5 text-primary hover:underline">আর্টিকেল</Link> ·{" "}
           <Link href="/learn/conditionals" className="mx-0.5 text-primary hover:underline">কন্ডিশনাল</Link> ·{" "}

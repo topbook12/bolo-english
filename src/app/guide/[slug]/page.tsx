@@ -1,0 +1,178 @@
+// D47 SEO — public, login-free guide articles (/guide/<slug>).
+//
+// One statically-generated page per guide, Bengali-first (the target search
+// is bangla-first: "english speaking bangla", "IELTS প্রস্তুতি"…), rendering
+// the full trilingual article with a client language switcher. Section-level
+// CTA bands deep-link into the matching app section (/?open=<tab>), and the
+// related-guides grid + /learn band keep the internal-linking graph dense.
+// Crawlers and guests never hit the login gate here — content IS the ad.
+
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { ArrowRight, Compass } from "lucide-react";
+import GuideBody from "@/components/guide/GuideBody";
+import type { GuideCardMini } from "@/components/guide/GuideBody";
+import {
+  allGuides,
+  guideBySlug,
+  guideMinutes,
+} from "@/lib/guides";
+import { SITE_URL, SITE_NAME } from "@/lib/site";
+
+export const dynamicParams = false;
+
+export function generateStaticParams(): { slug: string }[] {
+  return allGuides().map((g) => ({ slug: g.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const guide = guideBySlug(slug);
+  if (!guide) return {};
+  const title = `${guide.title.bn} | ${SITE_NAME}`;
+  const description = guide.excerpt.bn.slice(0, 158);
+  const url = `${SITE_URL}/guide/${guide.slug}`;
+  return {
+    title,
+    description,
+    keywords: [...guide.keywords, SITE_NAME],
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "article",
+      publishedTime: guide.publishedAt,
+      modifiedTime: guide.updatedAt,
+      siteName: SITE_NAME,
+      locale: "bn_BD",
+    },
+    twitter: { card: "summary", title, description },
+  };
+}
+
+export default async function GuideArticlePage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const guide = guideBySlug(slug);
+  if (!guide) notFound();
+
+  const minutes = guideMinutes(guide);
+
+  const related: GuideCardMini[] = allGuides()
+    .filter((g) => g.slug !== guide.slug)
+    .slice(0, 4)
+    .map((g) => ({
+      slug: g.slug,
+      emoji: g.emoji,
+      title: g.title,
+      excerpt: g.excerpt,
+      minutes: guideMinutes(g),
+    }));
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Article",
+        headline: guide.title.bn,
+        description: guide.excerpt.bn.slice(0, 200),
+        inLanguage: "bn",
+        url: `${SITE_URL}/guide/${guide.slug}`,
+        mainEntityOfPage: `${SITE_URL}/guide/${guide.slug}`,
+        datePublished: guide.publishedAt,
+        dateModified: guide.updatedAt,
+        author: { "@type": "Organization", name: SITE_NAME },
+        publisher: { "@type": "Organization", name: SITE_NAME },
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: guide.faqs.map((f) => ({
+          "@type": "Question",
+          name: f.q.bn,
+          acceptedAnswer: { "@type": "Answer", text: f.a.bn },
+        })),
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "হোম", item: SITE_URL },
+          { "@type": "ListItem", position: 2, name: "গাইড", item: `${SITE_URL}/guide` },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: guide.title.bn,
+            item: `${SITE_URL}/guide/${guide.slug}`,
+          },
+        ],
+      },
+    ],
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-[#faf9f5] text-stone-900">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
+      {/* Top bar */}
+      <header className="border-b border-stone-200/80 bg-white/80 backdrop-blur sticky top-0 z-20">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
+          <Link href="/guide" className="flex items-center gap-2 font-bold text-stone-900">
+            <span className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
+              <Compass className="size-4" />
+            </span>
+            {SITE_NAME}
+          </Link>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
+          >
+            অ্যাপে প্র্যাকটিস করুন
+            <ArrowRight className="size-4" />
+          </Link>
+        </div>
+      </header>
+
+      {/* Article */}
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 sm:px-6 py-8">
+        <nav aria-label="ব্রেডক্রাম্ব" className="mb-4 flex items-center gap-1 text-sm text-stone-500">
+          <Link href="/" className="hover:text-emerald-700">হোম</Link>
+          <span aria-hidden>›</span>
+          <Link href="/guide" className="hover:text-emerald-700">গাইড</Link>
+          <span aria-hidden>›</span>
+          <span className="text-stone-700 font-medium truncate">{guide.title.bn}</span>
+        </nav>
+
+        <GuideBody guide={guide} minutes={minutes} related={related} />
+      </main>
+
+      {/* Sticky footer — pushes down naturally on tall pages */}
+      <footer className="mt-auto border-t border-stone-200/80 bg-white">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 py-6 text-sm text-stone-500">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <span className="font-semibold text-stone-700">{SITE_NAME}</span>
+            <Link href="/guide" className="hover:text-emerald-700">সব গাইড</Link>
+            <Link href="/guide/english-speaking-25-din" className="hover:text-emerald-700">২৫ দিনে স্পিকিং</Link>
+            <Link href="/guide/ielts-band-7-roadmap" className="hover:text-emerald-700">IELTS ব্যান্ড ৭</Link>
+            <Link href="/guide/chakrir-interview-english" className="hover:text-emerald-700">ইন্টারভিউ ইংরেজি</Link>
+            <Link href="/learn" className="hover:text-emerald-700">গ্রামার লেসন</Link>
+            <Link href="/" className="hover:text-emerald-700">অ্যাপ</Link>
+          </div>
+          <p className="mt-3 text-xs leading-5 text-stone-400">
+            বাংলায় ইংরেজি শেখার ফ্রি গাইড, রোডম্যাপ ও প্র্যাকটিস অ্যাপ।
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+}

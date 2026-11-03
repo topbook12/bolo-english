@@ -279,6 +279,8 @@ export default async function LearnTopicPage({
             <Link href="/learn/articles" className="hover:text-emerald-700">আর্টিকেল</Link>
             <Link href="/learn/conditionals" className="hover:text-emerald-700">কন্ডিশনাল</Link>
             <Link href="/learn/future-forms" className="hover:text-emerald-700">ফিউচার ফর্ম</Link>
+            <Link href="/guide" className="hover:text-emerald-700">গাইড</Link>
+            <Link href="/guide/english-speaking-25-din" className="hover:text-emerald-700">২৫ দিনে স্পিকিং</Link>
             <Link href="/" className="hover:text-emerald-700">অ্যাপ</Link>
           </div>
           <p className="mt-3 text-xs leading-5 text-stone-400">

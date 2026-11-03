@@ -170,10 +170,18 @@ export default function AppShell() {
   // hydration render can never disagree on Radix-generated ids.
   const mounted = useMounted();
 
-  // remember last tab
+  // remember last tab — unless a /?open=<tab> deep link wins (D47 guide
+  // platform-link embeds land on /?open=speaking etc.). One mount effect
+  // keeps the precedence explicit: deep link > remembered tab > home.
   useEffect(() => {
+    const open = new URLSearchParams(window.location.search).get("open");
+    if (open && TABS.some((s) => s.id === open)) {
+      const t = setTimeout(() => setTab(open as TabId), 0);
+      window.history.replaceState(null, "", window.location.pathname);
+      return () => clearTimeout(t);
+    }
     const saved = localStorage.getItem("bolo_tab") as TabId | null;
-    if (saved && TABS.some((t) => t.id === saved)) {
+    if (saved && TABS.some((s) => s.id === saved)) {
       const t = setTimeout(() => setTab(saved), 0);
       return () => clearTimeout(t);
     }
