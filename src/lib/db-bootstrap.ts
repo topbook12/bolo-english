@@ -61,6 +61,11 @@ import { SEED_VOCAB_V4_A2 } from "../../scripts/seed-data/vocab-v4-a2";
 import { SEED_VOCAB_V4_A3 } from "../../scripts/seed-data/vocab-v4-a3";
 import { SEED_VOCAB_V4_A4 } from "../../scripts/seed-data/vocab-v4-a4";
 import { SEED_VOCAB_V4_A5 } from "../../scripts/seed-data/vocab-v4-a5";
+// D44 SCENARIO wave: 160 scene-clustered words (80 beginner + 80
+// intermediate) across 25 real-life situations (doctor, market, airport,
+// interview…), INSIDE path units 1-5 — sortOrder 110+ per level.
+import { SEED_VOCAB_V4_SCENARIO_BEGINNER } from "../../scripts/seed-data/vocab-v4-scenario-beginner";
+import { SEED_VOCAB_V4_SCENARIO_INTERMEDIATE } from "../../scripts/seed-data/vocab-v4-scenario-intermediate";
 // D45 listening stories (content scale): 15 standalone graded stories — 5 per
 // level (beginner/intermediate/advanced), unit 0.
 import { SEED_LISTENING_V3_BEGINNER } from "../../scripts/seed-data/listening-v3-beginner";
@@ -103,7 +108,10 @@ const MARKERS: Record<LibraryKind, string> = {
   // forces one sweep: v1/v2 rows refresh identically, v3 rows get created.
   // D43–45 content-scale bump: v4 scenario vocab (200 words) + v3 listening
   // stories (15) get created; existing v1–v3 rows refresh identically.
-  vocab: "vocab_v7_scenario",
+  // v8 scenes — the D44 SCENARIO wave (160 scene-clustered words in 25
+  // real-life situations, units 1-5) joins the library; every existing row
+  // refreshes identically on the forced reseed.
+  vocab: "vocab_v8_scenes",
   grammar: "grammar_v5_lang",
   listening: "listening_v6_stories",
   // v6 = D45 reading wave: +10 standalone passages (read-b2/i2/a2-*). Bumping
@@ -575,6 +583,15 @@ const V4_VOCAB: VocabSeedEntry[] = [
   ...SEED_VOCAB_V4_A5,
 ];
 
+// D44 SCENARIO wave — 160 words clustered into 25 real-life scenes, INSIDE
+// path units 1-5 (unit on the entry itself). sortOrder assigned in
+// seedVocab() as (per-level index + 110) so a unit reads: v1 → v2 path →
+// v3 journey → scenario scenes last.
+const V4_SCENARIO_VOCAB: VocabSeedEntry[] = [
+  ...SEED_VOCAB_V4_SCENARIO_BEGINNER,
+  ...SEED_VOCAB_V4_SCENARIO_INTERMEDIATE,
+];
+
 interface GrammarSeedEntry {
   topic: string;
   level: LibraryLevel;
@@ -764,6 +781,30 @@ async function seedVocab(): Promise<number> {
           sortOrder: levelIdx,
         },
         update: { data: JSON.stringify(e.data), unit: 0, sortOrder: levelIdx },
+      });
+    } catch {
+      fails++;
+    }
+  }
+
+  // D44 SCENARIO wave — 160 scene-clustered words inside path units 1-5,
+  // sortOrder 110+ per level so a unit reads: v1 → v2 → v3 → scenario.
+  for (let i = 0; i < V4_SCENARIO_VOCAB.length; i++) {
+    const e = V4_SCENARIO_VOCAB[i];
+    const levelIdx =
+      V4_SCENARIO_VOCAB.filter((x, j) => j < i && x.level === e.level).length + 110;
+    try {
+      await db.libraryVocab.upsert({
+        where: { word_level: { word: e.word, level: e.level } },
+        create: {
+          word: e.word,
+          level: e.level,
+          category: e.category || "general",
+          data: JSON.stringify(e.data),
+          unit: e.unit,
+          sortOrder: levelIdx,
+        },
+        update: { data: JSON.stringify(e.data), unit: e.unit, sortOrder: levelIdx },
       });
     } catch {
       fails++;
