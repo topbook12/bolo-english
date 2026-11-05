@@ -120,16 +120,16 @@ export default async function LearnTopicPage({
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#faf9f5] text-stone-900">
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
       {/* Top bar */}
-      <header className="border-b border-stone-200/80 bg-white/80 backdrop-blur sticky top-0 z-20">
+      <header className="border-b border-border/80 bg-card/80 backdrop-blur sticky top-0 z-20">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
-          <Link href="/learn" className="flex items-center gap-2 font-bold text-stone-900">
+          <Link href="/learn" className="flex items-center gap-2 font-bold text-foreground">
             <span className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
               <BookOpenCheck className="size-4" />
             </span>
@@ -147,61 +147,61 @@ export default async function LearnTopicPage({
 
       {/* Article */}
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 sm:px-6 py-8">
-        <nav aria-label="ব্রেডক্রাম্ব" className="mb-4 flex items-center gap-1 text-sm text-stone-500">
-          <Link href="/" className="hover:text-emerald-700">হোম</Link>
+        <nav aria-label="ব্রেডক্রাম্ব" className="mb-4 flex items-center gap-1 text-sm text-muted-foreground">
+          <Link href="/" className="hover:text-emerald-700 dark:hover:text-emerald-400">হোম</Link>
           <ChevronRight className="size-3.5" />
-          <Link href="/learn" className="hover:text-emerald-700">গ্রামার লেসন</Link>
+          <Link href="/learn" className="hover:text-emerald-700 dark:hover:text-emerald-400">গ্রামার লেসন</Link>
           <ChevronRight className="size-3.5" />
-          <span className="text-stone-700 font-medium">{lesson.title}</span>
+          <span className="text-foreground/80 font-medium">{lesson.title}</span>
         </nav>
 
         <div className="mb-2 flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-700">
+          <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
             {page.advanced ? "লেভেল: অ্যাডভান্সড" : "লেভেল: বিগিনার"}
           </span>
-          <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-700">
+          <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-400">
             <Clock3 className="size-3.5" /> ~{minutes} মিনিটের পাঠ
           </span>
-          <span className="rounded-full bg-stone-500/10 px-3 py-1 text-xs font-semibold text-stone-600">
+          <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
             বাংলা ব্যাখ্যা + ইংরেজি উদাহরণ
           </span>
         </div>
 
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
           {lesson.title}
         </h1>
-        <p className="mt-3 text-[15px] leading-7 text-stone-700">{lesson.intro}</p>
+        <p className="mt-3 text-[15px] leading-7 text-muted-foreground">{lesson.intro}</p>
 
         <article className="mt-8 space-y-8">
           {lesson.sections.map((section, si) => (
             <section key={si} aria-labelledby={`sec-${si}`}>
               <h2
                 id={`sec-${si}`}
-                className="flex items-center gap-2 text-lg font-bold text-stone-900"
+                className="flex items-center gap-2 text-lg font-bold text-foreground"
               >
                 <span className="grid size-6 shrink-0 place-items-center rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 text-xs font-bold text-white">
                   {si + 1}
                 </span>
                 {section.heading}
               </h2>
-              <p className="mt-3 text-[15px] leading-7 text-stone-700">
+              <p className="mt-3 text-[15px] leading-7 text-muted-foreground">
                 {section.explanation}
               </p>
               <div className="mt-4 space-y-3">
                 {section.examples.map((ex, ei) => (
                   <div
                     key={ei}
-                    className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm"
+                    className="rounded-xl border border-border bg-card p-4 shadow-sm"
                   >
-                    <p className="flex items-start gap-2 text-sm text-rose-600">
+                    <p className="flex items-start gap-2 text-sm text-rose-600 dark:text-rose-400">
                       <XCircle className="mt-0.5 size-4 shrink-0" />
                       <span className="line-through decoration-rose-300">{ex.wrong}</span>
                     </p>
-                    <p className="mt-1.5 flex items-start gap-2 text-sm font-medium text-emerald-700">
+                    <p className="mt-1.5 flex items-start gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-400">
                       <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
                       {ex.right}
                     </p>
-                    <p className="mt-2 rounded-lg bg-stone-50 px-3 py-2 text-[13px] leading-6 text-stone-600">
+                    <p className="mt-2 rounded-lg bg-muted/70 px-3 py-2 text-[13px] leading-6 text-muted-foreground">
                       {ex.note}
                     </p>
                   </div>
@@ -212,15 +212,15 @@ export default async function LearnTopicPage({
         </article>
 
         {/* Tips */}
-        <section className="mt-10 rounded-2xl border border-emerald-200/70 bg-emerald-50/60 p-5 sm:p-6">
-          <h2 className="flex items-center gap-2 text-lg font-bold text-emerald-900">
-            <Sparkles className="size-5 text-emerald-600" />
+        <section className="mt-10 rounded-2xl border border-emerald-200/70 bg-emerald-50/60 p-5 sm:p-6 dark:border-emerald-900/60 dark:bg-emerald-950/30">
+          <h2 className="flex items-center gap-2 text-lg font-bold text-emerald-900 dark:text-emerald-300">
+            <Sparkles className="size-5 text-emerald-600 dark:text-emerald-400" />
             মনে রাখার ৪টি টিপস
           </h2>
           <ul className="mt-3 space-y-2.5">
             {lesson.tips.map((tip, i) => (
-              <li key={i} className="flex items-start gap-2.5 text-[15px] leading-7 text-stone-700">
-                <CheckCircle2 className="mt-1 size-4 shrink-0 text-emerald-600" />
+              <li key={i} className="flex items-start gap-2.5 text-[15px] leading-7 text-stone-700 dark:text-emerald-100/80">
+                <CheckCircle2 className="mt-1 size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
                 {tip}
               </li>
             ))}
@@ -245,7 +245,7 @@ export default async function LearnTopicPage({
 
         {/* Related topics — internal linking for the topic cluster */}
         <section className="mt-10">
-          <h2 className="text-base font-bold text-stone-900">
+          <h2 className="text-base font-bold text-foreground">
             {page.advanced ? "আরও অ্যাডভান্সড টপিক" : "পরের টপিকগুলো দেখুন"}
           </h2>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -253,14 +253,14 @@ export default async function LearnTopicPage({
               <Link
                 key={s.slug}
                 href={`/learn/${s.slug}`}
-                className="rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 shadow-sm transition hover:border-emerald-400 hover:text-emerald-700"
+                className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground/80 shadow-sm transition hover:border-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-400"
               >
                 {s.lesson.title}
               </Link>
             ))}
             <Link
               href="/learn"
-              className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-100"
+              className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 dark:hover:bg-emerald-900/50"
             >
               <ArrowLeft className="size-4" />
               সব গ্রামার লেসন
@@ -270,20 +270,20 @@ export default async function LearnTopicPage({
       </main>
 
       {/* Sticky footer — pushes down naturally on tall pages */}
-      <footer className="mt-auto border-t border-stone-200/80 bg-white">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 py-6 text-sm text-stone-500">
+      <footer className="mt-auto border-t border-border/80 bg-card">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 py-6 text-sm text-muted-foreground">
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-            <span className="font-semibold text-stone-700">{SITE_NAME}</span>
-            <Link href="/learn" className="hover:text-emerald-700">সব লেসন</Link>
-            <Link href="/learn/tenses" className="hover:text-emerald-700">টেন্স</Link>
-            <Link href="/learn/articles" className="hover:text-emerald-700">আর্টিকেল</Link>
-            <Link href="/learn/conditionals" className="hover:text-emerald-700">কন্ডিশনাল</Link>
-            <Link href="/learn/future-forms" className="hover:text-emerald-700">ফিউচার ফর্ম</Link>
-            <Link href="/guide" className="hover:text-emerald-700">গাইড</Link>
-            <Link href="/guide/english-speaking-25-din" className="hover:text-emerald-700">২৫ দিনে স্পিকিং</Link>
-            <Link href="/" className="hover:text-emerald-700">অ্যাপ</Link>
+            <span className="font-semibold text-foreground/80">{SITE_NAME}</span>
+            <Link href="/learn" className="hover:text-emerald-700 dark:hover:text-emerald-400">সব লেসন</Link>
+            <Link href="/learn/tenses" className="hover:text-emerald-700 dark:hover:text-emerald-400">টেন্স</Link>
+            <Link href="/learn/articles" className="hover:text-emerald-700 dark:hover:text-emerald-400">আর্টিকেল</Link>
+            <Link href="/learn/conditionals" className="hover:text-emerald-700 dark:hover:text-emerald-400">কন্ডিশনাল</Link>
+            <Link href="/learn/future-forms" className="hover:text-emerald-700 dark:hover:text-emerald-400">ফিউচার ফর্ম</Link>
+            <Link href="/guide" className="hover:text-emerald-700 dark:hover:text-emerald-400">গাইড</Link>
+            <Link href="/guide/english-speaking-25-din" className="hover:text-emerald-700 dark:hover:text-emerald-400">২৫ দিনে স্পিকিং</Link>
+            <Link href="/" className="hover:text-emerald-700 dark:hover:text-emerald-400">অ্যাপ</Link>
           </div>
-          <p className="mt-3 text-xs leading-5 text-stone-400">
+          <p className="mt-3 text-xs leading-5 text-muted-foreground/70">
             বাংলায় সহজ ইংরেজি গ্রামার — ফ্রি লেসন, কুইজ ও প্র্যাকটিস।
           </p>
         </div>

@@ -19,6 +19,7 @@ import {
   LogOut,
   Loader2,
   Gauge,
+  Palette,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import PlacementTest from "@/components/placement/PlacementTest";
@@ -43,6 +44,7 @@ import StoragePoolCard from "@/components/settings/StoragePoolCard";
 import TurnPoolCard from "@/components/settings/TurnPoolCard";
 import LibraryStudioCard from "@/components/settings/LibraryStudioCard";
 import AnalyticsCard from "@/components/settings/AnalyticsCard";
+import { ThemeSegmented } from "@/components/shared/ThemeToggle";
 import FeedbackAdminCard from "@/components/feedback/FeedbackAdminCard";
 import RatingsAdminCard from "@/components/settings/RatingsAdminCard";
 import RatingOptCard from "@/components/settings/RatingOptCard";
@@ -333,6 +335,22 @@ export default function SettingsSection() {
             <p className="mt-2 text-xs text-muted-foreground">
               {tAuth("gateLangChosen", { lang: LANG_LABELS[locale] ?? locale })}
             </p>
+          </CardContent>
+        </Card>
+
+        {/* ── Appearance (polish pass): light / dark / system theme ── */}
+        <Card className="premium-card border-border/70 rounded-2xl bg-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2.5">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500/90 to-fuchsia-600/90 text-white shadow-md shadow-violet-500/30 ring-1 ring-inset ring-white/25 dark:shadow-violet-500/20">
+                <Palette className="h-4.5 w-4.5" aria-hidden />
+              </span>
+              {t("appearance.title")}
+            </CardTitle>
+            <CardDescription>{t("appearance.desc")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ThemeSegmented />
           </CardContent>
         </Card>
 

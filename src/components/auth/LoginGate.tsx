@@ -25,6 +25,7 @@ import { useDevice } from "@/hooks/use-device";
 import { useToast } from "@/hooks/use-toast";
 import { RefGateBanner } from "@/components/community/RefCapture";
 import { localeMeta, type Locale } from "@/i18n/config";
+import { GATE_TOAST } from "@/i18n/auth-gate-toast";
 
 // Login-first gate (Task 27-c): the pre-login screen every first-time
 // visitor sees. Login mode = email + password. Register mode adds the
@@ -107,12 +108,11 @@ export default function LoginGate() {
       // Session cookie + bolo_locale cookie are set server-side; the RSC
       // refresh re-renders page.tsx into the app shell, in the account's
       // language from the very first frame.
+      // (polish pass) The toast speaks the language the learner JUST picked —
+      // the page locale is still the pre-signup one at this instant.
       toast({
-        title: tab === "register" ? t("gateWelcome") : t("loginSuccess"),
-        description:
-          tab === "register"
-            ? t("gateLangChosen", { lang: LANG_CARDS.find((c) => c.value === lang)?.label ?? "" })
-            : undefined,
+        title: tab === "register" ? GATE_TOAST[lang].title : t("loginSuccess"),
+        description: tab === "register" ? GATE_TOAST[lang].desc : undefined,
       });
       router.refresh();
     } catch {

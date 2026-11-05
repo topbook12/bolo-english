@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth, useAuthInit } from "@/hooks/use-auth";
 import { displayNameOr } from "@/lib/no-name";
+import { ThemeMenuItems } from "@/components/shared/ThemeToggle";
 
 export interface UserMenuProps {
   onOpenSettings?: () => void;
@@ -67,6 +68,8 @@ export default function UserMenu({ onOpenSettings }: UserMenuProps) {
             <Settings className="h-4 w-4 text-primary" />
             <span className="flex-1 text-sm font-medium">{t("settings")}</span>
           </DropdownMenuItem>
+          {/* Quick light/dark/system switch (polish pass) */}
+          <ThemeMenuItems />
           <DropdownMenuItem
             onClick={handleLogout}
             disabled={busy}

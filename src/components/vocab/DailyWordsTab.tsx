@@ -2,12 +2,14 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { AlertCircle, CalendarDays, Flame, Target } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { apiGet } from "@/lib/client-api";
 import { track } from "@/lib/track";
+import { localizedDate } from "@/lib/i18n-date";
+import { isLocale } from "@/i18n/config";
 import type { DailyWord } from "@/lib/types";
 import WordCard from "./WordCard";
 
@@ -70,6 +72,7 @@ export default function DailyWordsTab({
 }: DailyWordsTabProps) {
   const t = useTranslations("vocab");
   const tCommon = useTranslations("common");
+  const rawLocale = useLocale();
   const [data, setData] = useState<DailyResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [streak, setStreak] = useState(0);
@@ -142,7 +145,7 @@ export default function DailyWordsTab({
           </span>
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold">
-              📅 {t("daily.dateLabel", { date: data.date })}
+              📅 {t("daily.dateLabel", { date: localizedDate(data.date, isLocale(rawLocale) ? rawLocale : "en") })}
             </p>
             <p className="truncate text-xs text-muted-foreground">{t("daily.dailyNote")}</p>
           </div>

@@ -118,16 +118,16 @@ export default async function GuideArticlePage({
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#faf9f5] text-stone-900">
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
       {/* Top bar */}
-      <header className="border-b border-stone-200/80 bg-white/80 backdrop-blur sticky top-0 z-20">
+      <header className="border-b border-border/80 bg-card/80 backdrop-blur sticky top-0 z-20">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
-          <Link href="/guide" className="flex items-center gap-2 font-bold text-stone-900">
+          <Link href="/guide" className="flex items-center gap-2 font-bold text-foreground">
             <span className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
               <Compass className="size-4" />
             </span>
@@ -145,30 +145,30 @@ export default async function GuideArticlePage({
 
       {/* Article */}
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 sm:px-6 py-8">
-        <nav aria-label="ব্রেডক্রাম্ব" className="mb-4 flex items-center gap-1 text-sm text-stone-500">
-          <Link href="/" className="hover:text-emerald-700">হোম</Link>
+        <nav aria-label="ব্রেডক্রাম্ব" className="mb-4 flex items-center gap-1 text-sm text-muted-foreground">
+          <Link href="/" className="hover:text-emerald-700 dark:hover:text-emerald-400">হোম</Link>
           <span aria-hidden>›</span>
-          <Link href="/guide" className="hover:text-emerald-700">গাইড</Link>
+          <Link href="/guide" className="hover:text-emerald-700 dark:hover:text-emerald-400">গাইড</Link>
           <span aria-hidden>›</span>
-          <span className="text-stone-700 font-medium truncate">{guide.title.bn}</span>
+          <span className="text-foreground/80 font-medium truncate">{guide.title.bn}</span>
         </nav>
 
         <GuideBody guide={guide} minutes={minutes} related={related} />
       </main>
 
       {/* Sticky footer — pushes down naturally on tall pages */}
-      <footer className="mt-auto border-t border-stone-200/80 bg-white">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 py-6 text-sm text-stone-500">
+      <footer className="mt-auto border-t border-border/80 bg-card">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 py-6 text-sm text-muted-foreground">
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-            <span className="font-semibold text-stone-700">{SITE_NAME}</span>
-            <Link href="/guide" className="hover:text-emerald-700">সব গাইড</Link>
-            <Link href="/guide/english-speaking-25-din" className="hover:text-emerald-700">২৫ দিনে স্পিকিং</Link>
-            <Link href="/guide/ielts-band-7-roadmap" className="hover:text-emerald-700">IELTS ব্যান্ড ৭</Link>
-            <Link href="/guide/chakrir-interview-english" className="hover:text-emerald-700">ইন্টারভিউ ইংরেজি</Link>
-            <Link href="/learn" className="hover:text-emerald-700">গ্রামার লেসন</Link>
-            <Link href="/" className="hover:text-emerald-700">অ্যাপ</Link>
+            <span className="font-semibold text-foreground/80">{SITE_NAME}</span>
+            <Link href="/guide" className="hover:text-emerald-700 dark:hover:text-emerald-400">সব গাইড</Link>
+            <Link href="/guide/english-speaking-25-din" className="hover:text-emerald-700 dark:hover:text-emerald-400">২৫ দিনে স্পিকিং</Link>
+            <Link href="/guide/ielts-band-7-roadmap" className="hover:text-emerald-700 dark:hover:text-emerald-400">IELTS ব্যান্ড ৭</Link>
+            <Link href="/guide/chakrir-interview-english" className="hover:text-emerald-700 dark:hover:text-emerald-400">ইন্টারভিউ ইংরেজি</Link>
+            <Link href="/learn" className="hover:text-emerald-700 dark:hover:text-emerald-400">গ্রামার লেসন</Link>
+            <Link href="/" className="hover:text-emerald-700 dark:hover:text-emerald-400">অ্যাপ</Link>
           </div>
-          <p className="mt-3 text-xs leading-5 text-stone-400">
+          <p className="mt-3 text-xs leading-5 text-muted-foreground/70">
             বাংলায় ইংরেজি শেখার ফ্রি গাইড, রোডম্যাপ ও প্র্যাকটিস অ্যাপ।
           </p>
         </div>

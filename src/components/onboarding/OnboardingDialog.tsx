@@ -216,6 +216,15 @@ export default function OnboardingDialog() {
                     </button>
                   );
                 })}
+                {/* Explicit confirm (polish pass): selecting a card advances
+                    too, but a visible button removes the hidden affordance —
+                    accepting the pre-selected default is now obvious. */}
+                <Button
+                  onClick={() => chooseGoal(goal)}
+                  className="min-h-11 w-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm hover:from-emerald-600 hover:to-teal-700"
+                >
+                  {t("next")}
+                </Button>
               </div>
             )}
 
@@ -243,9 +252,18 @@ export default function OnboardingDialog() {
                     {target === n && <Check className="h-4 w-4 shrink-0" aria-hidden />}
                   </button>
                 ))}
-                <Button variant="ghost" size="sm" onClick={() => setStep("goal")} className="min-h-9 text-xs text-muted-foreground">
-                  {t("back")}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="sm" onClick={() => setStep("goal")} className="min-h-9 text-xs text-muted-foreground">
+                    {t("back")}
+                  </Button>
+                  {/* Explicit confirm (polish pass) — accepting the default */}
+                  <Button
+                    onClick={() => chooseTarget(target)}
+                    className="min-h-11 flex-1 bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm hover:from-emerald-600 hover:to-teal-700"
+                  >
+                    {t("next")}
+                  </Button>
+                </div>
               </div>
             )}
 

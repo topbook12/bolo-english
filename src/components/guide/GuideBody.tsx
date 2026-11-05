@@ -111,8 +111,8 @@ export default function GuideBody({
     <>
       {/* Language switcher — initial state bn matches the server render */}
       <div className="mb-4 flex items-center justify-end gap-1.5">
-        <Languages className="size-4 text-stone-400" aria-hidden />
-        <div role="group" aria-label="ভাষা নির্বাচন" className="flex overflow-hidden rounded-full border border-stone-200 bg-white p-0.5 shadow-sm">
+        <Languages className="size-4 text-muted-foreground/60" aria-hidden />
+        <div role="group" aria-label="ভাষা নির্বাচন" className="flex overflow-hidden rounded-full border border-border bg-card p-0.5 shadow-sm">
           {LANG_OPTIONS.map((opt) => (
             <button
               key={opt.id}
@@ -122,7 +122,7 @@ export default function GuideBody({
               className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
                 lang === opt.id
                   ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow"
-                  : "text-stone-600 hover:text-emerald-700"
+                  : "text-muted-foreground hover:text-emerald-700 dark:hover:text-emerald-400"
               }`}
             >
               {opt.label}
@@ -133,20 +133,20 @@ export default function GuideBody({
 
       {/* Hero */}
       <div className="mb-2 flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-700">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-400">
           <Compass className="size-3.5" /> {lang === "en" ? "Guide" : lang === "hi" ? "गाइड" : "গাইড"}
         </span>
-        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-700">
+        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
           <Clock3 className="size-3.5" /> {minutes} {MINUTES_LABEL[lang]}
         </span>
       </div>
 
-      <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900">
+      <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
         {title[lang]}
       </h1>
-      <p className="mt-3 text-[15px] leading-7 text-stone-700">{excerpt[lang]}</p>
+      <p className="mt-3 text-[15px] leading-7 text-muted-foreground">{excerpt[lang]}</p>
 
-      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone-500">
+      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
         <span className="inline-flex items-center gap-1.5">
           <CalendarDays className="size-3.5" />
           {PUBLISHED_LABEL[lang]}: {localizedDate(guide.publishedAt, lang)}
@@ -165,7 +165,7 @@ export default function GuideBody({
             <section key={si} aria-labelledby={`g-sec-${si}`}>
               <h2
                 id={`g-sec-${si}`}
-                className="flex items-center gap-2 text-lg font-bold text-stone-900"
+                className="flex items-center gap-2 text-lg font-bold text-foreground"
               >
                 <span className="grid size-6 shrink-0 place-items-center rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 text-xs font-bold text-white">
                   {si + 1}
@@ -173,7 +173,7 @@ export default function GuideBody({
                 {section.heading[lang]}
               </h2>
               {section.paragraphs.map((p, pi) => (
-                <p key={pi} className="mt-3 text-[15px] leading-7 text-stone-700">
+                <p key={pi} className="mt-3 text-[15px] leading-7 text-muted-foreground">
                   {p[lang]}
                 </p>
               ))}
@@ -182,9 +182,9 @@ export default function GuideBody({
                   {section.steps.map((st, ti) => (
                     <li
                       key={ti}
-                      className="flex items-start gap-2.5 rounded-xl border border-stone-200 bg-white p-3.5 text-sm leading-6 text-stone-700 shadow-sm"
+                      className="flex items-start gap-2.5 rounded-xl border border-border bg-card p-3.5 text-sm leading-6 text-foreground/85 shadow-sm"
                     >
-                      <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600" />
+                      <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
                       <span>{st[lang]}</span>
                     </li>
                   ))}
@@ -193,20 +193,20 @@ export default function GuideBody({
               {cta && (
                 <Link
                   href={cta.href}
-                  className="group mt-4 flex items-center gap-3 rounded-xl border border-emerald-200/80 bg-emerald-50/70 p-4 shadow-sm transition hover:border-emerald-400 hover:bg-emerald-50"
+                  className="group mt-4 flex items-center gap-3 rounded-xl border border-emerald-200/80 bg-emerald-50/70 p-4 shadow-sm transition hover:border-emerald-400 hover:bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950/40 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/70"
                 >
                   <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm">
                     <cta.icon className="size-5" aria-hidden />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-bold text-emerald-900">
+                    <span className="block text-sm font-bold text-emerald-900 dark:text-emerald-300">
                       {cta.label[lang]}
                     </span>
-                    <span className="mt-0.5 block text-[13px] leading-5 text-emerald-800/80">
+                    <span className="mt-0.5 block text-[13px] leading-5 text-emerald-800/80 dark:text-emerald-400/80">
                       {cta.desc[lang]}
                     </span>
                   </span>
-                  <ArrowRight className="size-4 shrink-0 text-emerald-600 transition group-hover:translate-x-0.5" aria-hidden />
+                  <ArrowRight className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400 transition group-hover:translate-x-0.5" aria-hidden />
                 </Link>
               )}
             </section>
@@ -216,21 +216,21 @@ export default function GuideBody({
 
       {/* FAQ */}
       <section className="mt-10" aria-labelledby="guide-faq">
-        <h2 id="guide-faq" className="flex items-center gap-2 text-lg font-bold text-stone-900">
-          <MessageCircleQuestion className="size-5 text-emerald-600" />
+        <h2 id="guide-faq" className="flex items-center gap-2 text-lg font-bold text-foreground">
+          <MessageCircleQuestion className="size-5 text-emerald-600 dark:text-emerald-400" />
           {FAQ_TITLE[lang]}
         </h2>
         <div className="mt-4 space-y-2.5">
           {faqs.map((f, i) => (
             <details
               key={i}
-              className="group rounded-xl border border-stone-200 bg-white px-4 py-3 shadow-sm"
+              className="group rounded-xl border border-border bg-card px-4 py-3 shadow-sm"
             >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-stone-800 marker:hidden">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-foreground/90 marker:hidden">
                 {f.q[lang]}
-                <ChevronDown className="size-4 shrink-0 text-stone-400 transition group-open:rotate-180" aria-hidden />
+                <ChevronDown className="size-4 shrink-0 text-muted-foreground/60 transition group-open:rotate-180" aria-hidden />
               </summary>
-              <p className="mt-2.5 border-t border-stone-100 pt-2.5 text-sm leading-6 text-stone-600">
+              <p className="mt-2.5 border-t border-border/60 pt-2.5 text-sm leading-6 text-muted-foreground">
                 {f.a[lang]}
               </p>
             </details>
@@ -254,32 +254,32 @@ export default function GuideBody({
       {/* Related guides — internal linking for the guide cluster */}
       {related.length > 0 && (
         <section className="mt-10">
-          <h2 className="text-base font-bold text-stone-900">{RELATED_TITLE[lang]}</h2>
+          <h2 className="text-base font-bold text-foreground">{RELATED_TITLE[lang]}</h2>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {related.map((r) => (
               <Link
                 key={r.slug}
                 href={`/guide/${r.slug}`}
-                className="group flex items-start gap-3 rounded-xl border border-stone-200 bg-white p-4 shadow-sm transition hover:border-emerald-400"
+                className="group flex items-start gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition hover:border-emerald-400 dark:hover:border-emerald-500"
               >
                 <span className="text-xl" aria-hidden>{r.emoji}</span>
                 <span className="min-w-0">
-                  <span className="block text-sm font-semibold text-stone-800 group-hover:text-emerald-800">
+                  <span className="block text-sm font-semibold text-foreground/90 group-hover:text-emerald-800 dark:group-hover:text-emerald-400">
                     {r.title[lang]}
                   </span>
-                  <span className="mt-1 flex items-center gap-1 text-[11px] font-medium text-emerald-700">
+                  <span className="mt-1 flex items-center gap-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
                     <Clock3 className="size-3" /> {r.minutes} {MINUTES_LABEL[lang]}
                   </span>
                 </span>
-                <ChevronRight className="mt-1 size-4 shrink-0 text-stone-300 group-hover:text-emerald-600" aria-hidden />
+                <ChevronRight className="mt-1 size-4 shrink-0 text-muted-foreground/50 group-hover:text-emerald-600 dark:group-hover:text-emerald-400" aria-hidden />
               </Link>
             ))}
           </div>
-          <div className="mt-4 rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
-            <p className="text-sm font-semibold text-stone-800">{LEARN_BAND_TITLE[lang]}</p>
+          <div className="mt-4 rounded-xl border border-border bg-card p-4 shadow-sm">
+            <p className="text-sm font-semibold text-foreground/90">{LEARN_BAND_TITLE[lang]}</p>
             <Link
               href="/learn"
-              className="mt-1.5 inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700 hover:underline"
+              className="mt-1.5 inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700 dark:text-emerald-400 hover:underline"
             >
               {lang === "en" ? "Browse 36 grammar lessons" : lang === "hi" ? "36 ग्रामर लेसन देखें" : "৩৬টি গ্রামার লেসন দেখুন"}
               <ArrowRight className="size-4" />

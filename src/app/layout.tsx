@@ -6,6 +6,7 @@ import { localeMeta, defaultLocale, type Locale } from "@/i18n/config";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import ThemeProvider from "@/components/shared/ThemeProvider";
 import AdminSetupCapture from "@/components/admin/AdminSetupCapture";
 import ErrorReporter from "@/components/monitor/ErrorReporter";
 
@@ -86,6 +87,9 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         className={`font-sans ${geistSans.variable} ${geistMono.variable} ${notoBengali.variable} ${notoDevanagari.variable} antialiased bg-background text-foreground`}
       >
         <NextIntlClientProvider>
+          {/* Light/dark/system theme (polish pass): class strategy drives the
+              `.dark` palette in globals.css + every `dark:` utility. */}
+          <ThemeProvider>
           {/* Window-level error reporter (D5): lives ABOVE every state of the
               app (login gate, main shell, even while an error boundary is
               showing) so first-touch errors are captured too. Catches global
@@ -93,6 +97,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           <ErrorReporter />
           <AdminSetupCapture />
           {children}
+          </ThemeProvider>
         </NextIntlClientProvider>
         <Toaster />
       </body>

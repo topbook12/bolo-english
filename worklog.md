@@ -4065,3 +4065,15 @@ Stage Summary:
   শূন্য, dev.log পরিষ্কার ✓।
 - QA cleanup: টেম্প অ্যাকাউন্ট (d47qa) + activity/analytics রো ডিলিট — DB প্রিস্টাইন (users 0, certs 0, refs 0, xp 0)।
 - Next: D48 শেয়ার-কার্ড (ডাইনামিক OG ইমেজ + Web Share API) → D49 ফেজ-রিভিউ।
+
+## Polish Pass — প্ল্যাটফর্ম-ব্যাপী পলিশ (D47-এর পরে, ওনার-নির্দেশ "polish full platform")
+
+- AUDIT (agent-browser): গেস্ট-গেট → রেজিস্ট্রেশন (bn সিলেক্ট) → অনবোর্ডিং → হোম + সব ১২ সেকশন (স্পিকিং/গ্রামার-লেসন/লিসেনিং/রিডিং/রাইটিং/ভোকাব/CV/কমিউনিটি/প্রোগ্রেস/সেটিংস/AI-হাব/পাথ) + /learn + /guide — সব রেন্ডার যাচাই; dev.log ক্লিন।
+- P1 ডার্ক-মোড লাইভ (বড় ফিক্স): next-themes (attribute="class", defaultTheme="system") দিয়ে ThemeProvider লেআউটে বসানো হয়েছিল কিন্তু ছিলই না — globals.css-এর সম্পূর্ণ `.dark` প্যালেট + সব কম্পোনেন্টের `dark:` ইউটিলিটি এখন অ্যাক্টিভেট হয়। নতুন `src/components/shared/ThemeProvider.tsx` + `ThemeToggle.tsx` (ThemeMenuItems = অ্যাকাউন্ট-মেনুতে লাইট/ডার্ক/সিস্টেম রেডিও; ThemeSegmented = সেটিংসে নতুন "চেহারা" কার্ড, ভায়োলেট অ্যাকসেন্ট); settings.{bn,en,hi}.json += appearance.* (৫ কী × ৩); UserMenu-তে কুইক-সুইচ ব্লক। mounted-গার্ড setTimeout(0) প্যাটার্নে হাইড্রেশন-মিসম্যাচ শূন্য।
+- P1b পাবলিক SEO পেজ ডার্ক-সাপোর্ট: /learn হাব + /learn/[slug] + /guide হাব + /guide/[slug] + GuideBody — হার্ডকোডেড লাইট-প্যালেট (bg-[#faf9f5], bg-white, stone-*) → টোকেনে কনভার্ট (bg-background/bg-card/border-border/text-foreground/muted-foreground + dark: ওভাররাইড) — লাইট রেন্ডার অপরিবর্তিত, ডার্কে এখন সম্পূর্ণ থিমড।
+- P2 অনবোর্ডিং UX: স্টেপ ১–২-তে স্পষ্ট "পরবর্তী" বাটন যোগ (আগে রেডিও-ক্লিকেই এগোত — hidden affordance; ডিফল্টেই থাকতে চাইলে ইউজার আটকে যেত) — OnboardingDialog.tsx + onboarding.{bn,en,hi}.json += next (পরবর্তী/Continue/आगे बढ़ें)। E2E: স্টেপ ১→২→৩ বাটনে এগোয় ✓।
+- P3 রেজিস্ট্রেশন-টোস্ট ভাষা: সাইন-আপের সময় টোস্ট প্রি-সাইনআপ পেজ-লোকেলে (সাধারণত en) যেত — এখন নবনির্বাচিত ভাষাতেই যায় (src/i18n/auth-gate-toast.ts, GATE_TOAST[lang]) — বাংলা-ইউজারের প্রথম টোস্টই বাংলায়।
+- P4 ভোকাব তারিখ: দৈনিক-শব্দ স্ট্রিপে কাঁচা ISO "2026-11-05" → "৫ নভেম্বর ২০২৬" (localizedDate হেল্পার src/lib/i18n-date.ts-এ এক্সট্র্যাক্ট — guides/index.ts re-export রাখা, DailyWordsTab ব্যবহার করে)।
+- Verification: tsc --noEmit 0 ✓, eslint ক্লিন ✓, i18n parity ALL-PARITY-OK ✓; ব্রাউজার E2E: ডার্ক-মোড হোম/সেটিংস/গ্রামার/লিসেনিং/ভোকাব/প্রোগ্রেস + /learn + /guide-আর্টিকেল স্ক্রিনশট-ভেরিফাইড ✓; লাইট-রিগ্রেশন (হোম + /learn + /guide) অপরিবর্তিত ✓; মোবাইল ৩৯০px ডার্ক ✓; ফ্রেশ কনসোল শূন্য-এরর ✓; dev.log ক্লিন ✓; sitemap/robots অপরিবর্তিত (রুট-রিস্ট্রাকচার নেই)।
+- QA cleanup: polishqa টেস্ট-অ্যাকাউন্ট + সম্পর্কিত সব রো ডিলিট — DB প্রিস্টাইন (users 0, certs 0, refs 0, xp 0, configs 0, analytics 0)।
+- Next: D48 শেয়ার-কার্ড → D49 ফেজ-রিভিউ।

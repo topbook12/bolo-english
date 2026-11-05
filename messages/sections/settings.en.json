@@ -82,6 +82,14 @@
       "desc": "Your account's language — it applies on every device and can't be changed.",
       "label": "App language"
     },
+    "appearance": {
+      "title": "Appearance",
+      "desc": "Light or dark — read however feels comfortable; System follows your device setting.",
+      "menuLabel": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
     "pwa": {
       "title": "Install the app",
       "desc": "Use it like a native app on mobile/desktop — old lessons even work offline.",
