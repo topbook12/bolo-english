@@ -189,7 +189,10 @@
       "roadmapAria": "লেসনের রোডম্যাপ — যে ধাপে যেতে চান, সেখানে যান",
       "stepLabel": "ধাপ {n}",
       "formulaLabel": "গঠন-সূত্র",
-      "examplesLabel": "উদাহরণ"
+      "examplesLabel": "উদাহরণ",
+      "share": "শেয়ার করুন",
+      "shareCopied": "লেসন-লিংক কপি হয়েছে!",
+      "shareError": "শেয়ার করা যায়নি।"
     },
     "quiz": {
       "badge": "কুইজ",

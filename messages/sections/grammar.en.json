@@ -189,7 +189,10 @@
       "roadmapAria": "Lesson roadmap — jump to any step",
       "stepLabel": "Step {n}",
       "formulaLabel": "Pattern",
-      "examplesLabel": "Examples"
+      "examplesLabel": "Examples",
+      "share": "Share",
+      "shareCopied": "Lesson link copied!",
+      "shareError": "Could not share."
     },
     "quiz": {
       "badge": "Quiz",

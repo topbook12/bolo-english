@@ -189,7 +189,10 @@
       "roadmapAria": "पाठ का रोडमैप — किसी भी चरण पर जाएँ",
       "stepLabel": "चरण {n}",
       "formulaLabel": "संरचना-सूत्र",
-      "examplesLabel": "उदाहरण"
+      "examplesLabel": "उदाहरण",
+      "share": "शेयर करें",
+      "shareCopied": "लेसन लिंक कॉपी हो गया!",
+      "shareError": "शेयर नहीं हो सका।"
     },
     "quiz": {
       "badge": "क्विज़",

@@ -24,6 +24,8 @@ import {
   Award,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import ShareButton from "@/components/shared/ShareButton";
+import { SITE_URL } from "@/lib/site";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -297,6 +299,19 @@ export default function ProgressSection() {
                 <Trophy className="h-3 w-3" aria-hidden />
                 {t("streak.best", { n: bestStreak })}
               </Badge>
+            )}
+            {streak > 0 && (
+              /* D48 — share the streak: WhatsApp gets the personalized card
+                 via the /share landing's og tags. */
+              <ShareButton
+                url={`${SITE_URL}/share?kind=streak&streak=${streak}`}
+                title={t("streak.activeAria", { n: streak })}
+                text="Bolo English"
+                label={t("streak.share")}
+                copiedLabel={t("streak.shareCopied")}
+                errorLabel={t("streak.shareError")}
+                className="border-orange-300/80 text-orange-900 hover:border-orange-500 hover:text-orange-700 dark:border-orange-800 dark:text-orange-200 dark:hover:text-orange-300"
+              />
             )}
           </CardContent>
         </Card>

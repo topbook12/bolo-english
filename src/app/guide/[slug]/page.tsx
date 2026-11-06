@@ -19,6 +19,8 @@ import {
   guideMinutes,
 } from "@/lib/guides";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
+import { ogImageUrl } from "@/lib/og";
+import ShareButton from "@/components/shared/ShareButton";
 
 export const dynamicParams = false;
 
@@ -37,6 +39,11 @@ export async function generateMetadata({
   const title = `${guide.title.bn} | ${SITE_NAME}`;
   const description = guide.excerpt.bn.slice(0, 158);
   const url = `${SITE_URL}/guide/${guide.slug}`;
+  // D48 — per-guide share card (badge + Bengali title) for WhatsApp previews.
+  const image = ogImageUrl("guide", {
+    title: guide.title.bn,
+    sub: guide.excerpt.bn.slice(0, 120),
+  });
   return {
     title,
     description,
@@ -51,8 +58,9 @@ export async function generateMetadata({
       modifiedTime: guide.updatedAt,
       siteName: SITE_NAME,
       locale: "bn_BD",
+      images: [{ url: image, width: 1200, height: 630, alt: guide.title.bn }],
     },
-    twitter: { card: "summary", title, description },
+    twitter: { card: "summary_large_image", title, description, images: [image] },
   };
 }
 
@@ -66,6 +74,7 @@ export default async function GuideArticlePage({
   if (!guide) notFound();
 
   const minutes = guideMinutes(guide);
+  const url = `${SITE_URL}/guide/${guide.slug}`;
 
   const related: GuideCardMini[] = allGuides()
     .filter((g) => g.slug !== guide.slug)
@@ -133,13 +142,25 @@ export default async function GuideArticlePage({
             </span>
             {SITE_NAME}
           </Link>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
-          >
-            অ্যাপে প্র্যাকটিস করুন
-            <ArrowRight className="size-4" />
-          </Link>
+          <div className="flex items-center gap-2">
+            {/* D48 — share this guide (native sheet / clipboard fallback) */}
+            <ShareButton
+              url={url}
+              title={guide.title.bn}
+              text="বাংলায় ইংরেজি শেখার ফ্রি গাইড"
+              label="শেয়ার করুন"
+              copiedLabel="লিংক কপি হয়েছে! বন্ধুদের পাঠিয়ে দিন।"
+              errorLabel="লিংক কপি করা যায়নি।"
+              className="border-emerald-200 dark:border-emerald-900"
+            />
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
+            >
+              অ্যাপে প্র্যাকটিস করুন
+              <ArrowRight className="size-4" />
+            </Link>
+          </div>
         </div>
       </header>
 

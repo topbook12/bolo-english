@@ -19,7 +19,10 @@
       "startDesc": "Do one session or quiz today to start your streak.",
       "note": "A little practice every day is what counts — keep the streak alive.",
       "best": "Best: {n, plural, one {# day} other {# days}}",
-      "unit": "days"
+      "unit": "days",
+      "share": "Share streak",
+      "shareCopied": "Link copied! Send it to your friends.",
+      "shareError": "Could not share."
     },
     "trend": {
       "title": "Score trend",

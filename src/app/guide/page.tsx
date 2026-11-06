@@ -9,6 +9,7 @@ import { ArrowRight, BookOpenCheck, ChevronRight, Clock3, Compass } from "lucide
 import { allGuides, guideMinutes } from "@/lib/guides";
 import { allLearnPages } from "@/lib/learn-slugs";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
+import { ogImageUrl } from "@/lib/og";
 
 export const dynamic = "force-static";
 
@@ -25,7 +26,9 @@ export const metadata: Metadata = {
     type: "website",
     siteName: SITE_NAME,
     locale: "bn_BD",
+    images: [{ url: ogImageUrl("home"), width: 1200, height: 630, alt: SITE_NAME }],
   },
+  twitter: { card: "summary_large_image", images: [ogImageUrl("home")] },
 };
 
 export default function GuideHubPage() {

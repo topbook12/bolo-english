@@ -36,6 +36,9 @@ import { useDevice } from "@/hooks/use-device";
 import { apiGet, callAi } from "@/lib/client-api";
 import { cn } from "@/lib/utils";
 import type { GrammarLessonContent } from "@/lib/types";
+import ShareButton from "@/components/shared/ShareButton";
+import { SITE_URL } from "@/lib/site";
+import { TOPIC_SLUGS } from "@/lib/learn-slugs";
 import { pickTri, type LibraryGrammarEntry } from "@/lib/library-types";
 import { errMessage, fmtNum, saveDoneTopic, type GrammarTopic, type Level } from "@/components/grammar/shared";
 import { claimLessonXp } from "@/lib/xp-client";
@@ -277,6 +280,11 @@ export default function LessonView({
   // as `topicName`. `t()` on a missing key throws in dev, so the prop wins.
   const name = topicName ?? t(`topics.${topic.key}.name`);
 
+  // D48 — share points at the PUBLIC /learn/<slug> landing (guest-openable,
+  // SEO-rich) instead of the login-walled app. Not all topics have a slug
+  // registered — hide the button defensively when absent.
+  const publicSlug = TOPIC_SLUGS[topic.topic];
+
   const load = useCallback(async () => {
     const reqId = ++reqIdRef.current;
     setLoading(true);
@@ -352,6 +360,17 @@ export default function LessonView({
         >
           <ArrowLeft className="h-4 w-4" /> {t("lesson.back")}
         </Button>
+        {publicSlug && (
+          <ShareButton
+            url={`${SITE_URL}/learn/${publicSlug}`}
+            title={name}
+            text={t("lesson.share")}
+            label={t("lesson.share")}
+            copiedLabel={t("lesson.shareCopied")}
+            errorLabel={t("lesson.shareError")}
+            className="ml-auto"
+          />
+        )}
       </div>
 
       {loading && <LessonSkeleton />}

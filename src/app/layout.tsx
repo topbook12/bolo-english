@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
 import { localeMeta, defaultLocale, type Locale } from "@/i18n/config";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
+import { ogImageUrl } from "@/lib/og";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import ThemeProvider from "@/components/shared/ThemeProvider";
@@ -53,8 +54,16 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: SITE_NAME,
       type: "website",
       locale: locale === "bn" ? "bn_BD" : locale === "hi" ? "hi_IN" : "en_US",
+      // D48 — dynamic brand card (/api/og) so WhatsApp/X previews show a real
+      // image, not an empty gray box.
+      images: [{ url: ogImageUrl("home"), width: 1200, height: 630, alt: m.title }],
     },
-    twitter: { card: "summary", title: m.title, description: m.description },
+    twitter: {
+      card: "summary_large_image",
+      title: m.title,
+      description: m.description,
+      images: [ogImageUrl("home")],
+    },
     manifest: "/manifest.webmanifest",
     icons: {
       icon: [

@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 import { allLearnPages, learnPageBySlug } from "@/lib/learn-slugs";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
+import { ogImageUrl } from "@/lib/og";
+import ShareButton from "@/components/shared/ShareButton";
 
 export const dynamicParams = false;
 
@@ -39,6 +41,12 @@ export async function generateMetadata({
   const title = `${page.lesson.title} — বাংলায় ইংরেজি গ্রামার | ${SITE_NAME}`;
   const description = page.lesson.intro.slice(0, 158);
   const url = `${SITE_URL}/learn/${page.slug}`;
+  // D48 — per-topic share card (badge + Bengali lesson title over the brand
+  // gradient), what WhatsApp shows when a learner shares the lesson.
+  const image = ogImageUrl("learn", {
+    title: page.lesson.title,
+    sub: page.lesson.intro.slice(0, 120),
+  });
   return {
     title,
     description,
@@ -58,8 +66,9 @@ export async function generateMetadata({
       type: "article",
       siteName: SITE_NAME,
       locale: "bn_BD",
+      images: [{ url: image, width: 1200, height: 630, alt: page.lesson.title }],
     },
-    twitter: { card: "summary", title, description },
+    twitter: { card: "summary_large_image", title, description, images: [image] },
   };
 }
 
@@ -85,6 +94,7 @@ export default async function LearnTopicPage({
     ...lesson.tips,
   ].join(" ");
   const minutes = readingMinutes(plain);
+  const url = `${SITE_URL}/learn/${page.slug}`;
 
   const siblings = allLearnPages()
     .filter((p) => p.advanced === page.advanced && p.slug !== page.slug)
@@ -135,13 +145,25 @@ export default async function LearnTopicPage({
             </span>
             {SITE_NAME}
           </Link>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
-          >
-            অ্যাপে প্র্যাকটিস করুন
-            <ArrowRight className="size-4" />
-          </Link>
+          <div className="flex items-center gap-2">
+            {/* D48 — share this lesson (native sheet / clipboard fallback) */}
+            <ShareButton
+              url={url}
+              title={page.lesson.title}
+              text="বাংলায় সহজ ইংরেজি গ্রামার — ফ্রি"
+              label="শেয়ার করুন"
+              copiedLabel="লিংক কপি হয়েছে! বন্ধুদের পাঠিয়ে দিন।"
+              errorLabel="লিংক কপি করা যায়নি।"
+              className="border-emerald-200 dark:border-emerald-900"
+            />
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
+            >
+              অ্যাপে প্র্যাকটিস করুন
+              <ArrowRight className="size-4" />
+            </Link>
+          </div>
         </div>
       </header>
 

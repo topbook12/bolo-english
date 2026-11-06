@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ArrowRight, BookOpenCheck, ChevronRight, GraduationCap } from "lucide-react";
 import { allLearnPages } from "@/lib/learn-slugs";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
+import { ogImageUrl } from "@/lib/og";
 
 export const dynamic = "force-static";
 
@@ -23,7 +24,9 @@ export const metadata: Metadata = {
     type: "website",
     siteName: SITE_NAME,
     locale: "bn_BD",
+    images: [{ url: ogImageUrl("home"), width: 1200, height: 630, alt: SITE_NAME }],
   },
+  twitter: { card: "summary_large_image", images: [ogImageUrl("home")] },
 };
 
 export default function LearnHubPage() {
