@@ -2,12 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { appendSignalMessage, parseParticipants, MAX_MESSAGE_BYTES } from "@/lib/signaling";
 import { reqLocale, apiMsg } from "@/lib/api-i18n";
+import { checkIpLimit } from "@/lib/rate-limit";
 
 // POST /api/call/send  { roomId, peerId, to?, type, payload }
 export async function POST(req: NextRequest) {
   const locale = reqLocale(req);
+  // D50: signaling writes are roster-guarded but were unthrottled — a scripted
+  // peer could churn the 400-message retention ring + DB writes per room.
+  // Real calls send bursts (ICE trickle), so 120/min/peer is generous.
   const body = await req.json().catch(() => null);
   const { roomId, peerId, to, type, payload } = body ?? {};
+  if (
+    typeof roomId === "string" &&
+    typeof peerId === "string" &&
+    !checkIpLimit(req, "call-send", 120, 60_000, peerId.slice(0, 40))
+  ) {
+    return NextResponse.json(
+      { ok: false, error: apiMsg(locale, "rateLimited") },
+      { status: 429 }
+    );
+  }
   if (
     typeof roomId !== "string" ||
     typeof peerId !== "string" ||

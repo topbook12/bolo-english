@@ -20,6 +20,10 @@ model User {
   // null = student. "admin" = site operator (ADMIN_EMAILS env match on
   // login promotes). Admin-only Settings cards + APIs check this.
   role         String?
+  // Session rotation (D50 security audit): bumped on every login/logout.
+  // A session JWT carries the epoch it was issued at; mismatch → revoked.
+  // Lets a fresh login (or logout) instantly kill every older token.
+  sessionEpoch Int      @default(0)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }

@@ -2,9 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { appendSignalMessage, parseParticipants, serializeParticipants } from "@/lib/signaling";
 import { reqLocale, apiMsg } from "@/lib/api-i18n";
+import { checkIpLimitStrict } from "@/lib/rate-limit";
 
 // POST /api/call/leave  { roomId, peerId }
 export async function POST(req: NextRequest) {
+  // D50: roster mutation is CAS-guarded but unthrottled — per-IP cap closes
+  // the cheap room-state churn vector (leaves are rare in real use).
+  if (!checkIpLimitStrict(req, "call-leave", 30)) {
+    return NextResponse.json(
+      { ok: false, error: apiMsg(reqLocale(req), "rateLimited") },
+      { status: 429 }
+    );
+  }
   const body = await req.json().catch(() => null);
   const roomId = typeof body?.roomId === "string" ? body.roomId : "";
   const peerId = typeof body?.peerId === "string" ? body.peerId : "";

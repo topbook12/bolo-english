@@ -48,8 +48,14 @@ export function verifyPassword(plain: string, hash: string): Promise<boolean> {
 }
 
 /* ── session cookie ── */
-export async function createSessionCookie(userId: string): Promise<string> {
-  return new SignJWT({ sub: userId })
+// D50 session rotation: every JWT carries the User.sessionEpoch it was
+// issued at. Login (and logout) bump the epoch, which instantly revokes
+// every token issued earlier — session fixation replay and a stolen
+// 30-day cookie both die on the next login/logout. Backward-compatible:
+// legacy tokens (pre-epoch) read as epoch 0 and stay valid while the
+// user's epoch is still 0.
+export async function createSessionCookie(userId: string, epoch = 0): Promise<string> {
+  return new SignJWT({ sub: userId, epoch })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(`${SESSION_DAYS}d`)
@@ -66,8 +72,8 @@ export function sessionCookieOptions() {
   };
 }
 
-export async function setSessionCookie(userId: string): Promise<void> {
-  const token = await createSessionCookie(userId);
+export async function setSessionCookie(userId: string, epoch?: number): Promise<void> {
+  const token = await createSessionCookie(userId, epoch);
   const store = await cookies();
   store.set(COOKIE_NAME, token, sessionCookieOptions());
 }
@@ -75,6 +81,30 @@ export async function setSessionCookie(userId: string): Promise<void> {
 export async function clearSessionCookie(): Promise<void> {
   const store = await cookies();
   store.set(COOKIE_NAME, "", { ...sessionCookieOptions(), maxAge: 0 });
+}
+
+/**
+ * Bump the user's session epoch (login/logout) and return the new value.
+ * Fire-safe: on failure returns 0 — the fresh login still works, only the
+ * revoke-older-sessions guarantee degrades for that one call.
+ */
+export async function rotateSessionEpoch(userId: string): Promise<number> {
+  try {
+    const u = await db.user.update({
+      where: { id: userId },
+      data: { sessionEpoch: { increment: 1 } },
+      select: { sessionEpoch: true },
+    });
+    return u.sessionEpoch;
+  } catch (e) {
+    console.error("rotateSessionEpoch failed", e);
+    return 0;
+  }
+}
+
+function sessionEpochOf(payload: Record<string, unknown>): number {
+  const n = Number(payload.epoch);
+  return Number.isFinite(n) && n >= 0 ? n : 0;
 }
 
 export async function getSessionUser(): Promise<SessionUser | null> {
@@ -87,9 +117,11 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     if (!userId) return null;
     const user = await db.user.findUnique({
       where: { id: userId },
-      select: { id: true, email: true, name: true, role: true },
+      select: { id: true, email: true, name: true, role: true, sessionEpoch: true },
     });
-    return user;
+    // Rotated away? (token issued before the latest login/logout)
+    if (!user || sessionEpochOf(payload) !== user.sessionEpoch) return null;
+    return { id: user.id, email: user.email, name: user.name, role: user.role };
   } catch {
     return null;
   }
@@ -102,7 +134,14 @@ export async function getSessionUserId(): Promise<string | null> {
     const token = store.get(COOKIE_NAME)?.value;
     if (!token) return null;
     const { payload } = await jwtVerify(token, getAuthSecret());
-    return String(payload.sub ?? "") || null;
+    const userId = String(payload.sub ?? "");
+    if (!userId) return null;
+    const user = await db.user.findUnique({
+      where: { id: userId },
+      select: { sessionEpoch: true },
+    });
+    if (!user || sessionEpochOf(payload) !== user.sessionEpoch) return null;
+    return userId;
   } catch {
     return null;
   }

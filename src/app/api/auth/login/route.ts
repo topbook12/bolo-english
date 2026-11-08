@@ -7,6 +7,7 @@ import {
   verifyPassword,
   normalizeEmail,
   setSessionCookie,
+  rotateSessionEpoch,
   mergeDeviceData,
   promoteAdminsIfEnv,
   isAdminEmail,
@@ -53,7 +54,10 @@ export async function POST(req: NextRequest) {
   // Device-guest key adoption (guest save → account) happens lazily in
   // resolveAccountRow on the next config read — account-first, and only from
   // untagged guest rows, so a different email never inherits a key here.
-  await setSessionCookie(user.id);
+  // D50 session rotation: bump the epoch FIRST so every earlier token (the
+  // pre-login cookie included) stops verifying, then issue the new one.
+  const epoch = await rotateSessionEpoch(user.id);
+  await setSessionCookie(user.id, epoch);
   await mergeDeviceData(user.id, deviceId);
   // Site owner auto-promotion: email listed in ADMIN_EMAILS → role "admin"
   // (awaited so /api/auth/me already sees it right after login; no-op for

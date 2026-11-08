@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { cleanDeviceId } from "@/lib/validate";
+import { checkIpLimit } from "@/lib/rate-limit";
 
 // PATCH /api/sessions/[id]  { deviceId, analysis?, durationSec? }
 //
@@ -22,6 +23,10 @@ export async function PATCH(
   const deviceId = cleanDeviceId(body?.deviceId);
   if (!deviceId || !id) {
     return NextResponse.json({ ok: false, error: "deviceId and id required" }, { status: 400 });
+  }
+  // D50: owner-guarded but unthrottled — cap analysis-overwrite churn.
+  if (!checkIpLimit(req, "session-patch", 30, 60_000, deviceId)) {
+    return NextResponse.json({ ok: false, error: "rate limited" }, { status: 429 });
   }
 
   const session = await db.speakingSession.findUnique({ where: { id } });

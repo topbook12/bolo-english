@@ -368,6 +368,9 @@ const COLUMN_MIGRATIONS: { table: string; column: string; ddl: string }[] = [
   { table: "LibraryListening", column: "unit", ddl: `ALTER TABLE "LibraryListening" ADD COLUMN "unit" INTEGER NOT NULL DEFAULT 0` },
   { table: "UserConfig", column: "avatar", ddl: `ALTER TABLE "UserConfig" ADD COLUMN "avatar" TEXT NOT NULL DEFAULT ''` },
   { table: "UserConfig", column: "partnerOptIn", ddl: `ALTER TABLE "UserConfig" ADD COLUMN "partnerOptIn" BOOLEAN NOT NULL DEFAULT false` },
+  // D50 session rotation: the User table predates the epoch column on
+  // production Turso — same PRAGMA-probed self-migration path as phase 5.
+  { table: "User", column: "sessionEpoch", ddl: `ALTER TABLE "User" ADD COLUMN "sessionEpoch" INTEGER NOT NULL DEFAULT 0` },
 ];
 
 let columnsReady = false;
