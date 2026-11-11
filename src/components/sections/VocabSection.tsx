@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { BookMarked, BookOpenCheck, CalendarDays, LibraryBig, Target } from "lucide-react";
+import { BookMarked, BookOpenCheck, CalendarDays, Dices, LibraryBig, Target } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToastAction } from "@/components/ui/toast";
@@ -12,6 +12,7 @@ import { apiGet, apiPost, apiDelete } from "@/lib/client-api";
 import type { DailyWord } from "@/lib/types";
 import type { SavedWord } from "@/components/vocab/types";
 import DailyWordsTab from "@/components/vocab/DailyWordsTab";
+import RandomWordTab from "@/components/vocab/RandomWordTab";
 import WordbookTab from "@/components/vocab/WordbookTab";
 import QuizTab from "@/components/vocab/QuizTab";
 import VocabLibraryTab from "@/components/vocab/VocabLibraryTab";
@@ -19,7 +20,7 @@ import TodayReviewCard from "@/components/vocab/TodayReviewCard";
 import { cancelSpeech } from "@/components/vocab/speech";
 import { peekNavIntent } from "@/lib/nav-intent";
 
-type VocabTab = "daily" | "library" | "wordbook" | "quiz";
+type VocabTab = "daily" | "random" | "library" | "wordbook" | "quiz";
 
 // VOCAB SECTION — আজকের শব্দ / ওয়ার্ডবুক / কুইজ
 export default function VocabSection() {
@@ -161,21 +162,25 @@ export default function VocabSection() {
       <TodayReviewCard learned={words?.map((w) => w.word) ?? []} />
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as VocabTab)} className="gap-4">
-        <TabsList className="grid h-12 w-full grid-cols-4 gap-1 rounded-2xl bg-muted/70 p-1">
+        <TabsList className="grid h-12 w-full grid-cols-5 gap-1 rounded-2xl bg-muted/70 p-1">
           <TabsTrigger value="daily" className={tabTrigger}>
-            <CalendarDays className="h-4 w-4" aria-hidden />
+            <CalendarDays className="hidden h-4 w-4 sm:block" aria-hidden />
             {t("tabs.daily")}
           </TabsTrigger>
+          <TabsTrigger value="random" className={tabTrigger}>
+            <Dices className="hidden h-4 w-4 sm:block" aria-hidden />
+            {t("random.tab")}
+          </TabsTrigger>
           <TabsTrigger value="library" className={tabTrigger}>
-            <BookOpenCheck className="h-4 w-4" aria-hidden />
+            <BookOpenCheck className="hidden h-4 w-4 sm:block" aria-hidden />
             {t("tabs.library")}
           </TabsTrigger>
           <TabsTrigger value="wordbook" className={tabTrigger}>
-            <BookMarked className="h-4 w-4" aria-hidden />
+            <BookMarked className="hidden h-4 w-4 sm:block" aria-hidden />
             {t("tabs.wordbook")}
           </TabsTrigger>
           <TabsTrigger value="quiz" className={tabTrigger}>
-            <Target className="h-4 w-4" aria-hidden />
+            <Target className="hidden h-4 w-4 sm:block" aria-hidden />
             {t("tabs.quiz")}
           </TabsTrigger>
         </TabsList>
@@ -189,6 +194,10 @@ export default function VocabSection() {
             savingWord={savingWord}
             onGoQuiz={() => setTab("quiz")}
           />
+        </TabsContent>
+
+        <TabsContent value="random" className="mt-0">
+          <RandomWordTab isSaved={isSaved} onSave={handleSave} savingWord={savingWord} />
         </TabsContent>
 
         <TabsContent value="library" className="mt-0">

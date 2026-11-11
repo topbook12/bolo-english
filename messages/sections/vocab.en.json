@@ -144,6 +144,34 @@
       "caughtUp": "All caught up! {n} words mastered so far.",
       "start": "Review {n}",
       "allDone": "Nothing due"
+    },
+    "random": {
+      "tab": "Random",
+      "intro": "One tap, a new word — practice it until it sticks.",
+      "cta": "Get a random word",
+      "ctaAria": "Fetch a random word",
+      "ctaBusy": "Fetching a word…",
+      "another": "Another word",
+      "levelAll": "All",
+      "levelAria": "Choose a level",
+      "errorTitle": "Couldn't fetch a word",
+      "retry": "Try again",
+      "recallHint": "Try to recall it yourself first — then reveal the meaning.",
+      "reveal": "Show meaning",
+      "revealAria": "Reveal meaning and examples",
+      "hearSlow": "Listen slowly",
+      "know": "I know it",
+      "knowAria": "Mark as known and move to the next word",
+      "hard": "Tricky — review again",
+      "hardAria": "Add to the practice-again list",
+      "nextAfterKnow": "Great! Next word…",
+      "savedToast": "\"{word}\" saved to your wordbook",
+      "sessionStats": "This session: {seen} words seen · {known} learned",
+      "historyLabel": "Words from this session",
+      "hardListLabel": "Practice again",
+      "clearHard": "Clear the list",
+      "empty": "No word found — please try again.",
+      "hardDone": "The tricky list is empty — everything learned!"
     }
   }
 }

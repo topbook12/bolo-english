@@ -4124,3 +4124,15 @@ Stage Summary:
 - **ইনপুট-ভ্যালিডেশন সুইপ**: ১০টি ফেজ-৫–৭ রুটে ক্যাপ-কনস্ট্রাক্ট উপস্থিত; লাইভ-প্রোব: writing/feedback/challenge/rating-এ 2MB-পেলোড → 400 ✓; client-error 2MB → 300-ক্যারেক্টার-ট্রাংকেট-সেভ ✓; track অজানা-ইভেন্ট → হোয়াইটলিস্ট-সাইলেন্ট-ড্রপ (DB-শূন্য-যাচাই) ✓।
 - QA cleanup: d50sec/d50final অ্যাকাউন্ট + client-error probe-রো exact-id ডিলিট — users 0 / analytics 0 / clientError 0; কনটেন্ট-লাইব্রেরি অক্ষত (grammar 50 / vocab 564 / listening 38 / reading 28)।
 - Next: D51 পারফরম্যান্স → D52 লিগ্যাল পেজ।
+
+## ইউজার-রিকোয়েস্ট ফিচার — র‍্যান্ডম শব্দ প্র্যাকটিস (এক ক্লিকে শব্দ + ফ্ল্যাশকার্ড)
+
+- **রিকোয়েস্ট**: "student can get random word every single click, and they can practice" — ভোকাবুলারি সেকশনে ৫ম ট্যাব হিসেবে ডেলিভারড।
+- **API /api/vocab/random** (GET, পাবলিক+জিরো-কি): libraryVocab পুল থেকে Fisher–Yates র‍্যান্ডম পিক; `level=` ফিল্টার (beginner/intermediate/advanced), `exclude=` (সেশনের সাম্প্রতিক id, ম্যাক্স ১২০ — রিপিট-প্রতিরোধ; পুল ফুরালে ফিল্টার-ড্রপ, শব্দ সবসময় আসে), `count=` ১–১০; id-অনলি প্রি-কুয়েরি (৫৬৪ রো ≈ কয়েক KB) তারপর বিজয়ীদের ফুল-রো — সস্তা; `ensureLibrary("vocab")` self-bootstrap; per-IP 60/min রেট-লিমিট। **প্রমাণ**: exclude-কৃত id কখনো ফেরত আসে না (৩ রান), ৭০ র‍্যাপিড-কলে ঠিক ৬০-পরে 429 ✓।
+- **RandomWordTab** (src/components/vocab/RandomWordTab.tsx): বড় 🎲 CTA "এক ক্লিকে নতুন শব্দ"; লেভেল-চিপ (All+৩, common.level.* পুনঃব্যবহার); **ফ্ল্যাশকার্ড testing-effect ফ্লো** — রিভিলের আগে রিকল-হিন্ট (🤔), রিভিলের পর পূর্ণ কার্ড: বাংলা অর্থ (pickTri লোকেল-সচেতন), English অর্থ, উদাহরণ (ট্যাপ-টু-হিয়ার + bn গ্লস), সমার্থক/বিপরীত, collocations, শব্দ-পরিবার, ব্যবহার-টিপ; শব্দ-ভিত্তিক ডিটারমিনিস্টিক প্যাস্টেল হিরো-গ্রেডিয়েন্ট + লেভেল-ব্যাজ (🌱🚀🏔)।
+- **প্র্যাকটিস-অ্যাকশন**: 🔊 উচ্চারণ (নরমাল 0.9 + ধীরে 0.6, অন-ডিভাইস TTS) · "শিখে ফেলেছি" → markWordLearned (লার্নিং-পাথ mastery-রিং-এও গোনা যায়) + অটো-নেক্সট · "কঠিন, আবার দেখব" → localStorage-পার্সিসটেড tricky-লিস্ট (bolo_random_hard_v1, ম্যাক্স ৩০, চিপ-ক্লিকে রিভিজিট, x-এ রিমুভ) + অটো-নেক্সট · "ওয়ার্ডবুকে সেভ" → VocabSection-এর handleSave রিইউজ (wordbookPayload কনভার্টার)। সেশন-স্ট্যাট "{seen} শব্দ দেখা · {known} শিখা" + সেশন-হিস্টোরি চিপ (ক্লিকে রিভিজিট)।
+- **i18n**: vocab.random.* ×২৬ কি × bn/en/hi (রিভিল-ফ্লো, অ্যাকশন, স্ট্যাট, হার্ড-লিস্ট); অন্যান্য লেবেল lib.* থেকে পুনঃব্যবহৃত।
+- **VocabSection**: ৪→৫ কলাম ট্যাব-রো (Dices আইকন "র‍্যান্ডম"); মোবাইলে ৫-ট্যাব চাপা এড়াতে ট্যাব-আইকন `hidden sm:block`।
+- **E2E ভেরিফাইড (agent-browser)**: QA সাইন-আপ → Vocabulary → Random ট্যাব → CTA → "infrastructure" (🏔 Advanced) → রিভিল → পূর্ণ কার্ড ✓ → "I know it" → অটো-নেক্সট "elated" + স্ট্যাট "2 seen · 1 learned" ✓ → রিভিল → "Tricky" → hard-লিস্ট chip + localStorage পার্সিসট ✓ → Save to wordbook → সেভড-স্টেট ✓ → Beginner ফিল্টার → "fish" 🌱 ব্যাজ ✓ → hard-chip রিভিজিট (রিভিলড-স্টেটে) ✓ → রিলোডের পরেও tricky-লিস্ট টিকে আছে ✓; ডেস্কটপ+মোবাইল ৩৭৫px স্ক্রিনশট-ভেরিফাইড; পেজ-এরর/কনসোল-এরর শূন্য; eslint ক্লিন; dev.log পরিষ্কার।
+- QA cleanup: qa-random@bolo.test exact-field ডিলিট (wordBookItem 1, activityDay 1, analytics 7, userConfig 1, dailyVocab 1 সহ) — users 0; টেম্প-স্ক্রিপ্ট ডিলিটেড।
+- Next (রোডম্যাপ): D51 পারফরম্যান্স → D52 লিগ্যাল পেজ।
