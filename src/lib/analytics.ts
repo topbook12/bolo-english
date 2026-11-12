@@ -41,6 +41,9 @@ export const TRACK_EVENTS = [
   "challenge_done", // {flagged} (client-fired when a D32 sentence challenge submission lands)
   "profile_shared", // {} (client-fired when the D34 profile share succeeds)
   "writing_done", // {kind, score} (server-derived: /api/writing stored a graded task)
+  "random_word_fetch", // {level, word} (client-fired when the random-word tab lands a word)
+  "random_word_known", // {word} (client-fired when a random word is marked known)
+  "random_word_hard", // {word} (client-fired when a random word is flagged tricky)
 ] as const;
 
 export type TrackEventName = (typeof TRACK_EVENTS)[number];

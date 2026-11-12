@@ -197,6 +197,9 @@ export default function RandomWordTab({ isSaved, onSave, savingWord }: RandomWor
   }, []);
 
   const d: LibraryVocabData | null = entry?.data ?? null;
+  // Optional v3-journey fields — local consts so TS narrows everywhere below.
+  const collocations = d?.collocations ?? [];
+  const wordFamily = d?.wordFamily ?? [];
   const meaning = useMemo(() => (d ? pickTri(d.meaning, locale) : ""), [d, locale]);
   const tip = useMemo(() => (d ? pickTri(d.tip, locale) : ""), [d, locale]);
   const saved = entry ? isSaved(entry.word) : false;
@@ -361,7 +364,7 @@ export default function RandomWordTab({ isSaved, onSave, savingWord }: RandomWor
                 )}
 
                 {/* Examples — tap to hear, bn gloss below */}
-                {d.examples?.length > 0 && (
+                {(d.examples?.length ?? 0) > 0 && (
                   <div>
                     <p className="mb-1.5 text-xs font-semibold text-muted-foreground">
                       🎧 {t("lib.examplesLabel")}
@@ -395,15 +398,15 @@ export default function RandomWordTab({ isSaved, onSave, savingWord }: RandomWor
                 )}
 
                 {/* Synonyms / antonyms chips */}
-                {(d.synonyms?.length > 0 || d.antonyms?.length > 0) && (
+                {((d.synonyms?.length ?? 0) > 0 || (d.antonyms?.length ?? 0) > 0) && (
                   <div className="space-y-1.5 text-xs">
-                    {d.synonyms?.length > 0 && (
+                    {(d.synonyms?.length ?? 0) > 0 && (
                       <p className="text-muted-foreground">
                         <span className="font-semibold">{t("lib.synonymsLabel")}</span>{" "}
                         {d.synonyms.join(", ")}
                       </p>
                     )}
-                    {d.antonyms?.length > 0 && (
+                    {(d.antonyms?.length ?? 0) > 0 && (
                       <p className="text-muted-foreground">
                         <span className="font-semibold">{t("lib.antonymsLabel")}</span>{" "}
                         {d.antonyms.join(", ")}
@@ -413,13 +416,13 @@ export default function RandomWordTab({ isSaved, onSave, savingWord }: RandomWor
                 )}
 
                 {/* Collocations + word family (v3 journey wave — optional) */}
-                {d.collocations?.length > 0 && (
+                {collocations.length > 0 && (
                   <div>
                     <p className="mb-1 text-xs font-semibold text-muted-foreground">
                       {t("lib.collocations")}
                     </p>
                     <div className="flex flex-wrap gap-1.5">
-                      {d.collocations.map((c) => (
+                      {collocations.map((c) => (
                         <span
                           key={c}
                           className="rounded-full border border-sky-200/70 bg-sky-500/10 px-2.5 py-1 text-[11px] font-medium text-sky-800 dark:border-sky-800/60 dark:text-sky-200"
@@ -430,13 +433,13 @@ export default function RandomWordTab({ isSaved, onSave, savingWord }: RandomWor
                     </div>
                   </div>
                 )}
-                {d.wordFamily?.length > 0 && (
+                {wordFamily.length > 0 && (
                   <div>
                     <p className="mb-1 text-xs font-semibold text-muted-foreground">
                       {t("lib.wordFamily")}
                     </p>
                     <div className="flex flex-wrap items-center gap-1.5">
-                      {d.wordFamily.map((f, i) => (
+                      {wordFamily.map((f, i) => (
                         <span key={f} className="flex items-center gap-1.5">
                           {i > 0 && <span className="text-muted-foreground">→</span>}
                           <span className="rounded-full border border-violet-200/70 bg-violet-500/10 px-2.5 py-1 text-[11px] font-medium text-violet-800 dark:border-violet-800/60 dark:text-violet-200">
