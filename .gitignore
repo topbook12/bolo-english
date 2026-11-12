@@ -68,3 +68,7 @@ server.log
 tool-results
 # local DB backup dumps (D6)
 /backups
+
+# untracked dev artifacts (D50 sweep)
+dev.log.bak*
+/tmp-check
