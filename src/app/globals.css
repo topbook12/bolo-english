@@ -454,6 +454,14 @@
   animation-delay: 0.45s;
 }
 
+/* Live subtitles active (AI-partner mic) — hide the floating feedback FAB
+   so it never covers the WhatsApp-style caption strip at the same
+   bottom-right slot on mobile. AiPartner sets body[data-live-subtitles]. */
+body[data-live-subtitles="1"] .feedback-fab {
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* Animated waiting dots */
 @keyframes call-dots {
   0%,

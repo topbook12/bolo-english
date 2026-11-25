@@ -12,6 +12,7 @@ import {
   Briefcase,
   Headset,
   Lightbulb,
+  Loader2,
   Mic,
   Plane,
   RotateCcw,
@@ -32,9 +33,11 @@ import { Progress } from "@/components/ui/progress";
 import EmptyState from "@/components/shared/EmptyState";
 import PointList from "@/components/shared/PointList";
 import StatCard from "@/components/shared/StatCard";
+import LiveSubtitleBar from "@/components/speaking/LiveSubtitleBar";
 import { useDevice } from "@/hooks/use-device";
 import { useToast } from "@/hooks/use-toast";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
+import { blobToBase64, transcodeToWavBlob } from "@/lib/audio-wav";
 import { callAi } from "@/lib/client-api";
 import { SCENARIOS, scenarioById, type ScenarioId } from "@/lib/scenarios";
 import { track } from "@/lib/track";
@@ -71,6 +74,19 @@ const SCENARIO_ICONS: Record<ScenarioId, React.ComponentType<{ className?: strin
 };
 
 const TTS_STORAGE_KEY = "bolo_ai_tts";
+
+/* ── push-to-talk fallback (live subtitles on browsers WITHOUT the Web
+ * Speech API — iPhone Safari / Firefox): press-and-hold records the mic,
+ * release transcribes through /api/stt. Same contract as CallRoom's PTT:
+ * <400 ms taps ignored, 20 s hard cap, webm→WAV transcode client-side. */
+const PTT_MIN_HOLD_MS = 400;
+const PTT_MAX_HOLD_MS = 20_000;
+const PTT_MIME_CANDIDATES = [
+  "audio/webm;codecs=opus",
+  "audio/webm",
+  "audio/ogg;codecs=opus",
+  "audio/mp4",
+];
 
 function cancelSpeech() {
   if (typeof window !== "undefined" && "speechSynthesis" in window) {
@@ -137,7 +153,11 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
   const deviceIdRef = useRef(deviceId);
   deviceIdRef.current = deviceId;
 
-  // Voice input: recognized final text is appended into the message input.
+  // Live-subtitle surface: the most recent finalized sentence stays visible
+  // above the composer while the next one forms (WhatsApp-dictation feel).
+  const [lastFinal, setLastFinal] = useState("");
+  // Voice input: recognized final text is appended into the message input
+  // AND streamed through the live subtitle strip while speaking.
   const {
     supported: micSupported,
     listening,
@@ -146,8 +166,221 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
     start: startListening,
     stop: stopListening,
   } = useSpeechRecognition((line) => {
+    setLastFinal(line.text);
     setInput((prev) => (prev ? `${prev} ${line.text}` : line.text));
   });
+
+  /* ── push-to-talk fallback — live subtitles for browsers WITHOUT the Web
+   * Speech API (iPhone Safari / Firefox): hold the mic button, release →
+   * /api/stt (BYOK Gemini → platform ASR, so it works key-less too) → the
+   * text lands in the same input + subtitle strip. Every failure path is a
+   * localized toast; the chat itself never breaks. */
+  const [pttRecording, setPttRecording] = useState(false);
+  const [pttBusy, setPttBusy] = useState(false); // transcribing after release
+  const pttRecorderRef = useRef<MediaRecorder | null>(null);
+  const pttChunksRef = useRef<Blob[]>([]);
+  const pttStreamRef = useRef<MediaStream | null>(null);
+  const pttStartRef = useRef(0);
+  const pttMaxTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pttIgnoreRef = useRef(false); // tap-too-short / aborted hold
+  const pttPressRef = useRef(false); // pointer still down (permission race)
+
+  const clearPttTimer = useCallback(() => {
+    if (pttMaxTimerRef.current) {
+      clearTimeout(pttMaxTimerRef.current);
+      pttMaxTimerRef.current = null;
+    }
+  }, []);
+
+  const releasePttStream = useCallback(() => {
+    pttStreamRef.current?.getTracks().forEach((tr) => tr.stop());
+    pttStreamRef.current = null;
+  }, []);
+
+  /* release → transcode to WAV → POST /api/stt → input + subtitle strip */
+  const finishPtt = useCallback(async () => {
+    const recorder = pttRecorderRef.current;
+    pttRecorderRef.current = null;
+    clearPttTimer();
+    releasePttStream();
+    setPttRecording(false);
+    const chunks = pttChunksRef.current;
+    pttChunksRef.current = [];
+    if (!recorder || pttIgnoreRef.current || chunks.length === 0) {
+      pttIgnoreRef.current = false;
+      return;
+    }
+    const deviceId = useDevice.getState().deviceId;
+    if (!deviceId) {
+      toast({ title: t("partner.pttFailed") });
+      return;
+    }
+    setPttBusy(true);
+    try {
+      const original = new Blob(chunks, { type: recorder.mimeType || "audio/webm" });
+      if (original.size === 0) {
+        toast({ title: t("partner.pttNoSpeech") });
+        return;
+      }
+      // Gemini rejects audio/webm → transcode to 16 kHz mono WAV client-side
+      // (same as CallRoom); on decode failure send the original container.
+      const wav = await transcodeToWavBlob(original);
+      const payloadBlob = wav ?? original;
+      const audio = await blobToBase64(payloadBlob);
+      const mime = wav ? "audio/wav" : recorder.mimeType || "audio/webm";
+      const res = await fetch("/api/stt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ deviceId, audio, mime }),
+      });
+      if (res.status === 429) {
+        toast({ title: t("partner.pttRateLimited") });
+        return;
+      }
+      const json = (await res.json().catch(() => null)) as {
+        ok?: boolean;
+        data?: { text?: unknown };
+        error?: unknown;
+      } | null;
+      if (!res.ok || !json?.ok) {
+        // The server's message is already localized (missing key, quota, size…)
+        const msg = typeof json?.error === "string" ? json.error : "";
+        toast({ title: msg || t("partner.pttFailed") });
+        return;
+      }
+      const text = typeof json.data?.text === "string" ? json.data.text.trim() : "";
+      if (!text) {
+        toast({ title: t("partner.pttNoSpeech") });
+        return;
+      }
+      setLastFinal(text);
+      setInput((prev) => (prev ? `${prev} ${text}` : text));
+    } catch {
+      toast({ title: t("partner.pttFailed") });
+    } finally {
+      setPttBusy(false);
+    }
+  }, [clearPttTimer, releasePttStream, t, toast]);
+
+  const startPtt = useCallback(async () => {
+    if (pttRecorderRef.current || pttBusy) return;
+    if (typeof MediaRecorder === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+      toast({ title: t("partner.pttFailed") });
+      return;
+    }
+    pttIgnoreRef.current = false;
+    pttChunksRef.current = [];
+    pttStartRef.current = Date.now();
+    let stream: MediaStream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch {
+      toast({ title: t("partner.pttDenied") });
+      return;
+    }
+    // The pointer may already be up while the first-time permission dialog
+    // was open (iOS Safari) — silently drop that hold: no recorder, no toast.
+    if (!pttPressRef.current) {
+      stream.getTracks().forEach((tr) => tr.stop());
+      pttIgnoreRef.current = true;
+      return;
+    }
+    pttStreamRef.current = stream;
+    let recorder: MediaRecorder;
+    try {
+      const mimeType = PTT_MIME_CANDIDATES.find((m) => {
+        try {
+          return MediaRecorder.isTypeSupported(m);
+        } catch {
+          return false;
+        }
+      });
+      recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+    } catch {
+      releasePttStream();
+      toast({ title: t("partner.pttDenied") });
+      return;
+    }
+    pttRecorderRef.current = recorder;
+    recorder.ondataavailable = (e) => {
+      if (e.data && e.data.size > 0) pttChunksRef.current.push(e.data);
+    };
+    recorder.onerror = () => {
+      pttIgnoreRef.current = true;
+      try {
+        recorder.stop();
+      } catch {
+        /* noop */
+      }
+    };
+    recorder.onstop = () => {
+      void finishPtt();
+    };
+    try {
+      recorder.start(250); // timeslice — chunks flow during long holds
+    } catch {
+      pttRecorderRef.current = null;
+      releasePttStream();
+      toast({ title: t("partner.pttFailed") });
+      return;
+    }
+    setPttRecording(true);
+    clearPttTimer();
+    pttMaxTimerRef.current = setTimeout(() => {
+      pttMaxTimerRef.current = null;
+      if (!pttRecorderRef.current) return;
+      toast({ title: t("partner.pttTooLong") }); // still transcribes what was captured
+      try {
+        pttRecorderRef.current.stop();
+      } catch {
+        /* noop */
+      }
+    }, PTT_MAX_HOLD_MS);
+  }, [clearPttTimer, finishPtt, pttBusy, releasePttStream, t, toast]);
+
+  /* press (pointer down) / release-or-cancel — release clears pttPressRef
+   * FIRST so the permission-dialog race in startPtt reads the right value. */
+  const onPttDown = useCallback(() => {
+    pttPressRef.current = true;
+    void startPtt();
+  }, [startPtt]);
+
+  const stopPtt = useCallback(() => {
+    pttPressRef.current = false;
+    if (!pttRecorderRef.current) return;
+    if (Date.now() - pttStartRef.current < PTT_MIN_HOLD_MS) pttIgnoreRef.current = true;
+    clearPttTimer();
+    try {
+      pttRecorderRef.current.stop();
+    } catch {
+      /* noop */
+    }
+  }, [clearPttTimer]);
+
+  // Release-anywhere safety net: if pointer capture fails on some mobile
+  // browsers, a pointerup/pointercancel ANYWHERE still ends the hold.
+  useEffect(() => {
+    if (!pttRecording) return;
+    const onUp = () => stopPtt();
+    document.addEventListener("pointerup", onUp);
+    document.addEventListener("pointercancel", onUp);
+    return () => {
+      document.removeEventListener("pointerup", onUp);
+      document.removeEventListener("pointercancel", onUp);
+    };
+  }, [pttRecording, stopPtt]);
+
+  // While live subtitles are on-screen, tuck the floating feedback FAB away
+  // (body attribute → globals.css) — on mobile it sits at the same
+  // bottom-right slot and would cover the caption strip.
+  useEffect(() => {
+    const active = listening || pttRecording || pttBusy;
+    if (active) document.body.dataset.liveSubtitles = "1";
+    else delete document.body.dataset.liveSubtitles;
+    return () => {
+      delete document.body.dataset.liveSubtitles;
+    };
+  }, [listening, pttRecording, pttBusy]);
 
   // Restore speaker preference (default: on) + warm up voice list + cancel on unmount.
   useEffect(() => {
@@ -200,6 +433,26 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
           analysis: {},
         }),
       }).catch(() => null);
+    };
+  }, []);
+
+  // PTT unmount: stop a mid-hold recording, never POST, release the mic.
+  useEffect(() => {
+    return () => {
+      pttIgnoreRef.current = true;
+      pttPressRef.current = false;
+      if (pttMaxTimerRef.current) {
+        clearTimeout(pttMaxTimerRef.current);
+        pttMaxTimerRef.current = null;
+      }
+      try {
+        pttRecorderRef.current?.stop();
+      } catch {
+        /* noop */
+      }
+      pttRecorderRef.current = null;
+      pttStreamRef.current?.getTracks().forEach((tr) => tr.stop());
+      pttStreamRef.current = null;
     };
   }, []);
 
@@ -478,7 +731,13 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
   const quickPhrases = t.raw("partner.quickPhrases") as string[];
   const howtoItems = t.raw("partner.empty.howto") as string[];
   const userCount = msgs.filter((m) => m.role === "user").length;
-  const micLabel = listening ? t("partner.micStop") : t("partner.micStart");
+  const micLabel = micSupported
+    ? listening
+      ? t("partner.micStop")
+      : t("partner.micStart")
+    : pttRecording
+      ? t("partner.pttRelease")
+      : t("partner.pttHold");
 
   return (
     <Card className="premium-card rounded-2xl py-0">
@@ -745,24 +1004,68 @@ export default function AiPartner({ onSessionDone }: { onSessionDone?: () => voi
           ))}
         </div>
 
+        {/* live subtitles — WhatsApp-dictation-style strip above the composer:
+            interim words stream in WHILE speaking (Web Speech API); the
+            push-to-talk recording/transcribing states show here too. */}
+        <LiveSubtitleBar
+          open={listening || pttRecording || pttBusy}
+          live={listening || pttRecording}
+          interim={interim}
+          lastFinal={lastFinal}
+          hint={pttBusy ? t("partner.pttProcessing") : t("partner.subListening")}
+          liveLabel={t("partner.subLive")}
+          ariaLabel={t("partner.subAria")}
+        />
+
         {/* input row: mic + text + send */}
         <div className="flex items-center gap-2">
           <Button
             type="button"
             variant="outline"
             size="icon"
-            onClick={listening ? stopListening : startListening}
-            disabled={!micSupported || busy}
-            className={`h-11 w-11 shrink-0 rounded-xl ${
-              listening
+            /* Web Speech API browsers (Chrome/Edge): tap = toggle live
+             * recognition — words appear WHILE speaking. Everyone else
+             * (iPhone Safari / Firefox): press-and-hold = record → /api/stt
+             * on release, same subtitle strip. */
+            {...(micSupported
+              ? {
+                  onClick: listening
+                    ? stopListening
+                    : () => {
+                        setLastFinal("");
+                        startListening();
+                      },
+                }
+              : {
+                  onPointerDown: onPttDown,
+                  onPointerUp: stopPtt,
+                  onPointerCancel: stopPtt,
+                  onLostPointerCapture: stopPtt,
+                  onContextMenu: (e: React.MouseEvent) => e.preventDefault(),
+                })}
+            disabled={busy || (!micSupported && pttBusy)}
+            className={`h-11 w-11 touch-none select-none shrink-0 rounded-xl ${
+              listening || pttRecording
                 ? "border-rose-500/50 bg-rose-500/10 text-rose-700 dark:text-rose-300"
                 : ""
             }`}
             aria-label={micLabel}
-            aria-pressed={listening}
-            title={micSupported ? micLabel : t("partner.micUnsupported")}
+            aria-pressed={listening || pttRecording}
+            title={micLabel}
           >
-            <Mic className={`h-5 w-5 ${listening ? "animate-pulse" : ""}`} aria-hidden="true" />
+            {pttBusy ? (
+              <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+            ) : pttRecording ? (
+              <span
+                className="h-3.5 w-3.5 animate-pulse rounded-full bg-rose-500"
+                aria-hidden="true"
+              />
+            ) : (
+              <Mic
+                className={`h-5 w-5 ${listening ? "animate-pulse" : ""}`}
+                aria-hidden="true"
+              />
+            )}
           </Button>
           <Input
             value={input}

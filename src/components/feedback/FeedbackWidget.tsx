@@ -120,7 +120,7 @@ export default function FeedbackWidget() {
         onClick={() => setOpen(true)}
         aria-label={t("fabLabel")}
         title={t("fabLabel")}
-        className="fixed bottom-24 right-4 z-40 h-12 w-12 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-500/40 ring-1 ring-inset ring-white/25 transition-transform hover:scale-105 active:scale-95 md:bottom-6 md:right-6"
+        className="feedback-fab fixed bottom-24 right-4 z-40 h-12 w-12 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-500/40 ring-1 ring-inset ring-white/25 transition-[opacity,transform] hover:scale-105 active:scale-95 md:bottom-6 md:right-6"
       >
         <MessageSquarePlus className="h-5 w-5" aria-hidden />
       </Button>
